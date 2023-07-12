@@ -3,6 +3,7 @@ package com.zdjizhi.base.pojo;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Projection implements Serializable {
 
@@ -13,9 +14,16 @@ public class Projection implements Serializable {
     private String   main_class ;
     private String type;
     private List<String> output_fields;
+    private Map<String, Object> parameters;
 
 
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
 
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters;
+    }
 
     public int getParallelism() {
         return parallelism;

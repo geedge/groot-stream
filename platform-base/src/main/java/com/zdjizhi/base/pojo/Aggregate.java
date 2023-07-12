@@ -1,6 +1,7 @@
 package com.zdjizhi.base.pojo;
 
 import java.util.List;
+import java.util.Map;
 
 public class Aggregate {
 
@@ -14,6 +15,16 @@ public class Aggregate {
     private Integer sliding_interval;
     private List<AggregateFunction> function_list;
     private String[] output_fields;
+    private Map<String, Object> parameters;
+
+
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters;
+    }
 
     public String getType() {
         return type;
