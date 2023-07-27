@@ -15,11 +15,12 @@
 
     <properties>
         <flink.version>1.13.1</flink.version>
-        <zdjizhi.version>1.1.1</zdjizhi.version>
+        <zdjizhi.version>1.1.3</zdjizhi.version>
         <opencsv.version>3.3</opencsv.version>
         <scala.version>2.12</scala.version>
         <hadoop.version>2.7.1</hadoop.version>
         <jsonpath.version>2.4.0</jsonpath.version>
+        <hbase.version>2.2.3</hbase.version>
     </properties>
 
     <repositories>
@@ -51,6 +52,11 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jexl3</artifactId>
+            <version>3.2.1</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-runtime-web_2.12</artifactId>
@@ -188,6 +194,22 @@
             <groupId>com.googlecode.aviator</groupId>
             <artifactId>aviator</artifactId>
             <version>5.2.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>${hbase.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

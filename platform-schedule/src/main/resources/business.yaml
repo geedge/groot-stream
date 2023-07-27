@@ -1,176 +1,143 @@
-Sources:
-  kafkasource1:
-    type: kafka
+sources:
+  kafkasource_bj:
     format: json
-    timestamp: common_recv_time
-    main_class : com.zdjizhi.base.sources.KafkaSource
+    type : net.geedgenetworks.source.KafkaSource
     output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions']
     watermark_timestamp: common_recv_time
-    watermark_time_lag: 60
-    kafka:
-      topic:  SESSION-RECORD-COMPLETED
-      bootstrap_servers: 192.168.44.12:9092
-      session_timeout_ms: 60000
-      max_poll_records: 3000
-      max_partition_fetch_bytes: 31457280
-      security_type: 0
-      sasl_user:
-      sasl_password:
-      ssl_keystore_location:
-      ssl_keystore_password:
-      ssl_truststore_location:
-      ssl_truststore_password:
-      ssl_key_password:
-      buffer_memory:
-      group_id: groupidtest
-      auto_offset_reset: latest
-      max_request_size: 
-      compression_type: none
+    watermark_lag: 60
+    properties:
+        topics:  SESSION-RECORD-COMPLETED
+        kafka.bootstrap.servers: 192.168.44.12:9092
+        kafka.session.timeout.ms: 60000
+        kafka.max.poll.records: 3000
+        kafka.max.partition.fetch.bytes: 31457280
+        kafka.security.protocol:
+        kafka.ssl.keystore.location:
+        kafka.ssl.keystore.password:
+        kafka.ssl.truststore.location:
+        kafka.ssl.truststore.password:
+        kafka.ssl.key.password:
+        kafka.sasl.mechanism:
+        kafka.sasl.jaas.config:
+        kafka.buffer.memory:
+        kafka.group.id: SESSION-RECORD-COMPLETED-GROUP
+        kafka.auto.offset.reset: latest
+        kafka.max.request.size:
+        kafka.compression.type: none
 
-
-
-  kafkasource2:
-    type: kafka
-    format: json
-    timestamp: common_recv_time
-    main_class : com.zdjizhi.base.sources.KafkaSource
-    output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions']
-    watermark_timestamp: common_recv_time
-    watermark_time_lag: 60
-    kafka:
-      topic:  SESSION-RECORD-COMPLETED
-      bootstrap_servers: 192.168.44.12:9092
-      session_timeout_ms: 60000
-      max_poll_records: 3000
-      max_partition_fetch_bytes: 31457280
-      security_type: 0
-      sasl_user:
-      sasl_password:
-      ssl_keystore_location:
-      ssl_keystore_password:
-      ssl_truststore_location:
-      ssl_truststore_password:
-      ssl_key_password:
-      buffer_memory:
-      group_id: groupidtest
-      auto_offset_reset: latest
-      max_request_size:
-      compression_type: none
-
-
-Filter:
-  filter1:
-    main_class: com.zdjizhi.base.filters.FilterImpl
-    rule_condition: map.common_schema_type == 'HTTP' && map.common_server_port > 60
-    output_fields: 
-
-
-Pre_processing_Pipelines:
-  pre_processor1:
-    type: projection
-    parallelism: 1
-    main_class: com.zdjizhi.base.pipelines.projection.ProjectionProcessorImpl
+filters:
+  http_filter:
+    type: net.geedgenetworks.filter.AviatorFilter
     output_fields:
-    function_list:
-      - name: "topdomain"
-        input_fields: ['']
+    properties:
+      expression: map.common_schema_type == 'HTTP' && map.common_server_port > 60
+
+
+pre_processing_pipelines:
+  common_pre_processor:
+    type: net.geedgenetworks.processor.projection.ProjectionProcessorImpl
+    output_fields:
+    properties:
+      key: value
+    functions:
+      - name: SNOWFLAKE_ID
+        lookup_fields: ['']
+        output_fields: ['common_log_id']
+        filter:
+        class_name: net.geedgenetworks.udf.snowflake.SnowflakeIdFunction
+        parameters:
+          snowid_zookeeper: 192.168.44.12
+          data_center_id_num: 1
+      - name: DROP
+        lookup_fields: ['']
         output_fields: ['']
-        filter: ''
-        main_class: com.zdjizhi.base.udf.DomainFunction
-        parameter:
-Processing_Pipelines:
-  projection_processor1:
-    type: projection
-    parallelism: 1
-    main_class: com.zdjizhi.base.pipelines.projection.ProjectionProcessorImpl
-    output_fields: 
-    function_list: 
-        - name: "mobile"
-          input_fields: ['']
-          output_fields: ['']
-          filter: ''
-          main_class: com.zdjizhi.base.udf.DomainFunction
-          parameter:
+        filter: map.common_schema_type == 'HTTP' && map.common_server_port > 60
+        class_name: net.geedgenetworks.udf.DropFunction
+        parameters:
+          snowid_zookeeper: 192.168.44.12
+          data_center_id_num: 1
+
+
+processing_pipelines:
+  session_record_processor:
+    type: net.geedgenetworks.processor.projection.ProjectionProcessorImpl
+    output_fields:
+    properties:
+      key: value
+    functions:
+      - name: BASE64_DECODE_TO_STRING
+          lookup_fields: ['mail_subject','mail_subject_charset']
+          output_fields: ['mail_subject']
+          class_name: net.geedgenetworks.udf.DecodeBase64Function
+      - name: TOP_LEVEL_DOMAIN
+          lookup_fields: ['http_url']
+          output_fields: ['http_tld']
+          class_name: net.geedgenetworks.udf.TopDomainFunction
+      - name: RENAME
+          lookup_fields: ['http_domain']
+          output_fields: ['common_server_domain']
+          class_name: net.geedgenetworks.udf.RenameFunction
+
+
+
+
   aggregate_processor2:
-    type: aggregate
-    parallelism: 1
-    main_class: com.zdjizhi.base.pipelines.aggregate.AggregateProcessorImpl
+    type: net.geedgenetworks.processor.aggregate.AggregateProcessorImpl
     group_by_fields: ['common_server_ip']
     timestamp_field: common_recv_time
     window_type: tumbling
     window_interval_seconds: 60
-    output_fields: 
+    output_fields:
+    properties:
+      key: value
     function_list: 
-        - name: "topDomain"
+        - name: sum
           input_fields: ['']
           output_fields: ['']
           filter: ''
           main_class:
-          parameter:
-          
-Sinks:
-  kafkasink1:
-    type: kafka
-    format: json
-    timestamp: common_recv_time
-    main_class : com.zdjizhi.base.sinks.KafkaSink
-    output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions']
-    kafka:
-      topic:  SESSION-RECORD-COMPLETED
-      bootstrap_servers: 192.168.44.12:9092
-      retries: 0
-      linger_ms: 10
-      request_timeout_ms: 30000
-      batch_size: 262144
-      buffer_memory: 134217728
-      group_id: groupidtest
-      auto_offset_reset: latest
-      max_request_size:  10485760
-      compression_type: none
-      security_type: 0
-      sasl_user:
-      sasl_password:
-      ssl_keystore_location:
-      ssl_keystore_password:
-      ssl_truststore_location:
-      ssl_truststore_password:
-      ssl_key_password:
-  kafkasink2:
-    type: kafka
-    format: json
-    timestamp: common_recv_time
-    main_class : com.zdjizhi.base.sinks.KafkaSink
-    output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions']
-    kafka:
-      topic:  SESSION-RECORD-COMPLETED
-      bootstrap_servers: 192.168.44.12:9092
-      retries: 0
-      linger_ms: 10
-      request_timeout_ms: 30000
-      batch_size: 262144
-      buffer_memory: 134217728
-      group_id: groupidtest
-      auto_offset_reset: latest
-      max_request_size:  10485760
-      compression_type: none
-      security_type: 0
-      sasl_user:
-      sasl_password:
-      ssl_keystore_location:
-      ssl_keystore_password:
-      ssl_truststore_location:
-      ssl_truststore_password:
-      ssl_key_password:
+          parameters:
 
-excuter:
-  Sources:
-    kafkasource1: ['filter1']
-  Operators:
-    filter1: ['pre_processor1']
-    pre_processor1: ['projection_processor1','aggregate_processor2']
-    projection_processor1: ['kafkasink2']
-    projection_processor2: ['kafkasink1']
-    aggregate_processor2: ['kafkasink2']
-    kafkasink1: []
-    kafkasink2: []
+sink:
+  kafkasink_lz:
+    format: json
+    type : net.geedgenetworks.sink.KafkaSink
+    output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions']
+    properties:
+      kafka.topic:  SESSION-RECORD-COMPLETED
+      kafka.bootstrap.servers: 192.168.44.12:9092
+      kafka.retries: 0
+      kafka.linger.ms: 10
+      kafka.request.timeout.ms: 30000
+      kafka.batch.size: 262144
+      kafka.buffer.memory: 134217728
+      kafka.max.request.size:  10485760
+      kafka.compression.type: none
+      kafka.security.protocol:
+      kafka.ssl.keystore.location:
+      kafka.ssl.keystore.password:
+      kafka.ssl.truststore.location:
+      kafka.ssl.truststore.password:
+      kafka.ssl.key.password:
+      kafka.sasl.mechanism:
+      kafka.sasl.jaas.config:
 
+application:
+  name: demo
+  parallelism: 7
+  topology:
+    kafkasource_bj:
+      parallelism: 1
+      next: ['http_filter']
+    http_filter:
+      parallelism: 2
+      next: ['common_pre_processor']
+    common_pre_processor:
+      parallelism: 3
+      next:  ['session_record_processor','kafkasink_lz']
+    session_record_processor:
+      parallelism: 4
+      next: ['kafkasink_lz']
+    kafkasink_lz:
+      parallelism: 5
+      next: []
