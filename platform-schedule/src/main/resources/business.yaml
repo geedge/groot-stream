@@ -24,7 +24,12 @@ sources:
         kafka.auto.offset.reset: latest
         kafka.max.request.size:
         kafka.compression.type: none
-
+  ipfixsource:
+    type : net.geedgenetworks.source.IPFIXSource
+    watermark_lag: 60
+    properties:
+      port: 12345
+      buffer_size: 65535
 filters:
   http_filter:
     type: net.geedgenetworks.filter.AviatorFilter
@@ -66,17 +71,17 @@ processing_pipelines:
       key: value
     functions:
       - name: BASE64_DECODE_TO_STRING
-          lookup_fields: ['mail_subject','mail_subject_charset']
-          output_fields: ['mail_subject']
-          class_name: net.geedgenetworks.udf.DecodeBase64Function
+        lookup_fields: ['mail_subject','mail_subject_charset']
+        output_fields: ['mail_subject']
+        class_name: net.geedgenetworks.udf.DecodeBase64Function
       - name: TOP_LEVEL_DOMAIN
-          lookup_fields: ['http_url']
-          output_fields: ['http_tld']
-          class_name: net.geedgenetworks.udf.TopDomainFunction
+        lookup_fields: ['http_url']
+        output_fields: ['http_tld']
+        class_name: net.geedgenetworks.udf.TopDomainFunction
       - name: RENAME
-          lookup_fields: ['http_domain']
-          output_fields: ['common_server_domain']
-          class_name: net.geedgenetworks.udf.RenameFunction
+        lookup_fields: ['http_domain']
+        output_fields: ['common_server_domain']
+        class_name: net.geedgenetworks.udf.RenameFunction
 
 
 
@@ -124,20 +129,21 @@ sink:
 
 application:
   name: demo
-  parallelism: 7
+  parallelism: 1
   topology:
-    kafkasource_bj:
+    ipfixsource:
       parallelism: 1
-      next: ['http_filter']
-    http_filter:
-      parallelism: 2
-      next: ['common_pre_processor']
-    common_pre_processor:
-      parallelism: 3
-      next:  ['session_record_processor','kafkasink_lz']
-    session_record_processor:
-      parallelism: 4
-      next: ['kafkasink_lz']
-    kafkasink_lz:
-      parallelism: 5
       next: []
+#    http_filter:
+#      parallelism: 2
+#      next: ['common_pre_processor']
+#    common_pre_processor:
+#      parallelism: 3
+#      next:  ['session_record_processor','kafkasink_lz']
+#    session_record_processor:
+#      parallelism: 4
+#      next: ['kafkasink_lz']
+#    kafkasink_lz:
+#      parallelism: 5
+#      next: []
+
