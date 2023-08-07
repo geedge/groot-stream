@@ -1,0 +1,56 @@
+
+nacos:
+  server_addr: 192.168.44.55:8848
+  username: nacos
+  password: nacos
+  namespace:
+  data_id: knowledge_base.json
+  group: DEFAULT_GROUP
+  read_timeout: 5000
+
+hos:
+  token: c21f969b5f03d33d43e04f8f136e7682
+
+knowledge:
+    file_check_number: 3
+    ipv4_type: cn_ipv4_location_built_in
+    ipv6_type: cn_ipv6_location_built_in
+    asnv4_type: cn_ipv4_asn_built_in
+    asnv6_type: cn_ipv6_asn_built_in
+    webskt_type: cn_fqdn_category_built_in
+    dns_type: cn_dns_server_info_built_in
+    icp_type: cn_fqdn_icp_built_in
+    link_type: cn_link_direction_built_in
+    isp_type: xjlt_ip_location_20220422
+    idc_renter_type: cn_idc_renter_built_in
+    internal_ip_type: cn_internal_ip_built_in
+    appskt_type: cn_app_category_built_in
+    whois_type: cn_fqdn_who_is_built_in
+    ioc_type: cn_ioc_malware
+
+http:
+    pool:
+       max_connection: 400
+       max_per_route: 60
+       request_timeout: 60000
+       connect_timeout: 60000
+       response_timeout: 60000
+
+snowid:
+    zookeeper: 192.168.44.12:2181
+    data_center_id_num: 1
+
+knowledgebase:
+     file_storage_path:
+     file_storage_type:
+hdfs:
+     servers:
+hbase:
+     tick_tuple_freq_secs:
+     gtpc_scan_max_rows:
+     radius_scan_max_rows:
+     radius_table_name:
+     gtpc_table_name:
+     rpc_timeout:
+data:
+   relationship_model:
