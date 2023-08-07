@@ -145,13 +145,13 @@ application:
   parallelism: 1
   topology:
     ipfixsource1:
-      parallelism: 2
+      parallelism: 10
       next: []
     ipfixsource2:
-      parallelism: 2
+      parallelism: 30
       next: []
     ipfixsource3:
-      parallelism: 2
+      parallelism: 60
       next: []
 #    http_filter:
 #      parallelism: 2
