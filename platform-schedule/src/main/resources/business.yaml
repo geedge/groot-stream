@@ -24,12 +24,25 @@ sources:
         kafka.auto.offset.reset: latest
         kafka.max.request.size:
         kafka.compression.type: none
-  ipfixsource:
+  ipfixsource1:
     type : net.geedgenetworks.source.IPFIXSource
     watermark_lag: 60
     properties:
       port: 12345
       buffer_size: 65535
+  ipfixsource2:
+    type: net.geedgenetworks.source.IPFIXSource
+    watermark_lag: 60
+    properties:
+      port: 12346
+      buffer_size: 65535
+  ipfixsource3:
+    type: net.geedgenetworks.source.IPFIXSource
+    watermark_lag: 60
+    properties:
+      port: 12347
+      buffer_size: 65535
+
 filters:
   http_filter:
     type: net.geedgenetworks.filter.AviatorFilter
@@ -131,8 +144,14 @@ application:
   name: demo
   parallelism: 1
   topology:
-    ipfixsource:
-      parallelism: 1
+    ipfixsource1:
+      parallelism: 2
+      next: []
+    ipfixsource2:
+      parallelism: 2
+      next: []
+    ipfixsource3:
+      parallelism: 2
       next: []
 #    http_filter:
 #      parallelism: 2

@@ -22,7 +22,7 @@ public class Execute {
 
         Configuration conf = new Configuration();
       //  conf.setString("rest.port", "9091");
-       //StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf).getExecutionEnvironment();
+     //  StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf).getExecutionEnvironment();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
  /*       String hostname1 = "192.168.44.12";

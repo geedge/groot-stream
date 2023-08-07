@@ -3,7 +3,6 @@ package net.geedgenetworks.source;
 import cn.hutool.core.io.IoUtil;
 import net.geedgenetworks.pojo.GrootEvent;
 import net.geedgenetworks.pojo.SourceConfig;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -12,10 +11,10 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.cert.netsa.io.ipfix.*;
 import scala.collection.Iterator;
 
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,10 +26,7 @@ public class IPFIXSource implements Source {
     public SingleOutputStreamOperator<GrootEvent> source(StreamExecutionEnvironment env, SourceConfig sourceConfig){
         Map<String, Object> ipfixConfig = sourceConfig.getProperties();
         UDPSource udpSource = new UDPSource(Integer.parseInt(ipfixConfig.get("port").toString()), Integer.parseInt(ipfixConfig.get("buffer_size").toString()));
-        DataStream<byte[]> sourceForSession = env.addSource(udpSource).setParallelism(sourceConfig.getParallelism());
-        WatermarkStrategy<GrootEvent> strategyForSession = WatermarkStrategy
-                .<GrootEvent>forBoundedOutOfOrderness(Duration.ofMillis(sourceConfig.getWatermark_lag()))
-                .withTimestampAssigner((StreamlineEvent, timestamp) -> System.currentTimeMillis());
+        DataStream<byte[]> sourceForSession = env.addSource(udpSource).setParallelism(1);
         SingleOutputStreamOperator<GrootEvent> streamEvent = sourceForSession.map(new MapFunction<byte[], GrootEvent>() {
             @Override
             public GrootEvent map(byte[] data) {
@@ -56,7 +52,7 @@ public class IPFIXSource implements Source {
                     return grootevent;
                 }
             }
-        }).setParallelism(sourceConfig.getParallelism()).assignTimestampsAndWatermarks(strategyForSession);
+        }).setParallelism(sourceConfig.getParallelism());
         return streamEvent;
     }
 }
