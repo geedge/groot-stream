@@ -2,7 +2,7 @@ package com.geedgenetworks.source;
 
 import cn.hutool.core.io.IoUtil;
 import com.geedgenetworks.pojo.SourceConfig;
-import com.geedgenetworks.pojo.GrootEvent;
+import com.geedgenetworks.pojo.Event;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -28,19 +28,19 @@ public class IPFIXSource implements Source {
     private static SessionGroup sessionGroup = new SessionGroup(model, null, false);
 
     @Override
-    public SingleOutputStreamOperator<GrootEvent> source(StreamExecutionEnvironment env, SourceConfig sourceConfig) {
+    public SingleOutputStreamOperator<Event> source(StreamExecutionEnvironment env, SourceConfig sourceConfig) {
         Map<String, Object> ipfixConfig = sourceConfig.getProperties();
         UDPSource udpSource = new UDPSource(Integer.parseInt(ipfixConfig.get("port").toString()), Integer.parseInt(ipfixConfig.get("buffer_size").toString()));
         DataStream<byte[]> sourceForSession = env.addSource(udpSource).setParallelism(1);
-        SingleOutputStreamOperator<GrootEvent> streamEvent = sourceForSession.flatMap(new FlatMapFunction<byte[], GrootEvent>() {
+        SingleOutputStreamOperator<Event> streamEvent = sourceForSession.flatMap(new FlatMapFunction<byte[], Event>() {
             @Override
-            public void flatMap(byte[] data, Collector<GrootEvent> out) {
+            public void flatMap(byte[] data, Collector<Event> out) {
                 try {
                     ByteBuffer buffer = ByteBuffer.wrap(data);
                     RecordReader reader = new RecordReader(new ByteBufferMessageReader(buffer, sessionGroup));
-                    GrootEvent grootevent = null;
+                    Event grootevent = null;
                     while (reader.hasNext()) {
-                        grootevent = new GrootEvent();
+                        grootevent = new Event();
                         Record record = reader.next();
                         Iterator<Field> fields = record.fields();
                         Map<String, Object> fieldMap = new HashMap<>();
@@ -49,8 +49,8 @@ public class IPFIXSource implements Source {
                             fieldMap.put(field.ie().name(), field.value());
                         }
                         System.out.println(fieldMap);
-                        grootevent.setAuxiliaryFieldsAndValues(fieldMap);
-                        grootevent.setFlag(true);
+                        grootevent.setExtractedFields(fieldMap);
+                        grootevent.setFinal(true);
                     }
                     out.collect(grootevent);
                 } catch (Exception e) {

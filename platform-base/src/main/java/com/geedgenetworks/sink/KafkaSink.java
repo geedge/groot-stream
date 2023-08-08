@@ -1,7 +1,7 @@
 package com.geedgenetworks.sink;
 
 import com.alibaba.fastjson.JSON;
-import com.geedgenetworks.pojo.GrootEvent;
+import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.SinkConfig;
 import com.geedgenetworks.utils.KafkaUtils;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -13,12 +13,12 @@ public class KafkaSink implements Sink{
 
 
     @Override
-    public void sink(SingleOutputStreamOperator<GrootEvent> streamlineEventSingleOutputStreamOperator, SinkConfig sinkConfig) throws Exception {
-        streamlineEventSingleOutputStreamOperator.map(new MapFunction<GrootEvent, String>() {
+    public void sink(SingleOutputStreamOperator<Event> streamlineEventSingleOutputStreamOperator, SinkConfig sinkConfig) throws Exception {
+        streamlineEventSingleOutputStreamOperator.map(new MapFunction<Event, String>() {
             @Override
-            public String map(GrootEvent value) throws Exception {
+            public String map(Event value) throws Exception {
 
-                String jsonString = JSON.toJSONString(value.getAuxiliaryFieldsAndValues());
+                String jsonString = JSON.toJSONString(value.getExtractedFields());
                 return jsonString;
             }
         }).setParallelism(sinkConfig.getParallelism()).addSink( KafkaUtils.getKafkaSink(sinkConfig.getProperties())).setParallelism(sinkConfig.getParallelism());

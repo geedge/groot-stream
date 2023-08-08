@@ -5,7 +5,7 @@ import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
-import com.geedgenetworks.pojo.GrootEvent;
+import com.geedgenetworks.pojo.Event;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 
@@ -13,14 +13,14 @@ public class AviatorFilter implements Filter {
 
 
     @Override
-    public SingleOutputStreamOperator<GrootEvent> filterFunction(SingleOutputStreamOperator<GrootEvent> singleOutputStreamOperator, FilterEntity FilterEntity) throws Exception {
+    public SingleOutputStreamOperator<Event> filterFunction(SingleOutputStreamOperator<Event> singleOutputStreamOperator, FilterEntity FilterEntity) throws Exception {
 
 
         return singleOutputStreamOperator.filter(new FilterFunction(FilterEntity)).setParallelism(FilterEntity.getParallelism()).name("Filter");
     }
 
 
-    private class FilterFunction implements org.apache.flink.api.common.functions.FilterFunction<GrootEvent> {
+    private class FilterFunction implements org.apache.flink.api.common.functions.FilterFunction<Event> {
         FilterEntity FilterEntity;
 
         public FilterFunction(FilterEntity FilterEntity) {
@@ -28,7 +28,7 @@ public class AviatorFilter implements Filter {
         }
 
         @Override
-        public boolean filter(GrootEvent value) throws Exception {
+        public boolean filter(Event value) throws Exception {
             boolean isFilter = true;
             try {
 
@@ -46,7 +46,7 @@ public class AviatorFilter implements Filter {
 
                         //开始时间
                         Boolean result = null;
-                        result = (Boolean) compiledExp.execute(compiledExp.newEnv("map", value.getAuxiliaryFieldsAndValues()));
+                        result = (Boolean) compiledExp.execute(compiledExp.newEnv("map", value.getExtractedFields()));
                         isFilter = !result;
 
             } catch (RuntimeException re) {

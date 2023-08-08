@@ -132,7 +132,7 @@ public class Execute {
 
         if (topologylist != null) {
             topologylist.forEach((key, value) -> {
-                SingleOutputStreamOperator<GrootEvent> streamlineEventSingleOutputStreamOperator = null;
+                SingleOutputStreamOperator<Event> streamlineEventSingleOutputStreamOperator = null;
 
                 if (sources.containsKey(key)) {
                     JSONObject jo = new JSONObject((Map<String, Object>) sources.get(key));
@@ -189,10 +189,10 @@ public class Execute {
 
     }
 
-    private static void excute(String name, SingleOutputStreamOperator<GrootEvent> streamlineEventSingleOutputStreamOperator, YamlEntity yamlEntity,Map<String, Object> topologyList ) {
+    private static void excute(String name, SingleOutputStreamOperator<Event> streamlineEventSingleOutputStreamOperator, YamlEntity yamlEntity, Map<String, Object> topologyList ) {
 
 
-        SingleOutputStreamOperator<GrootEvent> singleOutputStreamOperator = test(name, streamlineEventSingleOutputStreamOperator,yamlEntity,topologyList);
+        SingleOutputStreamOperator<Event> singleOutputStreamOperator = test(name, streamlineEventSingleOutputStreamOperator,yamlEntity,topologyList);
 
         JSONObject to = new JSONObject((Map<String, Object>) topologyList.get(name));
         Topology topology = to.toJavaObject(Topology.class);
@@ -204,10 +204,10 @@ public class Execute {
         }
     }
 
-    private static SingleOutputStreamOperator<GrootEvent> test(String name, SingleOutputStreamOperator<GrootEvent> streamlineEventSingleOutputStreamOperator,YamlEntity yamlEntity,Map<String, Object> topologyList) {
+    private static SingleOutputStreamOperator<Event> test(String name, SingleOutputStreamOperator<Event> streamlineEventSingleOutputStreamOperator, YamlEntity yamlEntity, Map<String, Object> topologyList) {
 
 
-        SingleOutputStreamOperator<GrootEvent> event = null;
+        SingleOutputStreamOperator<Event> event = null;
 
         if (yamlEntity.getFilters().containsKey(name)) {
             JSONObject jsonObject = new JSONObject((Map<String, Object>) yamlEntity.getFilters().get(name));

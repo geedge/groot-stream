@@ -1,6 +1,6 @@
 package com.geedgenetworks.udf;
 
-import com.geedgenetworks.pojo.GrootEvent;
+import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
@@ -24,9 +24,9 @@ public class DropFunction implements UdfFunction {
 
 
     @Override
-    public void udffunction(GrootEvent grootEvent) {
+    public void udffunction(Event event) {
 
-        Boolean result = (Boolean) compiledExp.execute(compiledExp.newEnv("map", grootEvent.getAuxiliaryFieldsAndValues()));
-        grootEvent.setFlag(!result);
+        Boolean result = (Boolean) compiledExp.execute(compiledExp.newEnv("map", event.getExtractedFields()));
+        event.setFinal(!result);
     }
 }

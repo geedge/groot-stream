@@ -3,7 +3,7 @@ package com.geedgenetworks.udf.radius;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.geedgenetworks.config.commonConfig;
-import com.geedgenetworks.pojo.GrootEvent;
+import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
 import com.geedgenetworks.udf.UdfFunction;
 import org.apache.hadoop.conf.Configuration;
@@ -36,12 +36,12 @@ public class RadiusFunction implements UdfFunction {
 
 
     @Override
-    public void udffunction(GrootEvent grootEvent) {
+    public void udffunction(Event event) {
         if ("vsys".equals(DATA_RELATIONSHIP_MODEL)) {
-            int vsysId = Integer.parseInt(grootEvent.getAuxiliaryFieldsAndValues().get("common_vsys_id").toString());
-            grootEvent.getAuxiliaryFieldsAndValues().put(projection_function.getOutput_fields().get(0), HBaseUtils.getAccount( projection_function.getLookup_fields().get(0)+ vsysId));
+            int vsysId = Integer.parseInt(event.getExtractedFields().get("common_vsys_id").toString());
+            event.getExtractedFields().put(projection_function.getOutput_fields().get(0), HBaseUtils.getAccount( projection_function.getLookup_fields().get(0)+ vsysId));
         } else {
-            grootEvent.getAuxiliaryFieldsAndValues().put(projection_function.getOutput_fields().get(0),HBaseUtils.getAccount( projection_function.getLookup_fields().get(0)));
+            event.getExtractedFields().put(projection_function.getOutput_fields().get(0),HBaseUtils.getAccount( projection_function.getLookup_fields().get(0)));
         }
     }
 

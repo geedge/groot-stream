@@ -2,7 +2,7 @@ package com.geedgenetworks.udf;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.geedgenetworks.pojo.GrootEvent;
+import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
 import com.zdjizhi.utils.StringUtil;
 
@@ -28,11 +28,11 @@ public class DecodeBase64Function implements UdfFunction {
     }
 
     @Override
-    public void udffunction(GrootEvent grootEvent) {
+    public void udffunction(Event event) {
         String decodeResult = "";
-        String message = (String) grootEvent.getAuxiliaryFieldsAndValues().get(projection_function.getLookup_fields().get(0));
-        String param = (String) grootEvent.getAuxiliaryFieldsAndValues().get(projection_function.getLookup_fields().get(1));
-        Object charset = isJsonValue(grootEvent.getAuxiliaryFieldsAndValues(), param);
+        String message = (String) event.getExtractedFields().get(projection_function.getLookup_fields().get(0));
+        String param = (String) event.getExtractedFields().get(projection_function.getLookup_fields().get(1));
+        Object charset = isJsonValue(event.getExtractedFields(), param);
 
         try {
             if (StringUtil.isNotBlank(message) ){
@@ -48,6 +48,6 @@ public class DecodeBase64Function implements UdfFunction {
         } catch (UnsupportedEncodingException e) {
             logger.error("The Character Encoding [" + charset.toString() + "] is not supported.exception information:" + e.getMessage());
         }
-        grootEvent.getAuxiliaryFieldsAndValues().put(projection_function.getOutput_fields().get(0),decodeResult);
+        event.getExtractedFields().put(projection_function.getOutput_fields().get(0),decodeResult);
     }
 }

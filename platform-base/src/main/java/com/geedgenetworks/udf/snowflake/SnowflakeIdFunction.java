@@ -1,7 +1,7 @@
 package com.geedgenetworks.udf.snowflake;
 
 import com.geedgenetworks.pojo.ProjectionFunction;
-import com.geedgenetworks.pojo.GrootEvent;
+import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.udf.UdfFunction;
 
 public class SnowflakeIdFunction implements UdfFunction {
@@ -13,9 +13,9 @@ public class SnowflakeIdFunction implements UdfFunction {
     }
 
     @Override
-    public void udffunction(GrootEvent grootEvent) {
+    public void udffunction(Event event) {
 
-        grootEvent.getAuxiliaryFieldsAndValues().put(projection_function.getOutput_fields().get(0), SnowflakeId.generateId());
+        event.getExtractedFields().put(projection_function.getOutput_fields().get(0), SnowflakeId.generateId());
 
     }
 

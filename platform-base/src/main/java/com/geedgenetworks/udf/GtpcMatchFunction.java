@@ -2,7 +2,7 @@ package com.geedgenetworks.udf;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.geedgenetworks.pojo.GrootEvent;
+import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
 
 public class GtpcMatchFunction implements UdfFunction {
@@ -49,7 +49,7 @@ public class GtpcMatchFunction implements UdfFunction {
     }*/
 
     @Override
-    public void udffunction(GrootEvent grootEvent) {
+    public void udffunction(Event event) {
 
     }
 }

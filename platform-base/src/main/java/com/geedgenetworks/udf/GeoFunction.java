@@ -1,6 +1,6 @@
 package com.geedgenetworks.udf;
 
-import com.geedgenetworks.pojo.GrootEvent;
+import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
 
 public class GeoFunction implements UdfFunction {
@@ -37,7 +37,7 @@ public class GeoFunction implements UdfFunction {
     }*/
 
     @Override
-    public void udffunction(GrootEvent grootEvent) {
+    public void udffunction(Event event) {
 
     }
 }

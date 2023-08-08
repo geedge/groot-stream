@@ -1,6 +1,6 @@
 package com.geedgenetworks.processor.projection;
 
-import com.geedgenetworks.pojo.GrootEvent;
+import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.Projection;
 import com.geedgenetworks.pojo.ProjectionFunction;
 import com.geedgenetworks.udf.UdfFunction;
@@ -15,7 +15,7 @@ import java.lang.reflect.Constructor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ProjectionProcessFunction extends ProcessFunction<GrootEvent, GrootEvent> {
+public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
     private Projection projection;
     private Map<String, UdfEntity> functions = new LinkedHashMap<>() ;
@@ -44,12 +44,12 @@ public class ProjectionProcessFunction extends ProcessFunction<GrootEvent, Groot
 
 
     @Override
-    public void processElement(GrootEvent value, Context ctx, Collector<GrootEvent> out) throws Exception {
+    public void processElement(Event value, Context ctx, Collector<Event> out) throws Exception {
 
         for (Map.Entry<String, UdfEntity> entry : functions.entrySet()) {
 
-            if(value.isFlag()) {
-                if((Boolean) entry.getValue().getCompiledExp().execute(entry.getValue().getCompiledExp().newEnv("map", value.getAuxiliaryFieldsAndValues()))){
+            if(value.isFinal()) {
+                if((Boolean) entry.getValue().getCompiledExp().execute(entry.getValue().getCompiledExp().newEnv("map", value.getExtractedFields()))){
                     entry.getValue().getUdfFunction().udffunction(value);
                 }
             }
