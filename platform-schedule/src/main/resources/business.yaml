@@ -1,7 +1,7 @@
 sources:
   kafkasource_bj:
     format: json
-    type : net.geedgenetworks.source.KafkaSource
+    type : com.geedgenetworks.source.KafkaSource
     output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions']
     watermark_timestamp: common_recv_time
     watermark_lag: 60
@@ -25,19 +25,19 @@ sources:
         kafka.max.request.size:
         kafka.compression.type: none
   ipfixsource1:
-    type : net.geedgenetworks.source.IPFIXSource
+    type : com.geedgenetworks.source.IPFIXSource
     watermark_lag: 60
     properties:
       port: 12345
       buffer_size: 65535
   ipfixsource2:
-    type: net.geedgenetworks.source.IPFIXSource
+    type: com.geedgenetworks.source.IPFIXSource
     watermark_lag: 60
     properties:
       port: 12346
       buffer_size: 65535
   ipfixsource3:
-    type: net.geedgenetworks.source.IPFIXSource
+    type: com.geedgenetworks.source.IPFIXSource
     watermark_lag: 60
     properties:
       port: 12347
@@ -45,7 +45,7 @@ sources:
 
 filters:
   http_filter:
-    type: net.geedgenetworks.filter.AviatorFilter
+    type: com.geedgenetworks.filter.AviatorFilter
     output_fields:
     properties:
       expression: map.common_schema_type == 'HTTP' && map.common_server_port > 60
@@ -53,7 +53,7 @@ filters:
 
 pre_processing_pipelines:
   common_pre_processor:
-    type: net.geedgenetworks.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
     output_fields:
     properties:
       key: value
@@ -62,7 +62,7 @@ pre_processing_pipelines:
         lookup_fields: ['']
         output_fields: ['common_log_id']
         filter:
-        class_name: net.geedgenetworks.udf.snowflake.SnowflakeIdFunction
+        class_name: com.geedgenetworks.udf.snowflake.SnowflakeIdFunction
         parameters:
           snowid_zookeeper: 192.168.44.12
           data_center_id_num: 1
@@ -70,7 +70,7 @@ pre_processing_pipelines:
         lookup_fields: ['']
         output_fields: ['']
         filter: map.common_schema_type == 'HTTP' && map.common_server_port > 60
-        class_name: net.geedgenetworks.udf.DropFunction
+        class_name: com.geedgenetworks.udf.DropFunction
         parameters:
           snowid_zookeeper: 192.168.44.12
           data_center_id_num: 1
@@ -78,7 +78,7 @@ pre_processing_pipelines:
 
 processing_pipelines:
   session_record_processor:
-    type: net.geedgenetworks.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
     output_fields:
     properties:
       key: value
@@ -86,21 +86,21 @@ processing_pipelines:
       - name: BASE64_DECODE_TO_STRING
         lookup_fields: ['mail_subject','mail_subject_charset']
         output_fields: ['mail_subject']
-        class_name: net.geedgenetworks.udf.DecodeBase64Function
+        class_name: com.geedgenetworks.udf.DecodeBase64Function
       - name: TOP_LEVEL_DOMAIN
         lookup_fields: ['http_url']
         output_fields: ['http_tld']
-        class_name: net.geedgenetworks.udf.TopDomainFunction
+        class_name: com.geedgenetworks.udf.TopDomainFunction
       - name: RENAME
         lookup_fields: ['http_domain']
         output_fields: ['common_server_domain']
-        class_name: net.geedgenetworks.udf.RenameFunction
+        class_name: com.geedgenetworks.udf.RenameFunction
 
 
 
 
   aggregate_processor2:
-    type: net.geedgenetworks.processor.aggregate.AggregateProcessorImpl
+    type: com.geedgenetworks.processor.aggregate.AggregateProcessorImpl
     group_by_fields: ['common_server_ip']
     timestamp_field: common_recv_time
     window_type: tumbling
@@ -119,7 +119,7 @@ processing_pipelines:
 sink:
   kafkasink_lz:
     format: json
-    type : net.geedgenetworks.sink.KafkaSink
+    type : com.geedgenetworks.sink.KafkaSink
     output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions']
     properties:
       kafka.topic:  SESSION-RECORD-COMPLETED
