@@ -3,9 +3,9 @@ package com.geedgenetworks.pojo;
 import java.io.Serializable;
 import java.util.Map;
 
-public class GrootEvent implements Serializable {
+public class Event implements Serializable {
 
-    private Map<String, Object> auxiliaryFieldsAndValues;
+    private Map<String, Object> extractedFields;
 
 
     private Map<String, Object> header;
@@ -16,14 +16,22 @@ public class GrootEvent implements Serializable {
 
     private long timestamp;
 
-    private boolean flag;
+    private boolean isFinal;
 
-    public Map<String, Object> getAuxiliaryFieldsAndValues() {
-        return auxiliaryFieldsAndValues;
+    public Map<String, Object> getExtractedFields() {
+        return extractedFields;
     }
 
-    public void setAuxiliaryFieldsAndValues(Map<String, Object> auxiliaryFieldsAndValues) {
-        this.auxiliaryFieldsAndValues = auxiliaryFieldsAndValues;
+    public void setExtractedFields(Map<String, Object> extractedFields) {
+        this.extractedFields = extractedFields;
+    }
+
+    public boolean isFinal() {
+        return isFinal;
+    }
+
+    public void setFinal(boolean aFinal) {
+        isFinal = aFinal;
     }
 
     public Map<String, Object> getHeader() {
@@ -58,11 +66,5 @@ public class GrootEvent implements Serializable {
         this.timestamp = timestamp;
     }
 
-    public boolean isFlag() {
-        return flag;
-    }
 
-    public void setFlag(boolean flag) {
-        this.flag = flag;
-    }
 }
