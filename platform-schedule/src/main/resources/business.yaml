@@ -2,7 +2,7 @@ sources:
   kafkasource_bj:
     format: json
     type : com.geedgenetworks.source.KafkaSource
-    output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions']
+   # output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions']
     watermark_timestamp: common_recv_time
     watermark_lag: 60
     properties:
@@ -24,24 +24,12 @@ sources:
         kafka.auto.offset.reset: latest
         kafka.max.request.size:
         kafka.compression.type: none
-  ipfixsource1:
+  ipfixsource:
     type : com.geedgenetworks.source.IPFIXSource
-    watermark_lag: 60
     properties:
-      port: 12345
+      initial_port: 12345
       buffer_size: 65535
-  ipfixsource2:
-    type: com.geedgenetworks.source.IPFIXSource
-    watermark_lag: 60
-    properties:
-      port: 12346
-      buffer_size: 65535
-  ipfixsource3:
-    type: com.geedgenetworks.source.IPFIXSource
-    watermark_lag: 60
-    properties:
-      port: 12347
-      buffer_size: 65535
+      max_attempts: 10
 
 filters:
   http_filter:
@@ -144,15 +132,15 @@ application:
   name: demo
   parallelism: 1
   topology:
-    ipfixsource1:
-      parallelism: 10
+    ipfixsource:
+      parallelism: 20
       next: []
-    ipfixsource2:
-      parallelism: 30
-      next: []
-    ipfixsource3:
-      parallelism: 60
-      next: []
+#   ipfixsource2:
+#     parallelism: 30
+#     next: []
+#   ipfixsource3:
+#     parallelism: 60
+#     next: []
 #    http_filter:
 #      parallelism: 2
 #      next: ['common_pre_processor']
