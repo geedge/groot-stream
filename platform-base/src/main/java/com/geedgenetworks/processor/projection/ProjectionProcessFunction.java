@@ -17,8 +17,8 @@ import java.util.Map;
 
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
-    private Projection projection;
-    private Map<String, UdfEntity> functions = new LinkedHashMap<>() ;
+    private final Projection projection;
+    private final Map<String, UdfEntity> functions = new LinkedHashMap<>() ;
     public ProjectionProcessFunction(Projection projection) throws Exception {
 
         this.projection=projection;
@@ -57,4 +57,8 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         }
         out.collect(value);
     }
+
+
+
+
 }

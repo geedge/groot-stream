@@ -13,7 +13,7 @@ public final class YamlParser {
 
     static {
         try {
-            loadYaml(YamlParser.class.getClassLoader().getResourceAsStream("business.yaml"));
+            loadYaml(YamlParser.class.getClassLoader().getResourceAsStream("groot-platform-schedule.yaml"));
         } catch (Exception e) {
         //    propService = null;
         }
@@ -27,51 +27,15 @@ public final class YamlParser {
 
         // 从YAML文件中读取数据并转换为实体对象
         try  {
-            return yaml.loadAs(YamlParser.class.getClassLoader().getResourceAsStream("business.yaml"), entityType);
+            return yaml.loadAs(YamlParser.class.getClassLoader().getResourceAsStream("groot-platform-schedule.yaml"), entityType);
         }  catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
-    public static <T> T loadYamlPropertyToEntity( String propertyName, Class<T> entityType) throws FileNotFoundException {
-        // 创建Yaml对象
-        Yaml yaml = new Yaml();
-
-        // 从YAML文件中读取数据
-        try {
-            Object yamlData = yaml.load(YamlParser.class.getClassLoader().getResourceAsStream("business.yaml"));
-
-            // 获取指定属性的值并转换为实体对象
-            Object propertyValue = getProperty(yamlData, propertyName);
-            if (propertyValue != null) {
-                return yaml.loadAs(yaml.dump(propertyValue), entityType);
-            } else {
-                throw new IllegalArgumentException("Property not found: " + propertyName);
-            }
-        } catch (Exception e) {
-            throw new FileNotFoundException("YAML file not found: " );
-        }
-    }
-
-    // 递归地获取YAML属性的值
-    private static Object getProperty(Object yamlData, String propertyName) {
-        if (yamlData instanceof java.util.Map) {
-            return ((java.util.Map) yamlData).get(propertyName);
-        } else if (yamlData instanceof java.util.List) {
-            for (Object item : (java.util.List) yamlData) {
-                Object propertyValue = getProperty(item, propertyName);
-                if (propertyValue != null) {
-                    return propertyValue;
-                }
-            }
-        }
-        return null;
-    }
 
 
-    /*public YamlParser(String filePath) {
-        loadYaml(filePath);
-    }*/
+
 
     private static void loadYaml(InputStream input) {
         // 读取YAML文件

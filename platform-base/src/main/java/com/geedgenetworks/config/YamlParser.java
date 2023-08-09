@@ -2,7 +2,6 @@ package com.geedgenetworks.config;
 
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -22,66 +21,11 @@ public final class YamlParser {
 
     private static Map<String, Object> yamlData;
 
-    public static <T> T loadYamlToEntity(Class<T> entityType) throws FileNotFoundException {
-        // 创建Yaml对象
-        Yaml yaml = new Yaml();
 
-        // 从YAML文件中读取数据并转换为实体对象
-        try  {
-            return yaml.loadAs(YamlParser.class.getClassLoader().getResourceAsStream("business.yaml"), entityType);
-        }  catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    public static <T> T loadYamlPropertyToEntity( String propertyName, Class<T> entityType) throws FileNotFoundException {
-        // 创建Yaml对象
-        Yaml yaml = new Yaml();
-
-        // 从YAML文件中读取数据
-        try {
-            Object yamlData = yaml.load(YamlParser.class.getClassLoader().getResourceAsStream("business.yaml"));
-
-            // 获取指定属性的值并转换为实体对象
-            Object propertyValue = getProperty(yamlData, propertyName);
-            if (propertyValue != null) {
-                return yaml.loadAs(yaml.dump(propertyValue), entityType);
-            } else {
-                throw new IllegalArgumentException("Property not found: " + propertyName);
-            }
-        } catch (Exception e) {
-            throw new FileNotFoundException("YAML file not found: " );
-        }
-    }
-
-    // 递归地获取YAML属性的值
-    private static Object getProperty(Object yamlData, String propertyName) {
-        if (yamlData instanceof Map) {
-            return ((Map) yamlData).get(propertyName);
-        } else if (yamlData instanceof List) {
-            for (Object item : (List) yamlData) {
-                Object propertyValue = getProperty(item, propertyName);
-                if (propertyValue != null) {
-                    return propertyValue;
-                }
-            }
-        }
-        return null;
-    }
-
-
-    /*public YamlParser(String filePath) {
-        loadYaml(filePath);
-    }*/
 
     private static void loadYaml(InputStream input) {
-        // 读取YAML文件
-        //FileInputStream input = new FileInputStream(filePath);
 
-        // 创建YAML对象
         Yaml yaml = new Yaml();
-
-        // 解析YAML文件并获取根对象
         yamlData = yaml.load(input);
 
     }
@@ -133,27 +77,7 @@ public final class YamlParser {
         return value;
     }
 
-/*    public static Object getNestedValue(Map<String, Object> yamlData, String key) {
-        String[] keys = key.split("\\.");
 
-        if (keys.length == 0) {
-            return null;
-        }
-
-        Object value = yamlData.get(keys[0]);
-
-        if (keys.length == 1) {
-            return value;
-        }
-
-        if (value instanceof Map) {
-            // 使用递归继续获取下一级的value
-            String nestedKey = key.substring(keys[0].length() + 1);
-            return getNestedValue((Map<String, Object>) value, nestedKey);
-        }
-
-        return null;
-    }*/
 
     public static <T> T getYamlValue( Map<String, Object> data,String key, Class<T> valueType) {
 

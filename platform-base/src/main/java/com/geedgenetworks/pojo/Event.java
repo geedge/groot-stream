@@ -26,14 +26,6 @@ public class Event implements Serializable {
         this.extractedFields = extractedFields;
     }
 
-    public boolean isFinal() {
-        return isFinal;
-    }
-
-    public void setFinal(boolean aFinal) {
-        isFinal = aFinal;
-    }
-
     public Map<String, Object> getHeader() {
         return header;
     }
@@ -66,5 +58,11 @@ public class Event implements Serializable {
         this.timestamp = timestamp;
     }
 
+    public boolean isFinal() {
+        return isFinal;
+    }
 
+    public void setFinal(boolean aFinal) {
+        isFinal = aFinal;
+    }
 }

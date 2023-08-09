@@ -13,7 +13,7 @@ import java.util.Map;
 public class DecodeBase64Function implements UdfFunction {
 
     private static final Log logger = LogFactory.get();
-    private ProjectionFunction projection_function;
+    private final ProjectionFunction projection_function;
     public DecodeBase64Function(ProjectionFunction projection_function) {
         this.projection_function=projection_function;
     }

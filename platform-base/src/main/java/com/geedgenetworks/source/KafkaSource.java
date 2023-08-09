@@ -1,49 +1,60 @@
 package com.geedgenetworks.source;
 
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.alibaba.fastjson.JSON;
-import com.geedgenetworks.pojo.SourceConfig;
 import com.geedgenetworks.pojo.Event;
+import com.geedgenetworks.pojo.SourceConfig;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.time.Duration;
 import java.util.Map;
 
-import static com.geedgenetworks.utils.KafkaUtils.getKafkaConsumer;
+import static com.geedgenetworks.utils.ColumnUtil.columnSelector;
+import static com.geedgenetworks.utils.KafkaUtils.timestampDeserializationConsumer;
 
 public class KafkaSource implements Source {
 
 
+    private static final Log logger = LogFactory.get();
 
     @Override
     public SingleOutputStreamOperator<Event> source(StreamExecutionEnvironment env, SourceConfig sourceConfig) throws Exception {
-        DataStream<String> sourceForSession = env.addSource(getKafkaConsumer(sourceConfig.getProperties())).setParallelism(sourceConfig.getParallelism());
-        WatermarkStrategy<Event> strategyForSession = WatermarkStrategy
-                .<Event>forBoundedOutOfOrderness(Duration.ofMillis(sourceConfig.getWatermark_lag()))
-                .withTimestampAssigner((StreamlineEvent, timestamp) -> Integer.parseInt(String.valueOf(StreamlineEvent.getExtractedFields().get(sourceConfig.getWatermark_timestamp()))) * 1000);
-
-        SingleOutputStreamOperator<Event> streamEvent = sourceForSession.map(new MapFunction<String, Event>() {
+        DataStreamSource<Tuple2<String, Long>> sourceForSession = env.addSource(timestampDeserializationConsumer(sourceConfig.getProperties())).setParallelism(sourceConfig.getParallelism());
+          SingleOutputStreamOperator<Event> streamEvent;
+        streamEvent = sourceForSession.map(new MapFunction<Tuple2<String, Long>, Event>() {
             @Override
-            public Event map(String message) {
+            public Event map(Tuple2<String, Long> message) {
 
-                Event grootevent = new Event();
-                grootevent.setFinal(true);
+                Event event = new Event();
+                event.setFinal(true);
                 try {
-
-                    Map mapTypes = JSON.parseObject(message);
-                    grootevent.setExtractedFields(mapTypes);
-                    return grootevent;
+                    Map<String, Object> values = JSON.parseObject(message.f0);
+                    values.put("common_recv_time",message.f1);
+                    if(sourceConfig.getOutput_fields()!=null && sourceConfig.getOutput_fields().size()>0) {
+                        values = columnSelector(values, sourceConfig.getOutput_fields());
+                    }
+                    event.setExtractedFields(values);
+                    return event;
                 } catch (Exception e) {
-                    grootevent.setFinal(false);
-                    return grootevent;
-
+                    event.setFinal(false);
+                    logger.error(e.toString());
+                    return event;
                 }
             }
-        }).setParallelism(sourceConfig.getParallelism()).assignTimestampsAndWatermarks(strategyForSession);
+        }).setParallelism(sourceConfig.getParallelism());
 
+        if(sourceConfig.getWatermark_lag()>=0L) {
+            WatermarkStrategy<Event> strategyForSession = WatermarkStrategy
+                    .<Event>forBoundedOutOfOrderness(Duration.ofMillis(sourceConfig.getWatermark_lag()))
+                    .withTimestampAssigner((StreamlineEvent, timestamp) -> Integer.parseInt(String.valueOf(StreamlineEvent.getExtractedFields().get(sourceConfig.getWatermark_timestamp()))) * 1000);
+            streamEvent.assignTimestampsAndWatermarks(strategyForSession);
+        }
 
         return streamEvent;
     }

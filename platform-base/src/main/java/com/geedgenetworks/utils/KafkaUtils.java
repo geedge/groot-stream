@@ -1,6 +1,7 @@
 package com.geedgenetworks.utils;
 
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
@@ -119,8 +120,18 @@ public class KafkaUtils {
 
         return kafkaConsumer;
     }
-    public static FlinkKafkaConsumer<String> getKafkaConsumerLists(List<String> topic,Map<String, Object> kafkaconfig) {
-        FlinkKafkaConsumer<String> kafkaConsumer = new FlinkKafkaConsumer<>(topic,
+    public static FlinkKafkaConsumer<Tuple2<String, Long>> timestampDeserializationConsumer(Map<String, Object> kafkaconfig) {
+        FlinkKafkaConsumer<Tuple2<String, Long>> kafkaConsumer = new FlinkKafkaConsumer<>((List<String>) kafkaconfig.get("topics"),
+                new TimestampDeserializationSchema(), getKafkaSourceProperty(kafkaconfig));
+
+        kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
+        kafkaConsumer.setStartFromGroupOffsets();
+
+        return kafkaConsumer;
+    }
+
+    public static FlinkKafkaConsumer<String> getKafkaConsumerLists(List<String> topics,Map<String, Object> kafkaconfig) {
+        FlinkKafkaConsumer<String> kafkaConsumer = new FlinkKafkaConsumer<>(topics,
                 new SimpleStringSchema(), getKafkaSourceProperty(kafkaconfig));
 
         kafkaConsumer.setCommitOffsetsOnCheckpoints(true);

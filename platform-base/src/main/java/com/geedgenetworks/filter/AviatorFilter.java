@@ -1,12 +1,18 @@
 package com.geedgenetworks.filter;
 
+import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.FilterEntity;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
-import com.geedgenetworks.pojo.Event;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+
+import java.io.Serializable;
+import java.util.Map;
+
+import static com.geedgenetworks.filter.AviatorFilter.Aviator.AviatorExcute;
+import static com.geedgenetworks.filter.AviatorFilter.Aviator.init;
 
 
 public class AviatorFilter implements Filter {
@@ -20,38 +26,49 @@ public class AviatorFilter implements Filter {
     }
 
 
-    private class FilterFunction implements org.apache.flink.api.common.functions.FilterFunction<Event> {
-        FilterEntity FilterEntity;
+
+    private static class FilterFunction implements org.apache.flink.api.common.functions.FilterFunction<Event> {
+
 
         public FilterFunction(FilterEntity FilterEntity) {
-            this.FilterEntity = FilterEntity;
+            init((String) FilterEntity.getProperties().getOrDefault("expression",""));
         }
 
         @Override
         public boolean filter(Event value) throws Exception {
             boolean isFilter = true;
             try {
+                isFilter = AviatorExcute(value.getExtractedFields());
 
-                        AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
-                        instance.setCachedExpressionByDefault(true);
-                        instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
-                        instance.setFunctionMissing(null);
-
-                        //String expression = "map.common_schema_type == 'HTTP' && map.common_server_port > 60 ";
-                        String expression = (String) FilterEntity.getProperties().get("expression");
-
-                        Expression compiledExp = instance.compile(expression, true);
-                        // Execute with injected variables.
-
-
-                        //开始时间
-                        Boolean result = null;
-                        result = (Boolean) compiledExp.execute(compiledExp.newEnv("map", value.getExtractedFields()));
-                        isFilter = !result;
-
-            } catch (RuntimeException re) {
+            } catch (RuntimeException ignored) {
+                isFilter = false;
             }
             return isFilter;
         }
+    }
+
+    public static class Aviator implements Serializable {
+        private static Expression compiledExp;
+        private static String expression;
+
+        public static void init(String expr) {
+
+            expression=expr;
+            AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
+            instance.setCachedExpressionByDefault(true);
+            instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
+            instance.setFunctionMissing(null);
+            compiledExp = instance.compile(expression, true);
+
+        }
+        public static Boolean AviatorExcute(Map<String,Object> map){
+
+            Boolean bool=true;
+            if(!"".equals(expression)){
+                bool=(Boolean) compiledExp.execute(compiledExp.newEnv("map", map));
+            }
+            return bool;
+        }
+
     }
 }

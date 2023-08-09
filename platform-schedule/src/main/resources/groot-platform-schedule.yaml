@@ -2,11 +2,11 @@ sources:
   kafkasource_bj:
     format: json
     type : com.geedgenetworks.source.KafkaSource
-   # output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions']
+    output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions','common_schema_type']
     watermark_timestamp: common_recv_time
     watermark_lag: 60
     properties:
-        topics:  SESSION-RECORD-COMPLETED
+        topics:  ['SESSION-RECORD-COMPLETED']
         kafka.bootstrap.servers: 192.168.44.12:9092
         kafka.session.timeout.ms: 60000
         kafka.max.poll.records: 3000
@@ -36,7 +36,7 @@ filters:
     type: com.geedgenetworks.filter.AviatorFilter
     output_fields:
     properties:
-      expression: map.common_schema_type == 'HTTP' && map.common_server_port > 60
+      expression: map.common_schema_type == 'BASE' && map.common_server_port > 60
 
 
 pre_processing_pipelines:
@@ -132,18 +132,12 @@ application:
   name: demo
   parallelism: 1
   topology:
-    ipfixsource:
-      parallelism: 20
+    kafkasource_bj:
+      parallelism: 1
+      next: ['http_filter']
+    http_filter:
+      parallelism: 1
       next: []
-#   ipfixsource2:
-#     parallelism: 30
-#     next: []
-#   ipfixsource3:
-#     parallelism: 60
-#     next: []
-#    http_filter:
-#      parallelism: 2
-#      next: ['common_pre_processor']
 #    common_pre_processor:
 #      parallelism: 3
 #      next:  ['session_record_processor','kafkasink_lz']
