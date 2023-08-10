@@ -7,26 +7,48 @@ import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
 
+import java.io.Serializable;
+import java.util.Map;
+
+import static com.geedgenetworks.udf.DropFunction.Aviator.AviatorExcute;
+
 public class DropFunction implements UdfFunction {
-    private ProjectionFunction projection_function;
-    private Expression compiledExp;
 
     public DropFunction(ProjectionFunction projection_function) {
-        this.projection_function=projection_function;
 
-        AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
-        instance.setCachedExpressionByDefault(true);
-        instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
-        instance.setFunctionMissing(null);
-        String expression =  projection_function.getFilter();
-        this.compiledExp = instance.compile(expression, true);
+        Aviator.init( projection_function.getFilter());
     }
 
 
     @Override
     public void udffunction(Event event) {
 
-        Boolean result = (Boolean) compiledExp.execute(compiledExp.newEnv("map", event.getExtractedFields()));
+        Boolean result = AviatorExcute( event.getExtractedFields()) ;
         event.setFinal(!result);
+    }
+
+    public static class Aviator implements Serializable {
+        private static Expression compiledExp;
+        private static String expression;
+
+        public static void init(String expr) {
+
+            expression=expr;
+            AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
+            instance.setCachedExpressionByDefault(true);
+            instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
+            instance.setFunctionMissing(null);
+            compiledExp = instance.compile(expression, true);
+
+        }
+        public static Boolean AviatorExcute(Map<String,Object> map){
+
+            Boolean bool=true;
+            if(!"".equals(expression)){
+                bool=(Boolean) compiledExp.execute(compiledExp.newEnv("map", map));
+            }
+            return bool;
+        }
+
     }
 }

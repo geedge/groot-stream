@@ -4,9 +4,11 @@ import com.geedgenetworks.pojo.ProjectionFunction;
 import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.udf.UdfFunction;
 
-public class SnowflakeIdFunction implements UdfFunction {
+import java.io.Serializable;
 
-    private ProjectionFunction projection_function;
+public class SnowflakeIdFunction implements Serializable,UdfFunction {
+
+    private final ProjectionFunction projection_function;
     public SnowflakeIdFunction(ProjectionFunction projection_function) {
          this.projection_function=projection_function;
          new SnowflakeId(projection_function.getParameters().get("snowid_zookeeper").toString(), Long.parseLong( projection_function.getParameters().get("data_center_id_num").toString()));

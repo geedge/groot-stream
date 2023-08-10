@@ -34,6 +34,8 @@ public class Execute {
             Map<String, Object> filters = YamlParser.getMap("filters");
             Map<String, Object> pre_processing_pipelines = YamlParser.getMap("pre_processing_pipelines");
             Map<String, Object> processing_pipelines = YamlParser.getMap("processing_pipelines");
+            Map<String, Object> post_processing_pipelines = YamlParser.getMap("post_processing_pipelines");
+
             Map<String, Object> topologylist= (Map<String, Object>) application.get("topology");
             YamlEntity yamlEntity = new YamlEntity();
             yamlEntity.setApplication(application);
@@ -102,8 +104,7 @@ public class Execute {
     private static void excute(String name, SingleOutputStreamOperator<Event> streamlineEventSingleOutputStreamOperator, YamlEntity yamlEntity, Map<String, Object> topologyList ) {
 
 
-        SingleOutputStreamOperator<Event> singleOutputStreamOperator = test(name, streamlineEventSingleOutputStreamOperator,yamlEntity,topologyList);
-
+        SingleOutputStreamOperator<Event> singleOutputStreamOperator = instantiatedTopology(name, streamlineEventSingleOutputStreamOperator,yamlEntity,topologyList);
         JSONObject to = new JSONObject((Map<String, Object>) topologyList.get(name));
         Topology topology = to.toJavaObject(Topology.class);
 
@@ -114,7 +115,7 @@ public class Execute {
         }
     }
 
-    private static SingleOutputStreamOperator<Event> test(String name, SingleOutputStreamOperator<Event> streamlineEventSingleOutputStreamOperator, YamlEntity yamlEntity, Map<String, Object> topologyList) {
+    private static SingleOutputStreamOperator<Event> instantiatedTopology(String name, SingleOutputStreamOperator<Event> streamlineEventSingleOutputStreamOperator, YamlEntity yamlEntity, Map<String, Object> topologyList) {
 
 
         SingleOutputStreamOperator<Event> event = null;
@@ -122,170 +123,37 @@ public class Execute {
         if (yamlEntity.getFilters().containsKey(name)) {
             JSONObject jsonObject = new JSONObject((Map<String, Object>) yamlEntity.getFilters().get(name));
             FilterEntity filterEntity = jsonObject.toJavaObject(FilterEntity.class);
-           // List<com.zdjizhi.base.common.regular_rule> listRule = f.getJSONArray("rule_list").toJavaList(com.zdjizhi.base.common.regular_rule.class);
-
             String className = filterEntity.getType();
             Class cls = null;
-            AviatorFilter filterImpl = null;
+            AviatorFilter aviatorFilter = null;
             try {
                 cls = Class.forName(className);
-                filterImpl = (AviatorFilter) cls.newInstance();
-
+                aviatorFilter = (AviatorFilter) cls.newInstance();
                 JSONObject to = new JSONObject((Map<String, Object>) topologyList.get(name));
                 Topology topology = to.toJavaObject(Topology.class);
                 if(topology.getParallelism()!=0 ){
-
                     filterEntity.setParallelism(topology.getParallelism());
                 }
                 else{
                     filterEntity.setParallelism((Integer) yamlEntity.getApplication().getOrDefault("parallelism",1));
                 }
                 filterEntity.setName(name);
-                event = filterImpl.filterFunction(streamlineEventSingleOutputStreamOperator, filterEntity);
+                event = aviatorFilter.filterFunction(streamlineEventSingleOutputStreamOperator, filterEntity);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("实例化filter:"+name+ "失败");
             }
 
 
         } else if (yamlEntity.getPre_processing_pipelines().containsKey(name)) {
+
             JSONObject jsonObject = new JSONObject((Map<String, Object>) yamlEntity.getPre_processing_pipelines().get(name));
-
-            if(!jsonObject.containsKey("window_type")){
-
-
-                //   List<com.zdjizhi.base.common.projection_function> functionlist = ppr.getJSONArray("functionlist").toJavaList(com.zdjizhi.base.common.projection_function.class);
-
-
-                Projection projection = jsonObject.toJavaObject(Projection.class) ;
-                Class cls = null;
-
-                ProjectionProcessor projectionprocessor = null;
-                try {
-                    cls = Class.forName(projection.getType());
-                    projectionprocessor = (ProjectionProcessor) cls.newInstance();
-                    JSONObject to = new JSONObject((Map<String, Object>) topologyList.get(name));
-                    Topology topology = to.toJavaObject(Topology.class);
-                    if(topology.getParallelism()!=0 ){
-
-                        projection.setParallelism(topology.getParallelism());
-                    }
-                    else{
-                        projection.setParallelism((Integer) yamlEntity.getApplication().getOrDefault("parallelism",1));
-                    }
-                    projection.setName(name);
-
-
-                    event = projectionprocessor.projectionProcessorFunction(streamlineEventSingleOutputStreamOperator, projection);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-            else{
-
-
-                //    List<com.zdjizhi.base.common.aggregate_function> functionlist = ppr.getJSONArray("functionlist").toJavaList(com.zdjizhi.base.common.aggregate_function.class);
-                Aggregate aggregate = jsonObject.toJavaObject(Aggregate.class) ;
-                Class cls = null;
-
-                AggregateProcessor aggregateProcessor = null;
-                try {
-                    cls = Class.forName(aggregate.getType());
-
-                    aggregateProcessor = (AggregateProcessor) cls.newInstance();
-                    event = aggregateProcessor.aggregateProcessorFunction(streamlineEventSingleOutputStreamOperator, aggregate);
-
-                    if(aggregate.getParallelism()!=0 ){
-
-                        aggregate.setParallelism(aggregate.getParallelism());
-                    }
-                    else{
-                        aggregate.setParallelism((Integer) yamlEntity.getApplication().getOrDefault("parallelism",1));
-                    }
-                    aggregate.setName(name);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-
-
-
-            }
-
+            event=InstantiateProcessor(event,jsonObject,name, streamlineEventSingleOutputStreamOperator,yamlEntity,topologyList);
 
         } else if (yamlEntity.getProcessing_pipelines().containsKey(name)) {
 
             JSONObject jsonObject = new JSONObject((Map<String, Object>) yamlEntity.getProcessing_pipelines().get(name));
-            if(!jsonObject.containsKey("window_type")){
-
-
-                //   List<com.zdjizhi.base.common.projection_function> functionlist = ppr.getJSONArray("functionlist").toJavaList(com.zdjizhi.base.common.projection_function.class);
-
-
-                Projection projection = jsonObject.toJavaObject(Projection.class) ;
-
-                Class cls = null;
-
-                ProjectionProcessor projectionprocessor = null;
-                try {
-                    cls = Class.forName(projection.getType());
-                    projectionprocessor = (ProjectionProcessor) cls.newInstance();
-                    JSONObject to = new JSONObject((Map<String, Object>) topologyList.get(name));
-                    Topology topology = to.toJavaObject(Topology.class);
-                    if(topology.getParallelism()!=0 ){
-
-                        projection.setParallelism(topology.getParallelism());
-                    }
-                    else{
-                        projection.setParallelism((Integer) yamlEntity.getApplication().getOrDefault("parallelism",1));
-                    }
-                    projection.setName(name);
-
-
-                    event = projectionprocessor.projectionProcessorFunction(streamlineEventSingleOutputStreamOperator, projection);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-            }
-            else{
-
-
-                //    List<com.zdjizhi.base.common.aggregate_function> functionlist = ppr.getJSONArray("functionlist").toJavaList(com.zdjizhi.base.common.aggregate_function.class);
-                Aggregate aggregate = jsonObject.toJavaObject(Aggregate.class) ;
-                Class cls = null;
-
-                AggregateProcessor aggregateProcessor = null;
-                try {
-                    cls = Class.forName(aggregate.getType());
-
-                    aggregateProcessor = (AggregateProcessor) cls.newInstance();
-                    event = aggregateProcessor.aggregateProcessorFunction(streamlineEventSingleOutputStreamOperator, aggregate);
-
-                    if(aggregate.getParallelism()!=0 ){
-
-                        aggregate.setParallelism(aggregate.getParallelism());
-                    }
-                    else{
-                        aggregate.setParallelism((Integer) yamlEntity.getApplication().getOrDefault("parallelism",1));
-                    }
-                    aggregate.setName(name);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-
-
-
-            }
-
-
-
+            event=InstantiateProcessor(event,jsonObject,name, streamlineEventSingleOutputStreamOperator,yamlEntity,topologyList);
 
         } else if (yamlEntity.getSinks().containsKey(name)) {
 
@@ -318,6 +186,50 @@ public class Execute {
                     }
 
         }
+        return event;
+    }
+
+    private static SingleOutputStreamOperator<Event> InstantiateProcessor(SingleOutputStreamOperator<Event> event, JSONObject jsonObject, String name, SingleOutputStreamOperator<Event> streamlineEventSingleOutputStreamOperator, YamlEntity yamlEntity, Map<String, Object> topologyList){
+
+        if(!jsonObject.containsKey("window_type")) {
+                Projection projection = jsonObject.toJavaObject(Projection.class);
+                Class cls = null;
+                ProjectionProcessor projectionprocessor = null;
+                try {
+                    cls = Class.forName(projection.getType());
+                    projectionprocessor = (ProjectionProcessor) cls.newInstance();
+                    JSONObject to = new JSONObject((Map<String, Object>) topologyList.get(name));
+                    Topology topology = to.toJavaObject(Topology.class);
+                    if (topology.getParallelism() != 0) {
+
+                        projection.setParallelism(topology.getParallelism());
+                    } else {
+                        projection.setParallelism((Integer) yamlEntity.getApplication().getOrDefault("parallelism", 1));
+                    }
+                    projection.setName(name);
+                    event = projectionprocessor.projectionProcessorFunction(streamlineEventSingleOutputStreamOperator, projection);
+                } catch (Exception e) {
+                    logger.error("实例化Pre_processing_pipelines的projectionprocessor:" + name + "失败");
+                }
+
+            } else {
+                Aggregate aggregate = jsonObject.toJavaObject(Aggregate.class);
+                Class cls = null;
+                AggregateProcessor aggregateProcessor = null;
+                try {
+                    cls = Class.forName(aggregate.getType());
+                    aggregateProcessor = (AggregateProcessor) cls.newInstance();
+                    event = aggregateProcessor.aggregateProcessorFunction(streamlineEventSingleOutputStreamOperator, aggregate);
+                    if (aggregate.getParallelism() != 0) {
+                        aggregate.setParallelism(aggregate.getParallelism());
+                    } else {
+                        aggregate.setParallelism((Integer) yamlEntity.getApplication().getOrDefault("parallelism", 1));
+                    }
+                    aggregate.setName(name);
+                } catch (Exception e) {
+                    logger.error("实例化Pre_processing_pipelines的aggregateProcessor:" + name + "失败");
+                }
+            }
         return event;
     }
 }

@@ -1,5 +1,7 @@
 package com.geedgenetworks.processor.projection;
 
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.Projection;
 import com.geedgenetworks.pojo.ProjectionFunction;
@@ -17,48 +19,76 @@ import java.util.Map;
 
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
-    private final Projection projection;
-    private final Map<String, UdfEntity> functions = new LinkedHashMap<>() ;
+    private static final Log logger = LogFactory.get();
+
     public ProjectionProcessFunction(Projection projection) throws Exception {
 
-        this.projection=projection;
+        Map<String, UdfEntity> functions = new LinkedHashMap<>();
         for(ProjectionFunction pf :projection.getFunctions()){
-
+            Expression compiledExp=null;
             UdfEntity udfEntity = new UdfEntity();
             Class cls = Class.forName(pf.getClass_name());
             Constructor<?> constructor = cls.getDeclaredConstructor(ProjectionFunction.class);
             UdfFunction udfFunction= (UdfFunction) constructor.newInstance(pf);
-            AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
-            instance.setCachedExpressionByDefault(true);
-            instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
-            instance.setFunctionMissing(null);
-            String expression =  pf.getFilter();
-            Expression compiledExp = instance.compile(expression, true);
+
+            String expression="";
+           if(pf.getFilter()!=null){
+                AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
+                instance.setCachedExpressionByDefault(true);
+                instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
+                instance.setFunctionMissing(null);
+                expression =  pf.getFilter();
+                compiledExp = instance.compile(expression, true);
+
+            }
             udfEntity.setUdfFunction(udfFunction);
             udfEntity.setCompiledExp(compiledExp);
             functions.put(pf.getClass_name(), udfEntity);
 
-
         }
+        excuteFunctions.init(functions);
+
     }
 
 
     @Override
     public void processElement(Event value, Context ctx, Collector<Event> out) throws Exception {
 
-        for (Map.Entry<String, UdfEntity> entry : functions.entrySet()) {
-
-            if(value.isFinal()) {
-                if((Boolean) entry.getValue().getCompiledExp().execute(entry.getValue().getCompiledExp().newEnv("map", value.getExtractedFields()))){
-                    entry.getValue().getUdfFunction().udffunction(value);
-                }
-            }
-            else {break;}
-        }
-        out.collect(value);
+        out.collect(excuteFunctions.excute(value));
     }
 
 
+    public static class  excuteFunctions{
+
+        private static Map<String, UdfEntity> functions  ;
+
+        public static void  init(Map<String, UdfEntity> functionMap) {
+            functions=functionMap;
+        }
+        public static Event excute(Event value){
+
+            try {
+                for (Map.Entry<String, UdfEntity> entry : functions.entrySet()) {
+
+                    if(value.isFinal()) {
+                        if(entry.getValue().getCompiledExp()!=null) {
+                            if ((Boolean) entry.getValue().getCompiledExp().execute(entry.getValue().getCompiledExp().newEnv("map", value.getExtractedFields()))) {
+                                entry.getValue().getUdfFunction().udffunction(value);
+                            }
+                        }else {
+                            entry.getValue().getUdfFunction().udffunction(value);
+                        }
+                    }
+                    else {break;}
+                }
+            }catch (Exception e){
+                logger.error(e.toString());
+            }
+
+            return value;
+        }
+
+    }
 
 
 }

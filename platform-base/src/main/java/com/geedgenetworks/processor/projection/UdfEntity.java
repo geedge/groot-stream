@@ -3,7 +3,9 @@ package com.geedgenetworks.processor.projection;
 import com.geedgenetworks.udf.UdfFunction;
 import com.googlecode.aviator.Expression;
 
-public class UdfEntity {
+import java.io.Serializable;
+
+public class UdfEntity implements Serializable {
     private UdfFunction udfFunction;
     private Expression compiledExp;
 

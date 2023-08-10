@@ -60,8 +60,7 @@ pre_processing_pipelines:
         filter: map.common_schema_type == 'HTTP' && map.common_server_port > 60
         class_name: com.geedgenetworks.udf.DropFunction
         parameters:
-          snowid_zookeeper: 192.168.44.12
-          data_center_id_num: 1
+
 
 
 processing_pipelines:
@@ -137,10 +136,10 @@ application:
       next: ['http_filter']
     http_filter:
       parallelism: 1
-      next: []
-#    common_pre_processor:
-#      parallelism: 3
-#      next:  ['session_record_processor','kafkasink_lz']
+      next: ['common_pre_processor']
+    common_pre_processor:
+      parallelism: 1
+      next:  []
 #    session_record_processor:
 #      parallelism: 4
 #      next: ['kafkasink_lz']

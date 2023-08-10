@@ -11,6 +11,7 @@ public class YamlEntity implements Serializable {
    private Map<String, Object> filters ;
    private Map<String, Object> pre_processing_pipelines;
    private Map<String, Object> processing_pipelines ;
+   private Map<String, Object> post_processing_pipelines;
 
     public Map<String, Object> getSources() {
         return sources;
@@ -58,5 +59,13 @@ public class YamlEntity implements Serializable {
 
     public void setProcessing_pipelines(Map<String, Object> processing_pipelines) {
         this.processing_pipelines = processing_pipelines;
+    }
+
+    public Map<String, Object> getPost_processing_pipelines() {
+        return post_processing_pipelines;
+    }
+
+    public void setPost_processing_pipelines(Map<String, Object> post_processing_pipelines) {
+        this.post_processing_pipelines = post_processing_pipelines;
     }
 }
