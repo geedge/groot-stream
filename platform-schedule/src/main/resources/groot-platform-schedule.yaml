@@ -2,9 +2,9 @@ sources:
   kafkasource_bj:
     format: json
     type : com.geedgenetworks.source.KafkaSource
-    output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions','common_schema_type']
-    watermark_timestamp: common_recv_time
-    watermark_lag: 60
+   # output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions','common_schema_type']
+   # watermark_timestamp: common_recv_time
+   # watermark_lag: 60
     properties:
         topics:  ['SESSION-RECORD-COMPLETED']
         kafka.bootstrap.servers: 192.168.44.12:9092
@@ -70,20 +70,36 @@ processing_pipelines:
     properties:
       key: value
     functions:
+      - name: SNOWFLAKE_ID
+        lookup_fields: ['']
+        output_fields: ['common_log_id']
+        filter:
+        class_name: com.geedgenetworks.udf.snowflake.SnowflakeIdFunction
+        parameters:
+          snowid_zookeeper: 192.168.44.12
+          data_center_id_num: 1
+      - name: TOP_LEVEL_DOMAIN
+        lookup_fields: ['http_domain','ssl_sni','quic_sni']
+        output_fields: ['common_server_domain']
+        class_name: com.geedgenetworks.udf.FirstSignificantSubdomainFunction
       - name: BASE64_DECODE_TO_STRING
         lookup_fields: ['mail_subject','mail_subject_charset']
         output_fields: ['mail_subject']
         class_name: com.geedgenetworks.udf.DecodeBase64Function
-      - name: TOP_LEVEL_DOMAIN
-        lookup_fields: ['http_url']
-        output_fields: ['http_tld']
-        class_name: com.geedgenetworks.udf.TopDomainFunction
-      - name: RENAME
-        lookup_fields: ['http_domain']
-        output_fields: ['common_server_domain']
-        class_name: com.geedgenetworks.udf.RenameFunction
-
-
+      - name: JSON_EXTRACT
+        lookup_fields: ['common_device_tag']
+        output_fields: ['common_data_center']
+        filter:
+        class_name: com.geedgenetworks.udf.JsonExtractFunction
+        parameters:
+          param: $.tags[?(@.tag=='data_center')][0].value
+      - name: JSON_EXTRACT
+        lookup_fields: ['common_device_tag']
+        output_fields: ['common_device_group']
+        filter:
+        class_name: com.geedgenetworks.udf.JsonExtractFunction
+        parameters:
+          param: $.tags[?(@.tag=='device_group')][0].value
 
 
   aggregate_processor2:
@@ -107,9 +123,8 @@ sink:
   kafkasink_lz:
     format: json
     type : com.geedgenetworks.sink.KafkaSink
-    output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions']
     properties:
-      kafka.topic:  SESSION-RECORD-COMPLETED
+      topic:  SESSION-RECORD-COMPLETED
       kafka.bootstrap.servers: 192.168.44.12:9092
       kafka.retries: 0
       kafka.linger.ms: 10
@@ -132,18 +147,18 @@ application:
   parallelism: 1
   topology:
     kafkasource_bj:
-      parallelism: 1
-      next: ['http_filter']
-    http_filter:
-      parallelism: 1
-      next: ['common_pre_processor']
-    common_pre_processor:
-      parallelism: 1
-      next:  []
-#    session_record_processor:
-#      parallelism: 4
-#      next: ['kafkasink_lz']
-#    kafkasink_lz:
-#      parallelism: 5
-#      next: []
+      parallelism: 10
+      next: ['session_record_processor']
+#    http_filter:
+#      parallelism: 10
+#      next: ['common_pre_processor']
+#    common_pre_processor:
+#      parallelism: 10
+#      next:  []
+    session_record_processor:
+      parallelism: 4
+      next: ['kafkasink_lz']
+    kafkasink_lz:
+      parallelism: 5
+      next: []
 

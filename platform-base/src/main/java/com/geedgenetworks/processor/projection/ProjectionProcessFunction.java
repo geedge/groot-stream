@@ -10,6 +10,7 @@ import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
+import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
@@ -17,12 +18,22 @@ import java.lang.reflect.Constructor;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.geedgenetworks.utils.ColumnUtil.columnSelector;
+
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
     private static final Log logger = LogFactory.get();
+    private final Projection projection;
 
     public ProjectionProcessFunction(Projection projection) throws Exception {
 
+        this.projection=projection;
+
+
+    }
+
+    @Override
+    public void open(Configuration parameters) throws Exception {
         Map<String, UdfEntity> functions = new LinkedHashMap<>();
         for(ProjectionFunction pf :projection.getFunctions()){
             Expression compiledExp=null;
@@ -31,14 +42,12 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
             Constructor<?> constructor = cls.getDeclaredConstructor(ProjectionFunction.class);
             UdfFunction udfFunction= (UdfFunction) constructor.newInstance(pf);
 
-            String expression="";
-           if(pf.getFilter()!=null){
+            if(pf.getFilter()!=null){
                 AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
                 instance.setCachedExpressionByDefault(true);
                 instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
                 instance.setFunctionMissing(null);
-                expression =  pf.getFilter();
-                compiledExp = instance.compile(expression, true);
+                compiledExp = instance.compile(pf.getFilter(), true);
 
             }
             udfEntity.setUdfFunction(udfFunction);
@@ -47,13 +56,11 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
         }
         excuteFunctions.init(functions);
-
     }
-
 
     @Override
     public void processElement(Event value, Context ctx, Collector<Event> out) throws Exception {
-
+        value.setExtractedFields(columnSelector(excuteFunctions.excute(value).getExtractedFields(),projection.getOutput_fields()));
         out.collect(excuteFunctions.excute(value));
     }
 

@@ -141,7 +141,7 @@ public class KafkaUtils {
     }
     public static SinkFunction<String> getKafkaSink(Map<String, Object> kafkaconfig) {
         return new FlinkKafkaProducer<String>(
-                (String) kafkaconfig.get("kafka.topic"),
+                (String) kafkaconfig.get("topic"),
                 new SimpleStringSchema(),
                 getKafkaSinkProperty(kafkaconfig),
                 Optional.empty()

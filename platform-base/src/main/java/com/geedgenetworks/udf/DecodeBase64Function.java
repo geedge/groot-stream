@@ -8,7 +8,6 @@ import com.zdjizhi.utils.StringUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
-import java.util.Map;
 
 public class DecodeBase64Function implements UdfFunction {
 
@@ -19,21 +18,12 @@ public class DecodeBase64Function implements UdfFunction {
     }
 
 
-    private static Object isJsonValue(Map<String, Object> AuxiliaryFieldsAndValue, String param) {
-        if (param.contains("$.")) {
-            return AuxiliaryFieldsAndValue.get(param.substring(2));
-        } else {
-            return param;
-        }
-    }
 
     @Override
     public void udffunction(Event event) {
         String decodeResult = "";
         String message = (String) event.getExtractedFields().get(projection_function.getLookup_fields().get(0));
-        String param = (String) event.getExtractedFields().get(projection_function.getLookup_fields().get(1));
-        Object charset = isJsonValue(event.getExtractedFields(), param);
-
+        Object charset=event.getExtractedFields().get(projection_function.getLookup_fields().get(1));
         try {
             if (StringUtil.isNotBlank(message) ){
                 byte[] base64decodedBytes = Base64.getDecoder().decode(message);

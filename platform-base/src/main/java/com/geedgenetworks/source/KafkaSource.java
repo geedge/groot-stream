@@ -2,7 +2,7 @@ package com.geedgenetworks.source;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.SourceConfig;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
@@ -49,7 +49,7 @@ public class KafkaSource implements Source {
             }
         }).setParallelism(sourceConfig.getParallelism());
 
-        if(sourceConfig.getWatermark_lag()>=0L) {
+        if(sourceConfig.getWatermark_lag()!=null && sourceConfig.getWatermark_lag()>0L) {
             WatermarkStrategy<Event> strategyForSession = WatermarkStrategy
                     .<Event>forBoundedOutOfOrderness(Duration.ofMillis(sourceConfig.getWatermark_lag()))
                     .withTimestampAssigner((StreamlineEvent, timestamp) -> Integer.parseInt(String.valueOf(StreamlineEvent.getExtractedFields().get(sourceConfig.getWatermark_timestamp()))) * 1000);
