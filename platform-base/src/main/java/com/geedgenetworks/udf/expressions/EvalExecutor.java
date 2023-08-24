@@ -36,11 +36,10 @@ public class EvalExecutor extends EvalExpressionBaseVisitor<Object> {
     /**
      * Evaluates the given expression and returns the result as an object.
      *
-     * @param expr   The expression to be evaluated.
-     * @param origin The map of variable names and their corresponding values.
+     * @param expr The expression to be evaluated.
      * @return The result of the evaluation.
      */
-    public static Object eval(final String expr, final Map<String, Object> origin) {
+    public Object eval(final String expr) {
         EvalExpressionLexer lexer = new EvalExpressionLexer(
                 CharStreams.fromString(expr)
         );
@@ -64,7 +63,18 @@ public class EvalExecutor extends EvalExpressionBaseVisitor<Object> {
                 throw new SyntaxErrorException(message);
             }
         });
-        return new EvalExecutor(origin).visit(parser.statement());
+        return this.visit(parser.statement());
+    }
+
+    /**
+     * Evaluates the given expression and returns the result as an object.
+     *
+     * @param expr   The expression to be evaluated.
+     * @param origin The map of variable names and their corresponding values.
+     * @return The result of the evaluation.
+     */
+    public static Object eval(final String expr, final Map<String, Object> origin) {
+        return new EvalExecutor(origin).eval(expr);
     }
 
     @Override
@@ -134,12 +144,15 @@ public class EvalExecutor extends EvalExpressionBaseVisitor<Object> {
     }
 
     @Override
-    public Number visitArithmeticValue(EvalExpressionParser.ArithmeticValueContext ctx) {
+    public Object visitArithmeticValue(EvalExpressionParser.ArithmeticValueContext ctx) {
         Object left = visitValueExpression(ctx.left);
         Object right = visitValueExpression(ctx.right);
         ArithmeticOperator operator = visitArithmeticOperator(ctx.operator);
         if (left instanceof Number && right instanceof Number) {
             return this.compute((Number) left, (Number) right, operator);
+        }
+        if ((left instanceof String || right instanceof String) && ArithmeticOperator.PLUS.equals(operator)) {
+            return left.toString() + right.toString();
         }
         throw new SyntaxErrorException(String.format("Error: %s, unable to calculate: %s [%s] %s %s [%s]",
                 ctx.getText(),
@@ -242,8 +255,7 @@ public class EvalExecutor extends EvalExpressionBaseVisitor<Object> {
 
     @Override
     public BigDecimal visitBigDecimalLiteral(EvalExpressionParser.BigDecimalLiteralContext ctx) {
-        BigDecimal value = BigDecimal.valueOf(Double.parseDouble(ctx.BIGDECIMAL_LITERAL()
-                .getText().replace("BD", "")));
+        BigDecimal value = new BigDecimal(ctx.BIGDECIMAL_LITERAL().getText().replace("BD", ""));
         return ctx.MINUS() == null ? value : value.negate();
     }
 
