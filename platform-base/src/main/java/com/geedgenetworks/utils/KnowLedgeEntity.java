@@ -4,11 +4,12 @@ public class KnowLedgeEntity {
 
     private String sha256;
     private byte[] downloadBytes;
-    private String tagType;
+    private String id;
     private int isValid;
-    private String fileUrl;
+    private String format;
 
-    public String  getSha256() {
+
+    public String getSha256() {
         return sha256;
     }
 
@@ -24,12 +25,12 @@ public class KnowLedgeEntity {
         this.downloadBytes = downloadBytes;
     }
 
-    public String getTagType() {
-        return tagType;
+    public String getId() {
+        return id;
     }
 
-    public void setTagType(String tagType) {
-        this.tagType = tagType;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public int getIsValid() {
@@ -40,11 +41,11 @@ public class KnowLedgeEntity {
         this.isValid = isValid;
     }
 
-    public String getFileUrl() {
-        return fileUrl;
+    public String getFormat() {
+        return format;
     }
 
-    public void setFileUrl(String fileUrl) {
-        this.fileUrl = fileUrl;
+    public void setFormat(String format) {
+        this.format = format;
     }
 }

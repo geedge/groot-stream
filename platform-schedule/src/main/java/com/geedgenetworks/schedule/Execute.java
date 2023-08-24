@@ -8,7 +8,6 @@ import com.geedgenetworks.processor.projection.ProjectionProcessor;
 import com.geedgenetworks.sink.KafkaSink;
 import com.geedgenetworks.source.Source;
 import com.geedgenetworks.utils.CustomException;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
@@ -16,16 +15,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+import static com.geedgenetworks.schedule.YamlParser.loadYaml;
+
 public class Execute {
     private static final Logger logger = LoggerFactory.getLogger(Execute.class);
 
     public static void main(String[] args) throws Exception {
 
-        Configuration conf = new Configuration();
       //  conf.setString("rest.port", "9091");
-    //   StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf).getExecutionEnvironment();
+        //
+        //  StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf).getExecutionEnvironment();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
+        loadYaml(Execute.class.getClassLoader().getResourceAsStream("groot-platform-schedule.yaml"));
 
 
             Map<String, Object> sources = YamlParser.getMap("sources");

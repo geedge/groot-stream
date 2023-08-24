@@ -11,13 +11,13 @@ import java.util.Map;
 public final class YamlParser {
 
 
-    static {
+ /*   static {
         try {
             loadYaml(YamlParser.class.getClassLoader().getResourceAsStream("groot-platform-schedule.yaml"));
         } catch (Exception e) {
         //    propService = null;
         }
-    }
+    }*/
 
     private static Map<String, Object> yamlData;
 
@@ -37,7 +37,7 @@ public final class YamlParser {
 
 
 
-    private static void loadYaml(InputStream input) {
+    public static void loadYaml(InputStream input) {
         // 读取YAML文件
         //FileInputStream input = new FileInputStream(filePath);
 

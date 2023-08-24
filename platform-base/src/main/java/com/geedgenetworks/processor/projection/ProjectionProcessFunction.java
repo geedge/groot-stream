@@ -30,6 +30,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         this.projection=projection;
 
 
+
     }
 
     @Override
@@ -74,9 +75,9 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         }
         public static Event excute(Event value){
 
-            try {
-                for (Map.Entry<String, UdfEntity> entry : functions.entrySet()) {
 
+                for (Map.Entry<String, UdfEntity> entry : functions.entrySet()) {
+                    try {
                     if(value.isFinal()) {
                         if(entry.getValue().getCompiledExp()!=null) {
                             if ((Boolean) entry.getValue().getCompiledExp().execute(entry.getValue().getCompiledExp().newEnv("map", value.getExtractedFields()))) {
@@ -87,10 +88,11 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                         }
                     }
                     else {break;}
+                    }catch (Exception e){
+                        logger.error(entry.getKey()+" 函数执行出错 ！ "+e.toString());
+                    }
+
                 }
-            }catch (Exception e){
-                logger.error(e.toString());
-            }
 
             return value;
         }

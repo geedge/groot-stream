@@ -13,20 +13,22 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.geedgenetworks.config.commonConfig.*;
+import static com.geedgenetworks.utils.knowledgeUtil.initKnowledge;
+
 public class IPUtils {
     public static IpLookupV2 ipLookup;
 
     private static final Logger LOG = LoggerFactory.getLogger(IPUtils.class);
 
 
-
-    private static final String ipv4BuiltInName = "cn_ipv4_location_built_in";
-    private static final String ipv6BuiltInName = "cn_ipv6_location_built_in";
-    private static final String asnV4Name = "cn_ipv4_asn_built_in";
-    private static final String asnV6Name = "cn_ipv6_asn_built_in";
-
     public static  Map<String, IpLookupV2>  ipLookupV2Map = new HashMap<>();
 
+
+    static {
+
+        initKnowledge();
+    }
 
     public static void loadIpLook(Map<String, KnowLedgeEntity> knowLedgeFileSha256)  {
         try {
@@ -36,34 +38,50 @@ public class IPUtils {
 
                 if(entry.getValue().getDownloadBytes() != null && entry.getValue().getDownloadBytes().length > 0)
 
-                switch (entry.getValue().getTagType()) {
-                    case ipv4BuiltInName:
-                        IpLookupV2.Builder builderipv4 = new IpLookupV2.Builder(false);
-                        InputStream inputStreamipv4 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
-                        builderipv4.loadDataFileV4(inputStreamipv4);
-                        ipLookupV2Map.put(entry.getKey(),builderipv4.build());
-                        break;
-                    case ipv6BuiltInName:
-                        IpLookupV2.Builder builderipv6 = new IpLookupV2.Builder(false);
-                        InputStream inputStreamipv6 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
-                        builderipv6.loadDataFileV6(inputStreamipv6);
-                        ipLookupV2Map.put(entry.getKey(),builderipv6.build());
-                        break;
-                    case asnV4Name:
-                        IpLookupV2.Builder builderasnv4 = new IpLookupV2.Builder(false);
-                        InputStream inputStreamasnv4 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
-                        builderasnv4.loadAsnDataFileV4(inputStreamasnv4);
-                        ipLookupV2Map.put(entry.getKey(),builderasnv4.build());
-                        break;
-                    case asnV6Name:
-                        IpLookupV2.Builder builderasnv6 = new IpLookupV2.Builder(false);
-                        InputStream inputStreamv4 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
-                        builderasnv6.loadAsnDataFileV6(inputStreamv4);
-                        ipLookupV2Map.put(entry.getKey(),builderasnv6.build());
-                        break;
-                    default:
-                        // 执行默认代码块
+
+                if(IPV4_BUILT_IN_ID.equals(entry.getKey())){
+
+                    IpLookupV2.Builder builderipv4 = new IpLookupV2.Builder(false);
+                    InputStream inputStreamipv4 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
+                    builderipv4.loadDataFileV4(inputStreamipv4);
+                    ipLookupV2Map.put(entry.getKey(),builderipv4.build());
+
                 }
+                else if (IPV6_BUILT_IN_ID.equals(entry.getKey())){
+
+                    IpLookupV2.Builder builderipv6 = new IpLookupV2.Builder(false);
+                    InputStream inputStreamipv6 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
+                    builderipv6.loadDataFileV6(inputStreamipv6);
+                    ipLookupV2Map.put(entry.getKey(),builderipv6.build());
+
+                }
+                else if (ASN_V4_ID.equals(entry.getKey())) {
+                    IpLookupV2.Builder builderasnv4 = new IpLookupV2.Builder(false);
+                    InputStream inputStreamasnv4 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
+                    builderasnv4.loadAsnDataFileV4(inputStreamasnv4);
+                    ipLookupV2Map.put(entry.getKey(),builderasnv4.build());
+                }
+                else if (ASN_V6_ID.equals(entry.getKey())) {
+                    IpLookupV2.Builder builderasnv6 = new IpLookupV2.Builder(false);
+                    InputStream inputStreamv4 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
+                    builderasnv6.loadAsnDataFileV6(inputStreamv4);
+                    ipLookupV2Map.put(entry.getKey(),builderasnv6.build());
+                }
+                else if (IPV4_USER_DEFINED_ID.equals(entry.getKey())) {
+
+                    IpLookupV2.Builder builderUserDefinedv4 = new IpLookupV2.Builder(false);
+                    InputStream ipv4UserDefinedFile = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
+                    builderUserDefinedv4.loadDataFilePrivateV4(ipv4UserDefinedFile);
+                    ipLookupV2Map.put(entry.getKey(),builderUserDefinedv4.build());
+                }
+                else if (IPV6_USER_DEFINED_ID.equals(entry.getKey())) {
+
+                    IpLookupV2.Builder builderUserDefinedv6 = new IpLookupV2.Builder(false);
+                    InputStream ipv6UserDefinedFile = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
+                    builderUserDefinedv6.loadDataFilePrivateV4(ipv6UserDefinedFile);
+                    ipLookupV2Map.put(entry.getKey(),builderUserDefinedv6.build());
+                }
+
             }
 
 
@@ -77,7 +95,9 @@ public class IPUtils {
 
 
     public static void main(String[] args) throws Exception {
-        String ip = "192.168.44.1";
+        String ip = "114.64.231.114";
+
+        ipLookup=ipLookupV2Map.get(IPV4_BUILT_IN_ID);
         System.out.println("cityLookupDetail:" + ipLookup.cityLookupDetail(ip));
         System.out.println("cityLookup:" + ipLookup.cityLookup(ip));
         System.out.println("countryLookup:" + ipLookup.countryLookup(ip));
@@ -102,12 +122,13 @@ public class IPUtils {
 
         long start2 = System.currentTimeMillis();
         HashMap<String, Object> serverIpMap = JSON.parseObject(ipLookup.infoLookupToJson(ip), TypeReference.mapType(HashMap.class, String.class, Object.class));
+        System.out.println("isp:" + serverIpMap.getOrDefault("isp", StringUtil.EMPTY));
+
         long end2 = System.currentTimeMillis();
         System.out.println(end2 - start2);
         System.out.println("country:" + serverIpMap.getOrDefault("country", StringUtil.EMPTY));
         System.out.println("superAdministrativeArea:" + serverIpMap.getOrDefault("superAdministrativeArea", StringUtil.EMPTY));
         System.out.println("administrativeArea:" + serverIpMap.getOrDefault("administrativeArea", StringUtil.EMPTY));
-        System.out.println("isp:" + serverIpMap.getOrDefault("isp", StringUtil.EMPTY));
         System.out.println("organization:" + serverIpMap.getOrDefault("organization", StringUtil.EMPTY));
         System.out.println("longitude:" + serverIpMap.getOrDefault("longitude", StringUtil.EMPTY));
         System.out.println("latitude:" + serverIpMap.getOrDefault("latitude", StringUtil.EMPTY));

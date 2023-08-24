@@ -22,10 +22,7 @@ import java.util.*;
 import java.util.concurrent.Executor;
 
 public class knowledgeUtil {
-    private static final Properties nacosProperties;
-    private static final String dataId;
-    private static final  String group;
-    private static final  long readTimeout;
+
     private static final String KNOWLEDGE_EXPR;
     private static  Map<String, String> knowLedgeFileSha256 = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(knowledgeUtil.class);
@@ -36,40 +33,22 @@ public class knowledgeUtil {
     static{
 
         StringBuilder sb = new StringBuilder("");
-        sb.append("$.[?(@.version=='latest' && @.type in ['");
-        sb.append(commonConfig.IPV4_TYPE);
+        sb.append("$.[?(@.version=='latest' && @.name in ['ip_v4_built_in','ip_v6_built_in','ip_v4_user_defined','ip_v6_user_defined','asn_v4','asn_v6']  && @.id in ['");
+    //    sb.append(commonConfig.ID_ARRAY);
+        sb.append(commonConfig.IPV4_USER_DEFINED_ID);
         sb.append("','");
-        sb.append(commonConfig.IPV6_TYPE);
+        sb.append(commonConfig.IPV6_USER_DEFINED_ID);
         sb.append("','");
-        sb.append(commonConfig.ASNV4_TYPE);
+        sb.append(commonConfig.IPV4_BUILT_IN_ID);
         sb.append("','");
-        sb.append(commonConfig.ASNV6_TYPE);
+        sb.append(commonConfig.IPV6_BUILT_IN_ID);
         sb.append("','");
-        sb.append(commonConfig.WEBSKT_TYPE);
+        sb.append(commonConfig.ASN_V4_ID);
         sb.append("','");
-        sb.append(commonConfig.DNS_TYPE);
-        sb.append("','");
-        sb.append(commonConfig.ICP_TYPE);
-        sb.append("','");
-        sb.append(commonConfig.LINK_TYPE);
-        sb.append("','");
-        sb.append(commonConfig.IDC_RENTER_TYPE);
-        sb.append("','");
-        sb.append(commonConfig.INTERNAL_IP_TYPE);
-        sb.append("','");
-        sb.append(commonConfig.APPSKT_TYPE);
-        sb.append("','");
-        sb.append(commonConfig.WHOIS_TYPE);
-        sb.append("','");
-        sb.append(commonConfig.IP_TAG_TYPE);
-        sb.append("','");
-        sb.append(commonConfig.DOMAIN_TAG_TYPE);
-        sb.append("','");
-        sb.append(commonConfig.APP_TAG_TYPE);
-        sb.append("'])].['name','sha256','format','path','type','isValid']");
+        sb.append(commonConfig.ASN_V6_ID);
+        sb.append("'])].['id','name','sha256','format','path','type','isValid']");
         KNOWLEDGE_EXPR = sb.toString();
-
-
+        System.out.println("listening nacos config");
         Properties properties = new Properties();
         properties.put(PropertyKeyConst.SERVER_ADDR, commonConfig.NACOS_SERVER_ADDR);
         properties.setProperty(PropertyKeyConst.USERNAME, commonConfig.NACOS_USERNAME);
@@ -77,11 +56,10 @@ public class knowledgeUtil {
         if (!StringUtil.isEmpty(commonConfig.NACOS_NAMESPACE)) {
             properties.setProperty(PropertyKeyConst.NAMESPACE, commonConfig.NACOS_NAMESPACE);
         }
-        nacosProperties = properties;
-        dataId = commonConfig.NACOS_DATA_ID;
-        group = commonConfig.NACOS_GROUP;
-        readTimeout = commonConfig.NACOS_READ_TIMEOUT;
-        Map<String, String> knowLedgeFileSha256 = new HashMap<>(16);
+        Properties nacosProperties = properties;
+        String dataId = commonConfig.NACOS_DATA_ID;
+        String group = commonConfig.NACOS_GROUP;
+        long readTimeout = commonConfig.NACOS_READ_TIMEOUT;
         //初始化定位库缓存
         logger.info("connect nacos：" + nacosProperties.getProperty(PropertyKeyConst.SERVER_ADDR));
         try {
@@ -103,12 +81,13 @@ public class knowledgeUtil {
         } catch (NacosException e) {
             e.printStackTrace();
         }
-
-
-        System.out.println("listening nacos config");
     }
 
 
+    public static void initKnowledge(){
+
+
+    }
 
 
     private static  void processNacosInfo(String nacosInfo) {
@@ -122,65 +101,60 @@ public class knowledgeUtil {
 
     private static void loadKnowledge(ArrayList<Map<String, Object>> metaList) {
         Map<String, KnowLedgeEntity> updateMap = new HashMap<>();
-
+/*
         List<String> tagTypes = new ArrayList<>(3);
         tagTypes.add("cn_ip_tag_user_defined");
         tagTypes.add("cn_domain_tag_user_defined");
-        tagTypes.add("cn_app_tag_user_defined");
+        tagTypes.add("cn_app_tag_user_defined");*/
 
         for (Map<String, Object> metadata : metaList) {
-            String name = (String) metadata.get("name");
-            String format = (String) metadata.get("format");
+
             String sha256 = (String) metadata.get("sha256");
             String fileUrl = (String) metadata.get("path");
-            String type = (String) metadata.get("type");
+            String id = (String) metadata.get("id");
             int isValid = (Integer) metadata.get("isValid");
 
-            String fileName = type + "." + format;
-            if (tagTypes.contains(type)) {
-                fileName = type + "," + name + "." + format;
-            }
+
             if (isValid != 1) {
                 sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
             }
 
             try {
-                if (!knowLedgeFileSha256.containsKey(fileName)) {
+                if (!knowLedgeFileSha256.containsKey(id)) {
                     byte[] downloadBytes = downloadFile(fileUrl, sha256, isValid);
                     KnowLedgeEntity knowLedgeEntity = new KnowLedgeEntity();
                     knowLedgeEntity.setDownloadBytes(downloadBytes);
-                    knowLedgeEntity.setFileUrl(fileUrl);
                     knowLedgeEntity.setIsValid(isValid);
                     knowLedgeEntity.setSha256(sha256);
-                    knowLedgeEntity.setTagType(type);
-                    knowLedgeFileSha256.put(fileName, sha256);
-                    updateMap.put(fileName, knowLedgeEntity);
+                    knowLedgeFileSha256.put(id, sha256);
+                    updateMap.put(id, knowLedgeEntity);
 
                 } else {
-                    if(!knowLedgeFileSha256.get(fileName).equals(sha256)){
+                    if (!knowLedgeFileSha256.get(id).equals(sha256)) {
                         byte[] downloadBytes = downloadFile(fileUrl, sha256, isValid);
                         KnowLedgeEntity knowLedgeEntity = new KnowLedgeEntity();
                         knowLedgeEntity.setDownloadBytes(downloadBytes);
-                        knowLedgeEntity.setFileUrl(fileUrl);
                         knowLedgeEntity.setIsValid(isValid);
                         knowLedgeEntity.setSha256(sha256);
-                        knowLedgeEntity.setTagType(type);
-                        knowLedgeFileSha256.put(fileName, sha256);
-                        updateMap.put(fileName, knowLedgeEntity);
+                        knowLedgeFileSha256.put(id, sha256);
+                        updateMap.put(id, knowLedgeEntity);
 
                     }
 
 
                 }
-              if(updateMap.size()>0){
 
-                  IPUtils.loadIpLook(updateMap);
-              }
+
 
             } catch (Exception e) {
-                System.out.println("process file " + fileName + " error, error message:" + e.getMessage());
+                System.out.println("process file " + id + " error, error message:" + e.getMessage());
                 e.printStackTrace();
             }
+        }
+        if(updateMap.size()>0){
+
+            IPUtils.loadIpLook(updateMap);
+            //   csvUtils.loadIpLook(updateMap);
         }
     }
 
