@@ -1,8 +1,8 @@
-package com.geedgenetworks.udf.expressions;
+package com.geedgenetworks.expressions;
 
-import com.geedgenetworks.udf.parser.EvalExpressionBaseVisitor;
-import com.geedgenetworks.udf.parser.EvalExpressionLexer;
-import com.geedgenetworks.udf.parser.EvalExpressionParser;
+import com.geedgenetworks.expressions.parser.EvalExpressionBaseVisitor;
+import com.geedgenetworks.expressions.parser.EvalExpressionLexer;
+import com.geedgenetworks.expressions.parser.EvalExpressionParser;
 import com.google.common.base.Strings;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.PredictionMode;
