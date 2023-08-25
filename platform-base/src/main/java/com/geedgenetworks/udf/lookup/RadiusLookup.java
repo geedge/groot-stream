@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.geedgenetworks.config.commonConfig.HBASE_GTPC_SCAN_MAX_ROWS;
+import static com.geedgenetworks.config.commonConfig.HBASE_RADIUS_SCAN_MAX_ROWS;
+
 /**
  * This class provides methods to interact with HBase for fetching radius-related data.
  *
@@ -34,11 +37,14 @@ public class RadiusLookup extends HbaseLookup<String, String> {
             final Map<String, String> tmp = new HashMap<>();
             try {
                 // TODO: Read limit and time range from parameters
-                client.scan(HBASE_RADIUS_TABLE_NAME, 0, TimeRange.allTime(), ret -> {
-                    String framedIp = ret.getString(RADIUS_FAMILY_NAME, "framed_ip");
-                    String account = ret.getString(RADIUS_FAMILY_NAME, "account");
-                    tmp.put(framedIp, account);
-                });
+                client.scan(HBASE_RADIUS_TABLE_NAME,
+                        HBASE_RADIUS_SCAN_MAX_ROWS > 0 ? HBASE_GTPC_SCAN_MAX_ROWS : Integer.MAX_VALUE,
+                        TimeRange.allTime(),
+                        ret -> {
+                            String framedIp = ret.getString(RADIUS_FAMILY_NAME, "framed_ip");
+                            String account = ret.getString(RADIUS_FAMILY_NAME, "account");
+                            tmp.put(framedIp, account);
+                        });
             } catch (IOException e) {
                 LOG.warn("Error while caching radius relations.", e);
             }

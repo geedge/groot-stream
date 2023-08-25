@@ -22,6 +22,6 @@ public class EvalFunction implements UdfFunction {
     @Override
     public void udffunction(Event event) {
         Map<String, Object> extractedFields = event.getExtractedFields();
-        extractedFields.put(output, new EvalExecutor(extractedFields).eval(expr));
+        extractedFields.put(output, EvalExecutor.eval(expr, extractedFields));
     }
 }
