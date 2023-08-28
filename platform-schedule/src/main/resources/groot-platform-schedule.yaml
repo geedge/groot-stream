@@ -29,6 +29,7 @@ sources:
     properties:
       initial_port: 12345
       buffer_size: 65535
+      receive_buffer: 104857600
       max_attempts: 10
 
 filters:
