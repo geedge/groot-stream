@@ -126,10 +126,35 @@ processing_pipelines:
         lookup_fields: ['http_host','ssl_sni','quic_sni']
         output_fields: ['domain_sld']
         class_name: com.geedgenetworks.udf.FirstSignificantSubdomainFunction
-      - name: DomainFunction
-        lookup_fields: ['http_host','ssl_sni','quic_sni']
-        output_fields: ['domain']
-        class_name: com.geedgenetworks.udf.DomainFunction
+      - name: BASE64_DECODE_TO_STRING
+        lookup_fields: ['mail_subject','mail_subject_charset']
+        output_fields: ['mail_subject']
+        class_name: com.geedgenetworks.udf.DecodeBase64Function
+      - name: JSON_EXTRACT
+        lookup_fields: ['common_device_tag']
+        output_fields: ['common_data_center']
+        filter:
+        class_name: com.geedgenetworks.udf.JsonExtractFunction
+        parameters:
+          param: $.tags[?(@.tag=='data_center')][0].value
+      - name: JSON_EXTRACT
+        lookup_fields: ['common_device_tag']
+        output_fields: ['common_device_group']
+        filter:
+        class_name: com.geedgenetworks.udf.JsonExtractFunction
+        parameters:
+          param: $.tags[?(@.tag=='device_group')][0].value
+      - name: EVAL
+        parameters:
+          value_expression: 'common_flag = 8 ? common_client_ip : common_server_ip'
+      - name: RADIUS_LOOKUP
+        lookup_fields: [ 'common_client_ip' ]
+        output_fields: [ 'common_subscriber_id' ]
+        class_name: com.geedgenetworks.udf.functions.RadiusLookupFunction
+      - name: GTP_C_LOOKUP
+        lookup_fields: [ 'common_tunnels' ]
+        output_fields: [ 'common_phone_number', 'common_imsi', 'common_imei' ]
+        class_name: com.geedgenetworks.udf.functions.GtpCLookupFunction
 
 
   aggregate_processor2:
