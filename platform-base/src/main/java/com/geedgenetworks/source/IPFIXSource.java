@@ -1,8 +1,11 @@
 package com.geedgenetworks.source;
 
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.SourceConfig;
+import com.geedgenetworks.utils.IPFIXUtils;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -10,52 +13,69 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.ParallelSourceFunction;
 import org.apache.flink.util.Collector;
 import org.cert.netsa.io.ipfix.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import scala.collection.Iterator;
+import scala.collection.concurrent.TrieMap;
+import scala.xml.Node;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class IPFIXSource implements Source {
-    private static final Logger logger = LoggerFactory.getLogger(IPFIXSource.class);
+    private static final Log logger = LogFactory.get();
 
-    private static InfoModel model = InfoModel.getStandardInfoModel(true);
-    private static SessionGroup sessionGroup = new SessionGroup(model, null, false);
+    private static SessionGroup sessionGroup;
+
+    static {
+        InfoModel model = InfoModel.getStandardInfoModel(true);
+        sessionGroup = new SessionGroup(model, null, false);
+        ArrayList<Node> elements = IPFIXUtils.getElements();
+        for (Node element : elements) {
+            model.importElements(element);
+        }
+    }
 
     @Override
     public SingleOutputStreamOperator<Event> source(StreamExecutionEnvironment env, SourceConfig sourceConfig) {
         Map<String, Object> ipfixConfig = sourceConfig.getProperties();
-        UDPSource udpSource = new UDPSource(Integer.parseInt(ipfixConfig.get("initial_port").toString()),Integer.parseInt(ipfixConfig.get("max_attempts").toString()) ,Integer.parseInt(ipfixConfig.get("buffer_size").toString()));
-        DataStream<byte[]> sourceForSession = env.addSource(udpSource).setParallelism(Integer.parseInt(sourceConfig.getProperties().getOrDefault("max_attempts",1).toString()));
+        UDPSource udpSource = new UDPSource(Integer.parseInt(ipfixConfig.get("initial_port").toString()), Integer.parseInt(ipfixConfig.get("max_attempts").toString()), Integer.parseInt(ipfixConfig.get("buffer_size").toString()), Integer.parseInt(ipfixConfig.get("receive_buffer").toString()));
+        DataStream<byte[]> sourceForSession = env.addSource(udpSource).setParallelism(Integer.parseInt(sourceConfig.getProperties().getOrDefault("max_attempts", 1).toString()));
         SingleOutputStreamOperator<Event> streamEvent = sourceForSession.flatMap(new FlatMapFunction<byte[], Event>() {
             @Override
             public void flatMap(byte[] data, Collector<Event> out) {
                 try {
                     ByteBuffer buffer = ByteBuffer.wrap(data);
                     RecordReader reader = new RecordReader(new ByteBufferMessageReader(buffer, sessionGroup));
-                    Event grootevent = null;
-                    while (reader.hasNext()) {
-                        grootevent = new Event();
-                        Record record = reader.next();
-                        Iterator<Field> fields = record.fields();
-                        Map<String, Object> fieldMap = new HashMap<>();
-                        while (fields.hasNext()) {
-                            Field field = fields.next();
-                            fieldMap.put(field.ie().name(), field.value());
+                    if (reader.isEmpty()) {
+                        Iterator<Session> iterator = sessionGroup.iterator();
+                        while (iterator.hasNext()) {
+                            Session next = iterator.next();
+                            logger.info("domain: " + next.observationDomain());
+                            TrieMap<Object, Template> objectTemplateTrieMap = next.idGetTmpl();
+                            logger.info("Template: " + objectTemplateTrieMap.toString());
                         }
-                        //System.out.println(fieldMap);
-                        grootevent.setExtractedFields(fieldMap);
-                        grootevent.setFinal(true);
+                    } else {
+                        while (reader.hasNext()) {
+                            Event grootevent = new Event();
+                            Record record = reader.next();
+                            Iterator<Field> fields = record.fields();
+                            Map<String, Object> fieldMap = new HashMap<>();
+                            while (fields.hasNext()) {
+                                Field field = fields.next();
+                                fieldMap.put(field.ie().name(), field.value());
+                            }
+                            grootevent.setExtractedFields(fieldMap);
+                            grootevent.setFinal(true);
+                            out.collect(grootevent);
+                        }
                     }
-                    out.collect(grootevent);
                 } catch (Exception e) {
-                    logger.error("IPFIXSource get record error." + e);
+                    logger.error("IPFIXSource get record error.", e);
                 }
             }
         }).setParallelism(sourceConfig.getParallelism());
@@ -64,51 +84,59 @@ public class IPFIXSource implements Source {
 }
 
 class UDPSource implements ParallelSourceFunction<byte[]> {
+    private static final Log logger = LogFactory.get();
+
     private final int initial_port;
     private final int max_attempts;
     private final int buffer_size;
+    private final int receive_buffer;
     private transient DatagramChannel channel;
-    private static final Logger logger = LoggerFactory.getLogger(UDPSource.class);
 
-    public UDPSource(int initial_port,int max_attempts, int buffer_size) {
+    public UDPSource(int initial_port, int max_attempts, int buffer_size, int receive_buffer) {
         this.initial_port = initial_port;
         this.buffer_size = buffer_size;
-        this.max_attempts=max_attempts;
+        this.max_attempts = max_attempts;
+        this.receive_buffer = receive_buffer;
     }
 
     @Override
-    public void run(SourceContext<byte[]> ctx) throws Exception {
-        channel = DatagramChannel.open();
-        channel.configureBlocking(false);
-
-        channel=findAvailablePort(channel,initial_port,40);
-        while (true) {
-            try {
-                ByteBuffer buffer = ByteBuffer.allocate(buffer_size);
-                SocketAddress receive = channel.receive(buffer);
-                if (receive != null) {
+    public void run(SourceContext<byte[]> ctx) {
+        try {
+            channel = DatagramChannel.open();
+            channel.setOption(StandardSocketOptions.SO_RCVBUF, receive_buffer);
+            channel.configureBlocking(false);
+            channel = findAvailablePort(channel, initial_port, max_attempts);
+            ByteBuffer buffer = ByteBuffer.allocate(buffer_size);
+            while (true) {
+                if (channel.receive(buffer) != null) {
                     buffer.flip();
                     byte[] data = new byte[buffer.remaining()];
                     buffer.get(data);
                     ctx.collect(data);
+                    buffer.clear();
                 }
-            } catch (Exception e) {
-                logger.error(e.toString());
             }
+        } catch (Exception e) {
+            logger.error(e.toString(), e);
         }
     }
-    public static DatagramChannel findAvailablePort(DatagramChannel channel,int initialPort, int maxAttempts) {
+
+    @Override
+    public void cancel() {
+        IoUtil.close(channel);
+    }
+
+    public static DatagramChannel findAvailablePort(DatagramChannel channel, int initialPort, int maxAttempts) {
         int currentPort = initialPort;
         int attempt = 1;
-
         while (attempt <= maxAttempts) {
-            try  {
+            try {
                 channel.bind(new InetSocketAddress(currentPort));
                 return channel; // 找到可用端口
             } catch (IOException e) {
                 // 捕获端口占用异常
                 if (e.getMessage().contains("Address already in use")) {
-                    System.out.println("端口 " + currentPort + " 已被占用");
+                    logger.info("端口 " + currentPort + " 已被占用");
                     currentPort++;
                     attempt++;
                 } else {
@@ -117,11 +145,6 @@ class UDPSource implements ParallelSourceFunction<byte[]> {
                 }
             }
         }
-
         return null; // 无法找到可用端口
-    }
-    @Override
-    public void cancel() {
-        IoUtil.close(channel);
     }
 }

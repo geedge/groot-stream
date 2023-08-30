@@ -2,12 +2,12 @@ sources:
   kafkasource_bj:
     format: json
     type : com.geedgenetworks.source.KafkaSource
-   # output_fields: ['common_server_ip','common_server_port','common_recv_time','http_domain','common_sessions','common_schema_type']
-   # watermark_timestamp: common_recv_time
+    output_fields: ['common_recv_time','common_log_id','common_flags','common_start_time','common_end_time','common_con_duration_ms','common_schema_type','common_client_ip','common_server_ip','common_client_port','common_server_port','common_app_label','common_app_full_path','common_l4_protocol','common_l7_protocol','common_out_link_id','common_in_link_id','http_host','http_url','http_response_line','http_status_code','ssl_sni','ssl_san','ssl_ja3_hash','ssl_ja3s_hash','ssl_cert_issuer','ssl_cert_subject','dns_qr','dns_opcode','dns_aa','dns_rcode','dns_qname','dns_qtype','dns_qclass','dns_sub','dns_rr','common_c2s_pkt_num','common_c2s_byte_num','common_s2c_pkt_num','common_s2c_byte_num','common_sessions','common_c2s_tcp_lostlen','common_s2c_tcp_lostlen','common_c2s_tcp_unorder_num','common_s2c_tcp_unorder_num','common_c2s_byte_retrans','common_s2c_byte_retrans','common_c2s_pkt_retrans','common_s2c_pkt_retrans','common_establish_latency_ms','http_response_latency_ms','ssl_con_latency_ms','dns_response_latency_ms']
+    # watermark_timestamp: common_recv_time
    # watermark_lag: 60
     properties:
-        topics:  ['SESSION-RECORD-COMPLETED']
-        kafka.bootstrap.servers: 192.168.44.12:9092
+        topics:  ['SESSION-RECORD-TMP']
+        kafka.bootstrap.servers: 192.168.44.55:9092
         kafka.session.timeout.ms: 60000
         kafka.max.poll.records: 3000
         kafka.max.partition.fetch.bytes: 31457280
@@ -20,7 +20,7 @@ sources:
         kafka.sasl.mechanism:
         kafka.sasl.jaas.config:
         kafka.buffer.memory:
-        kafka.group.id: SESSION-RECORD-COMPLETED-GROUP
+        kafka.group.id: SESSION-RECORD-COMPLETED-GROUP-1
         kafka.auto.offset.reset: latest
         kafka.max.request.size:
         kafka.compression.type: none
@@ -29,6 +29,7 @@ sources:
     properties:
       initial_port: 12345
       buffer_size: 65535
+      receive_buffer: 104857600
       max_attempts: 10
 
 filters:
@@ -67,6 +68,49 @@ processing_pipelines:
   session_record_processor:
     type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
     output_fields:
+      properties:
+      key: value
+    functions:
+#      - name: SNOWFLAKE_ID
+#        lookup_fields: ['']
+#        output_fields: ['common_log_id']
+#        filter:
+#        class_name: com.geedgenetworks.udf.snowflake.SnowflakeIdFunction
+#        parameters:
+#          snowid_zookeeper: 192.168.44.12
+#          data_center_id_num: 1
+#      - name: TOP_LEVEL_DOMAIN
+#        lookup_fields: ['http_domain','ssl_sni','quic_sni']
+#        output_fields: ['common_server_domain']
+#        class_name: com.geedgenetworks.udf.FirstSignificantSubdomainFunction
+#      - name: BASE64_DECODE_TO_STRING
+#        lookup_fields: ['mail_subject','mail_subject_charset']
+#        output_fields: ['mail_subject']
+#        class_name: com.geedgenetworks.udf.DecodeBase64Function
+#      - name: JSON_EXTRACT
+#        lookup_fields: ['common_device_tag']
+#        output_fields: ['common_data_center']
+#        filter:
+#        class_name: com.geedgenetworks.udf.JsonExtractFunction
+#        parameters:
+#          param: $.tags[?(@.tag=='data_center')][0].value
+#      - name: JSON_EXTRACT
+#        lookup_fields: ['common_device_tag']
+#        output_fields: ['common_device_group']
+#        filter:
+#        class_name: com.geedgenetworks.udf.JsonExtractFunction
+#        parameters:
+#          param: $.tags[?(@.tag=='device_group')][0].value
+      - name: IpLocationFunction
+        lookup_fields: ['common_server_ip']
+        output_fields: ['aaa','ffff']
+        class_name: com.geedgenetworks.udf.IpLocationFunction
+        parameters:
+          kb_id : acf1db8589c5e277-10798bc00aed2135
+          option: IP_TO_GEO
+  cn_record_processor:
+    type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
+   # output_fields: ['common_recv_time ','common_log_id','common_flags','common_start_time','common_end_time','common_con_duration_ms','common_schema_type','common_client_ip','common_server_ip','common_client_port','common_server_port','common_app_label','common_app_full_path','common_l4_protocol','common_l7_protocol','common_out_link_id','common_in_link_id','http_host','http_url,'http_response_line','http_status_code','ssl_sni','ssl_san','ssl_ja3_hash','ssl_ja3s_hash','ssl_cert_issuer','ssl_cert_subject','dns_qr','dns_opcode','dns_aa','dns_rcode','dns_qname','dns_qtype','dns_qclass','dns_sub','dns_rr','common_c2s_pkt_num','common_c2s_byte_num','common_s2c_pkt_num','common_s2c_byte_num','common_sessions','common_c2s_tcp_lostlen','common_s2c_tcp_lostlen','common_c2s_tcp_unorder_num','common_s2c_tcp_unorder_num','common_c2s_byte_retrans','common_s2c_byte_retrans','common_c2s_pkt_retrans','common_s2c_pkt_retrans','common_establish_latency_ms','http_response_latency_ms','ssl_con_latency_ms','dns_response_latency_ms']
     properties:
       key: value
     functions:
@@ -76,11 +120,11 @@ processing_pipelines:
         filter:
         class_name: com.geedgenetworks.udf.snowflake.SnowflakeIdFunction
         parameters:
-          snowid_zookeeper: 192.168.44.12
+          snowid_zookeeper: 192.168.44.55
           data_center_id_num: 1
       - name: TOP_LEVEL_DOMAIN
-        lookup_fields: ['http_domain','ssl_sni','quic_sni']
-        output_fields: ['common_server_domain']
+        lookup_fields: ['http_host','ssl_sni','quic_sni']
+        output_fields: ['domain_sld']
         class_name: com.geedgenetworks.udf.FirstSignificantSubdomainFunction
       - name: BASE64_DECODE_TO_STRING
         lookup_fields: ['mail_subject','mail_subject_charset']
@@ -135,7 +179,7 @@ sink:
     format: json
     type : com.geedgenetworks.sink.KafkaSink
     properties:
-      topic:  SESSION-RECORD-COMPLETED
+      topic:  SESSION-RECORD
       kafka.bootstrap.servers: 192.168.44.12:9092
       kafka.retries: 0
       kafka.linger.ms: 10
@@ -154,11 +198,11 @@ sink:
       kafka.sasl.jaas.config:
 
 application:
-  name: demo
+  name: cn-test
   parallelism: 1
   topology:
     kafkasource_bj:
-      parallelism: 10
+      parallelism: 3
       next: ['session_record_processor']
 #    http_filter:
 #      parallelism: 10
@@ -167,9 +211,9 @@ application:
 #      parallelism: 10
 #      next:  []
     session_record_processor:
-      parallelism: 4
+      parallelism: 3
       next: ['kafkasink_lz']
     kafkasink_lz:
-      parallelism: 5
+      parallelism: 3
       next: []
 
