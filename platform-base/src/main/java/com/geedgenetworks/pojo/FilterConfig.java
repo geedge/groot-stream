@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public class FilterEntity implements Serializable {
+public class FilterConfig implements Serializable {
 
     private List<String> output_fields;
     private String type;

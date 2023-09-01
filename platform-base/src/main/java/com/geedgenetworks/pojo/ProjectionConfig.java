@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Projection implements Serializable {
+public class ProjectionConfig implements Serializable {
 
 
     private int parallelism;

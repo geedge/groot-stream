@@ -3,7 +3,7 @@ package com.geedgenetworks.pojo;
 import java.util.List;
 import java.util.Map;
 
-public class Aggregate {
+public class AggregateConfig {
 
     private String type;
     private int parallelism;

@@ -1,91 +1,217 @@
 package com.geedgenetworks.utils;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.TypeReference;
-import com.zdjizhi.utils.IpLookupV2;
-import com.zdjizhi.utils.StringUtil;
-import inet.ipaddr.IPAddressString;
+import com.alibaba.nacos.api.NacosFactory;
+import com.alibaba.nacos.api.PropertyKeyConst;
+import com.alibaba.nacos.api.config.ConfigService;
+import com.alibaba.nacos.api.config.listener.Listener;
+import com.alibaba.nacos.api.exception.NacosException;
+import com.geedgenetworks.config.commonConfig;
+import com.jayway.jsonpath.JsonPath;
+import org.apache.http.Header;
+import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Executor;
 
-import static com.geedgenetworks.config.commonConfig.*;
-import static com.geedgenetworks.utils.knowledgeUtil.initKnowledge;
+import static com.geedgenetworks.config.commonConfig.KNOWLEDGE_ASNLOOKUP_MAP;
+import static com.geedgenetworks.config.commonConfig.KNOWLEDGE_IPLOOKUP_MAP;
 
 public class IPUtils {
-    public static IpLookupV2 ipLookup;
+
 
     private static final Logger LOG = LoggerFactory.getLogger(IPUtils.class);
+    public static Map<String,IpLookupV2> venderWithIpLookup = new HashMap<>();
+    public static Map<String,IpLookupV2> venderWithAsnLookup = new HashMap<>();
+
+    private static final String KNOWLEDGE_EXPR;
+
+    //public static  Map<String, IpLookupV2>  ipLookupV2Map = new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(IPUtils.class);
+    public static Map<String, KnowLedgeEntity> knowledgeEntityMap = new HashMap<>();
 
 
-    public static  Map<String, IpLookupV2>  ipLookupV2Map = new HashMap<>();
+    static{
 
 
-    static {
 
-        initKnowledge();
+
+
+        StringBuilder sb = new StringBuilder("");
+        sb.append("$.[?(@.version=='latest' && @.name in ['ip_v4_built_in','ip_v6_built_in','ip_v4_user_defined','ip_v6_user_defined','asn_v4','asn_v6']  && @.id in ['");
+        //    sb.append(commonConfig.ID_ARRAY);
+
+        for (Map.Entry<String, Object> entry : KNOWLEDGE_IPLOOKUP_MAP.entrySet()) {
+            Map<String, String> ids= (Map<String, String>) entry.getValue();
+            for (Map.Entry<String, String> obj : ids.entrySet()) {
+                sb.append(obj.getValue());
+                sb.append("','");
+            }
+        }
+        for (Map.Entry<String, Object> entry : KNOWLEDGE_ASNLOOKUP_MAP.entrySet()) {
+            Map<String, String> ids= (Map<String, String>) entry.getValue();
+            for (Map.Entry<String, String> obj : ids.entrySet()) {
+                sb.append(obj.getValue());
+                sb.append("','");
+            }
+        }
+        sb.append("'])].['id','name','sha256','format','path','type','isValid']");
+        KNOWLEDGE_EXPR = sb.toString();
+        System.out.println("listening nacos config");
+        Properties properties = new Properties();
+        properties.put(PropertyKeyConst.SERVER_ADDR, commonConfig.NACOS_SERVER_ADDR);
+        properties.setProperty(PropertyKeyConst.USERNAME, commonConfig.NACOS_USERNAME);
+        properties.setProperty(PropertyKeyConst.PASSWORD, commonConfig.NACOS_PASSWORD);
+        if (!StringUtil.isEmpty(commonConfig.NACOS_NAMESPACE)) {
+            properties.setProperty(PropertyKeyConst.NAMESPACE, commonConfig.NACOS_NAMESPACE);
+        }
+        Properties nacosProperties = properties;
+        String dataId = commonConfig.NACOS_DATA_ID;
+        String group = commonConfig.NACOS_GROUP;
+        long readTimeout = commonConfig.NACOS_READ_TIMEOUT;
+        //初始化定位库缓存
+        logger.info("connect nacos：" + nacosProperties.getProperty(PropertyKeyConst.SERVER_ADDR));
+        try {
+            ConfigService configService = NacosFactory.createConfigService(nacosProperties);
+            String nacosInfo = configService.getConfig(dataId, group, readTimeout);
+            processNacosInfo(nacosInfo);
+
+            configService.addListener(dataId, group, new Listener() {
+                @Override
+                public Executor getExecutor() {
+                    return null;
+                }
+
+                @Override
+                public void receiveConfigInfo(String nacosInfo) {
+                    processNacosInfo(nacosInfo);
+                }
+            });
+        } catch (NacosException e) {
+            e.printStackTrace();
+        }
+    }
+    private static  void processNacosInfo(String nacosInfo) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String currentDate = formatter.format(new Date());
+        System.out.println(currentDate + ": receive nacos config:" + nacosInfo);
+        ArrayList<Map<String, Object>> metaList = JsonPath.parse(nacosInfo).read(KNOWLEDGE_EXPR);
+        System.out.println("resolve " + metaList.size() + " metadata from the config info pushed by nacos");
+        loadKnowledge(metaList);
     }
 
-    public static void loadIpLook(Map<String, KnowLedgeEntity> knowLedgeFileSha256)  {
-        try {
+    private static void loadKnowledge(ArrayList<Map<String, Object>> metaList) {
 
 
-            for (Map.Entry<String, KnowLedgeEntity> entry : knowLedgeFileSha256.entrySet()) {
+        for (Map<String, Object> metadata : metaList) {
 
-                if(entry.getValue().getDownloadBytes() != null && entry.getValue().getDownloadBytes().length > 0)
+            String sha256 = (String) metadata.get("sha256");
+            String fileUrl = (String) metadata.get("path");
+            String id = (String) metadata.get("id");
+            int isValid = (Integer) metadata.get("isValid");
 
 
-                if(IPV4_BUILT_IN_ID.equals(entry.getKey())){
-
-                    IpLookupV2.Builder builderipv4 = new IpLookupV2.Builder(false);
-                    InputStream inputStreamipv4 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
-                    builderipv4.loadDataFileV4(inputStreamipv4);
-                    ipLookupV2Map.put(entry.getKey(),builderipv4.build());
-
-                }
-                else if (IPV6_BUILT_IN_ID.equals(entry.getKey())){
-
-                    IpLookupV2.Builder builderipv6 = new IpLookupV2.Builder(false);
-                    InputStream inputStreamipv6 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
-                    builderipv6.loadDataFileV6(inputStreamipv6);
-                    ipLookupV2Map.put(entry.getKey(),builderipv6.build());
-
-                }
-                else if (ASN_V4_ID.equals(entry.getKey())) {
-                    IpLookupV2.Builder builderasnv4 = new IpLookupV2.Builder(false);
-                    InputStream inputStreamasnv4 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
-                    builderasnv4.loadAsnDataFileV4(inputStreamasnv4);
-                    ipLookupV2Map.put(entry.getKey(),builderasnv4.build());
-                }
-                else if (ASN_V6_ID.equals(entry.getKey())) {
-                    IpLookupV2.Builder builderasnv6 = new IpLookupV2.Builder(false);
-                    InputStream inputStreamv4 = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
-                    builderasnv6.loadAsnDataFileV6(inputStreamv4);
-                    ipLookupV2Map.put(entry.getKey(),builderasnv6.build());
-                }
-                else if (IPV4_USER_DEFINED_ID.equals(entry.getKey())) {
-
-                    IpLookupV2.Builder builderUserDefinedv4 = new IpLookupV2.Builder(false);
-                    InputStream ipv4UserDefinedFile = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
-                    builderUserDefinedv4.loadDataFilePrivateV4(ipv4UserDefinedFile);
-                    ipLookupV2Map.put(entry.getKey(),builderUserDefinedv4.build());
-                }
-                else if (IPV6_USER_DEFINED_ID.equals(entry.getKey())) {
-
-                    IpLookupV2.Builder builderUserDefinedv6 = new IpLookupV2.Builder(false);
-                    InputStream ipv6UserDefinedFile = new ByteArrayInputStream(entry.getValue().getDownloadBytes());
-                    builderUserDefinedv6.loadDataFilePrivateV4(ipv6UserDefinedFile);
-                    ipLookupV2Map.put(entry.getKey(),builderUserDefinedv6.build());
-                }
-
+            if (isValid != 1) {
+                sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
             }
 
+            try {
+                if (!knowledgeEntityMap.containsKey(id)) {
+                    InputStream inputStream = downloadFile(fileUrl,isValid);
+                    KnowLedgeEntity knowLedgeEntity = new KnowLedgeEntity();
+                    knowLedgeEntity.setInputStream(inputStream);
+                    knowLedgeEntity.setIsValid(isValid);
+                    knowLedgeEntity.setSha256(sha256);
+                    knowledgeEntityMap.put(id, knowLedgeEntity);
+
+                } else {
+                    if (!knowledgeEntityMap.get(id).equals(sha256)) {
+                        InputStream inputStream  = downloadFile(fileUrl, isValid);
+                        KnowLedgeEntity knowLedgeEntity = new KnowLedgeEntity();
+                        knowLedgeEntity.setInputStream(inputStream);
+                        knowLedgeEntity.setIsValid(isValid);
+                        knowLedgeEntity.setSha256(sha256);
+                        knowledgeEntityMap.put(id, knowLedgeEntity);
+
+                    }
 
 
+                }
+
+
+
+            } catch (Exception e) {
+                System.out.println("process file " + id + " error, error message:" + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        loadIpLook();
+
+    }
+
+    private static InputStream downloadFile(String fileUrl,int isValid) {
+        InputStream inputStream = null;
+        if (isValid == 1) {
+            try {
+                long start = System.currentTimeMillis();
+                Header header = new BasicHeader("token", commonConfig.HOS_TOKEN);
+                HttpClientUtils httpClientUtils = new HttpClientUtils();
+                inputStream = httpClientUtils.httpGetInputStream(fileUrl, 3000, header);
+                long end = System.currentTimeMillis();
+                System.out.println("download file " + fileUrl + " finished, speed " + (end - start) + " ms");
+            } catch (Exception e) {
+                System.out.println("download file " + fileUrl + " error: " + e.getMessage());
+            }
+        }
+        return inputStream;
+    }
+
+
+
+    public static void loadIpLook()  {
+        try {
+            for (Map.Entry<String, Object> entry : KNOWLEDGE_IPLOOKUP_MAP.entrySet()) {
+                Map<String, String> ids= (Map<String, String>) entry.getValue();
+                IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
+                for (Map.Entry<String, String> obj : ids.entrySet()) {
+
+                    if("ip_v4_built_in_id".equals(obj.getKey())) {
+                        ipLookupBuilder.loadDataFileV4(knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                    }
+                    if("ip_v6_built_in_id".equals(obj.getKey())) {
+                        ipLookupBuilder.loadDataFileV6(knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                    }
+                    if("ip_v4_user_defined_id".equals(obj.getKey())) {
+                        ipLookupBuilder.loadDataFilePrivateV4(knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                    }
+                    if("ip_v6_user_defined_id".equals(obj.getKey())) {
+                        ipLookupBuilder.loadDataFilePrivateV6(knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                    }
+
+                }
+                IpLookupV2 ipLookup = ipLookupBuilder.build();
+                venderWithIpLookup.put(entry.getKey(),ipLookup);
+            }
+
+            for (Map.Entry<String, Object> entry : KNOWLEDGE_ASNLOOKUP_MAP.entrySet()) {
+                Map<String, String> ids= (Map<String, String>) entry.getValue();
+                IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
+                for (Map.Entry<String, String> obj : ids.entrySet()) {
+
+                    if("asn_v4_id".equals(obj.getKey())) {
+                        asnLookupBuilder.loadAsnDataFile(knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                    }
+                    if("asn_v6_id".equals(obj.getKey())) {
+                        asnLookupBuilder.loadAsnDataFileV6(knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                    }
+
+                }
+                IpLookupV2 ipLookup = asnLookupBuilder.build();
+                venderWithAsnLookup.put(entry.getKey(),ipLookup);
+            }
         } catch (Exception e) {
             LOG.error("加载失败", e);
         }
@@ -97,46 +223,36 @@ public class IPUtils {
     public static void main(String[] args) throws Exception {
         String ip = "114.64.231.114";
 
-        ipLookup=ipLookupV2Map.get(IPV4_BUILT_IN_ID);
-        System.out.println("cityLookupDetail:" + ipLookup.cityLookupDetail(ip));
-        System.out.println("cityLookup:" + ipLookup.cityLookup(ip));
-        System.out.println("countryLookup:" + ipLookup.countryLookup(ip));
-        System.out.println("locationLookupDetail:" + ipLookup.locationLookupDetail(ip));
-        System.out.println("provinceLookup:" + ipLookup.provinceLookup(ip));
-        System.out.println("----------------------------");
-
-        long start1 = System.currentTimeMillis();
-        System.out.println("administrativeAreaLookupDetail:" + ipLookup.administrativeAreaLookupDetail(ip));
-        System.out.println("asnLookupDetail:" + ipLookup.asnLookupDetail(ip));
-        System.out.println("cityLookupDetail:" + ipLookup.cityLookupDetail(ip));
-        System.out.println("locationLookupDetail:" + ipLookup.locationLookupDetail(ip));
-        System.out.println("ispLookup:" + ipLookup.ispLookup(ip));
-        System.out.println("cityLatLngLookup:" + ipLookup.cityLatLngLookup(ip));
-        long end1 = System.currentTimeMillis();
-        System.out.println(end1 - start1);
-
-        System.out.println("--------------------------------------");
-        System.out.println("infoLookupToCSV:" + ipLookup.infoLookupToCSV(ip));
-        System.out.println("infoLookupToJson:" + ipLookup.infoLookupToJson(ip));
-        System.out.println("----------------------------");
-
-        long start2 = System.currentTimeMillis();
-        HashMap<String, Object> serverIpMap = JSON.parseObject(ipLookup.infoLookupToJson(ip), TypeReference.mapType(HashMap.class, String.class, Object.class));
-        System.out.println("isp:" + serverIpMap.getOrDefault("isp", StringUtil.EMPTY));
-
-        long end2 = System.currentTimeMillis();
-        System.out.println(end2 - start2);
-        System.out.println("country:" + serverIpMap.getOrDefault("country", StringUtil.EMPTY));
-        System.out.println("superAdministrativeArea:" + serverIpMap.getOrDefault("superAdministrativeArea", StringUtil.EMPTY));
-        System.out.println("administrativeArea:" + serverIpMap.getOrDefault("administrativeArea", StringUtil.EMPTY));
-        System.out.println("organization:" + serverIpMap.getOrDefault("organization", StringUtil.EMPTY));
-        System.out.println("longitude:" + serverIpMap.getOrDefault("longitude", StringUtil.EMPTY));
-        System.out.println("latitude:" + serverIpMap.getOrDefault("latitude", StringUtil.EMPTY));
-        System.out.println("asn:" + serverIpMap.getOrDefault("asn", StringUtil.EMPTY));
-
-        System.out.println("-------------------------------------");
-        IPAddressString ipAddressString = new IPAddressString(ip);
+        test(ip);
 
 
     }
+      private static void test(String ip){
+
+          IpLookupV2 ipLookup=venderWithIpLookup.get("TSG");
+          System.out.println("cityLookupDetail:" + ipLookup.cityLookupDetail(ip));
+          System.out.println("cityLookup:" + ipLookup.cityLookup(ip));
+          System.out.println("countryLookup:" + ipLookup.countryLookup(ip));
+          System.out.println("locationLookupDetail:" + ipLookup.locationLookupDetail(ip));
+          System.out.println("provinceLookup:" + ipLookup.provinceLookup(ip));
+          System.out.println("----------------------------");
+
+          long start1 = System.currentTimeMillis();
+          System.out.println("administrativeAreaLookupDetail:" + ipLookup.administrativeAreaLookupDetail(ip));
+          System.out.println("asnLookupDetail:" + ipLookup.asnLookupDetail(ip));
+          System.out.println("cityLookupDetail:" + ipLookup.cityLookupDetail(ip));
+          System.out.println("locationLookupDetail:" + ipLookup.locationLookupDetail(ip));
+          System.out.println("ispLookup:" + ipLookup.ispLookup(ip));
+          System.out.println("cityLatLngLookup:" + ipLookup.cityLatLngLookup(ip));
+          long end1 = System.currentTimeMillis();
+          System.out.println(end1 - start1);
+
+          System.out.println("--------------------------------------");
+          System.out.println("infoLookupToCSV:" + ipLookup.infoLookupToCSV(ip));
+          System.out.println("infoLookupToJson:" + ipLookup.ispLookup(ip));
+          System.out.println("----------------------------");
+
+
+      }
+
 }

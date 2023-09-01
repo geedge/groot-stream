@@ -5,8 +5,6 @@ import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.geedgenetworks.config.commonConfig;
-import com.zdjizhi.utils.IpLookupV2;
-import com.zdjizhi.utils.StringUtil;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
