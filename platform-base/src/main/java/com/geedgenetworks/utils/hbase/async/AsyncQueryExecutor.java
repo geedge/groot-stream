@@ -1,6 +1,6 @@
-package com.geedgenetworks.udf.io.async;
+package com.geedgenetworks.utils.hbase.async;
 
-import com.geedgenetworks.udf.io.async.state.Cached;
+import com.geedgenetworks.utils.hbase.async.state.Cached;
 
 /**
  * An abstract class for executing asynchronous queries and caching the results.

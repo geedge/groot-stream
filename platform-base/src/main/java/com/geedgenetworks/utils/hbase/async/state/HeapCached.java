@@ -1,4 +1,4 @@
-package com.geedgenetworks.udf.io.async.state;
+package com.geedgenetworks.utils.hbase.async.state;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

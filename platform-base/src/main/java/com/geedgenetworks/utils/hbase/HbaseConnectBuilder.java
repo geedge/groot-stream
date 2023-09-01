@@ -1,4 +1,4 @@
-package com.geedgenetworks.udf.io;
+package com.geedgenetworks.utils.hbase;
 
 import com.github.rholder.retry.*;
 import org.apache.hadoop.conf.Configuration;

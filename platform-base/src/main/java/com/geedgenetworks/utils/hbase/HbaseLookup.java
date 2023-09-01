@@ -1,12 +1,12 @@
-package com.geedgenetworks.udf.lookup;
+package com.geedgenetworks.utils.hbase;
 
-import com.geedgenetworks.udf.io.HBaseClient;
-import com.geedgenetworks.udf.io.HbaseConnectBuilder;
-import com.geedgenetworks.udf.io.async.AsyncQueryExecutor;
-import com.geedgenetworks.udf.io.async.Fetcher;
-import com.geedgenetworks.udf.io.async.FixedRateFetcher;
-import com.geedgenetworks.udf.io.async.state.Cached;
-import com.geedgenetworks.udf.io.async.state.HeapCached;
+import com.geedgenetworks.utils.hbase.HBaseClient;
+import com.geedgenetworks.utils.hbase.HbaseConnectBuilder;
+import com.geedgenetworks.utils.hbase.async.AsyncQueryExecutor;
+import com.geedgenetworks.utils.hbase.async.Fetcher;
+import com.geedgenetworks.utils.hbase.async.FixedRateFetcher;
+import com.geedgenetworks.utils.hbase.async.state.Cached;
+import com.geedgenetworks.utils.hbase.async.state.HeapCached;
 import org.apache.flink.configuration.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 

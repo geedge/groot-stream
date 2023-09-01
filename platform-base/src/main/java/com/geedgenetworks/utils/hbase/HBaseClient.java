@@ -1,4 +1,4 @@
-package com.geedgenetworks.udf.io;
+package com.geedgenetworks.utils.hbase;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
