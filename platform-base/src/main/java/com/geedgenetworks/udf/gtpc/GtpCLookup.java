@@ -1,4 +1,4 @@
-package com.geedgenetworks.udf.radius;
+package com.geedgenetworks.udf.gtpc;
 
 import com.geedgenetworks.utils.hbase.HBaseClient;
 import com.geedgenetworks.utils.hbase.HbaseLookup;
