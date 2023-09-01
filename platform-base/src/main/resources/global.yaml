@@ -40,10 +40,10 @@ hdfs:
      servers:
 hbase:
      tick_tuple_freq_secs:
-     gtpc_scan_max_rows:
-     radius_scan_max_rows:
-     radius_table_name:
-     gtpc_table_name:
+     gtpc_scan_max_rows: 10000
+     radius_scan_max_rows: 10000
+     radius_table_name: RADIUS-TABLE
+     gtpc_table_name: GTPC-TABLE
      rpc_timeout:
 data:
    relationship_model:

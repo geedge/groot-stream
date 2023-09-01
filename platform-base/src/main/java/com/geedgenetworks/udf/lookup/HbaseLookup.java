@@ -11,8 +11,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.function.BiConsumer;
 
 /**
  * An abstract class representing an asynchronous query executor for HBase lookups with cache support.
@@ -46,9 +45,8 @@ public abstract class HbaseLookup<K, V> extends AsyncQueryExecutor<K, V> {
 
         // Define the update function for cache refresh
         final Runnable func = () -> {
-            Function<HBaseClient, Map<K, V>> update = getUpdate();
-            Map<K, V> values = update.apply(client);
-            values.forEach(cached::set);
+            BiConsumer<HBaseClient, Cached<K, V>> consumer = getUpdate();
+            consumer.accept(client, cached);
         };
 
         // Create a fetcher for scheduled cache updates
@@ -96,5 +94,5 @@ public abstract class HbaseLookup<K, V> extends AsyncQueryExecutor<K, V> {
      *
      * @return A function that fetches and returns data from HBase as a Map.
      */
-    protected abstract Function<HBaseClient, Map<K, V>> getUpdate();
+    protected abstract BiConsumer<HBaseClient, Cached<K, V>> getUpdate();
 }

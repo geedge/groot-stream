@@ -4,6 +4,7 @@ import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
 import com.geedgenetworks.udf.UdfFunction;
 import com.geedgenetworks.udf.lookup.RadiusLookup;
+import org.apache.flink.configuration.Configuration;
 
 import static com.geedgenetworks.config.commonConfig.DATA_RELATIONSHIP_MODEL;
 
@@ -12,8 +13,8 @@ public class RadiusLookupFunction implements UdfFunction {
     private final transient RadiusLookup radiusLookup;
     private final ProjectionFunction projectionFunction;
 
-    public RadiusLookupFunction(RadiusLookup radiusLookup, ProjectionFunction projectionFunction) {
-        this.radiusLookup = radiusLookup;
+    public RadiusLookupFunction(ProjectionFunction projectionFunction) {
+        this.radiusLookup = new RadiusLookup(new Configuration());
         this.projectionFunction = projectionFunction;
     }
 
