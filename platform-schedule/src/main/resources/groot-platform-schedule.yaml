@@ -152,13 +152,13 @@ processing_pipelines:
       - name: RADIUS_LOOKUP
         lookup_fields: [ 'common_client_ip' ]
         output_fields: [ 'common_subscriber_id' ]
-        class_name: com.geedgenetworks.udf.functions.RadiusLookupFunction
+        class_name: com.geedgenetworks.udf.radius.RadiusLookupFunction
         parameters:
 
       - name: GTP_C_LOOKUP
         lookup_fields: [ 'common_tunnels' ]
         output_fields: [ 'common_phone_number', 'common_imsi', 'common_imei' ]
-        class_name: com.geedgenetworks.udf.functions.GtpCLookupFunction
+        class_name: com.geedgenetworks.udf.radius.GtpCLookupFunction
 
 
   aggregate_processor2:

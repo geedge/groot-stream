@@ -1,4 +1,4 @@
-package com.geedgenetworks.udf.io.async.state;
+package com.geedgenetworks.utils.hbase.async.state;
 
 import java.io.Closeable;
 

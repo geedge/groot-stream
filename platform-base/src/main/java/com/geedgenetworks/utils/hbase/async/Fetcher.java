@@ -1,4 +1,4 @@
-package com.geedgenetworks.udf.io.async;
+package com.geedgenetworks.utils.hbase.async;
 
 /**
  * An interface for defining a fetcher that performs asynchronous data retrieval.

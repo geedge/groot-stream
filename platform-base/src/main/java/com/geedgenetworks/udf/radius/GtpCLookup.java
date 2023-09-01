@@ -1,7 +1,8 @@
-package com.geedgenetworks.udf.lookup;
+package com.geedgenetworks.udf.radius;
 
-import com.geedgenetworks.udf.io.HBaseClient;
-import com.geedgenetworks.udf.io.async.state.Cached;
+import com.geedgenetworks.utils.hbase.HBaseClient;
+import com.geedgenetworks.utils.hbase.HbaseLookup;
+import com.geedgenetworks.utils.hbase.async.state.Cached;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.flink.configuration.Configuration;
 import org.apache.hadoop.hbase.io.TimeRange;
