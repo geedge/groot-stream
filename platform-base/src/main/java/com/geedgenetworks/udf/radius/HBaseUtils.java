@@ -3,7 +3,7 @@ package com.geedgenetworks.udf.radius;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.geedgenetworks.config.commonConfig;
-import com.zdjizhi.utils.StringUtil;
+import com.geedgenetworks.utils.StringUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Connection;

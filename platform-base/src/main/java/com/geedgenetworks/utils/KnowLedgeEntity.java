@@ -1,9 +1,11 @@
 package com.geedgenetworks.utils;
 
+import java.io.InputStream;
+
 public class KnowLedgeEntity {
 
     private String sha256;
-    private byte[] downloadBytes;
+    private InputStream inputStream;
     private String id;
     private int isValid;
     private String format;
@@ -17,12 +19,12 @@ public class KnowLedgeEntity {
         this.sha256 = sha256;
     }
 
-    public byte[] getDownloadBytes() {
-        return downloadBytes;
+    public InputStream getInputStream() {
+        return inputStream;
     }
 
-    public void setDownloadBytes(byte[] downloadBytes) {
-        this.downloadBytes = downloadBytes;
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
     }
 
     public String getId() {

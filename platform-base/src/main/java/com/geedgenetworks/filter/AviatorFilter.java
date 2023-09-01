@@ -3,7 +3,7 @@ package com.geedgenetworks.filter;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.geedgenetworks.pojo.Event;
-import com.geedgenetworks.pojo.FilterEntity;
+import com.geedgenetworks.pojo.FilterConfig;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
@@ -24,27 +24,27 @@ public class AviatorFilter implements Filter {
 
 
     @Override
-    public SingleOutputStreamOperator<Event> filterFunction(SingleOutputStreamOperator<Event> singleOutputStreamOperator, FilterEntity FilterEntity) throws Exception {
+    public SingleOutputStreamOperator<Event> filterFunction(SingleOutputStreamOperator<Event> singleOutputStreamOperator, FilterConfig FilterConfig) throws Exception {
 
 
-        return singleOutputStreamOperator.filter(new FilterFunction(FilterEntity)).setParallelism(FilterEntity.getParallelism()).name("Filter");
+        return singleOutputStreamOperator.filter(new FilterFunction(FilterConfig)).setParallelism(FilterConfig.getParallelism()).name("Filter");
     }
 
 
 
     private static class FilterFunction extends RichFilterFunction<Event> {
 
-        private final FilterEntity FilterEntity;
+        private final FilterConfig FilterConfig;
 
-        public FilterFunction(FilterEntity FilterEntity) {
-            this.FilterEntity=FilterEntity;
+        public FilterFunction(FilterConfig FilterConfig) {
+            this.FilterConfig = FilterConfig;
 
         }
 
         @Override
         public void open(Configuration parameters) throws Exception {
 
-            init((String) FilterEntity.getProperties().getOrDefault("expression",""));
+            init((String) FilterConfig.getProperties().getOrDefault("expression",""));
 
         }
 

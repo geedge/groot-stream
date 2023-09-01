@@ -3,7 +3,7 @@ package com.geedgenetworks.processor.projection;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.geedgenetworks.pojo.Event;
-import com.geedgenetworks.pojo.Projection;
+import com.geedgenetworks.pojo.ProjectionConfig;
 import com.geedgenetworks.pojo.ProjectionFunction;
 import com.geedgenetworks.udf.UdfFunction;
 import com.googlecode.aviator.AviatorEvaluator;
@@ -23,11 +23,11 @@ import static com.geedgenetworks.utils.ColumnUtil.columnSelector;
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
     private static final Log logger = LogFactory.get();
-    private final Projection projection;
+    private final ProjectionConfig projectionConfig;
 
-    public ProjectionProcessFunction(Projection projection) throws Exception {
+    public ProjectionProcessFunction(ProjectionConfig projectionConfig) throws Exception {
 
-        this.projection=projection;
+        this.projectionConfig = projectionConfig;
 
 
 
@@ -36,7 +36,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     @Override
     public void open(Configuration parameters) throws Exception {
         Map<String, UdfEntity> functions = new LinkedHashMap<>();
-        for(ProjectionFunction pf :projection.getFunctions()){
+        for(ProjectionFunction pf : projectionConfig.getFunctions()){
             Expression compiledExp=null;
             UdfEntity udfEntity = new UdfEntity();
             Class cls = Class.forName(pf.getClass_name());
@@ -61,7 +61,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
     @Override
     public void processElement(Event value, Context ctx, Collector<Event> out) throws Exception {
-        value.setExtractedFields(columnSelector(excuteFunctions.excute(value).getExtractedFields(),projection.getOutput_fields()));
+        value.setExtractedFields(columnSelector(excuteFunctions.excute(value).getExtractedFields(), projectionConfig.getOutput_fields()));
         out.collect(excuteFunctions.excute(value));
     }
 

@@ -2,7 +2,7 @@ package com.geedgenetworks.udf;
 
 import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
-import com.zdjizhi.utils.FormatUtils;
+import com.geedgenetworks.utils.FormatUtils;
 
 
 public class FirstSignificantSubdomainFunction implements UdfFunction {

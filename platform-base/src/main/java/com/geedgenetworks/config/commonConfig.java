@@ -1,5 +1,7 @@
 package com.geedgenetworks.config;
 
+import java.util.Map;
+
 /**
  * Created by wk on 2021/1/6.
  */
@@ -38,12 +40,15 @@ public class commonConfig {
   public static final String KNOWLEDGEBASE_NAME_LIST = YamlParser.getStringProperty( "knowledgebase.name_list");
   public static final String HDFS_SERVERS = YamlParser.getStringProperty( "hdfs.servers");
 
-  public static final String IPV4_USER_DEFINED_ID = YamlParser.getStringProperty( "knowledge.ipv4_user_defined_id");
+/*  public static final String IPV4_USER_DEFINED_ID = YamlParser.getStringProperty( "knowledge.ipv4_user_defined_id");
   public static final String IPV6_USER_DEFINED_ID = YamlParser.getStringProperty( "knowledge.ipv6_user_defined_id");
   public static final String IPV4_BUILT_IN_ID = YamlParser.getStringProperty( "knowledge.ipv4_built_in_id");
   public static final String IPV6_BUILT_IN_ID = YamlParser.getStringProperty( "knowledge.ipv6_built_in_id");
   public static final String ASN_V4_ID = YamlParser.getStringProperty( "knowledge.asn_v4_id");
-  public static final String ASN_V6_ID = YamlParser.getStringProperty( "knowledge.asn_v6_id");
+  public static final String ASN_V6_ID = YamlParser.getStringProperty( "knowledge.asn_v6_id");*/
+
+  public static final Map<String,Object>  KNOWLEDGE_IPLOOKUP_MAP = YamlParser.getMap( "knowledge.iplookup");
+  public static final Map<String,Object>  KNOWLEDGE_ASNLOOKUP_MAP = YamlParser.getMap( "knowledge.asnlookup");
 
 
 

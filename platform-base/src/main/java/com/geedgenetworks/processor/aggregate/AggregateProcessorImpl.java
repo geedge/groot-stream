@@ -1,7 +1,7 @@
 package com.geedgenetworks.processor.aggregate;
 
 
-import com.geedgenetworks.pojo.Aggregate;
+import com.geedgenetworks.pojo.AggregateConfig;
 import com.geedgenetworks.common.OneKeySelector;
 import com.geedgenetworks.pojo.Event;
 import org.apache.flink.api.common.functions.ReduceFunction;
@@ -15,12 +15,12 @@ public class AggregateProcessorImpl implements AggregateProcessor {
 
 
     @Override
-    public SingleOutputStreamOperator<Event> aggregateProcessorFunction(SingleOutputStreamOperator<Event> singleOutputStreamOperator, Aggregate aggregate) throws Exception {
+    public SingleOutputStreamOperator<Event> aggregateProcessorFunction(SingleOutputStreamOperator<Event> singleOutputStreamOperator, AggregateConfig aggregateConfig) throws Exception {
 
 
-        List<String> keys = aggregate.getGroup_by_fields();
+        List<String> keys = aggregateConfig.getGroup_by_fields();
 
-        return singleOutputStreamOperator.keyBy(new OneKeySelector(keys)).window(TumblingEventTimeWindows.of(Time.seconds(aggregate.getWindow_interval_seconds()))).reduce(new ReduceFunction<Event>() {
+        return singleOutputStreamOperator.keyBy(new OneKeySelector(keys)).window(TumblingEventTimeWindows.of(Time.seconds(aggregateConfig.getWindow_interval_seconds()))).reduce(new ReduceFunction<Event>() {
             public Event reduce(Event v1, Event v2) {
 
 
@@ -29,6 +29,6 @@ public class AggregateProcessorImpl implements AggregateProcessor {
                 v1.getExtractedFields().put("common_sessions",aa+bb);
                 return v1;
             }
-        }).setParallelism(aggregate.getParallelism());
+        }).setParallelism(aggregateConfig.getParallelism());
     }
 }

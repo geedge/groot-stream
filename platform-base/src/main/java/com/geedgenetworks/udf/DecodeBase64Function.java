@@ -4,7 +4,7 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
-import com.zdjizhi.utils.StringUtil;
+import com.geedgenetworks.utils.StringUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;

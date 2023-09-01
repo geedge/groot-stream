@@ -1,6 +1,5 @@
 package com.geedgenetworks.utils;
 
-import cn.hutool.crypto.digest.DigestUtil;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.config.ConfigService;
@@ -8,14 +7,11 @@ import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.geedgenetworks.config.commonConfig;
 import com.jayway.jsonpath.JsonPath;
-import com.zdjizhi.utils.StringUtil;
-import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -35,7 +31,7 @@ public class knowledgeUtil {
         StringBuilder sb = new StringBuilder("");
         sb.append("$.[?(@.version=='latest' && @.name in ['ip_v4_built_in','ip_v6_built_in','ip_v4_user_defined','ip_v6_user_defined','asn_v4','asn_v6']  && @.id in ['");
     //    sb.append(commonConfig.ID_ARRAY);
-        sb.append(commonConfig.IPV4_USER_DEFINED_ID);
+/*        sb.append(commonConfig.IPV4_USER_DEFINED_ID);
         sb.append("','");
         sb.append(commonConfig.IPV6_USER_DEFINED_ID);
         sb.append("','");
@@ -45,7 +41,7 @@ public class knowledgeUtil {
         sb.append("','");
         sb.append(commonConfig.ASN_V4_ID);
         sb.append("','");
-        sb.append(commonConfig.ASN_V6_ID);
+        sb.append(commonConfig.ASN_V6_ID);*/
         sb.append("'])].['id','name','sha256','format','path','type','isValid']");
         KNOWLEDGE_EXPR = sb.toString();
         System.out.println("listening nacos config");
@@ -119,7 +115,7 @@ public class knowledgeUtil {
                 sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
             }
 
-            try {
+         /*   try {
                 if (!knowLedgeFileSha256.containsKey(id)) {
                     byte[] downloadBytes = downloadFile(fileUrl, sha256, isValid);
                     KnowLedgeEntity knowLedgeEntity = new KnowLedgeEntity();
@@ -149,16 +145,16 @@ public class knowledgeUtil {
             } catch (Exception e) {
                 System.out.println("process file " + id + " error, error message:" + e.getMessage());
                 e.printStackTrace();
-            }
+            }*/
         }
         if(updateMap.size()>0){
 
-            IPUtils.loadIpLook(updateMap);
+           // IPUtils.loadIpLook(updateMap);
             //   csvUtils.loadIpLook(updateMap);
         }
     }
 
-    private static byte[] downloadFile(String fileUrl) {
+    private static InputStream downloadFile(String fileUrl) {
         InputStream inputStream = null;
         byte[] content = new byte[0];
         try {
@@ -166,20 +162,20 @@ public class knowledgeUtil {
             Header header = new BasicHeader("token", commonConfig.HOS_TOKEN);
             HttpClientUtils httpClientUtils = new HttpClientUtils();
             inputStream = httpClientUtils.httpGetInputStream(fileUrl, 3000, header);
-            content = IOUtils.toByteArray(inputStream);
+         // content = IOUtils.toByteArray(inputStream);
             long end = System.currentTimeMillis();
             System.out.println("download file " + fileUrl + " finished, speed " + (end - start) + " ms");
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("download file " + fileUrl + " error: " + e.getMessage());
         } finally {
-            IOUtils.closeQuietly(inputStream);
+     //       IOUtils.closeQuietly(inputStream);
         }
-        return content;
+        return inputStream;
     }
 
 
 
-    private static byte[] downloadFile(String fileUrl, String sha256, int isValid) {
+  /*  private static byte[] downloadFile(String fileUrl, String sha256, int isValid) {
         byte[] content = new byte[0];
         if (isValid != 1) {
             return content;
@@ -188,14 +184,14 @@ public class knowledgeUtil {
         int downloadCount = 0;
         do {
             content = downloadFile(fileUrl);
-            downloadFileSha256 = DigestUtil.sha256Hex(content);
+         //  downloadFileSha256 = DigestUtil.sha256Hex(content);
             downloadCount++;
         } while (!downloadFileSha256.equals(sha256) && downloadCount < commonConfig.KNOWLEDGE_FILE_CHECK_NUMBER);
         if (downloadCount >= commonConfig.KNOWLEDGE_FILE_CHECK_NUMBER) {
             System.out.println("warning: file url: " + fileUrl + " download more than specified number of times");
         }
         return content;
-    }
+    }*/
 
     public static void main(String[] args) throws InterruptedException {
         System.out.println(knowLedgeFileSha256);

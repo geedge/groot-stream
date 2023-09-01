@@ -2,7 +2,6 @@ package com.geedgenetworks.utils;
 
 
 import com.geedgenetworks.config.commonConfig;
-import com.zdjizhi.utils.StringUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;

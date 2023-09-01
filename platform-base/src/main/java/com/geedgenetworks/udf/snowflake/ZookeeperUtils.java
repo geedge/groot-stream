@@ -13,7 +13,7 @@ import java.util.concurrent.CountDownLatch;
 
 
 public class ZookeeperUtils implements Watcher {
-    private static final Logger logger = LoggerFactory.getLogger(com.zdjizhi.utils.ZookeeperUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(com.geedgenetworks.utils.ZookeeperUtils.class);
 
     private ZooKeeper zookeeper;
 
