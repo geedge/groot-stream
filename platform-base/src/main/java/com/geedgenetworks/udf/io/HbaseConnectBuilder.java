@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import static com.geedgenetworks.config.commonConfig.SNOWID_ZK;
+
 /**
  * A builder class for creating HBase connections. This class provides methods
  * for configuring and building an HBase connection.
@@ -44,7 +46,7 @@ public class HbaseConnectBuilder {
      * @return This HbaseConnectBuilder instance.
      */
     public HbaseConnectBuilder loadDefaultConfig() {
-        // TODO: Load default HBase configuration settings
+        this.config.set("hbase.zookeeper.quorum", SNOWID_ZK);
         return this;
     }
 
