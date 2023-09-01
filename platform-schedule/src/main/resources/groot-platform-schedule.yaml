@@ -159,7 +159,19 @@ processing_pipelines:
         lookup_fields: [ 'common_tunnels' ]
         output_fields: [ 'common_phone_number', 'common_imsi', 'common_imei' ]
         class_name: com.geedgenetworks.udf.gtpc.GtpCLookupFunction
-
+      - name: IP_LOCATION
+        lookup_fields: ['common_server_ip']
+        output_fields: ['aaa','ffff']
+        class_name: com.geedgenetworks.udf.IpLocationFunction
+        parameters:
+          kb_vender : TSG
+          option: IP_TO_GEO
+      - name: ASN_LOOKUP
+        lookup_fields: ['common_client_ip']
+        output_fields: ['common_client_location']
+        class_name: com.geedgenetworks.udf.AsnLookupFunction
+        parameters:
+          kb_vender : TSG
 
   aggregate_processor2:
     type: com.geedgenetworks.processor.aggregate.AggregateProcessorImpl

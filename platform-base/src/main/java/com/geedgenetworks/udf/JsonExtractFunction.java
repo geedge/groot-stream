@@ -15,7 +15,10 @@ public class JsonExtractFunction implements UdfFunction {
 
     @Override
     public void udffunction(Event event) {
-       String result = (String) JsonPathUtil.analysis(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString(), projection_function.getParameters().get("param").toString());
-       event.getExtractedFields().put(projection_function.getOutput_fields().get(0),result);
+        if(event.getExtractedFields().containsKey(projection_function.getLookup_fields().get(0))) {
+
+            String result = (String) JsonPathUtil.analysis(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString(), projection_function.getParameters().get("param").toString());
+            event.getExtractedFields().put(projection_function.getOutput_fields().get(0), result);
+        }
     }
 }

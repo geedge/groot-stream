@@ -5,7 +5,6 @@ import cn.hutool.log.LogFactory;
 import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
 import com.geedgenetworks.utils.IPUtils;
-import com.geedgenetworks.utils.StringUtil;
 
 public class AsnLookupFunction implements UdfFunction {
 
@@ -24,13 +23,11 @@ public class AsnLookupFunction implements UdfFunction {
 
     @Override
     public void udffunction(Event event) {
-        if(StringUtil.isNotEmpty(vender)) {
+        if(event.getExtractedFields().containsKey(projection_function.getLookup_fields().get(0))) {
+
             event.getExtractedFields().put(projection_function.getOutput_fields().get(0),IPUtils.venderWithAsnLookup.get(vender).asnLookup( event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
         }
-        else {
-            logger.error("知识库id为空");
 
-        }
 
     }
 }

@@ -21,23 +21,26 @@ public class DecodeBase64Function implements UdfFunction {
 
     @Override
     public void udffunction(Event event) {
-        String decodeResult = "";
-        String message = (String) event.getExtractedFields().get(projection_function.getLookup_fields().get(0));
-        Object charset=event.getExtractedFields().get(projection_function.getLookup_fields().get(1));
-        try {
-            if (StringUtil.isNotBlank(message) ){
-                byte[] base64decodedBytes = Base64.getDecoder().decode(message);
-                if (charset == null) {
-                    decodeResult = new String(base64decodedBytes);
-                } else {
-                    decodeResult = new String(base64decodedBytes, charset.toString());
+        if (event.getExtractedFields().containsKey(projection_function.getLookup_fields().get(0))) {
+
+            String decodeResult = "";
+            String message = (String) event.getExtractedFields().get(projection_function.getLookup_fields().get(0));
+            Object charset = event.getExtractedFields().get(projection_function.getLookup_fields().get(1));
+            try {
+                if (StringUtil.isNotBlank(message)) {
+                    byte[] base64decodedBytes = Base64.getDecoder().decode(message);
+                    if (charset == null) {
+                        decodeResult = new String(base64decodedBytes);
+                    } else {
+                        decodeResult = new String(base64decodedBytes, charset.toString());
+                    }
                 }
+            } catch (RuntimeException e) {
+                logger.error("Resolve Base64 exception, exception information:" + e.getMessage());
+            } catch (UnsupportedEncodingException e) {
+                logger.error("The Character Encoding [" + charset.toString() + "] is not supported.exception information:" + e.getMessage());
             }
-        } catch (RuntimeException e) {
-            logger.error("Resolve Base64 exception, exception information:" + e.getMessage());
-        } catch (UnsupportedEncodingException e) {
-            logger.error("The Character Encoding [" + charset.toString() + "] is not supported.exception information:" + e.getMessage());
+            event.getExtractedFields().put(projection_function.getOutput_fields().get(0), decodeResult);
         }
-        event.getExtractedFields().put(projection_function.getOutput_fields().get(0),decodeResult);
     }
 }
