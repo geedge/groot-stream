@@ -3,7 +3,6 @@ package com.geedgenetworks.udf.radius;
 import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
 import com.geedgenetworks.udf.UdfFunction;
-import com.geedgenetworks.udf.radius.RadiusLookup;
 import org.apache.flink.configuration.Configuration;
 
 import static com.geedgenetworks.config.commonConfig.DATA_RELATIONSHIP_MODEL;

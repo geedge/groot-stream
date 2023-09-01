@@ -158,7 +158,7 @@ processing_pipelines:
       - name: GTP_C_LOOKUP
         lookup_fields: [ 'common_tunnels' ]
         output_fields: [ 'common_phone_number', 'common_imsi', 'common_imei' ]
-        class_name: com.geedgenetworks.udf.radius.GtpCLookupFunction
+        class_name: com.geedgenetworks.udf.gtpc.GtpCLookupFunction
 
 
   aggregate_processor2:

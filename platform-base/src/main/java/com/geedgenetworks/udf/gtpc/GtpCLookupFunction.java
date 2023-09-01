@@ -1,9 +1,8 @@
-package com.geedgenetworks.udf.radius;
+package com.geedgenetworks.udf.gtpc;
 
 import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
 import com.geedgenetworks.udf.UdfFunction;
-import com.geedgenetworks.udf.radius.GtpCLookup;
 import org.apache.flink.configuration.Configuration;
 
 public class GtpCLookupFunction implements UdfFunction {
