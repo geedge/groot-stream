@@ -7,7 +7,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.function.Consumer;
 
 
@@ -45,39 +44,25 @@ public class HBaseClient implements Closeable {
     }
 
     /**
-     * Scans a specified HBase table with a limit and time range.
+     * Scans a specified HBase table with a limit and time range, and applies a
+     * consumer action to each result.
      *
      * @param tableName The name of the HBase table to scan.
      * @param limit     The maximum number of rows to return.
      * @param range     The time range to filter results.
-     * @return An iterator of Result objects from the scan.
+     * @param action    The consumer action to apply to each HBaseResult.
      * @throws IOException If an I/O error occurs while scanning the table.
      */
-    public Iterator<Result> scan(final String tableName, final int limit, final TimeRange range) throws IOException {
+    public void scan(final String tableName, final int limit, final TimeRange range,
+                     final Consumer<HBaseResult> action) throws IOException {
         final Scan scan = new Scan();
         scan.setTimeRange(range.getMin(), range.getMax());
         scan.setLimit(limit);
-        final Table table = this.getTable(tableName);
-        final ResultScanner scanner = table.getScanner(scan);
-        return scanner.iterator();
-    }
-
-    /**
-     * Scans a specified HBase table with a limit and time range, and applies a
-     * consumer action to each result.
-     *
-     * @param table  The name of the HBase table to scan.
-     * @param limit  The maximum number of rows to return.
-     * @param range  The time range to filter results.
-     * @param action The consumer action to apply to each HBaseResult.
-     * @throws IOException If an I/O error occurs while scanning the table.
-     */
-    public void scan(final String table, final int limit, final TimeRange range,
-                     final Consumer<HBaseResult> action) throws IOException {
-        final Iterator<Result> resultIterator = this.scan(table, limit, range);
-        while (resultIterator.hasNext()) {
-            final Result result = resultIterator.next();
-            action.accept(new HBaseResult(result));
+        try (final Table table = this.getTable(tableName);
+             final ResultScanner scanner = table.getScanner(scan)) {
+            for (Result result : scanner) {
+                action.accept(new HBaseResult(result));
+            }
         }
     }
 
@@ -116,7 +101,12 @@ public class HBaseClient implements Closeable {
          * @return The value as a byte array.
          */
         public byte[] getValue(final String family, final String column) {
-            return result.getValue(Bytes.toBytes(family), Bytes.toBytes(column));
+            byte[] familyBytes = Bytes.toBytes(family);
+            byte[] columnBytes = Bytes.toBytes(column);
+            if (result.containsColumn(familyBytes, columnBytes)) {
+                return result.getValue(familyBytes, columnBytes);
+            }
+            return null;
         }
 
         /**
@@ -141,6 +131,18 @@ public class HBaseClient implements Closeable {
         public long getLong(final String family, final String column) {
             final byte[] bytes = getValue(family, column);
             return bytes == null ? 0L : Bytes.toLong(bytes);
+        }
+
+        /**
+         * Gets the value from the specified column family and column as an integer.
+         *
+         * @param family The column family.
+         * @param column The column name.
+         * @return The value as an integer, or 0 if it is not present.
+         */
+        public int getInt(final String family, final String column) {
+            final byte[] bytes = getValue(family, column);
+            return bytes == null ? 0 : Bytes.toInt(bytes);
         }
     }
 }
