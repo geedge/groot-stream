@@ -29,4 +29,11 @@ public interface Cached<K, V> extends Closeable {
      * @param v The value to be cached.
      */
     void set(K k, V v);
+
+    /**
+     * Remove a cached value for the given key.
+     *
+     * @param k The key to associate with the cached value.
+     */
+    void remove(K k);
 }

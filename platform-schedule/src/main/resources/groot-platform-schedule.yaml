@@ -103,10 +103,14 @@ processing_pipelines:
       - name: EVAL
         parameters:
           value_expression: 'common_flag = 8 ? common_client_ip : common_server_ip'
+        output_fields: ['result']
+        class_name: com.geedgenetworks.udf.EvalFunction
       - name: RADIUS_LOOKUP
         lookup_fields: [ 'common_client_ip' ]
         output_fields: [ 'common_subscriber_id' ]
         class_name: com.geedgenetworks.udf.functions.RadiusLookupFunction
+        parameters:
+
       - name: GTP_C_LOOKUP
         lookup_fields: [ 'common_tunnels' ]
         output_fields: [ 'common_phone_number', 'common_imsi', 'common_imei' ]

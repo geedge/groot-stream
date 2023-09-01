@@ -48,6 +48,11 @@ public class HeapCached<K, V> implements Cached<K, V> {
         store.put(k, v);
     }
 
+    @Override
+    public void remove(K k) {
+        store.invalidate(k);
+    }
+
     /**
      * Cleans up and closes the cache.
      *

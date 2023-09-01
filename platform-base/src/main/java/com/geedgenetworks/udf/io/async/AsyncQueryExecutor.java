@@ -37,6 +37,16 @@ public abstract class AsyncQueryExecutor<K, V> implements Cached<K, V> {
     }
 
     /**
+     * Remove a value from the cache.
+     *
+     * @param k The key for the cached value.
+     */
+    @Override
+    public void remove(K k) {
+        getCache().remove(k);
+    }
+
+    /**
      * Gets the cache used for storing query results.
      *
      * @return The cache instance used for caching query results.
