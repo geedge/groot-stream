@@ -62,7 +62,11 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     @Override
     public void processElement(Event value, Context ctx, Collector<Event> out) throws Exception {
         value.setExtractedFields(columnSelector(excuteFunctions.excute(value).getExtractedFields(), projectionConfig.getOutput_fields()));
-        out.collect(excuteFunctions.excute(value));
+        value = excuteFunctions.excute(value);
+        if(projectionConfig.getOutput_fields()!=null && projectionConfig.getOutput_fields().size()>0) {
+            value.setExtractedFields(columnSelector(value.getExtractedFields(), projectionConfig.getOutput_fields()));
+        }
+        out.collect(value);
     }
 
 
@@ -76,23 +80,29 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         public static Event excute(Event value){
 
 
+            if (functions != null) {
                 for (Map.Entry<String, UdfEntity> entry : functions.entrySet()) {
                     try {
-                    if(value.isFinal()) {
-                        if(entry.getValue().getCompiledExp()!=null) {
-                            if ((Boolean) entry.getValue().getCompiledExp().execute(entry.getValue().getCompiledExp().newEnv("map", value.getExtractedFields()))) {
+                        if (value.isFinal()) {
+                            if (entry.getValue().getCompiledExp() != null) {
+                                if ((Boolean) entry.getValue().getCompiledExp().execute(entry.getValue().getCompiledExp().newEnv("map", value.getExtractedFields()))) {
+                                    entry.getValue().getUdfFunction().udffunction(value);
+                                }
+                            } else {
                                 entry.getValue().getUdfFunction().udffunction(value);
                             }
-                        }else {
-                            entry.getValue().getUdfFunction().udffunction(value);
+
+
+                        } else {
+                            break;
                         }
-                    }
-                    else {break;}
-                    }catch (Exception e){
-                        logger.error(entry.getKey()+" 函数执行出错 ！ "+e.toString());
+                    } catch (Exception e) {
+                        logger.error(entry.getKey() + " 函数执行出错 ！ " + e.toString());
                     }
 
                 }
+            }
+
 
             return value;
         }

@@ -4,6 +4,9 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.geedgenetworks.utils.DistributedLock;
 
+import static com.geedgenetworks.config.commonConfig.DATA_CENTER_ID_NUM;
+import static com.geedgenetworks.config.commonConfig.ZOOKEEPER_QUORUM;
+
 /**
  * 雪花算法
  *
@@ -104,7 +107,11 @@ public class SnowflakeId {
 
 
     //==============================Constructors=====================================
+    static{
 
+        new SnowflakeId(ZOOKEEPER_QUORUM, DATA_CENTER_ID_NUM);
+
+    }
     /**
      * 构造函数
      */

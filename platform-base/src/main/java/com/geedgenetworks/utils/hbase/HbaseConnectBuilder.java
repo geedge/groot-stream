@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import static com.geedgenetworks.config.commonConfig.SNOWID_ZK;
+import static com.geedgenetworks.config.commonConfig.ZOOKEEPER_QUORUM;
 
 /**
  * A builder class for creating HBase connections. This class provides methods
@@ -46,7 +46,7 @@ public class HbaseConnectBuilder {
      * @return This HbaseConnectBuilder instance.
      */
     public HbaseConnectBuilder loadDefaultConfig() {
-        this.config.set("hbase.zookeeper.quorum", SNOWID_ZK);
+        this.config.set("hbase.zookeeper.quorum", ZOOKEEPER_QUORUM);
         return this;
     }
 

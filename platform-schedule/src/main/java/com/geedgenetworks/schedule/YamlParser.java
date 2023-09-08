@@ -13,7 +13,7 @@ public final class YamlParser {
 
  /*   static {
         try {
-            loadYaml(YamlParser.class.getClassLoader().getResourceAsStream("groot-platform-schedule.yaml"));
+            loadYaml(GrootYamlParser.class.getClassLoader().getResourceAsStream("groot-platform-schedule.yaml"));
         } catch (Exception e) {
         //    propService = null;
         }
@@ -86,7 +86,7 @@ public final class YamlParser {
     }
 
     public static void main(String[] args) {
-       /* YamlParser yamlParser = new YamlParser("data.yaml");
+       /* GrootYamlParser yamlParser = new GrootYamlParser("data.yaml");
 
         // 获取基本信息
         String name = (String) yamlParser.getValue("name");

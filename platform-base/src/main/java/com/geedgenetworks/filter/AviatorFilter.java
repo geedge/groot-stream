@@ -17,6 +17,7 @@ import java.util.Map;
 
 import static com.geedgenetworks.filter.AviatorFilter.Aviator.AviatorExcute;
 import static com.geedgenetworks.filter.AviatorFilter.Aviator.init;
+import static com.geedgenetworks.utils.ColumnUtil.columnSelector;
 
 
 public class AviatorFilter implements Filter {
@@ -26,10 +27,13 @@ public class AviatorFilter implements Filter {
     @Override
     public SingleOutputStreamOperator<Event> filterFunction(SingleOutputStreamOperator<Event> singleOutputStreamOperator, FilterConfig FilterConfig) throws Exception {
 
+        if (FilterConfig.getParallelism() != 0) {
+            return singleOutputStreamOperator.filter(new FilterFunction(FilterConfig)).setParallelism(FilterConfig.getParallelism()).name("Filter");
+        } else {
+            return singleOutputStreamOperator.filter(new FilterFunction(FilterConfig)).name("Filter");
 
-        return singleOutputStreamOperator.filter(new FilterFunction(FilterConfig)).setParallelism(FilterConfig.getParallelism()).name("Filter");
+        }
     }
-
 
 
     private static class FilterFunction extends RichFilterFunction<Event> {
@@ -44,7 +48,7 @@ public class AviatorFilter implements Filter {
         @Override
         public void open(Configuration parameters) throws Exception {
 
-            init((String) FilterConfig.getProperties().getOrDefault("expression",""));
+            init((String) FilterConfig.getProperties().getOrDefault("expression", ""));
 
         }
 
@@ -53,6 +57,10 @@ public class AviatorFilter implements Filter {
         public boolean filter(Event value) throws Exception {
             boolean isFilter = true;
             try {
+
+                if(FilterConfig.getOutput_fields()!=null && FilterConfig.getOutput_fields().size()>0) {
+                    value.setExtractedFields(columnSelector(value.getExtractedFields(), FilterConfig.getOutput_fields()));
+                }
                 isFilter = AviatorExcute(value.getExtractedFields());
 
             } catch (RuntimeException ignored) {
@@ -67,9 +75,7 @@ public class AviatorFilter implements Filter {
         private static String expression;
 
         public static void init(String expr) {
-            System.out.println("111111111111111111111111111111111111");
-            logger.error("111111111111111111111111111111111111");
-            expression=expr;
+            expression = expr;
             AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
             instance.setCachedExpressionByDefault(true);
             instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
@@ -77,14 +83,12 @@ public class AviatorFilter implements Filter {
             compiledExp = instance.compile(expression, true);
 
         }
-        public static Boolean AviatorExcute(Map<String,Object> map){
-            System.out.println("111111111111111111111111111111111111"+expression);
-            logger.error("111111111111111111111111111111111111"+expression);
-            Boolean bool=true;
-            if(!"".equals(expression)){
-                System.out.println("111111111111111111111111111111111111"+expression);
-                logger.error("111111111111111111111111111111111111"+expression);
-                bool=(Boolean) compiledExp.execute(compiledExp.newEnv("map", map));
+
+        public static Boolean AviatorExcute(Map<String, Object> map) {
+
+            Boolean bool = true;
+            if (!"".equals(expression)) {
+                bool = (Boolean) compiledExp.execute(compiledExp.newEnv("map", map));
             }
             return bool;
         }

@@ -26,7 +26,7 @@ public class IpLookupUtils {
     private static IpLookupV2 ipLookup;
 
     public IpLookupUtils() {
-        ipLookup=initIpLookup();
+        ipLookup = initIpLookup();
     }
 
     /**
@@ -37,37 +37,41 @@ public class IpLookupUtils {
      */
     public static void updateIpLookup(Map<String, String> knowledgeFileCache) {
         IpLookupV2.Builder builder = new IpLookupV2.Builder(false);
-//        try {
-        InputStream ipv4BuiltInFile = getUpdateFile(ipv4BuiltInName, knowledgeFileCache.get(ipv4BuiltInName));
-        if (ipv4BuiltInFile != null) {
-            builder.loadDataFileV4(ipv4BuiltInFile);
-        }
+        try {
+            InputStream ipv4BuiltInFile = getUpdateFile(ipv4BuiltInName, knowledgeFileCache.get(ipv4BuiltInName));
+            if (ipv4BuiltInFile != null) {
+                builder.loadDataFileV4(ipv4BuiltInFile);
+            }
 
-        InputStream ipv6BuiltInFileFile = getUpdateFile(ipv6BuiltInName, knowledgeFileCache.get(ipv6BuiltInName));
-        if (ipv6BuiltInFileFile != null) {
-            builder.loadDataFileV6(ipv6BuiltInFileFile);
-        }
+            InputStream ipv6BuiltInFileFile = getUpdateFile(ipv6BuiltInName, knowledgeFileCache.get(ipv6BuiltInName));
+            if (ipv6BuiltInFileFile != null) {
+                builder.loadDataFileV6(ipv6BuiltInFileFile);
+            }
 
-        InputStream ipv4UserDefinedFile = getUpdateFile(ipv4UserDefinedName, knowledgeFileCache.get(ipv4UserDefinedName));
-        if (ipv4UserDefinedFile != null) {
-            builder.loadDataFilePrivateV4(ipv4UserDefinedFile);
-        }
+            InputStream ipv4UserDefinedFile = getUpdateFile(ipv4UserDefinedName, knowledgeFileCache.get(ipv4UserDefinedName));
+            if (ipv4UserDefinedFile != null) {
+                builder.loadDataFilePrivateV4(ipv4UserDefinedFile);
+            }
 
-        InputStream ipv6UserDefinedFile = getUpdateFile(ipv6UserDefinedName, knowledgeFileCache.get(ipv6UserDefinedName));
-        if (ipv6UserDefinedFile != null) {
-            builder.loadDataFilePrivateV6(ipv6UserDefinedFile);
-        }
+            InputStream ipv6UserDefinedFile = getUpdateFile(ipv6UserDefinedName, knowledgeFileCache.get(ipv6UserDefinedName));
+            if (ipv6UserDefinedFile != null) {
+                builder.loadDataFilePrivateV6(ipv6UserDefinedFile);
+            }
 
-        InputStream asnV4File = getUpdateFile(asnV4Name, knowledgeFileCache.get(asnV4Name));
-        if (asnV4File != null) {
-            builder.loadAsnDataFileV4(asnV4File);
-        }
+            InputStream asnV4File = getUpdateFile(asnV4Name, knowledgeFileCache.get(asnV4Name));
+            if (asnV4File != null) {
+                builder.loadAsnDataFileV4(asnV4File);
+            }
 
-        InputStream asnV6File = getUpdateFile(asnV6Name, knowledgeFileCache.get(asnV6Name));
-        if (asnV6File != null) {
-            builder.loadAsnDataFileV6(asnV6File);
+            InputStream asnV6File = getUpdateFile(asnV6Name, knowledgeFileCache.get(asnV6Name));
+            if (asnV6File != null) {
+                builder.loadAsnDataFileV6(asnV6File);
+            }
+            ipLookup = builder.build();
+        } catch (Exception e) {
+
+            e.printStackTrace();
         }
-        ipLookup = builder.build();
     }
 
     /**
@@ -183,7 +187,6 @@ public class IpLookupUtils {
         }
         return fileBytes;
     }
-
 
 
     public static String getGeoIpDetail(String ip) {

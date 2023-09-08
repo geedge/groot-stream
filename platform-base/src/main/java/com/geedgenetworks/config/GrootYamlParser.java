@@ -7,19 +7,19 @@ import java.util.List;
 import java.util.Map;
 
 
-public final class YamlParser {
+public final class GrootYamlParser {
+
+    private static Map<String, Object> yamlData;
 
 
     static {
         try {
 
-            loadYaml(YamlParser.class.getClassLoader().getResourceAsStream("global.yaml"));
+            loadYaml(GrootYamlParser.class.getClassLoader().getResourceAsStream("groot.yaml"));
         } catch (Exception e) {
-        //    propService = null;
-        }
-    }
+            //    propService = null;
+        }    }
 
-    private static Map<String, Object> yamlData;
 
 
 
@@ -133,7 +133,7 @@ public final class YamlParser {
 
     public static void main(String[] args) {
         System.out.println();
-       /* YamlParser yamlParser = new YamlParser("data.yaml");
+       /* GrootYamlParser yamlParser = new GrootYamlParser("data.yaml");
 
         // 获取基本信息
         String name = (String) yamlParser.getValue("name");

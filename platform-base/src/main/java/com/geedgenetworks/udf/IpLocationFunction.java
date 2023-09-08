@@ -16,14 +16,14 @@ public class IpLocationFunction implements UdfFunction {
     private ProjectionFunction projection_function;
     private static final Log logger = LogFactory.get();
 
-    private final String vender ;
-    private final String option ;
+    private final String vender;
+    private final String option;
 
 
     public IpLocationFunction(ProjectionFunction projection_function) {
-        this.projection_function=projection_function;
-        this.vender =  projection_function.getParameters().get("kb_vender").toString();
-        this.option =  projection_function.getParameters().get("option").toString();
+        this.projection_function = projection_function;
+        this.vender = projection_function.getParameters().get("kb_vender").toString();
+        this.option = projection_function.getParameters().get("option").toString();
 
     }
 
@@ -31,60 +31,49 @@ public class IpLocationFunction implements UdfFunction {
     @Override
     public void udffunction(Event event) {
 
-            if(event.getExtractedFields().containsKey(projection_function.getLookup_fields().get(0))) {
+        if (event.getExtractedFields().containsKey(projection_function.getLookup_fields().get(0))) {
 
-                switch (option) {
-                    case "IP_TO_COUNTRY":
-                        event.getExtractedFields().put(projection_function.getOutput_fields().get(0), IPUtils.venderWithIpLookup.get(vender).countryLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
-                        System.out.println(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString() + IPUtils.venderWithIpLookup.get(vender).countryLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
+            switch (option) {
+                case "IP_TO_COUNTRY":
+                    event.getExtractedFields().put(projection_function.getOutput_fields().get(0), IPUtils.venderWithIpLookup.get(vender).countryLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
 
-                        break;
-                    case "IP_TO_PROVINCE":
-                        event.getExtractedFields().put(projection_function.getOutput_fields().get(0), IPUtils.venderWithIpLookup.get(vender).provinceLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
-                        System.out.println(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString() + IPUtils.venderWithIpLookup.get(vender).provinceLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
+                    break;
+                case "IP_TO_PROVINCE":
+                    event.getExtractedFields().put(projection_function.getOutput_fields().get(0), IPUtils.venderWithIpLookup.get(vender).provinceLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
 
-                        break;
-                    case "IP_TO_CITY":
-                        event.getExtractedFields().put(projection_function.getOutput_fields().get(0), IPUtils.venderWithIpLookup.get(vender).cityLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
-                        System.out.println(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString() + IPUtils.venderWithIpLookup.get(vender).cityLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
+                    break;
+                case "IP_TO_CITY":
+                    event.getExtractedFields().put(projection_function.getOutput_fields().get(0), IPUtils.venderWithIpLookup.get(vender).cityLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
 
-                        break;
+                    break;
 
-                    case "IP_TO_SUBDIVISION_ADDR":
-                        event.getExtractedFields().put(projection_function.getOutput_fields().get(0), IPUtils.venderWithIpLookup.get(vender).cityLookupDetail(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
-                        System.out.println(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString() + IPUtils.venderWithIpLookup.get(vender).cityLookupDetail(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
+                case "IP_TO_SUBDIVISION_ADDR":
+                    event.getExtractedFields().put(projection_function.getOutput_fields().get(0), IPUtils.venderWithIpLookup.get(vender).cityLookupDetail(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
+                    break;
+                case "IP_TO_DETAIL":
+                    event.getExtractedFields().put(projection_function.getOutput_fields().get(0), IPUtils.venderWithIpLookup.get(vender).locationLookupDetail(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
+                    break;
 
-                        break;
+                case "IP_TO_GEO":
+                    String geo = IPUtils.venderWithIpLookup.get(vender).latLngLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString());
+                    String[] latLng = geo.split(",");
+                    if (latLng.length == 2) {
 
-                    case "IP_TO_DETAIL":
-                        event.getExtractedFields().put(projection_function.getOutput_fields().get(0), IPUtils.venderWithIpLookup.get(vender).locationLookupDetail(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
-                        System.out.println(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString() + IPUtils.venderWithIpLookup.get(vender).locationLookupDetail(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
+                        event.getExtractedFields().put(projection_function.getOutput_fields().get(0), latLng[0]);
+                        event.getExtractedFields().put(projection_function.getOutput_fields().get(1), latLng[1]);
 
-                        break;
+                    }
+                    break;
 
-                    case "IP_TO_GEO":
-                        String geo = IPUtils.venderWithIpLookup.get(vender).latLngLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString());
-                        String[] latLng = geo.split(",");
-                        if (latLng.length == 2) {
+                case "IP_TO_PROVIDER":
 
-                            event.getExtractedFields().put(projection_function.getOutput_fields().get(0), latLng[0]);
-                            event.getExtractedFields().put(projection_function.getOutput_fields().get(1), latLng[1]);
-
-                        }
-                        System.out.println(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString() + IPUtils.venderWithIpLookup.get(vender).latLngLookup(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()));
-
-                        break;
-
-                    case "IP_TO_PROVIDER":
-
-                        HashMap<String, Object> serverIpMap = JSON.parseObject(IPUtils.venderWithIpLookup.get(vender).asnLookupDetail(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()), TypeReference.mapType(HashMap.class, String.class, Object.class));
-                        System.out.println("isp:" + serverIpMap.getOrDefault("isp", StringUtil.EMPTY));
-                        event.getExtractedFields().put(projection_function.getOutput_fields().get(0), serverIpMap.getOrDefault("isp", StringUtil.EMPTY));
-                        break;
-                    default:
-                        break;
-                }
+                    HashMap<String, Object> serverIpMap = JSON.parseObject(IPUtils.venderWithIpLookup.get(vender).asnLookupDetail(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)).toString()), TypeReference.mapType(HashMap.class, String.class, Object.class));
+                    event.getExtractedFields().put(projection_function.getOutput_fields().get(0), serverIpMap.getOrDefault("isp", StringUtil.EMPTY));
+                    break;
+                default:
+                    break;
             }
+        }
 
     }
 }
