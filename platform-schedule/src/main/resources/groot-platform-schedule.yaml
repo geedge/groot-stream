@@ -243,7 +243,7 @@ application:
   name: groot-test
  # parallelism: 1
   topology:
-    kafkasource_bj:
+    ipfixsource:
       next: ['session_record_processor','cn_record_processor']
     session_record_processor:
       parallelism: 3

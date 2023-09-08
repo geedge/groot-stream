@@ -15,8 +15,7 @@ import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
 import java.lang.reflect.Constructor;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedList;
 
 import static com.geedgenetworks.utils.ColumnUtil.columnSelector;
 
@@ -35,7 +34,9 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        Map<String, UdfEntity> functions = new LinkedHashMap<>();
+     //   Map<String, UdfEntity> functions = new LinkedHashMap<>();
+
+        LinkedList<UdfEntity> functions = new LinkedList<>();
         for(ProjectionFunction pf : projectionConfig.getFunctions()){
             Expression compiledExp=null;
             UdfEntity udfEntity = new UdfEntity();
@@ -53,7 +54,10 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
             }
             udfEntity.setUdfFunction(udfFunction);
             udfEntity.setCompiledExp(compiledExp);
-            functions.put(pf.getClass_name(), udfEntity);
+            udfEntity.setName(pf.getName());
+            udfEntity.setClassName(pf.getClass_name());
+
+            functions.add(udfEntity);
 
         }
         excuteFunctions.init(functions);
@@ -72,32 +76,31 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
     public static class  excuteFunctions{
 
-        private static Map<String, UdfEntity> functions  ;
+        private static LinkedList<UdfEntity> functions  ;
 
-        public static void  init(Map<String, UdfEntity> functionMap) {
-            functions=functionMap;
+        public static void  init(LinkedList<UdfEntity> functionList) {
+            functions=functionList;
         }
         public static Event excute(Event value){
 
 
             if (functions != null) {
-                for (Map.Entry<String, UdfEntity> entry : functions.entrySet()) {
+
+                for(UdfEntity udf:functions) {
                     try {
                         if (value.isFinal()) {
-                            if (entry.getValue().getCompiledExp() != null) {
-                                if ((Boolean) entry.getValue().getCompiledExp().execute(entry.getValue().getCompiledExp().newEnv("map", value.getExtractedFields()))) {
-                                    entry.getValue().getUdfFunction().udffunction(value);
+                            if (udf.getCompiledExp() != null) {
+                                if ((Boolean) udf.getCompiledExp().execute(udf.getCompiledExp().newEnv("map", value.getExtractedFields()))) {
+                                    udf.getUdfFunction().udffunction(value);
                                 }
                             } else {
-                                entry.getValue().getUdfFunction().udffunction(value);
+                                udf.getUdfFunction().udffunction(value);
                             }
-
-
                         } else {
                             break;
                         }
                     } catch (Exception e) {
-                        logger.error(entry.getKey() + " 函数执行出错 ！ " + e.toString());
+                        logger.error(udf.getName()  + " 函数执行出错 ！ " + e.toString());
                     }
 
                 }
