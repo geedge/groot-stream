@@ -27,7 +27,7 @@ public class Execute {
         //
         //  StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf).getExecutionEnvironment();
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        //env.getConfig().enableObjectReuse();
+        env.getConfig().enableObjectReuse();
         loadYaml(Execute.class.getClassLoader().getResourceAsStream("groot-platform-schedule.yaml"));
        /* GrootYamlParser.init();
         new commonConfig();*/

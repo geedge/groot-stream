@@ -29,7 +29,7 @@ public class DecodeBase64Function implements UdfFunction {
             try {
                 if (StringUtil.isNotBlank(message)) {
                     byte[] base64decodedBytes = Base64.getDecoder().decode(message);
-                    if (charset == null) {
+                    if (charset == null || "".equals(charset)) {
                         decodeResult = new String(base64decodedBytes);
                     } else {
                         decodeResult = new String(base64decodedBytes, charset.toString());

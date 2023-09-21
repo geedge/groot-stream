@@ -26,21 +26,36 @@ public class IPFIXUtils {
                 Elements elements = JSONUtil.toBean(jsonStr, Elements.class, true);
                 int pen_number = elements.getPEN_number();
                 ArrayList<Element> elementList = new ArrayList<>();
-                elementList.addAll(elements.getBASE_elements());
-                elementList.addAll(elements.getSSL_elements());
-                elementList.addAll(elements.getHTTP_elements());
-                elementList.addAll(elements.getMAIL_elements());
-                elementList.addAll(elements.getDNS_elements());
-                elementList.addAll(elements.getDTLS_elements());
-                elementList.addAll(elements.getQUIC_elements());
-                elementList.addAll(elements.getFTP_elements());
-                elementList.addAll(elements.getSIP_elements());
-                elementList.addAll(elements.getRTP_elements());
-                elementList.addAll(elements.getSSH_elements());
-                elementList.addAll(elements.getBGP_elements());
-                elementList.addAll(elements.getRDP_elements());
-                elementList.addAll(elements.getTunnels_elements());
-                elementList.addAll(elements.getStratum_elements());
+                if (elements.getBASE_elements() != null)
+                    elementList.addAll(elements.getBASE_elements());
+                if (elements.getSSL_elements() != null)
+                    elementList.addAll(elements.getSSL_elements());
+                if (elements.getHTTP_elements() != null)
+                    elementList.addAll(elements.getHTTP_elements());
+                if (elements.getMAIL_elements() != null)
+                    elementList.addAll(elements.getMAIL_elements());
+                if (elements.getDNS_elements() != null)
+                    elementList.addAll(elements.getDNS_elements());
+                if (elements.getDTLS_elements() != null)
+                    elementList.addAll(elements.getDTLS_elements());
+                if (elements.getQUIC_elements() != null)
+                    elementList.addAll(elements.getQUIC_elements());
+                if (elements.getFTP_elements() != null)
+                    elementList.addAll(elements.getFTP_elements());
+                if (elements.getSIP_elements() != null)
+                    elementList.addAll(elements.getSIP_elements());
+                if (elements.getRTP_elements() != null)
+                    elementList.addAll(elements.getRTP_elements());
+                if (elements.getSSH_elements() != null)
+                    elementList.addAll(elements.getSSH_elements());
+                if (elements.getBGP_elements() != null)
+                    elementList.addAll(elements.getBGP_elements());
+                if (elements.getRDP_elements() != null)
+                    elementList.addAll(elements.getRDP_elements());
+                if (elements.getTunnels_elements() != null)
+                    elementList.addAll(elements.getTunnels_elements());
+                if (elements.getStratum_elements() != null)
+                    elementList.addAll(elements.getStratum_elements());
                 Record record = new Record();
                 for (Element element : elementList) {
                     record.setEnterpriseId(pen_number);

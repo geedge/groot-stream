@@ -52,7 +52,7 @@ public class IPFIXSource implements Source {
     @Override
     public SingleOutputStreamOperator<Event> source(StreamExecutionEnvironment env, SourceConfig sourceConfig) {
         Map<String, Object> ipfixConfig = sourceConfig.getProperties();
-        UDPSource udpSource = new UDPSource(Integer.parseInt(ipfixConfig.get("initial_port").toString()), Integer.parseInt(ipfixConfig.get("max_attempts").toString()), Integer.parseInt(ipfixConfig.get("buffer_size").toString()), Integer.parseInt(ipfixConfig.get("receive_buffer").toString()),ipfixConfig.get("service_name").toString());
+        UDPSource udpSource = new UDPSource(Integer.parseInt(ipfixConfig.get("initial_port").toString()), Integer.parseInt(ipfixConfig.get("max_attempts").toString()), Integer.parseInt(ipfixConfig.get("buffer_size").toString()), Integer.parseInt(ipfixConfig.get("receive_buffer").toString()), ipfixConfig.get("service_name").toString());
         DataStream<byte[]> sourceForSession = env.addSource(udpSource).setParallelism(Integer.parseInt(sourceConfig.getProperties().getOrDefault("port_number", 1).toString()));
         SingleOutputStreamOperator<Event> streamEvent = sourceForSession.flatMap(new FlatMapFunction<byte[], Event>() {
             @Override
@@ -64,9 +64,9 @@ public class IPFIXSource implements Source {
                         Iterator<Session> iterator = sessionGroup.iterator();
                         while (iterator.hasNext()) {
                             Session next = iterator.next();
-                           // logger.info("domain: " + next.observationDomain());
+                            logger.info("domain: " + next.observationDomain());
                             TrieMap<Object, Template> objectTemplateTrieMap = next.idGetTmpl();
-                          //  logger.info("Template: " + objectTemplateTrieMap.toString());
+                            logger.info("Template: " + objectTemplateTrieMap.toString());
                         }
                     } else {
                         while (reader.hasNext()) {
@@ -79,11 +79,11 @@ public class IPFIXSource implements Source {
                                 fieldMap.put(field.ie().name(), field.value());
                             }
 
-                            if(sourceConfig.getProperties().containsKey("message_timestamp_field")){
+                            if (sourceConfig.getProperties().containsKey("message_timestamp_field")) {
                                 long epochSecond = record.exportTime().get().getEpochSecond();
-                                fieldMap.put(sourceConfig.getProperties().get("message_timestamp_field").toString(),epochSecond);
+                                fieldMap.put(sourceConfig.getProperties().get("message_timestamp_field").toString(), epochSecond);
                             }
-                            if(sourceConfig.getOutput_fields()!=null && sourceConfig.getOutput_fields().size()>0) {
+                            if (sourceConfig.getOutput_fields() != null && sourceConfig.getOutput_fields().size() > 0) {
                                 fieldMap = columnSelector(fieldMap, sourceConfig.getOutput_fields());
                             }
                             grootevent.setExtractedFields(fieldMap);
@@ -96,7 +96,7 @@ public class IPFIXSource implements Source {
                 }
             }
         });
-        if(sourceConfig.getParallelism()!=0){
+        if (sourceConfig.getParallelism() != 0) {
             streamEvent.setParallelism(sourceConfig.getParallelism());
         }
         return streamEvent;
@@ -112,13 +112,16 @@ class UDPSource implements ParallelSourceFunction<byte[]> {
     private final int receive_buffer;
     private final String service_name;
     private transient DatagramChannel channel;
+    private transient NamingService namingService;
+    private int currentPort;
+    private String serverIP;
 
     public UDPSource(int initial_port, int max_attempts, int buffer_size, int receive_buffer, String service_name) {
         this.initial_port = initial_port;
         this.buffer_size = buffer_size;
         this.max_attempts = max_attempts;
         this.receive_buffer = receive_buffer;
-        this.service_name =service_name;
+        this.service_name = service_name;
     }
 
     @Override
@@ -127,9 +130,38 @@ class UDPSource implements ParallelSourceFunction<byte[]> {
             channel = DatagramChannel.open();
             channel.setOption(StandardSocketOptions.SO_RCVBUF, receive_buffer);
             channel.configureBlocking(false);
-            channel = findAvailablePort(channel, initial_port, max_attempts,service_name);
+            currentPort = initial_port;
+            int attempt = 1;
+            while (attempt <= max_attempts) {
+                try {
+                    channel.bind(new InetSocketAddress(currentPort));
+                    Properties properties = new Properties();
+                    properties.setProperty(PropertyKeyConst.SERVER_ADDR, NACOS_SERVER_ADDR);
+                    properties.put("username", NACOS_USERNAME);
+                    properties.put("password", NACOS_PASSWORD);
+                    InetAddress inetAddress = InetAddress.getLocalHost();
+                    serverIP = inetAddress.getHostAddress();
+                    namingService = NamingFactory.createNamingService(properties);
+                    namingService.registerInstance(service_name, serverIP, currentPort);
+                    break;
+                } catch (IOException e) {
+                    // 捕获端口占用异常
+                    if (e.getMessage().contains("Address already in use")) {
+                        logger.info("端口 " + currentPort + " 已被占用");
+                        currentPort++;
+                        attempt++;
+                    } else {
+                        logger.error(e.toString());
+                        channel = null;
+                        break;
+                    }
 
+                } catch (NacosException e) {
+                    logger.error(e.toString());
+                    channel = null;
+                }
 
+            }
             ByteBuffer buffer = ByteBuffer.allocate(buffer_size);
             while (true) {
                 if (channel.receive(buffer) != null) {
@@ -148,9 +180,16 @@ class UDPSource implements ParallelSourceFunction<byte[]> {
     @Override
     public void cancel() {
         IoUtil.close(channel);
+        try {
+            namingService.deregisterInstance(service_name, serverIP, currentPort);
+        } catch (NacosException e) {
+            logger.error(e.toString(), e);
+        }
+
     }
 
-    public static DatagramChannel findAvailablePort(DatagramChannel channel, int initialPort, int maxAttempts, String service_name) {
+
+    public DatagramChannel findAvailablePort(DatagramChannel channel, int initialPort, int maxAttempts, String service_name) {
         int currentPort = initialPort;
         int attempt = 1;
         while (attempt <= maxAttempts) {
@@ -158,8 +197,8 @@ class UDPSource implements ParallelSourceFunction<byte[]> {
                 channel.bind(new InetSocketAddress(currentPort));
                 Properties properties = new Properties();
                 properties.setProperty(PropertyKeyConst.SERVER_ADDR, NACOS_SERVER_ADDR);
-                properties.put("username",NACOS_USERNAME);
-                properties.put("password",NACOS_PASSWORD);
+                properties.put("username", NACOS_USERNAME);
+                properties.put("password", NACOS_PASSWORD);
                 InetAddress inetAddress = InetAddress.getLocalHost();
                 String serverIP = inetAddress.getHostAddress();
                 NamingService namingService = NamingFactory.createNamingService(properties);
