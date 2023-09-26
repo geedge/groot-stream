@@ -18,20 +18,18 @@ public class ClickHouseSink implements Sink {
         ParameterTool parameter = getParameterTool(sinkConfig.getProperties());
         int batchSize = parameter.getInt("batch_size", 100000);
         long batchIntervalMs = TimeUtils.parseDuration(parameter.get("batch_interval", "30s")).toMillis();
-        String[] urls = parameter.get("urls").split(",");
+        String host = parameter.get("host");
         String table = parameter.get("table");
         Properties connInfo = getConnInfo(sinkConfig.getProperties());
-        /*connInfo.put("user", "default");
-        connInfo.put("password", "galaxy2019");
-        connInfo.put("database", "default");*/
-        EventBatchIntervalClickHouseSink sink = new EventBatchIntervalClickHouseSink(batchSize, batchIntervalMs, urls, table, connInfo);
-        operator.addSink(sink).setParallelism(sinkConfig.getParallelism()).name(sinkConfig.getName());
+        EventBatchIntervalClickHouseSink sink = new EventBatchIntervalClickHouseSink(batchSize, batchIntervalMs, host, table, connInfo);
+        operator.addSink(sink).setParallelism(sinkConfig.getParallelism() > 0? sinkConfig.getParallelism(): operator.getExecutionEnvironment().getParallelism()).name(sinkConfig.getName());
     }
 
     private ParameterTool getParameterTool(Map<String, Object> config){
         Map<String, String> params = new HashMap<>();
         for (Map.Entry<String, Object> entry : config.entrySet()) {
             params.put(entry.getKey(), entry.getValue().toString());
+            System.out.println(entry.getKey() + " -> " + entry.getValue().toString());
         }
         return ParameterTool.fromMap(params);
     }

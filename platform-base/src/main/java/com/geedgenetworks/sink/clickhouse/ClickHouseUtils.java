@@ -1,5 +1,6 @@
 package com.geedgenetworks.sink.clickhouse;
 
+import com.github.housepower.buffer.ByteArrayWriter;
 import com.github.housepower.data.*;
 import com.github.housepower.data.type.*;
 import com.github.housepower.data.type.complex.DataTypeArray;
@@ -8,13 +9,19 @@ import com.github.housepower.data.type.complex.DataTypeFixedString;
 import com.github.housepower.data.type.complex.DataTypeString;
 import com.github.housepower.jdbc.ClickHouseArray;
 import com.github.housepower.jdbc.ClickHouseConnection;
+import com.github.housepower.misc.BytesCharSeq;
+import com.github.housepower.misc.DateTimeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.sql.*;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +29,9 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class ClickHouseUtils {
+    static final Logger LOG = LoggerFactory.getLogger(ClickHouseUtils.class);
+    static final byte[] EMPTY_BYTES = new byte[0];
+    static final BytesCharSeq EMPTY_BYTES_CHAR_SEQ = new BytesCharSeq(EMPTY_BYTES);
     private static Field blockColumnsField;
     private static Field blockSettingsField;
     private static Field blockNameAndPositionsField;
@@ -43,6 +53,22 @@ public class ClickHouseUtils {
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 转换host => jdbc url格式
+     * 192.168.40.222:9001,192.168.40.223:9001 => jdbc:clickhouse://192.168.40.222:9001,jdbc:clickhouse://192.168.40.223:9001
+     */
+    static String[] buildUrlsFromHost(String host) {
+        String[] hosts = host.split(",");
+        List<String> urls = new ArrayList<>(hosts.length);
+        for (int i = 0; i < hosts.length; i++) {
+            String[] ipPort = hosts[i].trim().split(":");
+            String ip = ipPort[0].trim();
+            int port = Integer.parseInt(ipPort[1].trim());
+            urls.add("jdbc:clickhouse://" + ip + ":" + port);
+        }
+        return urls.toArray(new String[urls.size()]);
     }
 
     static String genePreparedInsertSql(String table, String[] columnNames) {
@@ -116,6 +142,34 @@ public class ClickHouseUtils {
                 if(stmt != null){
                     stmt.close();
                 }
+                if(connection != null){
+                    connection.close();
+                }
+            }
+        }
+    }
+
+    static ZoneId chooseTimeZone(String[] urls, int urlIndex, Properties connInfo) throws Exception{
+        Class.forName("com.github.housepower.jdbc.ClickHouseDriver");
+
+        int retryCount = 0;
+        while (true){
+            retryCount++;
+            Connection connection = null;
+            try {
+                connection = DriverManager.getConnection(urls[urlIndex], connInfo);
+                ZoneId tz = DateTimeUtil.chooseTimeZone(((ClickHouseConnection) connection).serverContext());
+                return tz;
+            } catch (SQLException e) {
+                e.printStackTrace();
+                if(retryCount >= 3){
+                    throw e;
+                }
+                urlIndex++;
+                if(urlIndex == urls.length){
+                    urlIndex = 0;
+                }
+            } finally {
                 if(connection != null){
                     connection.close();
                 }
@@ -224,6 +278,34 @@ public class ClickHouseUtils {
         }
 
         return defaultValue;
+    }
+
+    // 仅用于测试
+    static void showBlockColumnsByteSize(Block block) throws Exception {
+        IColumn[] columns = (IColumn[])blockColumnsField.get(block);
+        Field field = AbstractColumn.class.getDeclaredField("buffer");
+        field.setAccessible(true);
+        Field columnWriterField = ColumnWriterBuffer.class.getDeclaredField("columnWriter");
+        columnWriterField.setAccessible(true);
+        Field byteBufferListField = ByteArrayWriter.class.getDeclaredField("byteBufferList");
+        byteBufferListField.setAccessible(true);
+        int size = 0;
+        int totalSize = 0;
+        double unitM = 1 << 20;
+        LOG.warn("rowCount:" + block.rowCnt());
+        for (int i = 0; i < columns.length; i++) {
+            Object columnWriter = columnWriterField.get(field.get(columns[i]));
+            List<ByteBuffer> byteBufferList = (List<ByteBuffer>)byteBufferListField.get(columnWriter);
+            size = 0;
+            for (ByteBuffer byteBuffer : byteBufferList) {
+                size += byteBuffer.position();
+            }
+            totalSize += size;
+            if(size > unitM){
+                //LOG.warn(columns[i].name() + "buf cnt:" + byteBufferList.size() +  ", size:" + size/unitM + "M");
+            }
+        }
+        LOG.warn("totalSize:" + totalSize/unitM + "M");
     }
 }
 

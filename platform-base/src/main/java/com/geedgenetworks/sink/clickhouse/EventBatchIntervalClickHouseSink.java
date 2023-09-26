@@ -5,24 +5,15 @@ import com.github.housepower.data.Block;
 import com.github.housepower.data.IDataType;
 import com.github.housepower.data.type.complex.DataTypeArray;
 import com.github.housepower.jdbc.ClickHouseArray;
-import org.apache.flink.configuration.Configuration;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClickHouseSink<Event>{
-    transient private ValueConverter[] columnConverters;
 
-    public EventBatchIntervalClickHouseSink(int batchSize, long batchIntervalMs, String[] urls, String table, Properties connInfo) {
-        super(batchSize, batchIntervalMs, urls, table, connInfo);
-    }
-
-    @Override
-    void onInit(Configuration parameters) throws Exception {
-        super.onInit(parameters);
-        columnConverters = Arrays.stream(columnTypes).map(this::makeConverter).toArray(ValueConverter[]::new);
+    public EventBatchIntervalClickHouseSink(int batchSize, long batchIntervalMs, String host, String table, Properties connInfo) {
+        super(batchSize, batchIntervalMs, host, table, connInfo);
     }
 
     @Override
