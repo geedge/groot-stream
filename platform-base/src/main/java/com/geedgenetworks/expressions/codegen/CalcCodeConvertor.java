@@ -7,7 +7,6 @@ import com.geedgenetworks.expressions.InvalidProgramException;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.janino.SimpleCompiler;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -18,14 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class CalcCodeConvertor {
 
-    // The SimpleCompiler used for dynamic code compilation.
-    private static final SimpleCompiler COMPILER = new SimpleCompiler();
-
     private static final AtomicLong COUNTER = new AtomicLong(0);
-
-    static {
-        COMPILER.setParentClassLoader(Thread.currentThread().getContextClassLoader());
-    }
 
     /**
      * Converts a mathematical expression into an executable Calc object.
@@ -33,13 +25,24 @@ public class CalcCodeConvertor {
      * @param expr The mathematical expression to convert.
      * @return A Calc object capable of evaluating the expression.
      */
-    public static Calc convert(final String expr) {
+    public static Calc convert(final String expr) throws Exception {
+        return convert(Thread.currentThread().getContextClassLoader(), expr);
+    }
+
+    /**
+     * Converts a mathematical expression into an executable Calc object.
+     *
+     * @param expr        The mathematical expression to convert.
+     * @param classLoader The parent class loader.
+     * @return A Calc object capable of evaluating the expression.
+     */
+    public static Calc convert(final ClassLoader classLoader, final String expr) throws Exception {
         EvalExpressionResolver expressionResolver = new EvalExpressionResolver();
         Expression expression = expressionResolver.resolve(expr);
         CodeGeneratorContext ctx = new CodeGeneratorContext();
         expression.accept(new EvalCodeGenerator(ctx));
         String className = "Calc$" + COUNTER.incrementAndGet();
-        return compile(className, evalCode(ctx, className));
+        return compile(classLoader, className, evalCode(ctx, className));
     }
 
     // ======================================================================================
@@ -59,18 +62,16 @@ public class CalcCodeConvertor {
                 "    }";
     }
 
-    private static Calc compile(final String className, final String code) {
+    private static Calc compile(final ClassLoader classLoader, final String className, final String code) throws Exception {
+        SimpleCompiler compiler = new SimpleCompiler();
+        compiler.setParentClassLoader(classLoader);
         try {
-            COMPILER.cook(code);
-            return COMPILER.getClassLoader().loadClass(className)
+            compiler.cook(code);
+            return compiler.getClassLoader().loadClass(className)
                     .asSubclass(Calc.class).getConstructor().newInstance();
         } catch (CompileException e) {
             System.err.println(code);
             throw new InvalidProgramException("Calc program cannot be compiled. Please check expression syntax.");
-        } catch (ClassNotFoundException |
-                 InvocationTargetException | InstantiationException |
-                 IllegalAccessException | NoSuchMethodException e) {
-            throw new RuntimeException(e);
         }
     }
 }
