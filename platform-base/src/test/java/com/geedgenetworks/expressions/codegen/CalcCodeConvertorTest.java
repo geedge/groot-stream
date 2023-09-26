@@ -39,7 +39,7 @@ class CalcCodeConvertorTest {
     }
 
     @Test
-    void testValueExpression() {
+    void testValueExpression() throws Exception {
         // constant
         assertEquals(CalcCodeConvertor.convert("'name'").eval(origin), "name");
         assertEquals(CalcCodeConvertor.convert("5").eval(origin), 5);
@@ -57,7 +57,7 @@ class CalcCodeConvertorTest {
     }
 
     @Test
-    void testConditionExpression() {
+    void testConditionExpression() throws Exception {
         int commonClientPort = (int) origin.get("common_client_port");
         int commonServerPort = (int) origin.get("common_server_port");
         int commonC2sPktNum = (int) origin.get("common_c2s_pkt_num");

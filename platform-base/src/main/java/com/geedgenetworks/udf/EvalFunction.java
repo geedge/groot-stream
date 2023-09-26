@@ -14,7 +14,7 @@ public class EvalFunction implements UdfFunction {
 
     private final Calc calc;
 
-    public EvalFunction(ProjectionFunction projectionFunction) {
+    public EvalFunction(ProjectionFunction projectionFunction) throws Exception {
         String expr = (String) projectionFunction.getParameters().get("value_expression");
         List<String> outputField = projectionFunction.getOutput_fields();
         output = outputField.get(0);
