@@ -377,7 +377,12 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         }
 
         if (type instanceof DataTypeArray) {
-            return this::convertArray;
+            IDataType<?, ?> eleDataType = ((DataTypeArray)type).getElemDataType();
+            ValueConverter eleConverter = this.makeConverter(eleDataType);
+            Object defaultValue = new ClickHouseArray(eleDataType, new Object[0]);
+            return obj -> {
+                return this.convertArray(obj, eleDataType, eleConverter, defaultValue);
+            };
         }
 
         throw new UnsupportedOperationException("Unsupported type: " + type);
@@ -508,12 +513,25 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
             return convertToCkDataType(((DataTypeNullable) type).getNestedDataType(), obj);
         }
         if (type instanceof DataTypeArray) {
-            if (!(obj instanceof ClickHouseArray)) {
-                throw new ClickHouseSQLException(-1, "require ClickHouseArray for column: " + type.name() + ", but found " + obj.getClass());
+            IDataType<?, ?> eleDataType = ((DataTypeArray)type).getElemDataType();
+            ValueConverter eleConverter = this.makeConverter(eleDataType);
+            Object defaultValue = new ClickHouseArray(eleDataType, new Object[0]);
+            if(obj instanceof ClickHouseArray){
+                return obj;
             }
-            //return ((ClickHouseArray) obj).mapElements(unchecked(this::convertToCkDataType));
-            //既然是ClickHouseArray，认为传入元素类型正确
-            return obj;
+            if(obj instanceof List){
+                List list = (List) obj;
+                if(list.size() == 0){
+                    return defaultValue;
+                }
+                Object[] elements = new Object[list.size()];
+                for (int i = 0; i < elements.length; i++) {
+                    elements[i] = eleConverter.convert(list.get(i));
+                }
+                return new ClickHouseArray(eleDataType, elements);
+            }
+
+            throw new ClickHouseSQLException(-1, "require ClickHouseArray for column, but found " + obj.getClass());
         }
         if (type instanceof DataTypeTuple) {
             if (!(obj instanceof ClickHouseStruct)) {
@@ -807,22 +825,29 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     }
 
     private Object convertNothing(Object obj) throws ClickHouseSQLException {
-        if (obj == null) {
-            throw new ClickHouseSQLException(-1, "type doesn't support null value");
-        }
         return null;
     }
 
-    private Object convertArray(Object obj) throws ClickHouseSQLException {
+    private Object convertArray(Object obj, IDataType<?, ?> eleDataType, ValueConverter eleConverter, Object defaultValue) throws ClickHouseSQLException {
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (!(obj instanceof ClickHouseArray)) {
-            throw new ClickHouseSQLException(-1, "require ClickHouseArray for column, but found " + obj.getClass());
+        if(obj instanceof ClickHouseArray){
+            return obj;
         }
-        //return ((ClickHouseArray) obj).mapElements(unchecked(this::convertToCkDataType));
-        //既然是ClickHouseArray，认为传入元素类型正确
-        return obj;
+        if(obj instanceof List){
+            List list = (List) obj;
+            if(list.size() == 0){
+                return defaultValue;
+            }
+            Object[] elements = new Object[list.size()];
+            for (int i = 0; i < elements.length; i++) {
+                elements[i] = eleConverter.convert(list.get(i));
+            }
+            return new ClickHouseArray(eleDataType, elements);
+        }
+
+        throw new ClickHouseSQLException(-1, "require ClickHouseArray for column, but found " + obj.getClass());
     }
 
     @FunctionalInterface
