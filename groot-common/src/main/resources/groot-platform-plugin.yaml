@@ -1,0 +1,13 @@
+udf:
+  com.geedgenetworks.udf.snowflake.SnowflakeId
+  com.geedgenetworks.udf.Drop
+  com.geedgenetworks.udf.AsnLookup
+  com.geedgenetworks.udf.radius.RadiusLookup
+  com.geedgenetworks.udf.Eval
+  com.geedgenetworks.udf.JsonExtract
+  com.geedgenetworks.udf.gtpc.GtpCLookup
+  com.geedgenetworks.udf.UnixTimestamp
+  com.geedgenetworks.udf.Domain
+  com.geedgenetworks.udf.TopLevelDomain
+  com.geedgenetworks.udf.DecodeBase64
+  com.geedgenetworks.udf.FirstSignificantSubdomain
