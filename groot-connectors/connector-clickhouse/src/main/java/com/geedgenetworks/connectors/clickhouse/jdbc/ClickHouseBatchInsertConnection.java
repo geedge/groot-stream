@@ -1,4 +1,4 @@
-package com.geedgenetworks.connectors.clickhouse.util;
+package com.geedgenetworks.connectors.clickhouse.jdbc;
 
 import com.github.housepower.client.NativeClient;
 import com.github.housepower.client.NativeContext;
