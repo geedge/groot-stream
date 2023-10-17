@@ -12,7 +12,7 @@
     <artifactId>groot-common</artifactId>
     <properties>
         <flink.version>1.13.1</flink.version>
-        <zdjizhi.version>1.2</zdjizhi.version>
+        <galaxy.version>1.2</galaxy.version>
         <opencsv.version>3.3</opencsv.version>
         <scala.version>2.12</scala.version>
         <hadoop.version>2.7.1</hadoop.version>
@@ -88,7 +88,7 @@
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>galaxy</artifactId>
-            <version>${zdjizhi.version}</version>
+            <version>${galaxy.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>
