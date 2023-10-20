@@ -5,8 +5,7 @@ public class Element {
     private String element_type;
     private int element_id;
 
-    public Element() {
-    }
+    public Element() {}
 
     public String getElement_name() {
         return element_name;
@@ -34,10 +33,15 @@ public class Element {
 
     @Override
     public String toString() {
-        return "Element{" +
-                "element_name='" + element_name + '\'' +
-                ", element_type='" + element_type + '\'' +
-                ", element_id=" + element_id +
-                '}';
+        return "Element{"
+                + "element_name='"
+                + element_name
+                + '\''
+                + ", element_type='"
+                + element_type
+                + '\''
+                + ", element_id="
+                + element_id
+                + '}';
     }
 }

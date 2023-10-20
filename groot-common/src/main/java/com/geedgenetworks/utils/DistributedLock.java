@@ -14,30 +14,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
-
 public class DistributedLock implements Lock, Watcher {
     private static final Logger logger = LoggerFactory.getLogger(DistributedLock.class);
 
     private ZooKeeper zk = null;
-    /**
-     * 根节点
-     */
+    /** 根节点 */
     private final String ROOT_LOCK = "/locks";
-    /**
-     * 竞争的资源
-     */
+    /** 竞争的资源 */
     private String lockName;
-    /**
-     * 等待的前一个锁
-     */
+    /** 等待的前一个锁 */
     private String waitLock;
-    /**
-     * 当前锁
-     */
+    /** 当前锁 */
     private String currentLock;
-    /**
-     * 计数器
-     */
+    /** 计数器 */
     private CountDownLatch countDownLatch;
 
     private int sessionTimeout = 2000;
@@ -47,7 +36,7 @@ public class DistributedLock implements Lock, Watcher {
     /**
      * 配置分布式锁
      *
-     * @param config   连接的url
+     * @param config 连接的url
      * @param lockName 竞争资源
      */
     public DistributedLock(String config, String lockName) {
@@ -58,16 +47,15 @@ public class DistributedLock implements Lock, Watcher {
             Stat stat = zk.exists(ROOT_LOCK, false);
             if (stat == null) {
                 // 如果根节点不存在，则创建根节点
-                zk.create(ROOT_LOCK, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zk.create(
+                        ROOT_LOCK, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
         } catch (IOException | InterruptedException | KeeperException e) {
             logger.error("Node already exists!");
         }
     }
 
-    /**
-     * 节点监视器
-     */
+    /** 节点监视器 */
     @Override
     public void process(WatchedEvent event) {
         if (this.countDownLatch != null) {
@@ -100,8 +88,12 @@ public class DistributedLock implements Lock, Watcher {
                 throw new LockException("锁名有误");
             }
             // 创建临时有序节点
-            currentLock = zk.create(ROOT_LOCK + "/" + lockName + splitStr, new byte[0],
-                    ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
+            currentLock =
+                    zk.create(
+                            ROOT_LOCK + "/" + lockName + splitStr,
+                            new byte[0],
+                            ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                            CreateMode.EPHEMERAL_SEQUENTIAL);
             // 取所有子节点
             List<String> subNodes = zk.getChildren(ROOT_LOCK, false);
             // 取出所有lockName的锁
@@ -126,7 +118,6 @@ public class DistributedLock implements Lock, Watcher {
         return false;
     }
 
-
     @Override
     public boolean tryLock(long timeout, TimeUnit unit) {
         try {
@@ -149,7 +140,8 @@ public class DistributedLock implements Lock, Watcher {
      * @throws KeeperException
      * @throws InterruptedException
      */
-    private boolean waitForLock(String prev, long waitTime) throws KeeperException, InterruptedException {
+    private boolean waitForLock(String prev, long waitTime)
+            throws KeeperException, InterruptedException {
         Stat stat = zk.exists(ROOT_LOCK + "/" + prev, true);
 
         if (stat != null) {
@@ -182,7 +174,6 @@ public class DistributedLock implements Lock, Watcher {
         this.lock();
     }
 
-
     public class LockException extends RuntimeException {
         private static final long serialVersionUID = 1L;
 
@@ -194,5 +185,4 @@ public class DistributedLock implements Lock, Watcher {
             super(e);
         }
     }
-
 }

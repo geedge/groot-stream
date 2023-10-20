@@ -8,8 +8,7 @@ package com.geedgenetworks.expressions;
  */
 public class SyntaxErrorException extends RuntimeException {
 
-    public SyntaxErrorException() {
-    }
+    public SyntaxErrorException() {}
 
     public SyntaxErrorException(String message) {
         super(message);

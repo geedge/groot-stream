@@ -10,7 +10,6 @@ public class KnowLedgeEntity {
     private int isValid;
     private String format;
 
-
     public String getSha256() {
         return sha256;
     }

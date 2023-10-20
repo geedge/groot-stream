@@ -11,9 +11,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-
 public class ZookeeperUtils implements Watcher {
-    private static final Logger logger = LoggerFactory.getLogger(com.geedgenetworks.utils.ZookeeperUtils.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(com.geedgenetworks.utils.ZookeeperUtils.class);
 
     private ZooKeeper zookeeper;
 
@@ -27,7 +27,6 @@ public class ZookeeperUtils implements Watcher {
             countDownLatch.countDown();
         }
     }
-
 
     /**
      * 修改节点信息
@@ -75,9 +74,7 @@ public class ZookeeperUtils implements Watcher {
         }
     }
 
-    /**
-     * 关闭连接
-     */
+    /** 关闭连接 */
     private void closeConn() {
         try {
             if (zookeeper != null) {
@@ -131,5 +128,4 @@ public class ZookeeperUtils implements Watcher {
             closeConn();
         }
     }
-
 }

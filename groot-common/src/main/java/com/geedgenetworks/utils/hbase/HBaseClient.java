@@ -9,11 +9,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-
 /**
- * A client class for interacting with HBase. This class provides methods for
- * performing common HBase operations like scanning a table and closing the
- * connection.
+ * A client class for interacting with HBase. This class provides methods for performing common
+ * HBase operations like scanning a table and closing the connection.
  *
  * @author chaoc
  * @since 1.0
@@ -44,17 +42,21 @@ public class HBaseClient implements Closeable {
     }
 
     /**
-     * Scans a specified HBase table with a limit and time range, and applies a
-     * consumer action to each result.
+     * Scans a specified HBase table with a limit and time range, and applies a consumer action to
+     * each result.
      *
      * @param tableName The name of the HBase table to scan.
-     * @param limit     The maximum number of rows to return.
-     * @param range     The time range to filter results.
-     * @param action    The consumer action to apply to each HBaseResult.
+     * @param limit The maximum number of rows to return.
+     * @param range The time range to filter results.
+     * @param action The consumer action to apply to each HBaseResult.
      * @throws IOException If an I/O error occurs while scanning the table.
      */
-    public void scan(final String tableName, final int limit, final TimeRange range,
-                     final Consumer<HBaseResult> action) throws IOException {
+    public void scan(
+            final String tableName,
+            final int limit,
+            final TimeRange range,
+            final Consumer<HBaseResult> action)
+            throws IOException {
         final Scan scan = new Scan();
         scan.setTimeRange(range.getMin(), range.getMax());
         scan.setLimit(limit);
@@ -77,8 +79,8 @@ public class HBaseClient implements Closeable {
     }
 
     /**
-     * A class representing an HBase result. This class provides methods to retrieve
-     * values from the result.
+     * A class representing an HBase result. This class provides methods to retrieve values from the
+     * result.
      */
     public static final class HBaseResult {
 

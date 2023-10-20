@@ -1,6 +1,5 @@
 package com.geedgenetworks.expressions;
 
-
 import com.google.common.collect.Lists;
 
 import java.util.Collections;
@@ -22,7 +21,8 @@ public abstract class BooleanExpression implements Expression {
         private final ValueExpression left;
         private final ValueExpression right;
 
-        public ComparisonExpression(ComparisonOperator operator, ValueExpression left, ValueExpression right) {
+        public ComparisonExpression(
+                ComparisonOperator operator, ValueExpression left, ValueExpression right) {
             this.operator = operator;
             this.left = left;
             this.right = right;
@@ -55,7 +55,9 @@ public abstract class BooleanExpression implements Expression {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             ComparisonExpression that = (ComparisonExpression) o;
-            return operator == that.operator && Objects.equals(left, that.left) && Objects.equals(right, that.right);
+            return operator == that.operator
+                    && Objects.equals(left, that.left)
+                    && Objects.equals(right, that.right);
         }
 
         @Override
@@ -76,7 +78,8 @@ public abstract class BooleanExpression implements Expression {
         private final BooleanExpression left;
         private final BooleanExpression right;
 
-        public PredicateExpression(PredicateOperator operator, BooleanExpression left, BooleanExpression right) {
+        public PredicateExpression(
+                PredicateOperator operator, BooleanExpression left, BooleanExpression right) {
             this.operator = operator;
             this.left = left;
             this.right = right;
@@ -109,7 +112,9 @@ public abstract class BooleanExpression implements Expression {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             PredicateExpression that = (PredicateExpression) o;
-            return operator == that.operator && Objects.equals(left, that.left) && Objects.equals(right, that.right);
+            return operator == that.operator
+                    && Objects.equals(left, that.left)
+                    && Objects.equals(right, that.right);
         }
 
         @Override

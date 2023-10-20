@@ -6,15 +6,14 @@ import java.util.Map;
 
 public class SourceConfig implements Serializable {
 
-    private String name ;
+    private String name;
     private int parallelism;
     private Map<String, Object> properties;
-    private String  watermark_timestamp;
+    private String watermark_timestamp;
     private Long watermark_lag;
     private String type;
-    private String  format;
+    private String format;
     private List<String> output_fields;
-
 
     public String getName() {
         return name;
@@ -71,8 +70,6 @@ public class SourceConfig implements Serializable {
     public void setFormat(String format) {
         this.format = format;
     }
-
-
 
     public List<String> getOutput_fields() {
         return output_fields;

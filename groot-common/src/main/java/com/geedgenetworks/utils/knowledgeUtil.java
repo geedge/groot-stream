@@ -20,18 +20,15 @@ import java.util.concurrent.Executor;
 public class knowledgeUtil {
 
     private static final String KNOWLEDGE_EXPR;
-    private static  Map<String, String> knowLedgeFileSha256 = new HashMap<>();
+    private static Map<String, String> knowLedgeFileSha256 = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(knowledgeUtil.class);
 
-
-
-
-    static{
-
+    static {
         StringBuilder sb = new StringBuilder("");
-        sb.append("$.[?(@.version=='latest' && @.name in ['ip_v4_built_in','ip_v6_built_in','ip_v4_user_defined','ip_v6_user_defined','asn_v4','asn_v6']  && @.id in ['");
-    //    sb.append(commonConfig.ID_ARRAY);
-/*        sb.append(commonConfig.IPV4_USER_DEFINED_ID);
+        sb.append(
+                "$.[?(@.version=='latest' && @.name in ['ip_v4_built_in','ip_v6_built_in','ip_v4_user_defined','ip_v6_user_defined','asn_v4','asn_v6']  && @.id in ['");
+        //    sb.append(commonConfig.ID_ARRAY);
+        /*        sb.append(commonConfig.IPV4_USER_DEFINED_ID);
         sb.append("','");
         sb.append(commonConfig.IPV6_USER_DEFINED_ID);
         sb.append("','");
@@ -56,48 +53,47 @@ public class knowledgeUtil {
         String dataId = commonConfig.NACOS_DATA_ID;
         String group = commonConfig.NACOS_GROUP;
         long readTimeout = commonConfig.NACOS_READ_TIMEOUT;
-        //初始化定位库缓存
+        // 初始化定位库缓存
         logger.info("connect nacos：" + nacosProperties.getProperty(PropertyKeyConst.SERVER_ADDR));
         try {
             ConfigService configService = NacosFactory.createConfigService(nacosProperties);
             String nacosInfo = configService.getConfig(dataId, group, readTimeout);
             processNacosInfo(nacosInfo);
 
-            configService.addListener(dataId, group, new Listener() {
-                @Override
-                public Executor getExecutor() {
-                    return null;
-                }
+            configService.addListener(
+                    dataId,
+                    group,
+                    new Listener() {
+                        @Override
+                        public Executor getExecutor() {
+                            return null;
+                        }
 
-                @Override
-                public void receiveConfigInfo(String nacosInfo) {
-                    processNacosInfo(nacosInfo);
-                }
-            });
+                        @Override
+                        public void receiveConfigInfo(String nacosInfo) {
+                            processNacosInfo(nacosInfo);
+                        }
+                    });
         } catch (NacosException e) {
             e.printStackTrace();
         }
     }
 
+    public static void initKnowledge() {}
 
-    public static void initKnowledge(){
-
-
-    }
-
-
-    private static  void processNacosInfo(String nacosInfo) {
+    private static void processNacosInfo(String nacosInfo) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String currentDate = formatter.format(new Date());
         System.out.println(currentDate + ": receive nacos config:" + nacosInfo);
         ArrayList<Map<String, Object>> metaList = JsonPath.parse(nacosInfo).read(KNOWLEDGE_EXPR);
-        System.out.println("resolve " + metaList.size() + " metadata from the config info pushed by nacos");
+        System.out.println(
+                "resolve " + metaList.size() + " metadata from the config info pushed by nacos");
         loadKnowledge(metaList);
     }
 
     private static void loadKnowledge(ArrayList<Map<String, Object>> metaList) {
         Map<String, KnowLedgeEntity> updateMap = new HashMap<>();
-/*
+        /*
         List<String> tagTypes = new ArrayList<>(3);
         tagTypes.add("cn_ip_tag_user_defined");
         tagTypes.add("cn_domain_tag_user_defined");
@@ -110,12 +106,11 @@ public class knowledgeUtil {
             String id = (String) metadata.get("id");
             int isValid = (Integer) metadata.get("isValid");
 
-
             if (isValid != 1) {
                 sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
             }
 
-         /*   try {
+            /*   try {
                 if (!knowLedgeFileSha256.containsKey(id)) {
                     byte[] downloadBytes = downloadFile(fileUrl, sha256, isValid);
                     KnowLedgeEntity knowLedgeEntity = new KnowLedgeEntity();
@@ -147,9 +142,9 @@ public class knowledgeUtil {
                 e.printStackTrace();
             }*/
         }
-        if(updateMap.size()>0){
+        if (updateMap.size() > 0) {
 
-           // IPUtils.loadIpLook(updateMap);
+            // IPUtils.loadIpLook(updateMap);
             //   csvUtils.loadIpLook(updateMap);
         }
     }
@@ -162,20 +157,19 @@ public class knowledgeUtil {
             Header header = new BasicHeader("token", commonConfig.HOS_TOKEN);
             HttpClientUtils httpClientUtils = new HttpClientUtils();
             inputStream = httpClientUtils.httpGetInputStream(fileUrl, 3000, header);
-         // content = IOUtils.toByteArray(inputStream);
+            // content = IOUtils.toByteArray(inputStream);
             long end = System.currentTimeMillis();
-            System.out.println("download file " + fileUrl + " finished, speed " + (end - start) + " ms");
+            System.out.println(
+                    "download file " + fileUrl + " finished, speed " + (end - start) + " ms");
         } catch (Exception e) {
             System.out.println("download file " + fileUrl + " error: " + e.getMessage());
         } finally {
-     //       IOUtils.closeQuietly(inputStream);
+            //       IOUtils.closeQuietly(inputStream);
         }
         return inputStream;
     }
 
-
-
-  /*  private static byte[] downloadFile(String fileUrl, String sha256, int isValid) {
+    /*  private static byte[] downloadFile(String fileUrl, String sha256, int isValid) {
         byte[] content = new byte[0];
         if (isValid != 1) {
             return content;

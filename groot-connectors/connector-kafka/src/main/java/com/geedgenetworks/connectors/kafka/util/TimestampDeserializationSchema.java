@@ -1,12 +1,13 @@
 package com.geedgenetworks.connectors.kafka.util;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import org.apache.flink.api.common.typeinfo.TypeHint;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 
 /**
  * @author qidaijie
@@ -17,8 +18,7 @@ public class TimestampDeserializationSchema implements KafkaDeserializationSchem
 
     @Override
     public TypeInformation getProducedType() {
-        return TypeInformation.of(new TypeHint<Tuple2<String, Long>>() {
-        });
+        return TypeInformation.of(new TypeHint<Tuple2<String, Long>>() {});
     }
 
     @Override
@@ -36,7 +36,8 @@ public class TimestampDeserializationSchema implements KafkaDeserializationSchem
                 String value = new String((byte[]) record.value(), "UTF8");
                 return new Tuple2<>(value, timestamp);
             } catch (RuntimeException e) {
-                logger.error("KafkaConsumer Deserialize failed,The exception is : " + e.getMessage());
+                logger.error(
+                        "KafkaConsumer Deserialize failed,The exception is : " + e.getMessage());
                 e.printStackTrace();
             }
         }

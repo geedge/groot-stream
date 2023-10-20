@@ -6,8 +6,7 @@ public class Record {
     private String dataType;
     private int elementId;
 
-    public Record() {
-    }
+    public Record() {}
 
     public int getEnterpriseId() {
         return enterpriseId;
@@ -43,11 +42,17 @@ public class Record {
 
     @Override
     public String toString() {
-        return "Element{" +
-                "enterpriseId=" + enterpriseId +
-                ", name='" + name + '\'' +
-                ", dataType='" + dataType + '\'' +
-                ", elementId=" + elementId +
-                '}';
+        return "Element{"
+                + "enterpriseId="
+                + enterpriseId
+                + ", name='"
+                + name
+                + '\''
+                + ", dataType='"
+                + dataType
+                + '\''
+                + ", elementId="
+                + elementId
+                + '}';
     }
 }

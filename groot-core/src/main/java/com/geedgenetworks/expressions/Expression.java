@@ -1,6 +1,5 @@
 package com.geedgenetworks.expressions;
 
-
 import java.util.List;
 
 public interface Expression {

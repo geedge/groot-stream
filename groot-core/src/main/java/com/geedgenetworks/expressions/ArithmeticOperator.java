@@ -1,11 +1,10 @@
 package com.geedgenetworks.expressions;
 
-/**
- * Enumeration representing arithmetic operators.
- */
+/** Enumeration representing arithmetic operators. */
 public enum ArithmeticOperator {
-    PLUS, MINUS,
-    ASTERISK, SLASH,
+    PLUS,
+    MINUS,
+    ASTERISK,
+    SLASH,
     PERCENT
-
 }

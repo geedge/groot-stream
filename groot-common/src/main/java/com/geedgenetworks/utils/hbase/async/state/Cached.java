@@ -2,10 +2,9 @@ package com.geedgenetworks.utils.hbase.async.state;
 
 import java.io.Closeable;
 
-
 /**
- * An interface for a generic caching mechanism. Implementations of this interface
- * are expected to provide methods for retrieving and setting cached values.
+ * An interface for a generic caching mechanism. Implementations of this interface are expected to
+ * provide methods for retrieving and setting cached values.
  *
  * @param <K> The type of keys used to access cached values.
  * @param <V> The type of cached values.

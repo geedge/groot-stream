@@ -1,6 +1,5 @@
 package com.geedgenetworks.utils.hbase.async;
 
-
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
@@ -21,11 +20,8 @@ public interface ScheduledSupport {
         return DefaultScheduledExecutor.DEFAULT.getService();
     }
 
-    /**
-     * Singleton implementation of scheduled executor service.
-     */
+    /** Singleton implementation of scheduled executor service. */
     enum DefaultScheduledExecutor {
-
         DEFAULT(new ScheduledThreadPoolExecutor(4));
 
         private final ScheduledExecutorService service;

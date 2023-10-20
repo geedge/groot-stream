@@ -8,7 +8,7 @@ public class SinkConfig implements Serializable {
 
     private int parallelism;
     private Map<String, Object> properties;
-    private String  format;
+    private String format;
     private String type;
     private List<String> output_fields;
     private String name;

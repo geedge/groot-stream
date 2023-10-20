@@ -15,21 +15,19 @@ import java.util.concurrent.TimeUnit;
 import static com.geedgenetworks.config.commonConfig.ZOOKEEPER_QUORUM;
 
 /**
- * A builder class for creating HBase connections. This class provides methods
- * for configuring and building an HBase connection.
+ * A builder class for creating HBase connections. This class provides methods for configuring and
+ * building an HBase connection.
  *
  * @author chaoc
  * @since 1.0
  */
 public class HbaseConnectBuilder {
 
-    private final static Logger LOG = LoggerFactory.getLogger(HbaseConnectBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HbaseConnectBuilder.class);
 
     private final Configuration config;
 
-    /**
-     * Creates a new HbaseConnectBuilder instance.
-     */
+    /** Creates a new HbaseConnectBuilder instance. */
     public static HbaseConnectBuilder newBuilder() {
         return new HbaseConnectBuilder();
     }
@@ -56,7 +54,8 @@ public class HbaseConnectBuilder {
      * @param configuration The Apache Flink configuration.
      * @return This HbaseConnectBuilder instance.
      */
-    public HbaseConnectBuilder fromConfiguration(final org.apache.flink.configuration.Configuration configuration) {
+    public HbaseConnectBuilder fromConfiguration(
+            final org.apache.flink.configuration.Configuration configuration) {
         // TODO: Init Builder from Apache Flink configuration
         return this;
     }
@@ -64,7 +63,7 @@ public class HbaseConnectBuilder {
     /**
      * Sets a configuration parameter for the HBase connection.
      *
-     * @param name  The name of the configuration parameter.
+     * @param name The name of the configuration parameter.
      * @param value The value of the configuration parameter.
      * @return This HbaseConnectBuilder instance.
      */
@@ -79,15 +78,12 @@ public class HbaseConnectBuilder {
      * @return The constructed HBase Connection.
      */
     public Connection build() {
-        final Retryer<Connection> retryer = RetryerBuilder.<Connection>newBuilder()
-                .retryIfExceptionOfType(IOException.class)
-                .withStopStrategy(
-                        StopStrategies.stopAfterAttempt(3)
-                )
-                .withWaitStrategy(
-                        WaitStrategies.fixedWait(5, TimeUnit.SECONDS)
-                )
-                .build();
+        final Retryer<Connection> retryer =
+                RetryerBuilder.<Connection>newBuilder()
+                        .retryIfExceptionOfType(IOException.class)
+                        .withStopStrategy(StopStrategies.stopAfterAttempt(3))
+                        .withWaitStrategy(WaitStrategies.fixedWait(5, TimeUnit.SECONDS))
+                        .build();
         try {
             LOG.info("Initializing the HBase connection");
             return retryer.call(() -> ConnectionFactory.createConnection(config));

@@ -9,7 +9,6 @@ import java.util.Map;
 
 public class Combine implements Udf {
 
-
     private ProjectionFunction projection_function;
 
     private StringBuilder stringBuilder;
@@ -17,15 +16,16 @@ public class Combine implements Udf {
     @Override
     public void withParameters(ProjectionFunction projection_function) {
         this.projection_function = projection_function;
-        if(projection_function.getParameters()!=null && projection_function.getParameters().size()!=0){
+        if (projection_function.getParameters() != null
+                && projection_function.getParameters().size() != 0) {
             ArrayList<String> keys = new ArrayList<>();
             for (Map.Entry<String, Object> entry : projection_function.getParameters().entrySet()) {
                 String key = entry.getKey();
                 keys.add(key);
             }
             keys.sort(new NaturalNumberStringComparator());
-            stringBuilder =new StringBuilder();
-            for(String key: keys){
+            stringBuilder = new StringBuilder();
+            for (String key : keys) {
                 stringBuilder.append(projection_function.getParameters().get(key));
             }
         }
@@ -35,12 +35,13 @@ public class Combine implements Udf {
     public Event evaluate(Event event) {
 
         if (event.getExtractedFields().containsKey(projection_function.getLookup_fields().get(0))) {
-            stringBuilder.append(event.getExtractedFields().get(projection_function.getLookup_fields().get(0)));
-            event.getExtractedFields().put(projection_function.getOutput_fields().get(0), stringBuilder.toString());
+            stringBuilder.append(
+                    event.getExtractedFields().get(projection_function.getLookup_fields().get(0)));
+            event.getExtractedFields()
+                    .put(projection_function.getOutput_fields().get(0), stringBuilder.toString());
         }
         return event;
     }
-
 
     @Override
     public String functionName() {
@@ -56,6 +57,5 @@ public class Combine implements Udf {
             Integer n2 = Integer.parseInt(s2Array[1]);
             return n1.compareTo(n2);
         }
-
     }
 }

@@ -1,8 +1,9 @@
 package com.geedgenetworks.udf.snowflake;
 
+import com.geedgenetworks.utils.DistributedLock;
+
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.geedgenetworks.utils.DistributedLock;
 
 import static com.geedgenetworks.config.commonConfig.DATA_CENTER_ID_NUM;
 import static com.geedgenetworks.config.commonConfig.ZOOKEEPER_QUORUM;
@@ -16,122 +17,89 @@ public class SnowflakeIdUtil {
     private static final Log logger = LogFactory.get();
 
     /**
-     * 共64位 第一位为符号位 默认0
-     * 时间戳 39位(17 year), centerId:(关联每个环境或任务数) :6位(0-63),
-     * workerId(关联进程):7(0-127) ,序列号：11位(2047/ms)
+     * 共64位 第一位为符号位 默认0 时间戳 39位(17 year), centerId:(关联每个环境或任务数) :6位(0-63), workerId(关联进程):7(0-127)
+     * ,序列号：11位(2047/ms)
      *
-     * 序列号 /ms = (-1L ^ (-1L << 11))
-     * 最大使用年 = (1L << 39) / (1000L * 60 * 60 * 24 * 365)
+     * <p>序列号 /ms = (-1L ^ (-1L << 11)) 最大使用年 = (1L << 39) / (1000L * 60 * 60 * 24 * 365)
      */
-    /**
-     * 开始时间截 (2020-11-14 00:00:00) max 17years
-     */
+    /** 开始时间截 (2020-11-14 00:00:00) max 17years */
     private static final long twepoch = 1605283200000L;
 
-    /**
-     * 机器id所占的位数
-     */
+    /** 机器id所占的位数 */
     private static final long workerIdBits = 8L;
 
-    /**
-     * 数据标识id所占的位数
-     */
+    /** 数据标识id所占的位数 */
     private static final long dataCenterIdBits = 5L;
 
-    /**
-     * 支持的最大机器id，结果是63 (这个移位算法可以很快的计算出几位二进制数所能表示的最大十进制数)
-     * M << n  = M * 2^n
-     */
+    /** 支持的最大机器id，结果是63 (这个移位算法可以很快的计算出几位二进制数所能表示的最大十进制数) M << n = M * 2^n */
     private final long maxWorkerId = -1L ^ (-1L << workerIdBits);
 
-    /**
-     * 支持的最大数据标识id，结果是31
-     */
+    /** 支持的最大数据标识id，结果是31 */
     private final long maxDataCenterId = -1L ^ (-1L << dataCenterIdBits);
 
-    /**
-     * 序列在id中占的位数
-     */
+    /** 序列在id中占的位数 */
     private static final long sequenceBits = 11L;
 
-    /**
-     * 机器ID向左移12位
-     */
+    /** 机器ID向左移12位 */
     private static final long workerIdShift = sequenceBits;
 
-    /**
-     * 数据标识id向左移17位(14+6)
-     */
+    /** 数据标识id向左移17位(14+6) */
     private static final long dataCenterIdShift = sequenceBits + workerIdBits;
 
-    /**
-     * 时间截向左移22位(4+6+14)
-     */
+    /** 时间截向左移22位(4+6+14) */
     private static final long timestampLeftShift = sequenceBits + workerIdBits + dataCenterIdBits;
 
-    /**
-     * 生成序列的掩码，这里为2047
-     */
+    /** 生成序列的掩码，这里为2047 */
     private static final long sequenceMask = -1L ^ (-1L << sequenceBits);
 
-    /**
-     * 工作机器ID(0~255)
-     */
+    /** 工作机器ID(0~255) */
     private static long workerId;
 
-    /**
-     * 数据中心ID(0~31)
-     */
+    /** 数据中心ID(0~31) */
     private static long dataCenterId;
 
-    /**
-     * 毫秒内序列(0~2047)
-     */
+    /** 毫秒内序列(0~2047) */
     private static long sequence = 0L;
 
-    /**
-     * 上次生成ID的时间截
-     */
-    private static  long lastTimestamp = -1L;
+    /** 上次生成ID的时间截 */
+    private static long lastTimestamp = -1L;
 
-
-    /**
-     * 设置允许时间回拨的最大限制10s
-     */
+    /** 设置允许时间回拨的最大限制10s */
     private static final long rollBackTime = 10000L;
-
 
     private static SnowflakeIdUtil idWorker;
 
     private static ZookeeperUtils zookeeperUtils = new ZookeeperUtils();
 
-
-    //==============================Constructors=====================================
-    static{
-
+    // ==============================Constructors=====================================
+    static {
         new SnowflakeIdUtil(ZOOKEEPER_QUORUM, DATA_CENTER_ID_NUM);
-
     }
-    /**
-     * 构造函数
-     */
+    /** 构造函数 */
     public SnowflakeIdUtil(String zookeeperIp, long dataCenterIdNum) {
         DistributedLock lock = new DistributedLock(zookeeperIp, "disLocks1");
         try {
-        lock.lock();
-        int tmpWorkerId = zookeeperUtils.modifyNode("/Snowflake/" + "worker" + dataCenterIdNum, zookeeperIp);
-        if (tmpWorkerId > maxWorkerId || tmpWorkerId < 0) {
-            throw new IllegalArgumentException(String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
-        }
-        if (dataCenterIdNum > maxDataCenterId || dataCenterIdNum < 0) {
-            throw new IllegalArgumentException(String.format("datacenter Id can't be greater than %d or less than ", maxDataCenterId));
-        }
-        this.workerId = tmpWorkerId;
-        this.dataCenterId = dataCenterIdNum;
+            lock.lock();
+            int tmpWorkerId =
+                    zookeeperUtils.modifyNode(
+                            "/Snowflake/" + "worker" + dataCenterIdNum, zookeeperIp);
+            if (tmpWorkerId > maxWorkerId || tmpWorkerId < 0) {
+                throw new IllegalArgumentException(
+                        String.format(
+                                "worker Id can't be greater than %d or less than 0", maxWorkerId));
+            }
+            if (dataCenterIdNum > maxDataCenterId || dataCenterIdNum < 0) {
+                throw new IllegalArgumentException(
+                        String.format(
+                                "datacenter Id can't be greater than %d or less than ",
+                                maxDataCenterId));
+            }
+            this.workerId = tmpWorkerId;
+            this.dataCenterId = dataCenterIdNum;
         } catch (RuntimeException e) {
             logger.error("This is not usual error!!!===>>>" + e + "<<<===");
-        }finally {
-                lock.unlock();
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -144,34 +112,36 @@ public class SnowflakeIdUtil {
      */
     private static synchronized long nextId() {
         long timestamp = timeGen();
-        //设置一个允许回拨限制时间，系统时间回拨范围在rollBackTime内可以等待校准
+        // 设置一个允许回拨限制时间，系统时间回拨范围在rollBackTime内可以等待校准
         if (lastTimestamp - timestamp > 0 && lastTimestamp - timestamp < rollBackTime) {
             timestamp = tilNextMillis(lastTimestamp);
         }
-        //如果当前时间小于上一次ID生成的时间戳，说明系统时钟回退过这个时候应当抛出异常
+        // 如果当前时间小于上一次ID生成的时间戳，说明系统时钟回退过这个时候应当抛出异常
         if (timestamp < lastTimestamp) {
             throw new RuntimeException(
-                    String.format("Clock moved backwards.  Refusing to generate id for %d milliseconds", lastTimestamp - timestamp));
+                    String.format(
+                            "Clock moved backwards.  Refusing to generate id for %d milliseconds",
+                            lastTimestamp - timestamp));
         }
 
-        //如果是同一时间生成的，则进行毫秒内序列
+        // 如果是同一时间生成的，则进行毫秒内序列
         if (lastTimestamp == timestamp) {
             sequence = (sequence + 1) & sequenceMask;
-            //毫秒内序列溢出
+            // 毫秒内序列溢出
             if (sequence == 0) {
-                //阻塞到下一个毫秒,获得新的时间戳
+                // 阻塞到下一个毫秒,获得新的时间戳
                 timestamp = tilNextMillis(lastTimestamp);
             }
         }
-        //时间戳改变，毫秒内序列重置
+        // 时间戳改变，毫秒内序列重置
         else {
             sequence = 0L;
         }
 
-        //上次生成ID的时间截
+        // 上次生成ID的时间截
         lastTimestamp = timestamp;
 
-        //移位并通过或运算拼到一起组成64位的ID
+        // 移位并通过或运算拼到一起组成64位的ID
         return ((timestamp - twepoch) << timestampLeftShift)
                 | (dataCenterId << dataCenterIdShift)
                 | (workerId << workerIdShift)
@@ -201,7 +171,6 @@ public class SnowflakeIdUtil {
         return System.currentTimeMillis();
     }
 
-
     /**
      * 静态工具类
      *
@@ -210,6 +179,4 @@ public class SnowflakeIdUtil {
     public static Long generateId() {
         return nextId();
     }
-
-
 }

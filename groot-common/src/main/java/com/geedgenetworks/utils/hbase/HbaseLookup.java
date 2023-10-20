@@ -5,6 +5,7 @@ import com.geedgenetworks.utils.hbase.async.Fetcher;
 import com.geedgenetworks.utils.hbase.async.FixedRateFetcher;
 import com.geedgenetworks.utils.hbase.async.state.Cached;
 import com.geedgenetworks.utils.hbase.async.state.HeapCached;
+
 import org.apache.flink.configuration.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 
@@ -12,7 +13,8 @@ import java.io.IOException;
 import java.util.function.BiConsumer;
 
 /**
- * An abstract class representing an asynchronous query executor for HBase lookups with cache support.
+ * An abstract class representing an asynchronous query executor for HBase lookups with cache
+ * support.
  *
  * @param <K> The key type for the HBase lookup.
  * @param <V> The value type for the HBase lookup.
@@ -34,26 +36,25 @@ public abstract class HbaseLookup<K, V> extends AsyncQueryExecutor<K, V> {
      */
     public HbaseLookup(final Configuration parameters) {
         // Establish an HBase connection using the provided parameter
-        final Connection connection = HbaseConnectBuilder
-                .newBuilder()
-                .loadDefaultConfig()
-                .build();
+        final Connection connection = HbaseConnectBuilder.newBuilder().loadDefaultConfig().build();
         this.client = new HBaseClient(connection);
         this.cached = new HeapCached<>();
 
         // Define the update function for cache refresh
-        final Runnable func = () -> {
-            BiConsumer<HBaseClient, Cached<K, V>> consumer = getUpdate();
-            consumer.accept(client, cached);
-        };
+        final Runnable func =
+                () -> {
+                    BiConsumer<HBaseClient, Cached<K, V>> consumer = getUpdate();
+                    consumer.accept(client, cached);
+                };
 
         // Create a fetcher for scheduled cache updates
-        this.fetcher = new FixedRateFetcher() {
-            @Override
-            public Runnable asyncFetch() {
-                return func;
-            }
-        };
+        this.fetcher =
+                new FixedRateFetcher() {
+                    @Override
+                    public Runnable asyncFetch() {
+                        return func;
+                    }
+                };
     }
 
     /**
@@ -88,7 +89,8 @@ public abstract class HbaseLookup<K, V> extends AsyncQueryExecutor<K, V> {
     }
 
     /**
-     * This method should be implemented by subclasses to define how data should be fetched and updated from HBase.
+     * This method should be implemented by subclasses to define how data should be fetched and
+     * updated from HBase.
      *
      * @return A function that fetches and returns data from HBase as a Map.
      */

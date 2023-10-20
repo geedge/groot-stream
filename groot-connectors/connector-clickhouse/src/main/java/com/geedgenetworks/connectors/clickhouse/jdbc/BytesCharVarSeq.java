@@ -10,7 +10,7 @@ public class BytesCharVarSeq implements CharSequence {
         this.len = len;
     }
 
-    public void setBytesAndLen(byte[] bytes, int len){
+    public void setBytesAndLen(byte[] bytes, int len) {
         this.bytes = bytes;
         this.len = len;
     }

@@ -7,10 +7,9 @@ import java.util.Map;
 
 public class ProjectionConfig implements Serializable {
 
-
     private int parallelism;
     private ArrayList<ProjectionFunction> functions;
-    private String  format;
+    private String format;
     private String type;
     private List<String> output_fields;
     private Map<String, Object> properties;

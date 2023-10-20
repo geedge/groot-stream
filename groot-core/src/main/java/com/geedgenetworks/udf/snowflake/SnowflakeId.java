@@ -8,18 +8,18 @@ import java.io.Serializable;
 
 public class SnowflakeId implements Serializable, Udf {
 
-    private  ProjectionFunction projection_function;
+    private ProjectionFunction projection_function;
 
     @Override
     public void withParameters(ProjectionFunction projection_function) {
-        this.projection_function=projection_function;
-
+        this.projection_function = projection_function;
     }
 
     @Override
     public Event evaluate(Event event) {
 
-        event.getExtractedFields().put(projection_function.getOutput_fields().get(0), SnowflakeIdUtil.generateId());
+        event.getExtractedFields()
+                .put(projection_function.getOutput_fields().get(0), SnowflakeIdUtil.generateId());
         return event;
     }
 

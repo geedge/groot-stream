@@ -2,6 +2,7 @@ package com.geedgenetworks.udf;
 
 import com.geedgenetworks.pojo.Event;
 import com.geedgenetworks.pojo.ProjectionFunction;
+
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
@@ -14,16 +15,14 @@ import static com.geedgenetworks.udf.Drop.Aviator.AviatorExcute;
 
 public class Drop implements Udf {
 
-
     @Override
     public void withParameters(ProjectionFunction projection_function) {
-        Aviator.init( projection_function.getFilter());
-
+        Aviator.init(projection_function.getFilter());
     }
 
     @Override
     public Event evaluate(Event event) {
-        Boolean result = AviatorExcute( event.getExtractedFields()) ;
+        Boolean result = AviatorExcute(event.getExtractedFields());
         event.setFinal(result);
         return event;
     }
@@ -39,22 +38,21 @@ public class Drop implements Udf {
 
         public static void init(String expr) {
 
-            expression=expr;
+            expression = expr;
             AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
             instance.setCachedExpressionByDefault(true);
             instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
             instance.setFunctionMissing(null);
             compiledExp = instance.compile(expression, true);
-
         }
-        public static Boolean AviatorExcute(Map<String,Object> map){
 
-            Boolean bool=true;
-            if(!"".equals(expression)){
-                bool=(Boolean) compiledExp.execute(compiledExp.newEnv("map", map));
+        public static Boolean AviatorExcute(Map<String, Object> map) {
+
+            Boolean bool = true;
+            if (!"".equals(expression)) {
+                bool = (Boolean) compiledExp.execute(compiledExp.newEnv("map", map));
             }
             return bool;
         }
-
     }
 }

@@ -5,13 +5,13 @@ import java.util.Map;
 
 public class YamlEntity implements Serializable {
 
-   private Map<String, Object> sources ;
-   private Map<String, Object> application ;
-   private Map<String, Object> sinks ;
-   private Map<String, Object> filters ;
-   private Map<String, Object> pre_processing_pipelines;
-   private Map<String, Object> processing_pipelines ;
-   private Map<String, Object> post_processing_pipelines;
+    private Map<String, Object> sources;
+    private Map<String, Object> application;
+    private Map<String, Object> sinks;
+    private Map<String, Object> filters;
+    private Map<String, Object> pre_processing_pipelines;
+    private Map<String, Object> processing_pipelines;
+    private Map<String, Object> post_processing_pipelines;
 
     public Map<String, Object> getSources() {
         return sources;

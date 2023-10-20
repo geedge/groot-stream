@@ -1,6 +1,7 @@
 package com.geedgenetworks.expressions.codegen;
 
 import javax.annotation.Nullable;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,8 +54,10 @@ public class CodeGeneratorContext {
         } else {
             String newName = newName();
             reusableMember.put(value, newName);
-            String code = String.format("private final %s %s = %s;",
-                    value.getClass().getCanonicalName(), newName, encodingValue(value));
+            String code =
+                    String.format(
+                            "private final %s %s = %s;",
+                            value.getClass().getCanonicalName(), newName, encodingValue(value));
             reusableMemberStatement.add(code);
             return newName;
         }
@@ -72,8 +75,7 @@ public class CodeGeneratorContext {
         } else {
             String newName = newName();
             reusableLocalVariable.put(value, newName);
-            addLocalVariable("final "
-                    + Object.class.getCanonicalName() + " " + newName + ";");
+            addLocalVariable("final " + Object.class.getCanonicalName() + " " + newName + ";");
             return newName;
         }
     }
@@ -104,7 +106,6 @@ public class CodeGeneratorContext {
     public String evalCode() {
         return String.join("\n", evalCodeStatements);
     }
-
 
     /**
      * Adds evaluation code statements to the context.

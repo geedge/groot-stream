@@ -1,13 +1,16 @@
 package com.geedgenetworks.connectors.clickhouse.sink;
 
 import com.geedgenetworks.pojo.Event;
+
 import com.github.housepower.data.Block;
+
 import java.util.Map;
 import java.util.Properties;
 
-public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClickHouseSink<Event>{
+public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClickHouseSink<Event> {
 
-    public EventBatchIntervalClickHouseSink(int batchSize, long batchIntervalMs, String host, String table, Properties connInfo) {
+    public EventBatchIntervalClickHouseSink(
+            int batchSize, long batchIntervalMs, String host, String table, Properties connInfo) {
         super(batchSize, batchIntervalMs, host, table, connInfo);
     }
 
@@ -18,13 +21,13 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
         for (int i = 0; i < columnNames.length; i++) {
             value = map.get(columnNames[i]);
 
-            if(value == null){
+            if (value == null) {
                 value = columnDefaultValues[i];
                 batch.setObject(i, value); // 默认值不用转换
-            }else{
-                //int columnIdx = batch.paramIdx2ColumnIdx(i);
-                //batch.setObject(columnIdx, convertToCkDataType(columnTypes[i], value));
-                //batch.setObject(i, convertToCkDataType(dataType, value));
+            } else {
+                // int columnIdx = batch.paramIdx2ColumnIdx(i);
+                // batch.setObject(columnIdx, convertToCkDataType(columnTypes[i], value));
+                // batch.setObject(i, convertToCkDataType(dataType, value));
                 batch.setObject(i, columnConverters[i].convert(value));
             }
         }

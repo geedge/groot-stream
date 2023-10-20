@@ -10,11 +10,9 @@ import java.util.Map;
 
 public class Eval implements Udf {
 
-    private  String output;
+    private String output;
 
-    private  Calc calc;
-
-
+    private Calc calc;
 
     @Override
     public void withParameters(ProjectionFunction projection_function) throws Exception {

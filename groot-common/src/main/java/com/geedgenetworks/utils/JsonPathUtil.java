@@ -9,9 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author qidaijie
- * @Package com.zdjizhi.tools.json
- * @Description:
+ * @author qidaijie @Package com.zdjizhi.tools.json @Description:
  * @date 2023/5/1917:51
  */
 public class JsonPathUtil {
@@ -23,7 +21,7 @@ public class JsonPathUtil {
      * 根据表达式使用JsonPath解析数据
      *
      * @param message json
-     * @param expr    解析表达式
+     * @param expr 解析表达式
      * @return 解析结果
      */
     public static Object analysis(String message, String expr) {
@@ -38,7 +36,9 @@ public class JsonPathUtil {
                 flattenResult = jsonPath.extract(parser);
             }
         } catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
-            logger.error("The label resolution exception or [expr] analytic expression error" + e.getMessage());
+            logger.error(
+                    "The label resolution exception or [expr] analytic expression error"
+                            + e.getMessage());
         }
         return flattenResult;
     }

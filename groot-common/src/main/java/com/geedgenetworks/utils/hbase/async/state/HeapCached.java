@@ -6,8 +6,8 @@ import com.google.common.cache.CacheBuilder;
 import java.io.IOException;
 
 /**
- * An implementation of the Cached interface that uses an in-memory heap-based cache.
- * This class provides methods for getting, setting, and closing the cache.
+ * An implementation of the Cached interface that uses an in-memory heap-based cache. This class
+ * provides methods for getting, setting, and closing the cache.
  *
  * @param <K> The type of keys in the cache.
  * @param <V> The type of values in the cache.
@@ -18,12 +18,9 @@ public class HeapCached<K, V> implements Cached<K, V> {
 
     private final Cache<K, V> store;
 
-    /**
-     * Constructs a new HeapCached instance with default cache settings.
-     */
+    /** Constructs a new HeapCached instance with default cache settings. */
     public HeapCached() {
-        this.store = CacheBuilder.newBuilder()
-                .build();
+        this.store = CacheBuilder.newBuilder().build();
     }
 
     /**

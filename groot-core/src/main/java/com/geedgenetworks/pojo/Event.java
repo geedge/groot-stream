@@ -22,7 +22,6 @@ public class Event implements Serializable {
         this.extractedFields = extractedFields;
     }
 
-
     public Map<String, Object> getInternalFields() {
         return internalFields;
     }

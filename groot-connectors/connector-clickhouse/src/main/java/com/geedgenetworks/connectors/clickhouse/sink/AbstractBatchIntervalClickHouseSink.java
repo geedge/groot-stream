@@ -43,26 +43,28 @@ import java.util.stream.IntStream;
 
 import static com.github.housepower.misc.ExceptionUtil.unchecked;
 
-
-public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFunction<T> implements CheckpointedFunction {
+public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFunction<T>
+        implements CheckpointedFunction {
     static final Logger LOG = LoggerFactory.getLogger(AbstractBatchIntervalClickHouseSink.class);
-    public static long UINT32_MAX = (1L << 32) -1;
+    public static long UINT32_MAX = (1L << 32) - 1;
     // 标准日期时间格式，精确到秒：yyyy-MM-dd HH:mm:ss
     public static final String NORM_DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
-    public static final DateTimeFormatter NORM_DATETIME_FORMATTER = DateTimeFormatter.ofPattern(NORM_DATETIME_PATTERN);
+    public static final DateTimeFormatter NORM_DATETIME_FORMATTER =
+            DateTimeFormatter.ofPattern(NORM_DATETIME_PATTERN);
     // 标准日期时间格式，精确到毫秒：yyyy-MM-dd HH:mm:ss.SSS
     public static final String NORM_DATETIME_MS_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
-    public static final DateTimeFormatter NORM_DATETIME_MS_FORMATTER = DateTimeFormatter.ofPattern(NORM_DATETIME_MS_PATTERN);
+    public static final DateTimeFormatter NORM_DATETIME_MS_FORMATTER =
+            DateTimeFormatter.ofPattern(NORM_DATETIME_MS_PATTERN);
     private int batchSize;
     private long batchIntervalMs;
-    transient private boolean closed;
-    transient private Thread outThread;
-    transient private ReentrantLock lock;
-    transient private Block batch;
-    transient private BlockingQueue<Block> outBatchQueue;
-    transient private BlockingQueue<Block> freeBatchQueue;
-    transient private Exception flushException;
-    transient private long lastFlushTs;
+    private transient boolean closed;
+    private transient Thread outThread;
+    private transient ReentrantLock lock;
+    private transient Block batch;
+    private transient BlockingQueue<Block> outBatchQueue;
+    private transient BlockingQueue<Block> freeBatchQueue;
+    private transient Exception flushException;
+    private transient long lastFlushTs;
     // flush ck 相关
     private final String[] urls;
     private int urlIndex;
@@ -75,7 +77,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     protected IDataType<?, ?>[] columnTypes;
     protected ValueConverter[] columnConverters;
 
-    public AbstractBatchIntervalClickHouseSink(int batchSize, long batchIntervalMs, String host, String table, Properties connInfo) {
+    public AbstractBatchIntervalClickHouseSink(
+            int batchSize, long batchIntervalMs, String host, String table, Properties connInfo) {
         this.batchSize = batchSize;
         this.batchIntervalMs = batchIntervalMs;
         this.urls = ClickHouseUtils.buildUrlsFromHost(host);
@@ -91,48 +94,61 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         initClickHouseParams();
         onInit(parameters);
         lastFlushTs = System.currentTimeMillis();
-        outThread = new Thread(() -> {
-            while (!closed) {
-                try {
-                    Block list;
-                    try {
-                        list = outBatchQueue.poll(2, TimeUnit.SECONDS);
-                        if (list == null) {
-                            if (System.currentTimeMillis() - lastFlushTs >= batchIntervalMs) {
-                                flush();
-                            }
-                            continue;
-                        }
-                    } catch (InterruptedException e) {
-                        continue;
-                    }
+        outThread =
+                new Thread(
+                        () -> {
+                            while (!closed) {
+                                try {
+                                    Block list;
+                                    try {
+                                        list = outBatchQueue.poll(2, TimeUnit.SECONDS);
+                                        if (list == null) {
+                                            if (System.currentTimeMillis() - lastFlushTs
+                                                    >= batchIntervalMs) {
+                                                flush();
+                                            }
+                                            continue;
+                                        }
+                                    } catch (InterruptedException e) {
+                                        continue;
+                                    }
 
-                    onFlush(list);
-                } catch (Exception e) {
-                    flushException = e;
-                }
-            }
-        }, "BatchIntervalSink-" + (getRuntimeContext().getIndexOfThisSubtask() + 1) + "/" + getRuntimeContext().getNumberOfParallelSubtasks());
+                                    onFlush(list);
+                                } catch (Exception e) {
+                                    flushException = e;
+                                }
+                            }
+                        },
+                        "BatchIntervalSink-"
+                                + (getRuntimeContext().getIndexOfThisSubtask() + 1)
+                                + "/"
+                                + getRuntimeContext().getNumberOfParallelSubtasks());
         outThread.start();
     }
 
     private void initClickHouseParams() throws Exception {
-        //urlIndex = new Random().nextInt(urls.length);
+        // urlIndex = new Random().nextInt(urls.length);
         urlIndex = getRuntimeContext().getIndexOfThisSubtask() % urls.length;
 
         // 获取要插入的列信息
-        Tuple2<String[], Object[]> columnsAndDefaultValues = ClickHouseUtils.getInsertColumnsAndDefaultValuesForTable(urls, urlIndex, connInfo, table);
+        Tuple2<String[], Object[]> columnsAndDefaultValues =
+                ClickHouseUtils.getInsertColumnsAndDefaultValuesForTable(
+                        urls, urlIndex, connInfo, table);
         columnNames = columnsAndDefaultValues.f0;
         columnDefaultValues = columnsAndDefaultValues.f1;
         insertSql = ClickHouseUtils.genePreparedInsertSql(this.table, this.columnNames);
 
         LOG.warn("insertColumnsCount:" + columnNames.length);
         LOG.warn("insertColumns:" + String.join(",", columnNames));
-        LOG.warn("insertColumnDefaultValues:" + IntStream.range(0, columnNames.length).mapToObj(i -> columnNames[i] + ":" + columnDefaultValues[i]).collect(Collectors.joining(",")));
+        LOG.warn(
+                "insertColumnDefaultValues:"
+                        + IntStream.range(0, columnNames.length)
+                                .mapToObj(i -> columnNames[i] + ":" + columnDefaultValues[i])
+                                .collect(Collectors.joining(",")));
         LOG.warn("insertSql:" + insertSql);
 
         // 获取时区用于解析DateTime类型
-        tz =  ClickHouseUtils.chooseTimeZone(urls, urlIndex, connInfo);
+        tz = ClickHouseUtils.chooseTimeZone(urls, urlIndex, connInfo);
 
         // 初始化Block
         Block block = ClickHouseUtils.getInsertBlockForSql(urls, urlIndex, connInfo, insertSql);
@@ -148,22 +164,28 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
             columnTypes[i] = column.type();
             assert columnNames[i] == column.name();
 
-            if(column.type() instanceof DataTypeString || column.type() instanceof DataTypeFixedString){
-                if(columnDefaultValues[i].equals("")){
+            if (column.type() instanceof DataTypeString
+                    || column.type() instanceof DataTypeFixedString) {
+                if (columnDefaultValues[i].equals("")) {
                     columnDefaultValues[i] = ClickHouseUtils.EMPTY_BYTES_CHAR_SEQ;
-                }else{
-                    columnDefaultValues[i] = new BytesCharSeq((columnDefaultValues[i].toString().getBytes(StandardCharsets.UTF_8)));
+                } else {
+                    columnDefaultValues[i] =
+                            new BytesCharSeq(
+                                    (columnDefaultValues[i]
+                                            .toString()
+                                            .getBytes(StandardCharsets.UTF_8)));
                 }
             }
 
-            if(column.type() instanceof DataTypeString && column instanceof Column){
+            if (column.type() instanceof DataTypeString && column instanceof Column) {
                 DataTypeStringV2 dataTypeStringV2 = new DataTypeStringV2(StandardCharsets.UTF_8);
                 typeField.set(column, dataTypeStringV2);
                 columnTypes[i] = dataTypeStringV2;
             }
         }
 
-        columnConverters = Arrays.stream(columnTypes).map(this::makeConverter).toArray(ValueConverter[]::new);
+        columnConverters =
+                Arrays.stream(columnTypes).map(this::makeConverter).toArray(ValueConverter[]::new);
 
         // 从block复制block
         block = ClickHouseUtils.newInsertBlockFrom(block);
@@ -173,13 +195,10 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     }
 
     public final void checkFlushException() throws Exception {
-        if (flushException != null)
-            throw flushException;
+        if (flushException != null) throw flushException;
     }
 
-    void onInit(Configuration parameters) throws Exception {
-
-    }
+    void onInit(Configuration parameters) throws Exception {}
 
     abstract boolean addBatch(Block batch, T data) throws Exception;
 
@@ -188,11 +207,11 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         checkFlushException();
         lock.lock();
         try {
-            if(addBatch(batch, value)){
+            if (addBatch(batch, value)) {
                 batch.appendRow();
             }
             if (batchSize > 0 && batch.rowCnt() >= batchSize) {
-                //LOG.warn("flush");
+                // LOG.warn("flush");
                 flush();
             }
         } finally {
@@ -218,7 +237,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         long start = System.currentTimeMillis();
         int rowCnt = block.rowCnt();
         ClickHouseUtils.showBlockColumnsByteSize(block); // 仅用于测试
-        LOG.warn("flush " + rowCnt + " start:" + new Timestamp(start) + "," + (start - lastFlushTs));
+        LOG.warn(
+                "flush " + rowCnt + " start:" + new Timestamp(start) + "," + (start - lastFlushTs));
         lastFlushTs = System.currentTimeMillis();
 
         int retryCount = 0;
@@ -242,13 +262,19 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 ClickHouseUtils.resetInsertBlockColumns(block);
                 freeBatchQueue.put(block);
 
-                LOG.warn("flush " + rowCnt + " end:" + new Timestamp(System.currentTimeMillis()) + "," + (System.currentTimeMillis() - start));
+                LOG.warn(
+                        "flush "
+                                + rowCnt
+                                + " end:"
+                                + new Timestamp(System.currentTimeMillis())
+                                + ","
+                                + (System.currentTimeMillis() - start));
 
                 return;
             } catch (SQLException e) {
                 LOG.error("ClickHouseBatchInsertFail url:" + url, e);
                 if (retryCount >= 3) {
-                    //throw e;
+                    // throw e;
                     return;
                 }
             } finally {
@@ -263,14 +289,10 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     }
 
     @Override
-    public void snapshotState(FunctionSnapshotContext context) throws Exception {
-
-    }
+    public void snapshotState(FunctionSnapshotContext context) throws Exception {}
 
     @Override
-    public void initializeState(FunctionInitializationContext context) throws Exception {
-
-    }
+    public void initializeState(FunctionInitializationContext context) throws Exception {}
 
     @Override
     public final void close() throws Exception {
@@ -294,7 +316,6 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                     lock.unlock();
                 }
             }
-
         }
 
         checkFlushException();
@@ -378,7 +399,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         }
 
         if (type instanceof DataTypeArray) {
-            IDataType<?, ?> eleDataType = ((DataTypeArray)type).getElemDataType();
+            IDataType<?, ?> eleDataType = ((DataTypeArray) type).getElemDataType();
             ValueConverter eleConverter = this.makeConverter(eleDataType);
             Object defaultValue = new ClickHouseArray(eleDataType, new Object[0]);
             return obj -> {
@@ -390,118 +411,97 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     }
 
     // TODO we actually need a type cast system rather than put all type cast stuffs here
-    protected final Object convertToCkDataType(IDataType<?, ?> type, Object obj) throws ClickHouseSQLException {
+    protected final Object convertToCkDataType(IDataType<?, ?> type, Object obj)
+            throws ClickHouseSQLException {
         if (obj == null) {
-            if (type.nullable() || type instanceof DataTypeNothing)
-                return null;
-            throw new ClickHouseSQLException(-1, "type[" + type.name() + "] doesn't support null value");
+            if (type.nullable() || type instanceof DataTypeNothing) return null;
+            throw new ClickHouseSQLException(
+                    -1, "type[" + type.name() + "] doesn't support null value");
         }
         // put the most common cast at first to avoid `instanceof` test overhead
         if (type instanceof DataTypeString || type instanceof DataTypeFixedString) {
-            if (obj instanceof CharSequence)
-                return obj;
-            if (obj instanceof byte[])
-                return new BytesCharSeq((byte[]) obj);
+            if (obj instanceof CharSequence) return obj;
+            if (obj instanceof byte[]) return new BytesCharSeq((byte[]) obj);
             String objStr = obj.toString();
             LOG.debug("set value[{}]: {} on String Column", obj.getClass(), obj);
             return objStr;
         }
         if (type instanceof DataTypeDate) {
-            if (obj instanceof java.util.Date)
-                return ((Date) obj).toLocalDate();
-            if (obj instanceof LocalDate)
-                return obj;
+            if (obj instanceof java.util.Date) return ((Date) obj).toLocalDate();
+            if (obj instanceof LocalDate) return obj;
         }
 
         if (type instanceof DataTypeDate32) {
-            if (obj instanceof java.util.Date)
-                return ((Date) obj).toLocalDate();
-            if (obj instanceof LocalDate)
-                return obj;
+            if (obj instanceof java.util.Date) return ((Date) obj).toLocalDate();
+            if (obj instanceof LocalDate) return obj;
         }
         // TODO support
         //   1. other Java8 time, i.e. OffsetDateTime, Instant
         //   2. unix timestamp, but in second or millisecond?
         if (type instanceof DataTypeDateTime || type instanceof DataTypeDateTime64) {
-            if (obj instanceof Number){
+            if (obj instanceof Number) {
                 long ts = ((Number) obj).longValue();
                 // 小于UINT32_MAX认为单位是s
-                if(ts < UINT32_MAX){
-                    ts  = ts * 1000;
+                if (ts < UINT32_MAX) {
+                    ts = ts * 1000;
                 }
                 Instant instant = Instant.ofEpochMilli(ts);
                 return LocalDateTime.ofInstant(instant, tz).atZone(tz);
             }
 
-            if (obj instanceof Timestamp)
-                return DateTimeUtil.toZonedDateTime((Timestamp) obj, tz);
-            if (obj instanceof LocalDateTime)
-                return ((LocalDateTime) obj).atZone(tz);
-            if (obj instanceof ZonedDateTime)
-                return obj;
-            if (obj instanceof String){
+            if (obj instanceof Timestamp) return DateTimeUtil.toZonedDateTime((Timestamp) obj, tz);
+            if (obj instanceof LocalDateTime) return ((LocalDateTime) obj).atZone(tz);
+            if (obj instanceof ZonedDateTime) return obj;
+            if (obj instanceof String) {
                 String str = (String) obj;
-                if(str.length() == 19){
+                if (str.length() == 19) {
                     return LocalDateTime.parse(str, NORM_DATETIME_FORMATTER).atZone(tz);
-                }else if(str.length() == 23){
+                } else if (str.length() == 23) {
                     return LocalDateTime.parse(str, NORM_DATETIME_MS_FORMATTER).atZone(tz);
                 }
             }
-            throw new ClickHouseSQLException(-1, "require ClickHouseStruct for column: " + type.name() + ", but found " + obj.getClass());
+            throw new ClickHouseSQLException(
+                    -1,
+                    "require ClickHouseStruct for column: "
+                            + type.name()
+                            + ", but found "
+                            + obj.getClass());
         }
         if (type instanceof DataTypeInt8) {
-            if (obj instanceof Number)
-                return ((Number) obj).byteValue();
-            if (obj instanceof String)
-                return (byte) Integer.parseInt((String) obj);
+            if (obj instanceof Number) return ((Number) obj).byteValue();
+            if (obj instanceof String) return (byte) Integer.parseInt((String) obj);
         }
         if (type instanceof DataTypeUInt8 || type instanceof DataTypeInt16) {
-            if (obj instanceof Number)
-                return ((Number) obj).shortValue();
-            if (obj instanceof String)
-                return (short) Integer.parseInt((String) obj);
+            if (obj instanceof Number) return ((Number) obj).shortValue();
+            if (obj instanceof String) return (short) Integer.parseInt((String) obj);
         }
         if (type instanceof DataTypeUInt16 || type instanceof DataTypeInt32) {
-            if (obj instanceof Number)
-                return ((Number) obj).intValue();
-            if (obj instanceof String)
-                return Integer.parseInt((String) obj);
+            if (obj instanceof Number) return ((Number) obj).intValue();
+            if (obj instanceof String) return Integer.parseInt((String) obj);
         }
         if (type instanceof DataTypeUInt32 || type instanceof DataTypeInt64) {
-            if (obj instanceof Number)
-                return ((Number) obj).longValue();
-            if (obj instanceof String)
-                return Long.parseLong((String) obj);
+            if (obj instanceof Number) return ((Number) obj).longValue();
+            if (obj instanceof String) return Long.parseLong((String) obj);
         }
         if (type instanceof DataTypeUInt64) {
-            if (obj instanceof BigInteger)
-                return obj;
-            if (obj instanceof BigDecimal)
-                return ((BigDecimal) obj).toBigInteger();
-            if (obj instanceof Number)
-                return BigInteger.valueOf(((Number) obj).longValue());
-            if (obj instanceof String)
-                return BigInteger.valueOf(Long.parseLong((String) obj));
+            if (obj instanceof BigInteger) return obj;
+            if (obj instanceof BigDecimal) return ((BigDecimal) obj).toBigInteger();
+            if (obj instanceof Number) return BigInteger.valueOf(((Number) obj).longValue());
+            if (obj instanceof String) return BigInteger.valueOf(Long.parseLong((String) obj));
         }
         if (type instanceof DataTypeFloat32) {
-            if (obj instanceof Number)
-                return ((Number) obj).floatValue();
+            if (obj instanceof Number) return ((Number) obj).floatValue();
         }
         if (type instanceof DataTypeFloat64) {
-            if (obj instanceof Number)
-                return ((Number) obj).doubleValue();
+            if (obj instanceof Number) return ((Number) obj).doubleValue();
         }
         if (type instanceof DataTypeDecimal) {
-            if (obj instanceof BigDecimal)
-                return obj;
-            if (obj instanceof BigInteger)
-                return new BigDecimal((BigInteger) obj);
-            if (obj instanceof Number)
-                return ((Number) obj).doubleValue();
+            if (obj instanceof BigDecimal) return obj;
+            if (obj instanceof BigInteger) return new BigDecimal((BigInteger) obj);
+            if (obj instanceof Number) return ((Number) obj).doubleValue();
         }
         if (type instanceof DataTypeUUID) {
-            if (obj instanceof UUID)
-                return obj;
+            if (obj instanceof UUID) return obj;
             if (obj instanceof String) {
                 return UUID.fromString((String) obj);
             }
@@ -514,15 +514,15 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
             return convertToCkDataType(((DataTypeNullable) type).getNestedDataType(), obj);
         }
         if (type instanceof DataTypeArray) {
-            IDataType<?, ?> eleDataType = ((DataTypeArray)type).getElemDataType();
+            IDataType<?, ?> eleDataType = ((DataTypeArray) type).getElemDataType();
             ValueConverter eleConverter = this.makeConverter(eleDataType);
             Object defaultValue = new ClickHouseArray(eleDataType, new Object[0]);
-            if(obj instanceof ClickHouseArray){
+            if (obj instanceof ClickHouseArray) {
                 return obj;
             }
-            if(obj instanceof List){
+            if (obj instanceof List) {
                 List list = (List) obj;
-                if(list.size() == 0){
+                if (list.size() == 0) {
                     return defaultValue;
                 }
                 Object[] elements = new Object[list.size()];
@@ -532,13 +532,22 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 return new ClickHouseArray(eleDataType, elements);
             }
 
-            throw new ClickHouseSQLException(-1, "require ClickHouseArray for column, but found " + obj.getClass());
+            throw new ClickHouseSQLException(
+                    -1, "require ClickHouseArray for column, but found " + obj.getClass());
         }
         if (type instanceof DataTypeTuple) {
             if (!(obj instanceof ClickHouseStruct)) {
-                throw new ClickHouseSQLException(-1, "require ClickHouseStruct for column: " + type.name() + ", but found " + obj.getClass());
+                throw new ClickHouseSQLException(
+                        -1,
+                        "require ClickHouseStruct for column: "
+                                + type.name()
+                                + ", but found "
+                                + obj.getClass());
             }
-            return ((ClickHouseStruct) obj).mapAttributes(((DataTypeTuple) type).getNestedTypes(), unchecked(this::convertToCkDataType));
+            return ((ClickHouseStruct) obj)
+                    .mapAttributes(
+                            ((DataTypeTuple) type).getNestedTypes(),
+                            unchecked(this::convertToCkDataType));
         }
         if (type instanceof DataTypeMap) {
             if (obj instanceof Map) {
@@ -553,7 +562,9 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 }
                 return result;
             } else {
-                throw new ClickHouseSQLException(-1, "require Map for column: " + type.name() + ", but found " + obj.getClass());
+                throw new ClickHouseSQLException(
+                        -1,
+                        "require Map for column: " + type.name() + ", but found " + obj.getClass());
             }
         }
 
@@ -567,22 +578,23 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         return new ValueConverter() {
             final byte[] bytes = new byte[MAX_STR_BYTES_LENGTH];
             final BytesCharVarSeq bytesCharVarSeq = new BytesCharVarSeq(bytes, 0);
+
             @Override
             public Object convert(Object obj) throws ClickHouseSQLException {
                 if (obj == null) {
                     throw new ClickHouseSQLException(-1, "type doesn't support null value");
                 }
-                if (obj instanceof byte[]){
-                    byte[] bs = (byte[])obj;
+                if (obj instanceof byte[]) {
+                    byte[] bs = (byte[]) obj;
                     bytesCharVarSeq.setBytesAndLen(bs, bs.length);
                     return bytesCharVarSeq;
                 }
-                if (obj instanceof CharSequence){
-                    if(((CharSequence)obj).length() == 0){
+                if (obj instanceof CharSequence) {
+                    if (((CharSequence) obj).length() == 0) {
                         return ClickHouseUtils.EMPTY_BYTES_CHAR_SEQ;
                     }
-                }else{
-                    //LOG.debug("set value[{}]: {} on String Column", obj.getClass(), obj);
+                } else {
+                    // LOG.debug("set value[{}]: {} on String Column", obj.getClass(), obj);
                 }
                 String str = obj.toString();
                 int length = str.length() * 3;
@@ -600,20 +612,21 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     private ValueConverter makeStringConverter() {
         return new ValueConverter() {
             final byte[] bytes = new byte[MAX_STR_BYTES_LENGTH];
+
             @Override
             public Object convert(Object obj) throws ClickHouseSQLException {
                 if (obj == null) {
                     throw new ClickHouseSQLException(-1, "type doesn't support null value");
                 }
-                if (obj instanceof byte[]){
+                if (obj instanceof byte[]) {
                     return new BytesCharSeq((byte[]) obj);
                 }
-                if (obj instanceof CharSequence){
-                    if(((CharSequence)obj).length() == 0){
+                if (obj instanceof CharSequence) {
+                    if (((CharSequence) obj).length() == 0) {
                         return ClickHouseUtils.EMPTY_BYTES_CHAR_SEQ;
                     }
-                }else{
-                    //LOG.debug("set value[{}]: {} on String Column", obj.getClass(), obj);
+                } else {
+                    // LOG.debug("set value[{}]: {} on String Column", obj.getClass(), obj);
                 }
                 String str = obj.toString();
                 int length = str.length() * 3;
@@ -631,10 +644,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (obj instanceof java.util.Date)
-            return ((Date) obj).toLocalDate();
-        if (obj instanceof LocalDate)
-            return obj;
+        if (obj instanceof java.util.Date) return ((Date) obj).toLocalDate();
+        if (obj instanceof LocalDate) return obj;
 
         LOG.debug("unhandled type: {}", obj.getClass());
         return obj;
@@ -644,37 +655,32 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (obj instanceof java.util.Date)
-            return ((Date) obj).toLocalDate();
-        if (obj instanceof LocalDate)
-            return obj;
+        if (obj instanceof java.util.Date) return ((Date) obj).toLocalDate();
+        if (obj instanceof LocalDate) return obj;
 
         LOG.debug("unhandled type: {}", obj.getClass());
         return obj;
     }
 
     private Object convertDateTime(Object obj) throws ClickHouseSQLException {
-        if (obj instanceof Number){
+        if (obj instanceof Number) {
             long ts = ((Number) obj).longValue();
             // 小于UINT32_MAX认为单位是s
-            if(ts < UINT32_MAX){
-                ts  = ts * 1000;
+            if (ts < UINT32_MAX) {
+                ts = ts * 1000;
             }
             Instant instant = Instant.ofEpochMilli(ts);
             return LocalDateTime.ofInstant(instant, tz).atZone(tz);
         }
 
-        if (obj instanceof Timestamp)
-            return DateTimeUtil.toZonedDateTime((Timestamp) obj, tz);
-        if (obj instanceof LocalDateTime)
-            return ((LocalDateTime) obj).atZone(tz);
-        if (obj instanceof ZonedDateTime)
-            return obj;
-        if (obj instanceof String){
+        if (obj instanceof Timestamp) return DateTimeUtil.toZonedDateTime((Timestamp) obj, tz);
+        if (obj instanceof LocalDateTime) return ((LocalDateTime) obj).atZone(tz);
+        if (obj instanceof ZonedDateTime) return obj;
+        if (obj instanceof String) {
             String str = (String) obj;
-            if(str.length() == 19){
+            if (str.length() == 19) {
                 return LocalDateTime.parse(str, NORM_DATETIME_FORMATTER).atZone(tz);
-            }else if(str.length() == 23){
+            } else if (str.length() == 23) {
                 return LocalDateTime.parse(str, NORM_DATETIME_MS_FORMATTER).atZone(tz);
             }
         }
@@ -683,27 +689,24 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     }
 
     private Object convertDateTime64(Object obj) throws ClickHouseSQLException {
-        if (obj instanceof Number){
+        if (obj instanceof Number) {
             long ts = ((Number) obj).longValue();
             // 小于UINT32_MAX认为单位是s
-            if(ts < UINT32_MAX){
-                ts  = ts * 1000;
+            if (ts < UINT32_MAX) {
+                ts = ts * 1000;
             }
             Instant instant = Instant.ofEpochMilli(ts);
             return LocalDateTime.ofInstant(instant, tz).atZone(tz);
         }
 
-        if (obj instanceof Timestamp)
-            return DateTimeUtil.toZonedDateTime((Timestamp) obj, tz);
-        if (obj instanceof LocalDateTime)
-            return ((LocalDateTime) obj).atZone(tz);
-        if (obj instanceof ZonedDateTime)
-            return obj;
-        if (obj instanceof String){
+        if (obj instanceof Timestamp) return DateTimeUtil.toZonedDateTime((Timestamp) obj, tz);
+        if (obj instanceof LocalDateTime) return ((LocalDateTime) obj).atZone(tz);
+        if (obj instanceof ZonedDateTime) return obj;
+        if (obj instanceof String) {
             String str = (String) obj;
-            if(str.length() == 19){
+            if (str.length() == 19) {
                 return LocalDateTime.parse(str, NORM_DATETIME_FORMATTER).atZone(tz);
-            }else if(str.length() == 23){
+            } else if (str.length() == 23) {
                 return LocalDateTime.parse(str, NORM_DATETIME_MS_FORMATTER).atZone(tz);
             }
         }
@@ -715,10 +718,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (obj instanceof Number)
-            return ((Number) obj).byteValue();
-        if (obj instanceof String)
-            return (byte) Integer.parseInt((String) obj);
+        if (obj instanceof Number) return ((Number) obj).byteValue();
+        if (obj instanceof String) return (byte) Integer.parseInt((String) obj);
 
         LOG.debug("unhandled type: {}", obj.getClass());
         return obj;
@@ -728,10 +729,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (obj instanceof Number)
-            return ((Number) obj).shortValue();
-        if (obj instanceof String)
-            return (short) Integer.parseInt((String) obj);
+        if (obj instanceof Number) return ((Number) obj).shortValue();
+        if (obj instanceof String) return (short) Integer.parseInt((String) obj);
 
         LOG.debug("unhandled type: {}", obj.getClass());
         return obj;
@@ -741,10 +740,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (obj instanceof Number)
-            return ((Number) obj).intValue();
-        if (obj instanceof String)
-            return Integer.parseInt((String) obj);
+        if (obj instanceof Number) return ((Number) obj).intValue();
+        if (obj instanceof String) return Integer.parseInt((String) obj);
 
         LOG.debug("unhandled type: {}", obj.getClass());
         return obj;
@@ -754,10 +751,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (obj instanceof Number)
-            return ((Number) obj).longValue();
-        if (obj instanceof String)
-            return Long.parseLong((String) obj);
+        if (obj instanceof Number) return ((Number) obj).longValue();
+        if (obj instanceof String) return Long.parseLong((String) obj);
 
         LOG.debug("unhandled type: {}", obj.getClass());
         return obj;
@@ -767,14 +762,10 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (obj instanceof BigInteger)
-            return obj;
-        if (obj instanceof BigDecimal)
-            return ((BigDecimal) obj).toBigInteger();
-        if (obj instanceof Number)
-            return BigInteger.valueOf(((Number) obj).longValue());
-        if (obj instanceof String)
-            return BigInteger.valueOf(Long.parseLong((String) obj));
+        if (obj instanceof BigInteger) return obj;
+        if (obj instanceof BigDecimal) return ((BigDecimal) obj).toBigInteger();
+        if (obj instanceof Number) return BigInteger.valueOf(((Number) obj).longValue());
+        if (obj instanceof String) return BigInteger.valueOf(Long.parseLong((String) obj));
 
         LOG.debug("unhandled type: {}", obj.getClass());
         return obj;
@@ -784,10 +775,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (obj instanceof Number)
-            return ((Number) obj).floatValue();
-        if (obj instanceof String)
-            return Float.parseFloat((String) obj);
+        if (obj instanceof Number) return ((Number) obj).floatValue();
+        if (obj instanceof String) return Float.parseFloat((String) obj);
 
         LOG.debug("unhandled type: {}", obj.getClass());
         return obj;
@@ -797,10 +786,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (obj instanceof Number)
-            return ((Number) obj).doubleValue();
-        if (obj instanceof String)
-            return Double.parseDouble((String) obj);
+        if (obj instanceof Number) return ((Number) obj).doubleValue();
+        if (obj instanceof String) return Double.parseDouble((String) obj);
 
         LOG.debug("unhandled type: {}", obj.getClass());
         return obj;
@@ -810,14 +797,10 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (obj instanceof BigDecimal)
-            return obj;
-        if (obj instanceof BigInteger)
-            return new BigDecimal((BigInteger) obj);
-        if (obj instanceof Number)
-            return new BigDecimal(((Number) obj).doubleValue());
-        if (obj instanceof String)
-            return new BigDecimal(Double.parseDouble((String) obj));
+        if (obj instanceof BigDecimal) return obj;
+        if (obj instanceof BigInteger) return new BigDecimal((BigInteger) obj);
+        if (obj instanceof Number) return new BigDecimal(((Number) obj).doubleValue());
+        if (obj instanceof String) return new BigDecimal(Double.parseDouble((String) obj));
 
         LOG.debug("unhandled type: {}", obj.getClass());
         return obj;
@@ -827,8 +810,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if (obj instanceof UUID)
-            return obj;
+        if (obj instanceof UUID) return obj;
         if (obj instanceof String) {
             return UUID.fromString((String) obj);
         }
@@ -841,16 +823,21 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         return null;
     }
 
-    private Object convertArray(Object obj, IDataType<?, ?> eleDataType, ValueConverter eleConverter, Object defaultValue) throws ClickHouseSQLException {
+    private Object convertArray(
+            Object obj,
+            IDataType<?, ?> eleDataType,
+            ValueConverter eleConverter,
+            Object defaultValue)
+            throws ClickHouseSQLException {
         if (obj == null) {
             throw new ClickHouseSQLException(-1, "type doesn't support null value");
         }
-        if(obj instanceof ClickHouseArray){
+        if (obj instanceof ClickHouseArray) {
             return obj;
         }
-        if(obj instanceof List){
+        if (obj instanceof List) {
             List list = (List) obj;
-            if(list.size() == 0){
+            if (list.size() == 0) {
                 return defaultValue;
             }
             Object[] elements = new Object[list.size()];
@@ -860,7 +847,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
             return new ClickHouseArray(eleDataType, elements);
         }
 
-        throw new ClickHouseSQLException(-1, "require ClickHouseArray for column, but found " + obj.getClass());
+        throw new ClickHouseSQLException(
+                -1, "require ClickHouseArray for column, but found " + obj.getClass());
     }
 
     // copy from org.apache.flink.table.runtime.util.StringUtf8Utils

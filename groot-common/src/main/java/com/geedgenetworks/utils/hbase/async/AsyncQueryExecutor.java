@@ -3,9 +3,8 @@ package com.geedgenetworks.utils.hbase.async;
 import com.geedgenetworks.utils.hbase.async.state.Cached;
 
 /**
- * An abstract class for executing asynchronous queries and caching the results.
- * This class implements the Cached interface and provides methods for getting
- * and setting values in the cache.
+ * An abstract class for executing asynchronous queries and caching the results. This class
+ * implements the Cached interface and provides methods for getting and setting values in the cache.
  *
  * @param <K> The type of keys used for caching.
  * @param <V> The type of values stored in the cache.

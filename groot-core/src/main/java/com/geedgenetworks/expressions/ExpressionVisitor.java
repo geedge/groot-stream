@@ -1,6 +1,5 @@
 package com.geedgenetworks.expressions;
 
-
 public interface ExpressionVisitor<R> {
 
     R visit(Expression expression);
@@ -26,5 +25,4 @@ public interface ExpressionVisitor<R> {
     R visit(BooleanExpression.PredicateExpression expression);
 
     R visit(BooleanExpression.NotExpression expression);
-
 }

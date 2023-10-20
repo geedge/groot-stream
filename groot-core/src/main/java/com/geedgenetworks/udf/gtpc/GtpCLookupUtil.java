@@ -3,9 +3,11 @@ package com.geedgenetworks.udf.gtpc;
 import com.geedgenetworks.utils.hbase.HBaseClient;
 import com.geedgenetworks.utils.hbase.HbaseLookup;
 import com.geedgenetworks.utils.hbase.async.state.Cached;
+
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.flink.configuration.Configuration;
 import org.apache.hadoop.hbase.io.TimeRange;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,15 +44,23 @@ public class GtpCLookupUtil extends HbaseLookup<String, GtpCLookupUtil.GtpC> {
             try {
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
-                client.scan(HBASE_GTPC_TABLE_NAME,
-                        HBASE_GTPC_SCAN_MAX_ROWS > 0 ? HBASE_GTPC_SCAN_MAX_ROWS : DEFAULT_HBASE_GTPC_SCAN_MAX_ROWS,
-                        TimeRange.allTime(), ret -> {
-                            String upLinkTeId = ret.getString(GTPC_FAMILY_NAME, FIELD_NAME_UP_LINK_TE_ID);
-                            String downLinkTeId = ret.getString(GTPC_FAMILY_NAME, FIELD_NAME_DOWN_LINK_TE_ID);
+                client.scan(
+                        HBASE_GTPC_TABLE_NAME,
+                        HBASE_GTPC_SCAN_MAX_ROWS > 0
+                                ? HBASE_GTPC_SCAN_MAX_ROWS
+                                : DEFAULT_HBASE_GTPC_SCAN_MAX_ROWS,
+                        TimeRange.allTime(),
+                        ret -> {
+                            String upLinkTeId =
+                                    ret.getString(GTPC_FAMILY_NAME, FIELD_NAME_UP_LINK_TE_ID);
+                            String downLinkTeId =
+                                    ret.getString(GTPC_FAMILY_NAME, FIELD_NAME_DOWN_LINK_TE_ID);
                             String imsi = ret.getString(GTPC_FAMILY_NAME, FIELD_NAME_IMSI);
                             String imei = ret.getString(GTPC_FAMILY_NAME, FIELD_NAME_IMEI);
-                            String phoneNumber = ret.getString(GTPC_FAMILY_NAME, FIELD_NAME_PHONE_NUMBER);
-                            MsgType msgType = MsgType.of(ret.getInt(GTPC_FAMILY_NAME, FIELD_NAME_MSG_TYPE));
+                            String phoneNumber =
+                                    ret.getString(GTPC_FAMILY_NAME, FIELD_NAME_PHONE_NUMBER);
+                            MsgType msgType =
+                                    MsgType.of(ret.getInt(GTPC_FAMILY_NAME, FIELD_NAME_MSG_TYPE));
                             switch (msgType) {
                                 case CREATE:
                                     GtpC gtpC = new GtpC(phoneNumber, imsi, imei);
@@ -63,7 +73,9 @@ public class GtpCLookupUtil extends HbaseLookup<String, GtpCLookupUtil.GtpC> {
                             }
                         });
                 stopWatch.stop();
-                LOG.info("Updating the GTPC relationship data took a total of {} ms.", stopWatch.getTime());
+                LOG.info(
+                        "Updating the GTPC relationship data took a total of {} ms.",
+                        stopWatch.getTime());
             } catch (IOException e) {
                 LOG.warn("Error while caching GTP-C relations.", e);
             }
@@ -86,7 +98,9 @@ public class GtpCLookupUtil extends HbaseLookup<String, GtpCLookupUtil.GtpC> {
     // ----------------------------------- private helper -----------------------------------
 
     private enum MsgType {
-        CREATE(1), DELETE(2), UNKNOWN(0);
+        CREATE(1),
+        DELETE(2),
+        UNKNOWN(0);
         private final int code;
 
         MsgType(int code) {

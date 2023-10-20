@@ -10,7 +10,7 @@ public class ProjectionFunction implements Serializable {
     private List<String> lookup_fields;
     private List<String> output_fields;
     private String filter;
-    private Map<String,Object> parameters;
+    private Map<String, Object> parameters;
     private String function;
 
     public String getName() {

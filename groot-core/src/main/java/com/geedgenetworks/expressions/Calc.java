@@ -3,10 +3,9 @@ package com.geedgenetworks.expressions;
 import java.io.Serializable;
 import java.util.Map;
 
-
 /**
- * The Calc interface represents a calculation operation that can be evaluated
- * with input data provided as a map.
+ * The Calc interface represents a calculation operation that can be evaluated with input data
+ * provided as a map.
  *
  * @author chaoc
  * @since 1.0
@@ -20,5 +19,4 @@ public interface Calc extends Serializable {
      * @return The result of the calculation operation.
      */
     Object eval(final Map<String, Object> data);
-
 }

@@ -22,29 +22,26 @@ import static com.geedgenetworks.config.commonConfig.KNOWLEDGE_IPLOOKUP_MAP;
 
 public class IPUtils {
 
-
     private static final Logger LOG = LoggerFactory.getLogger(IPUtils.class);
     public static Map<String, IpLookupV2> venderWithIpLookup = new HashMap<>();
     public static Map<String, IpLookupV2> venderWithAsnLookup = new HashMap<>();
 
     private static final String KNOWLEDGE_EXPR;
 
-    //public static  Map<String, IpLookupV2>  ipLookupV2Map = new HashMap<>();
+    // public static  Map<String, IpLookupV2>  ipLookupV2Map = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(IPUtils.class);
     public static Map<String, KnowLedgeEntity> knowledgeEntityMap = new HashMap<>();
 
-
     static {
-
-
         StringBuilder sb = new StringBuilder("");
-        sb.append("$.[?(@.version=='latest' && @.name in ['ip_v4_built_in','ip_v6_built_in','ip_v4_user_defined','ip_v6_user_defined','asn_v4','asn_v6']  && @.id in ['");
+        sb.append(
+                "$.[?(@.version=='latest' && @.name in ['ip_v4_built_in','ip_v6_built_in','ip_v4_user_defined','ip_v6_user_defined','asn_v4','asn_v6']  && @.id in ['");
         //    sb.append(commonConfig.ID_ARRAY);
 
-        if(KNOWLEDGE_IPLOOKUP_MAP!=null && KNOWLEDGE_IPLOOKUP_MAP.size()>0) {
+        if (KNOWLEDGE_IPLOOKUP_MAP != null && KNOWLEDGE_IPLOOKUP_MAP.size() > 0) {
             for (Map.Entry<String, Object> entry : KNOWLEDGE_IPLOOKUP_MAP.entrySet()) {
                 Map<String, String> ids = (Map<String, String>) entry.getValue();
-                if (ids!=null && ids.size() > 0) {
+                if (ids != null && ids.size() > 0) {
                     for (Map.Entry<String, String> obj : ids.entrySet()) {
                         sb.append(obj.getValue());
                         sb.append("','");
@@ -52,10 +49,10 @@ public class IPUtils {
                 }
             }
         }
-        if(KNOWLEDGE_ASNLOOKUP_MAP!=null && KNOWLEDGE_ASNLOOKUP_MAP.size()>0) {
+        if (KNOWLEDGE_ASNLOOKUP_MAP != null && KNOWLEDGE_ASNLOOKUP_MAP.size() > 0) {
             for (Map.Entry<String, Object> entry : KNOWLEDGE_ASNLOOKUP_MAP.entrySet()) {
                 Map<String, String> ids = (Map<String, String>) entry.getValue();
-                if (ids!=null && ids.size() > 0) {
+                if (ids != null && ids.size() > 0) {
                     for (Map.Entry<String, String> obj : ids.entrySet()) {
                         sb.append(obj.getValue());
                         sb.append("','");
@@ -77,24 +74,27 @@ public class IPUtils {
         String dataId = commonConfig.NACOS_DATA_ID;
         String group = commonConfig.NACOS_GROUP;
         long readTimeout = commonConfig.NACOS_READ_TIMEOUT;
-        //初始化定位库缓存
+        // 初始化定位库缓存
         logger.info("connect nacos：" + nacosProperties.getProperty(PropertyKeyConst.SERVER_ADDR));
         try {
             ConfigService configService = NacosFactory.createConfigService(nacosProperties);
             String nacosInfo = configService.getConfig(dataId, group, readTimeout);
             processNacosInfo(nacosInfo);
 
-            configService.addListener(dataId, group, new Listener() {
-                @Override
-                public Executor getExecutor() {
-                    return null;
-                }
+            configService.addListener(
+                    dataId,
+                    group,
+                    new Listener() {
+                        @Override
+                        public Executor getExecutor() {
+                            return null;
+                        }
 
-                @Override
-                public void receiveConfigInfo(String nacosInfo) {
-                    processNacosInfo(nacosInfo);
-                }
-            });
+                        @Override
+                        public void receiveConfigInfo(String nacosInfo) {
+                            processNacosInfo(nacosInfo);
+                        }
+                    });
         } catch (NacosException e) {
             e.printStackTrace();
         }
@@ -105,12 +105,12 @@ public class IPUtils {
         String currentDate = formatter.format(new Date());
         //     System.out.println(currentDate + ": receive nacos config:" + nacosInfo);
         ArrayList<Map<String, Object>> metaList = JsonPath.parse(nacosInfo).read(KNOWLEDGE_EXPR);
-        //     System.out.println("resolve " + metaList.size() + " metadata from the config info pushed by nacos");
+        //     System.out.println("resolve " + metaList.size() + " metadata from the config info
+        // pushed by nacos");
         loadKnowledge(metaList);
     }
 
     private static void loadKnowledge(ArrayList<Map<String, Object>> metaList) {
-
 
         for (Map<String, Object> metadata : metaList) {
 
@@ -118,7 +118,6 @@ public class IPUtils {
             String fileUrl = (String) metadata.get("path");
             String id = (String) metadata.get("id");
             int isValid = (Integer) metadata.get("isValid");
-
 
             if (isValid != 1) {
                 sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
@@ -141,12 +140,8 @@ public class IPUtils {
                         knowLedgeEntity.setIsValid(isValid);
                         knowLedgeEntity.setSha256(sha256);
                         knowledgeEntityMap.put(id, knowLedgeEntity);
-
                     }
-
-
                 }
-
 
             } catch (Exception e) {
                 logger.error("process file " + id + " error, error message:" + e.getMessage());
@@ -158,7 +153,6 @@ public class IPUtils {
         } catch (Exception e) {
             logger.error("加载知识库失败:" + e.getMessage());
         }
-
     }
 
     private static InputStream downloadFile(String fileUrl, int isValid) {
@@ -170,7 +164,8 @@ public class IPUtils {
                 HttpClientUtils httpClientUtils = new HttpClientUtils();
                 inputStream = httpClientUtils.httpGetInputStream(fileUrl, 3000, header);
                 long end = System.currentTimeMillis();
-                logger.info("download file " + fileUrl + " finished, speed " + (end - start) + " ms");
+                logger.info(
+                        "download file " + fileUrl + " finished, speed " + (end - start) + " ms");
             } catch (Exception e) {
                 logger.error("download file " + fileUrl + " error: " + e.getMessage());
             }
@@ -178,55 +173,70 @@ public class IPUtils {
         return inputStream;
     }
 
-
     public static void loadIpLook() throws Exception {
 
-        if(KNOWLEDGE_IPLOOKUP_MAP!=null) {
+        if (KNOWLEDGE_IPLOOKUP_MAP != null) {
             for (Map.Entry<String, Object> entry : KNOWLEDGE_IPLOOKUP_MAP.entrySet()) {
                 Map<String, String> ids = (Map<String, String>) entry.getValue();
                 IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
-               if(ids!=null) {
-                   for (Map.Entry<String, String> obj : ids.entrySet()) {
-                       try {
-                           if ("ip_v4_built_in_id".equals(obj.getKey())) {
-                               ipLookupBuilder.loadDataFileV4(knowledgeEntityMap.get(obj.getValue()).getInputStream());
-                           }
-                           if ("ip_v6_built_in_id".equals(obj.getKey())) {
-                               ipLookupBuilder.loadDataFileV6(knowledgeEntityMap.get(obj.getValue()).getInputStream());
-                           }
-                           if ("ip_v4_user_defined_id".equals(obj.getKey())) {
-                               ipLookupBuilder.loadDataFilePrivateV4(knowledgeEntityMap.get(obj.getValue()).getInputStream());
-                           }
-                           if ("ip_v6_user_defined_id".equals(obj.getKey())) {
-                               ipLookupBuilder.loadDataFilePrivateV6(knowledgeEntityMap.get(obj.getValue()).getInputStream());
-                           }
-                       } catch (Exception e) {
-                           logger.error("加载ip知识库" + entry.getKey() + ":" + obj.getKey() + "失败 " + e.toString());
-                       }
-
-                   }
-               }
+                if (ids != null) {
+                    for (Map.Entry<String, String> obj : ids.entrySet()) {
+                        try {
+                            if ("ip_v4_built_in_id".equals(obj.getKey())) {
+                                ipLookupBuilder.loadDataFileV4(
+                                        knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                            }
+                            if ("ip_v6_built_in_id".equals(obj.getKey())) {
+                                ipLookupBuilder.loadDataFileV6(
+                                        knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                            }
+                            if ("ip_v4_user_defined_id".equals(obj.getKey())) {
+                                ipLookupBuilder.loadDataFilePrivateV4(
+                                        knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                            }
+                            if ("ip_v6_user_defined_id".equals(obj.getKey())) {
+                                ipLookupBuilder.loadDataFilePrivateV6(
+                                        knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                            }
+                        } catch (Exception e) {
+                            logger.error(
+                                    "加载ip知识库"
+                                            + entry.getKey()
+                                            + ":"
+                                            + obj.getKey()
+                                            + "失败 "
+                                            + e.toString());
+                        }
+                    }
+                }
                 IpLookupV2 ipLookup = ipLookupBuilder.build();
                 venderWithIpLookup.put(entry.getKey(), ipLookup);
             }
         }
-        if(KNOWLEDGE_ASNLOOKUP_MAP!=null) {
+        if (KNOWLEDGE_ASNLOOKUP_MAP != null) {
             for (Map.Entry<String, Object> entry : KNOWLEDGE_ASNLOOKUP_MAP.entrySet()) {
                 Map<String, String> ids = (Map<String, String>) entry.getValue();
                 IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
-                if(ids!=null) {
+                if (ids != null) {
                     for (Map.Entry<String, String> obj : ids.entrySet()) {
                         try {
                             if ("asn_v4_id".equals(obj.getKey())) {
-                                asnLookupBuilder.loadAsnDataFile(knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                                asnLookupBuilder.loadAsnDataFile(
+                                        knowledgeEntityMap.get(obj.getValue()).getInputStream());
                             }
                             if ("asn_v6_id".equals(obj.getKey())) {
-                                asnLookupBuilder.loadAsnDataFileV6(knowledgeEntityMap.get(obj.getValue()).getInputStream());
+                                asnLookupBuilder.loadAsnDataFileV6(
+                                        knowledgeEntityMap.get(obj.getValue()).getInputStream());
                             }
                         } catch (Exception e) {
-                            logger.error("加载asn知识库" + entry.getKey() + ":" + obj.getKey() + "失败 " + e.toString());
+                            logger.error(
+                                    "加载asn知识库"
+                                            + entry.getKey()
+                                            + ":"
+                                            + obj.getKey()
+                                            + "失败 "
+                                            + e.toString());
                         }
-
                     }
                 }
                 IpLookupV2 ipLookup = asnLookupBuilder.build();
@@ -235,13 +245,10 @@ public class IPUtils {
         }
     }
 
-
     public static void main(String[] args) throws Exception {
         String ip = "114.64.231.114";
 
         test(ip);
-
-
     }
 
     private static void test(String ip) {
@@ -255,7 +262,8 @@ public class IPUtils {
         System.out.println("----------------------------");
 
         long start1 = System.currentTimeMillis();
-        System.out.println("administrativeAreaLookupDetail:" + ipLookup.administrativeAreaLookupDetail(ip));
+        System.out.println(
+                "administrativeAreaLookupDetail:" + ipLookup.administrativeAreaLookupDetail(ip));
         System.out.println("asnLookupDetail:" + ipLookup.asnLookupDetail(ip));
         System.out.println("cityLookupDetail:" + ipLookup.cityLookupDetail(ip));
         System.out.println("locationLookupDetail:" + ipLookup.locationLookupDetail(ip));
@@ -268,8 +276,5 @@ public class IPUtils {
         System.out.println("infoLookupToCSV:" + ipLookup.infoLookupToCSV(ip));
         System.out.println("infoLookupToJson:" + ipLookup.ispLookup(ip));
         System.out.println("----------------------------");
-
-
     }
-
 }

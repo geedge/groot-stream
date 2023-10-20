@@ -18,7 +18,6 @@ public class AggregateConfig {
 
     private String name;
 
-
     public String getName() {
         return name;
     }

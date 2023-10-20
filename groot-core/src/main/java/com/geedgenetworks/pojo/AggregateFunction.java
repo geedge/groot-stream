@@ -10,7 +10,7 @@ public class AggregateFunction implements Serializable {
     private List<String> input_fields;
     private List<String> output_fields;
     private String filter;
-    private Map<String,Object> parameters;
+    private Map<String, Object> parameters;
     private String class_name;
 
     public String getName() {

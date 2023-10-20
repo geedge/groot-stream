@@ -1,13 +1,14 @@
 package com.geedgenetworks.connectors.ipfix.util;
 
+import com.geedgenetworks.pojo.ipfix.Element;
+import com.geedgenetworks.pojo.ipfix.Elements;
+import com.geedgenetworks.pojo.ipfix.Record;
+
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.geedgenetworks.pojo.ipfix.Element;
-import com.geedgenetworks.pojo.ipfix.Elements;
-import com.geedgenetworks.pojo.ipfix.Record;
 import scala.xml.Node;
 
 import java.io.InputStream;
@@ -20,7 +21,8 @@ public class IPFIXUtils {
     public static ArrayList<Node> getElements() {
         ArrayList<Node> nodes = new ArrayList<>();
         try {
-            InputStream jsonStream = IPFIXUtils.class.getClassLoader().getResourceAsStream("ipfix.json");
+            InputStream jsonStream =
+                    IPFIXUtils.class.getClassLoader().getResourceAsStream("ipfix.json");
             if (jsonStream != null) {
                 String jsonStr = IoUtil.read(jsonStream, StandardCharsets.UTF_8);
                 Elements elements = JSONUtil.toBean(jsonStr, Elements.class, true);

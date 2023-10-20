@@ -8,29 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public final class GrootYamlParser {
 
+    public static String getStringProperty(String key, Map<String, Object> yamlData) {
 
-
-
-    public static String getStringProperty(String key,Map<String, Object> yamlData) {
-
-        return getYamlValue(yamlData,key,String.class);
-
-
+        return getYamlValue(yamlData, key, String.class);
     }
 
-    public static Integer getIntProperty( String key,Map<String, Object> yamlData) {
+    public static Integer getIntProperty(String key, Map<String, Object> yamlData) {
 
         return getYamlValue(yamlData, key, Integer.class);
-
     }
 
-
-
-
-    public static <T> T getYamlValue( Map<String, Object> data,String key, Class<T> valueType) {
+    public static <T> T getYamlValue(Map<String, Object> data, String key, Class<T> valueType) {
 
         String[] keys = key.split("\\.");
 
@@ -42,19 +32,17 @@ public final class GrootYamlParser {
             data = (Map<String, Object>) value;
         }
 
-        return data.containsKey(keys[keys.length - 1]) ? valueType.cast(data.get(keys[keys.length - 1])) : null;
+        return data.containsKey(keys[keys.length - 1])
+                ? valueType.cast(data.get(keys[keys.length - 1]))
+                : null;
     }
 
+    public static Map<String, String> getClassReflect(String key, Map<String, Object> yamlData) {
+        String value = (String) getValue(key, yamlData);
+        String[] classArray = value.split(" ");
+        Map<String, String> classReflect = new HashMap<>();
 
-
-
-
-    public static Map<String,String> getClassReflect(String key,Map<String, Object> yamlData)  {
-        String value = (String) getValue(key,yamlData);
-        String[] classArray =  value.split(" ");
-        Map<String,String> classReflect = new HashMap<>();
-
-        for(String classPath : classArray){
+        for (String classPath : classArray) {
 
             Class cls = null;
             try {
@@ -62,33 +50,26 @@ public final class GrootYamlParser {
                 Method method = cls.getMethod("functionName");
                 Object object = cls.newInstance();
                 String result = (String) method.invoke(object);
-                classReflect.put(result,classPath);
+                classReflect.put(result, classPath);
                 System.out.println("Returned Value: " + result);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
         return classReflect;
     }
-
-
 
     public static Map<String, Object> loadYaml(InputStream input) throws Exception {
         // 读取YAML文件
         Map<String, Object> yamlData = new HashMap<>();
         Yaml yaml = new Yaml();
         yamlData = yaml.load(input);
-        if(yamlData!=null){
+        if (yamlData != null) {
             return yamlData;
-        }
-        else {
+        } else {
             throw new Exception("加载yaml配置文件失败");
         }
-
     }
-
-
 
     private static Object getValue(String key, Map<String, Object> data) {
         if (data.containsKey(key)) {
@@ -114,8 +95,8 @@ public final class GrootYamlParser {
         return null;
     }
 
-    public static Map<String, Object> getMap(String key,Map<String, Object> yamlData) {
-        Object value = getValue(key,yamlData);
+    public static Map<String, Object> getMap(String key, Map<String, Object> yamlData) {
+        Object value = getValue(key, yamlData);
         if (value instanceof Map) {
             return (Map<String, Object>) value;
         }
@@ -124,5 +105,5 @@ public final class GrootYamlParser {
 
     public static void main(String[] args) {
         System.out.println();
-
-}}
+    }
+}

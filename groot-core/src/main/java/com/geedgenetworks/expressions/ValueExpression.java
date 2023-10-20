@@ -61,7 +61,8 @@ public abstract class ValueExpression implements Expression {
         private final ValueExpression left;
         private final ValueExpression right;
 
-        public ArithmeticExpression(ArithmeticOperator operator, ValueExpression left, ValueExpression right) {
+        public ArithmeticExpression(
+                ArithmeticOperator operator, ValueExpression left, ValueExpression right) {
             this.operator = operator;
             this.left = left;
             this.right = right;
@@ -94,7 +95,9 @@ public abstract class ValueExpression implements Expression {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             ArithmeticExpression that = (ArithmeticExpression) o;
-            return operator == that.operator && Objects.equals(left, that.left) && Objects.equals(right, that.right);
+            return operator == that.operator
+                    && Objects.equals(left, that.left)
+                    && Objects.equals(right, that.right);
         }
 
         @Override
@@ -105,7 +108,6 @@ public abstract class ValueExpression implements Expression {
         @Override
         public String toString() {
             return "[" + left + " " + operator + " " + right + "]";
-
         }
     }
 
@@ -115,7 +117,10 @@ public abstract class ValueExpression implements Expression {
         private final ValueExpression trueValue;
         private final ValueExpression falseValue;
 
-        public TernaryExpression(BooleanExpression expression, ValueExpression trueValue, ValueExpression falseValue) {
+        public TernaryExpression(
+                BooleanExpression expression,
+                ValueExpression trueValue,
+                ValueExpression falseValue) {
             this.expression = expression;
             this.trueValue = trueValue;
             this.falseValue = falseValue;
@@ -149,7 +154,8 @@ public abstract class ValueExpression implements Expression {
             if (o == null || getClass() != o.getClass()) return false;
             TernaryExpression that = (TernaryExpression) o;
             return Objects.equals(expression, that.expression)
-                    && Objects.equals(trueValue, that.trueValue) && Objects.equals(falseValue, that.falseValue);
+                    && Objects.equals(trueValue, that.trueValue)
+                    && Objects.equals(falseValue, that.falseValue);
         }
 
         @Override
@@ -163,7 +169,7 @@ public abstract class ValueExpression implements Expression {
         }
     }
 
-    public static abstract class ConstantValueExpression<T> extends ValueExpression {
+    public abstract static class ConstantValueExpression<T> extends ValueExpression {
 
         private final T value;
 

@@ -108,8 +108,9 @@ public class EvalCodeGenerator implements ExpressionVisitor<String> {
         String trueValueTerm = visit(expression.getTrueValue());
         String falseValueTerm = visit(expression.getFalseValue());
         String name = ctx.addLocalObjectVariable();
-        ctx.addEvalCodeStatements(String.format("%s = (%s) ? %s : %s;",
-                name, boolTerm, trueValueTerm, falseValueTerm));
+        ctx.addEvalCodeStatements(
+                String.format(
+                        "%s = (%s) ? %s : %s;", name, boolTerm, trueValueTerm, falseValueTerm));
         return name;
     }
 
@@ -132,16 +133,32 @@ public class EvalCodeGenerator implements ExpressionVisitor<String> {
         String term = ctx.addLocalBoolVariable();
         String code = String.format("%s = %s;", term, false);
         String temp =
-                "if ( " + leftTerm + " instanceof java.lang.Number && " + rightTerm + " instanceof java.lang.Number ) {\n" +
-                        "   " + term + " = ( (java.lang.Number) " + leftTerm + " ).doubleValue()" +
-                        " %s ( (java.lang.Number) " + rightTerm + " ).doubleValue();\n" +
-                        "}";
+                "if ( "
+                        + leftTerm
+                        + " instanceof java.lang.Number && "
+                        + rightTerm
+                        + " instanceof java.lang.Number ) {\n"
+                        + "   "
+                        + term
+                        + " = ( (java.lang.Number) "
+                        + leftTerm
+                        + " ).doubleValue()"
+                        + " %s ( (java.lang.Number) "
+                        + rightTerm
+                        + " ).doubleValue();\n"
+                        + "}";
         switch (expression.getOperator()) {
             case EQ:
-                code = String.format("%s = java.util.Objects.equals(%s, %s);", term, leftTerm, rightTerm);
+                code =
+                        String.format(
+                                "%s = java.util.Objects.equals(%s, %s);",
+                                term, leftTerm, rightTerm);
                 break;
             case NEQ:
-                code = String.format("%s = !java.util.Objects.equals(%s, %s);", term, leftTerm, rightTerm);
+                code =
+                        String.format(
+                                "%s = !java.util.Objects.equals(%s, %s);",
+                                term, leftTerm, rightTerm);
                 break;
             case LTE:
                 code = String.format(temp, "<=");

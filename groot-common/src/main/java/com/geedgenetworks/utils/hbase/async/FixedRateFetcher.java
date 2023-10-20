@@ -9,9 +9,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * An abstract class representing a fixed-rate data fetcher that implements the
- * ScheduledSupport, Fetcher, and Closeable interfaces. This class provides the
- * infrastructure for fetching data at a fixed rate.
+ * An abstract class representing a fixed-rate data fetcher that implements the ScheduledSupport,
+ * Fetcher, and Closeable interfaces. This class provides the infrastructure for fetching data at a
+ * fixed rate.
  *
  * @author chaoc
  * @since 1.0
@@ -29,13 +29,12 @@ public abstract class FixedRateFetcher implements ScheduledSupport, Fetcher, Clo
     public FixedRateFetcher(final Time fetchInterval) {
         long intervalMs = fetchInterval.toMilliseconds();
         final ScheduledExecutorService service = getScheduledExecutorService();
-        scheduledFuture = service.scheduleAtFixedRate(this.asyncFetch(),
-                0, intervalMs, TimeUnit.MICROSECONDS);
+        scheduledFuture =
+                service.scheduleAtFixedRate(
+                        this.asyncFetch(), 0, intervalMs, TimeUnit.MICROSECONDS);
     }
 
-    /**
-     * Constructs a FixedRateFetcher with the default fetch interval.
-     */
+    /** Constructs a FixedRateFetcher with the default fetch interval. */
     public FixedRateFetcher() {
         this(DEFAULT_FETCH_INTERVAL);
     }

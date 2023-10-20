@@ -17,25 +17,25 @@ public class KafkaUtils {
         Properties properties = new Properties();
         for (Map.Entry<String, Object> entry : kafkaconfig.entrySet()) {
 
-            if (entry.getKey().contains("kafka.") && !"".equals(entry.getValue()) && entry.getValue() != null) {
+            if (entry.getKey().contains("kafka.")
+                    && !"".equals(entry.getValue())
+                    && entry.getValue() != null) {
                 String key = entry.getKey().replace("kafka.", "");
                 properties.put(key, entry.getValue());
             }
-
-
         }
 
         return properties;
     }
-
 
     public static Properties getKafkaSourceProperty(Map<String, Object> kafkaconfig) {
         Properties properties = new Properties();
 
-
         for (Map.Entry<String, Object> entry : kafkaconfig.entrySet()) {
 
-            if (entry.getKey().contains("kafka.") && !"".equals(entry.getValue()) && entry.getValue() != null) {
+            if (entry.getKey().contains("kafka.")
+                    && !"".equals(entry.getValue())
+                    && entry.getValue() != null) {
                 String key = entry.getKey().replace("kafka.", "");
                 properties.put(key, entry.getValue());
             }
@@ -43,10 +43,12 @@ public class KafkaUtils {
         return properties;
     }
 
-
     public static FlinkKafkaConsumer<String> getKafkaConsumer(Map<String, Object> kafkaconfig) {
-        FlinkKafkaConsumer<String> kafkaConsumer = new FlinkKafkaConsumer<>((String) kafkaconfig.get("topics"),
-                new SimpleStringSchema(), getKafkaSourceProperty(kafkaconfig));
+        FlinkKafkaConsumer<String> kafkaConsumer =
+                new FlinkKafkaConsumer<>(
+                        (String) kafkaconfig.get("topics"),
+                        new SimpleStringSchema(),
+                        getKafkaSourceProperty(kafkaconfig));
 
         kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
         kafkaConsumer.setStartFromGroupOffsets();
@@ -54,9 +56,13 @@ public class KafkaUtils {
         return kafkaConsumer;
     }
 
-    public static FlinkKafkaConsumer<Tuple2<String, Long>> timestampDeserializationConsumer(Map<String, Object> kafkaconfig) {
-        FlinkKafkaConsumer<Tuple2<String, Long>> kafkaConsumer = new FlinkKafkaConsumer<>((List<String>) kafkaconfig.get("topics"),
-                new TimestampDeserializationSchema(), getKafkaSourceProperty(kafkaconfig));
+    public static FlinkKafkaConsumer<Tuple2<String, Long>> timestampDeserializationConsumer(
+            Map<String, Object> kafkaconfig) {
+        FlinkKafkaConsumer<Tuple2<String, Long>> kafkaConsumer =
+                new FlinkKafkaConsumer<>(
+                        (List<String>) kafkaconfig.get("topics"),
+                        new TimestampDeserializationSchema(),
+                        getKafkaSourceProperty(kafkaconfig));
 
         kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
         kafkaConsumer.setStartFromGroupOffsets();
@@ -64,9 +70,11 @@ public class KafkaUtils {
         return kafkaConsumer;
     }
 
-    public static FlinkKafkaConsumer<String> getKafkaConsumerLists(List<String> topics, Map<String, Object> kafkaconfig) {
-        FlinkKafkaConsumer<String> kafkaConsumer = new FlinkKafkaConsumer<>(topics,
-                new SimpleStringSchema(), getKafkaSourceProperty(kafkaconfig));
+    public static FlinkKafkaConsumer<String> getKafkaConsumerLists(
+            List<String> topics, Map<String, Object> kafkaconfig) {
+        FlinkKafkaConsumer<String> kafkaConsumer =
+                new FlinkKafkaConsumer<>(
+                        topics, new SimpleStringSchema(), getKafkaSourceProperty(kafkaconfig));
 
         kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
         kafkaConsumer.setStartFromGroupOffsets();
@@ -79,8 +87,6 @@ public class KafkaUtils {
                 (String) kafkaconfig.get("topic"),
                 new SimpleStringSchema(),
                 getKafkaSinkProperty(kafkaconfig),
-                Optional.empty()
-        );
+                Optional.empty());
     }
-
 }

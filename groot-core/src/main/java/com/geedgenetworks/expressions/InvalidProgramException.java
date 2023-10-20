@@ -8,8 +8,7 @@ package com.geedgenetworks.expressions;
  */
 public class InvalidProgramException extends RuntimeException {
 
-    public InvalidProgramException() {
-    }
+    public InvalidProgramException() {}
 
     public InvalidProgramException(String message) {
         super(message);

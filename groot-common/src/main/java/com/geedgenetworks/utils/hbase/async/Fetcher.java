@@ -1,8 +1,8 @@
 package com.geedgenetworks.utils.hbase.async;
 
 /**
- * An interface for defining a fetcher that performs asynchronous data retrieval.
- * Implementing classes should provide an implementation of the {@link #asyncFetch()} method.
+ * An interface for defining a fetcher that performs asynchronous data retrieval. Implementing
+ * classes should provide an implementation of the {@link #asyncFetch()} method.
  *
  * @author chaoc
  * @since 1.0

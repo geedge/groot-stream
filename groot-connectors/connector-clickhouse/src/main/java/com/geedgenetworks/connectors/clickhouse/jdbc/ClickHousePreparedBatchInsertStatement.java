@@ -37,7 +37,8 @@ import java.util.UUID;
 import static com.github.housepower.misc.ExceptionUtil.unchecked;
 
 public class ClickHousePreparedBatchInsertStatement implements SQLPreparedStatement {
-    private static final Logger LOG = LoggerFactory.getLogger(ClickHousePreparedBatchInsertStatement.class);
+    private static final Logger LOG =
+            LoggerFactory.getLogger(ClickHousePreparedBatchInsertStatement.class);
 
     protected Block block;
     protected final ClickHouseBatchInsertConnection connection;
@@ -75,16 +76,19 @@ public class ClickHousePreparedBatchInsertStatement implements SQLPreparedStatem
 
     final int[] executeBatchResult = new int[0];
 
-    public ClickHousePreparedBatchInsertStatement(int posOfData,
-                                                  String fullQuery,
-                                                  ClickHouseBatchInsertConnection connection,
-                                                  NativeContext nativeContext) throws SQLException {
+    public ClickHousePreparedBatchInsertStatement(
+            int posOfData,
+            String fullQuery,
+            ClickHouseBatchInsertConnection connection,
+            NativeContext nativeContext)
+            throws SQLException {
         this.connection = connection;
         this.nativeContext = nativeContext;
 
         this.tz = DateTimeUtil.chooseTimeZone(nativeContext.serverCtx());
         this.dateFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ROOT).withZone(tz);
-        this.timestampFmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT).withZone(tz);
+        this.timestampFmt =
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss", Locale.ROOT).withZone(tz);
 
         this.blockInit = false;
         this.posOfData = posOfData;
@@ -133,17 +137,16 @@ public class ClickHousePreparedBatchInsertStatement implements SQLPreparedStatem
     }
 
     @Override
-    public void clearBatch() throws SQLException {
-    }
+    public void clearBatch() throws SQLException {}
 
     @Override
     public int[] executeBatch() throws SQLException {
         int rows = connection.sendInsertRequest(block);
-        //int[] result = new int[0];
-        //Arrays.fill(result, 1);
+        // int[] result = new int[0];
+        // Arrays.fill(result, 1);
         clearBatch();
         this.blockInit = false;
-        //this.block.initWriteBuffer();
+        // this.block.initWriteBuffer();
         return executeBatchResult;
     }
 
@@ -153,7 +156,7 @@ public class ClickHousePreparedBatchInsertStatement implements SQLPreparedStatem
             // Empty insert when close.
             this.connection.sendInsertRequest(new Block());
             this.blockInit = false;
-            //this.block.initWriteBuffer();
+            // this.block.initWriteBuffer();
         }
         // clean up block on close
         this.block.cleanup();
@@ -203,12 +206,13 @@ public class ClickHousePreparedBatchInsertStatement implements SQLPreparedStatem
         if (this.blockInit) {
             return;
         }
-        ExceptionUtil.rethrowSQLException(() -> {
-            this.block = connection.getSampleBlock(insertQuery);
-            //this.block.initWriteBuffer();
-            this.blockInit = true;
-            //new ValuesWithParametersNativeInputFormat(posOfData, fullQuery).fill(block);
-        });
+        ExceptionUtil.rethrowSQLException(
+                () -> {
+                    this.block = connection.getSampleBlock(insertQuery);
+                    // this.block.initWriteBuffer();
+                    this.blockInit = true;
+                    // new ValuesWithParametersNativeInputFormat(posOfData, fullQuery).fill(block);
+                });
     }
 
     private void addParameters() throws SQLException {
@@ -216,89 +220,68 @@ public class ClickHousePreparedBatchInsertStatement implements SQLPreparedStatem
     }
 
     // TODO we actually need a type cast system rather than put all type cast stuffs here
-    private Object convertToCkDataType(IDataType<?, ?> type, Object obj) throws ClickHouseSQLException {
+    private Object convertToCkDataType(IDataType<?, ?> type, Object obj)
+            throws ClickHouseSQLException {
         if (obj == null) {
-            if (type.nullable() || type instanceof DataTypeNothing)
-                return null;
-            throw new ClickHouseSQLException(-1, "type[" + type.name() + "] doesn't support null value");
+            if (type.nullable() || type instanceof DataTypeNothing) return null;
+            throw new ClickHouseSQLException(
+                    -1, "type[" + type.name() + "] doesn't support null value");
         }
         // put the most common cast at first to avoid `instanceof` test overhead
         if (type instanceof DataTypeString || type instanceof DataTypeFixedString) {
-            if (obj instanceof CharSequence)
-                return obj;
-            if (obj instanceof byte[])
-                return new BytesCharSeq((byte[]) obj);
+            if (obj instanceof CharSequence) return obj;
+            if (obj instanceof byte[]) return new BytesCharSeq((byte[]) obj);
             String objStr = obj.toString();
             LOG.debug("set value[{}]: {} on String Column", obj.getClass(), obj);
             return objStr;
         }
         if (type instanceof DataTypeDate) {
-            if (obj instanceof java.util.Date)
-                return ((Date) obj).toLocalDate();
-            if (obj instanceof LocalDate)
-                return obj;
+            if (obj instanceof java.util.Date) return ((Date) obj).toLocalDate();
+            if (obj instanceof LocalDate) return obj;
         }
 
         if (type instanceof DataTypeDate32) {
-            if (obj instanceof java.util.Date)
-                return ((Date) obj).toLocalDate();
-            if (obj instanceof LocalDate)
-                return obj;
+            if (obj instanceof java.util.Date) return ((Date) obj).toLocalDate();
+            if (obj instanceof LocalDate) return obj;
         }
         // TODO support
         //   1. other Java8 time, i.e. OffsetDateTime, Instant
         //   2. unix timestamp, but in second or millisecond?
         if (type instanceof DataTypeDateTime || type instanceof DataTypeDateTime64) {
-            if (obj instanceof Timestamp)
-                return DateTimeUtil.toZonedDateTime((Timestamp) obj, tz);
-            if (obj instanceof LocalDateTime)
-                return ((LocalDateTime) obj).atZone(tz);
-            if (obj instanceof ZonedDateTime)
-                return obj;
+            if (obj instanceof Timestamp) return DateTimeUtil.toZonedDateTime((Timestamp) obj, tz);
+            if (obj instanceof LocalDateTime) return ((LocalDateTime) obj).atZone(tz);
+            if (obj instanceof ZonedDateTime) return obj;
         }
         if (type instanceof DataTypeInt8) {
-            if (obj instanceof Number)
-                return ((Number) obj).byteValue();
+            if (obj instanceof Number) return ((Number) obj).byteValue();
         }
         if (type instanceof DataTypeUInt8 || type instanceof DataTypeInt16) {
-            if (obj instanceof Number)
-                return ((Number) obj).shortValue();
+            if (obj instanceof Number) return ((Number) obj).shortValue();
         }
         if (type instanceof DataTypeUInt16 || type instanceof DataTypeInt32) {
-            if (obj instanceof Number)
-                return ((Number) obj).intValue();
+            if (obj instanceof Number) return ((Number) obj).intValue();
         }
         if (type instanceof DataTypeUInt32 || type instanceof DataTypeInt64) {
-            if (obj instanceof Number)
-                return ((Number) obj).longValue();
+            if (obj instanceof Number) return ((Number) obj).longValue();
         }
         if (type instanceof DataTypeUInt64) {
-            if (obj instanceof BigInteger)
-                return obj;
-            if (obj instanceof BigDecimal)
-                return ((BigDecimal) obj).toBigInteger();
-            if (obj instanceof Number)
-                return BigInteger.valueOf(((Number) obj).longValue());
+            if (obj instanceof BigInteger) return obj;
+            if (obj instanceof BigDecimal) return ((BigDecimal) obj).toBigInteger();
+            if (obj instanceof Number) return BigInteger.valueOf(((Number) obj).longValue());
         }
         if (type instanceof DataTypeFloat32) {
-            if (obj instanceof Number)
-                return ((Number) obj).floatValue();
+            if (obj instanceof Number) return ((Number) obj).floatValue();
         }
         if (type instanceof DataTypeFloat64) {
-            if (obj instanceof Number)
-                return ((Number) obj).doubleValue();
+            if (obj instanceof Number) return ((Number) obj).doubleValue();
         }
         if (type instanceof DataTypeDecimal) {
-            if (obj instanceof BigDecimal)
-                return obj;
-            if (obj instanceof BigInteger)
-                return new BigDecimal((BigInteger) obj);
-            if (obj instanceof Number)
-                return ((Number) obj).doubleValue();
+            if (obj instanceof BigDecimal) return obj;
+            if (obj instanceof BigInteger) return new BigDecimal((BigInteger) obj);
+            if (obj instanceof Number) return ((Number) obj).doubleValue();
         }
         if (type instanceof DataTypeUUID) {
-            if (obj instanceof UUID)
-                return obj;
+            if (obj instanceof UUID) return obj;
             if (obj instanceof String) {
                 return UUID.fromString((String) obj);
             }
@@ -312,15 +295,28 @@ public class ClickHousePreparedBatchInsertStatement implements SQLPreparedStatem
         }
         if (type instanceof DataTypeArray) {
             if (!(obj instanceof ClickHouseArray)) {
-                throw new ClickHouseSQLException(-1, "require ClickHouseArray for column: " + type.name() + ", but found " + obj.getClass());
+                throw new ClickHouseSQLException(
+                        -1,
+                        "require ClickHouseArray for column: "
+                                + type.name()
+                                + ", but found "
+                                + obj.getClass());
             }
             return ((ClickHouseArray) obj).mapElements(unchecked(this::convertToCkDataType));
         }
         if (type instanceof DataTypeTuple) {
             if (!(obj instanceof ClickHouseStruct)) {
-                throw new ClickHouseSQLException(-1, "require ClickHouseStruct for column: " + type.name() + ", but found " + obj.getClass());
+                throw new ClickHouseSQLException(
+                        -1,
+                        "require ClickHouseStruct for column: "
+                                + type.name()
+                                + ", but found "
+                                + obj.getClass());
             }
-            return ((ClickHouseStruct) obj).mapAttributes(((DataTypeTuple) type).getNestedTypes(), unchecked(this::convertToCkDataType));
+            return ((ClickHouseStruct) obj)
+                    .mapAttributes(
+                            ((DataTypeTuple) type).getNestedTypes(),
+                            unchecked(this::convertToCkDataType));
         }
         if (type instanceof DataTypeMap) {
             if (obj instanceof Map) {
@@ -335,7 +331,9 @@ public class ClickHousePreparedBatchInsertStatement implements SQLPreparedStatem
                 }
                 return result;
             } else {
-                throw new ClickHouseSQLException(-1, "require Map for column: " + type.name() + ", but found " + obj.getClass());
+                throw new ClickHouseSQLException(
+                        -1,
+                        "require Map for column: " + type.name() + ", but found " + obj.getClass());
             }
         }
 
@@ -348,4 +346,3 @@ public class ClickHousePreparedBatchInsertStatement implements SQLPreparedStatem
         return LOG;
     }
 }
-

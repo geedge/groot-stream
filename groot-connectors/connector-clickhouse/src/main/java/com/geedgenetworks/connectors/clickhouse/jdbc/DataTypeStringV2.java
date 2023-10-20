@@ -28,7 +28,8 @@ import java.sql.Types;
 
 public class DataTypeStringV2 implements IDataType<CharSequence, String> {
 
-    public static DataTypeCreator<CharSequence, String> CREATOR = (lexer, serverContext) -> new DataTypeStringV2(serverContext.getConfigure().charset());
+    public static DataTypeCreator<CharSequence, String> CREATOR =
+            (lexer, serverContext) -> new DataTypeStringV2(serverContext.getConfigure().charset());
 
     private final Charset charset;
 
@@ -72,30 +73,32 @@ public class DataTypeStringV2 implements IDataType<CharSequence, String> {
     }
 
     @Override
-    public void serializeBinary(CharSequence data, BinarySerializer serializer) throws SQLException, IOException {
+    public void serializeBinary(CharSequence data, BinarySerializer serializer)
+            throws SQLException, IOException {
         if (data instanceof BytesCharSeq) {
             byte[] bytes = ((BytesCharSeq) data).bytes();
-            if(bytes.length == 0){
+            if (bytes.length == 0) {
                 serializer.writeByte((byte) 0);
-            }else{
+            } else {
                 serializer.writeBytesBinary(bytes);
             }
-        }else if(data instanceof BytesCharVarSeq){
+        } else if (data instanceof BytesCharVarSeq) {
             byte[] bytes = ((BytesCharVarSeq) data).bytes();
             int length = data.length();
             serializer.writeVarInt(length);
             serializer.writeBytes(bytes, 0, length);
-        } else{
+        } else {
             serializer.writeStringBinary(data.toString(), charset);
         }
     }
 
     /**
-     * deserializeBinary will always returns String
-     * for getBytes(idx) method, we encode the String again
+     * deserializeBinary will always returns String for getBytes(idx) method, we encode the String
+     * again
      */
     @Override
-    public String deserializeBinary(BinaryDeserializer deserializer) throws SQLException, IOException {
+    public String deserializeBinary(BinaryDeserializer deserializer)
+            throws SQLException, IOException {
         byte[] bs = deserializer.readBytesBinary();
         return new String(bs, charset);
     }
@@ -107,16 +110,17 @@ public class DataTypeStringV2 implements IDataType<CharSequence, String> {
 
     @Override
     public String[] getAliases() {
-        return new String[]{
-                "LONGBLOB",
-                "MEDIUMBLOB",
-                "TINYBLOB",
-                "MEDIUMTEXT",
-                "CHAR",
-                "VARCHAR",
-                "TEXT",
-                "TINYTEXT",
-                "LONGTEXT",
-                "BLOB"};
+        return new String[] {
+            "LONGBLOB",
+            "MEDIUMBLOB",
+            "TINYBLOB",
+            "MEDIUMTEXT",
+            "CHAR",
+            "VARCHAR",
+            "TEXT",
+            "TINYTEXT",
+            "LONGTEXT",
+            "BLOB"
+        };
     }
 }

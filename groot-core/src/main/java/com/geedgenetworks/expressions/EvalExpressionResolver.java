@@ -11,8 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 import java.math.BigDecimal;
 
 /**
- * This class represents an evaluator for expressions using a visitor pattern.
- * It can evaluate arithmetic, logical, and comparison expressions, as well as handle variables and literals.
+ * This class represents an evaluator for expressions using a visitor pattern. It can evaluate
+ * arithmetic, logical, and comparison expressions, as well as handle variables and literals.
  *
  * @author chaoc
  * @version 1.0
@@ -20,34 +20,35 @@ import java.math.BigDecimal;
 @SuppressWarnings("Duplicates")
 public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
 
-
     public Expression resolve(final String expr) {
-        EvalExpressionLexer lexer = new EvalExpressionLexer(
-                CharStreams.fromString(expr)
-        );
+        EvalExpressionLexer lexer = new EvalExpressionLexer(CharStreams.fromString(expr));
         lexer.removeErrorListeners();
 
         EvalExpressionParser parser = new EvalExpressionParser(new CommonTokenStream(lexer));
         parser.getInterpreter().setPredictionMode(PredictionMode.LL);
-        parser.setErrorHandler(new DefaultErrorStrategy() {
+        parser.setErrorHandler(
+                new DefaultErrorStrategy() {
 
-            @Override
-            protected void reportInputMismatch(Parser recognizer, InputMismatchException e) {
-                Token currentToken = recognizer.getCurrentToken();
-                String message = "Miss matched input: ";
-                message += this.getTokenErrorDisplay(e.getOffendingToken());
-                message += ";\n";
-                message += "Expect: " + e.getExpectedTokens().toString(recognizer.getVocabulary());
-                message += "\n";
-                message += StringUtils.split(expr, "\n")[currentToken.getLine() - 1];
-                message += "\n";
-                message += Strings.repeat(" ", currentToken.getTokenIndex()) + '^';
-                throw new SyntaxErrorException(message);
-            }
-        });
+                    @Override
+                    protected void reportInputMismatch(
+                            Parser recognizer, InputMismatchException e) {
+                        Token currentToken = recognizer.getCurrentToken();
+                        String message = "Miss matched input: ";
+                        message += this.getTokenErrorDisplay(e.getOffendingToken());
+                        message += ";\n";
+                        message +=
+                                "Expect: "
+                                        + e.getExpectedTokens()
+                                                .toString(recognizer.getVocabulary());
+                        message += "\n";
+                        message += StringUtils.split(expr, "\n")[currentToken.getLine() - 1];
+                        message += "\n";
+                        message += Strings.repeat(" ", currentToken.getTokenIndex()) + '^';
+                        throw new SyntaxErrorException(message);
+                    }
+                });
         return (Expression) this.visit(parser.statement());
     }
-
 
     @Override
     public Object visitAssignValue(EvalExpressionParser.AssignValueContext ctx) {
@@ -71,7 +72,8 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
     }
 
     @Override
-    public BooleanExpression visitLogicalComparison(EvalExpressionParser.LogicalComparisonContext ctx) {
+    public BooleanExpression visitLogicalComparison(
+            EvalExpressionParser.LogicalComparisonContext ctx) {
         BooleanExpression left = visitBooleanExpression(ctx.left);
         BooleanExpression right = visitBooleanExpression(ctx.right);
         PredicateOperator operator = visitPredicateOperator(ctx.operator);
@@ -84,7 +86,8 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
     }
 
     @Override
-    public ValueExpression.FieldRefExpression visitVariable(EvalExpressionParser.VariableContext ctx) {
+    public ValueExpression.FieldRefExpression visitVariable(
+            EvalExpressionParser.VariableContext ctx) {
         String key = visitIdentifier(ctx.identifier());
         return new ValueExpression.FieldRefExpression(key);
     }
@@ -98,7 +101,8 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
     }
 
     @Override
-    public ValueExpression.ArithmeticExpression visitArithmeticValue(EvalExpressionParser.ArithmeticValueContext ctx) {
+    public ValueExpression.ArithmeticExpression visitArithmeticValue(
+            EvalExpressionParser.ArithmeticValueContext ctx) {
         ValueExpression left = visitValueExpression(ctx.left);
         ValueExpression right = visitValueExpression(ctx.right);
         ArithmeticOperator operator = visitArithmeticOperator(ctx.operator);
@@ -106,7 +110,8 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
     }
 
     @Override
-    public ValueExpression.ConstantValueExpression<?> visitConstantValue(EvalExpressionParser.ConstantValueContext ctx) {
+    public ValueExpression.ConstantValueExpression<?> visitConstantValue(
+            EvalExpressionParser.ConstantValueContext ctx) {
         EvalExpressionParser.ConstantContext context = ctx.constant();
         if (context instanceof EvalExpressionParser.NullLiteralContext) {
             return visitNullLiteral((EvalExpressionParser.NullLiteralContext) context);
@@ -120,12 +125,14 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
     }
 
     @Override
-    public ValueExpression.StringConstantExpression visitNullLiteral(EvalExpressionParser.NullLiteralContext ctx) {
+    public ValueExpression.StringConstantExpression visitNullLiteral(
+            EvalExpressionParser.NullLiteralContext ctx) {
         return new ValueExpression.StringConstantExpression(null);
     }
 
     @Override
-    public ValueExpression.NumberConstantExpression visitNumericLiteral(EvalExpressionParser.NumericLiteralContext ctx) {
+    public ValueExpression.NumberConstantExpression visitNumericLiteral(
+            EvalExpressionParser.NumericLiteralContext ctx) {
         EvalExpressionParser.NumberContext context = ctx.number();
         if (context instanceof EvalExpressionParser.IntegerLiteralContext) {
             return visitIntegerLiteral((EvalExpressionParser.IntegerLiteralContext) context);
@@ -143,63 +150,74 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
     }
 
     @Override
-    public ValueExpression.BooleanConstantExpression visitBooleanLiteral(EvalExpressionParser.BooleanLiteralContext ctx) {
+    public ValueExpression.BooleanConstantExpression visitBooleanLiteral(
+            EvalExpressionParser.BooleanLiteralContext ctx) {
         return new ValueExpression.BooleanConstantExpression(ctx.TRUE() != null);
     }
 
     @Override
-    public ValueExpression.StringConstantExpression visitStringLiteral(EvalExpressionParser.StringLiteralContext ctx) {
+    public ValueExpression.StringConstantExpression visitStringLiteral(
+            EvalExpressionParser.StringLiteralContext ctx) {
         String text = ctx.STRING().getText();
-        return new ValueExpression.StringConstantExpression(StringUtils.replacePattern(text, "[\"']", ""));
+        return new ValueExpression.StringConstantExpression(
+                StringUtils.replacePattern(text, "[\"']", ""));
     }
 
     @Override
-    public ValueExpression.NumberConstantExpression visitIntegerLiteral(EvalExpressionParser.IntegerLiteralContext ctx) {
+    public ValueExpression.NumberConstantExpression visitIntegerLiteral(
+            EvalExpressionParser.IntegerLiteralContext ctx) {
         int factor = ctx.MINUS() != null ? -1 : 1;
         int value = factor * Integer.parseInt(ctx.INTEGER_VALUE().getText());
         return new ValueExpression.NumberConstantExpression(value);
     }
 
     @Override
-    public ValueExpression.NumberConstantExpression visitBigIntLiteral(EvalExpressionParser.BigIntLiteralContext ctx) {
+    public ValueExpression.NumberConstantExpression visitBigIntLiteral(
+            EvalExpressionParser.BigIntLiteralContext ctx) {
         int factor = ctx.MINUS() != null ? -1 : 1;
-        long value = factor * Long.parseLong(ctx.BIGINT_LITERAL().getText()
-                .replace("L", ""));
+        long value = factor * Long.parseLong(ctx.BIGINT_LITERAL().getText().replace("L", ""));
         return new ValueExpression.NumberConstantExpression(value);
     }
 
     @Override
-    public ValueExpression.NumberConstantExpression visitSmallIntLiteral(EvalExpressionParser.SmallIntLiteralContext ctx) {
+    public ValueExpression.NumberConstantExpression visitSmallIntLiteral(
+            EvalExpressionParser.SmallIntLiteralContext ctx) {
         int factor = ctx.MINUS() != null ? -1 : 1;
-        short value = (short) (factor * Short.parseShort(ctx.SMALLINT_LITERAL().getText()
-                .replace("S", "")));
+        short value =
+                (short)
+                        (factor
+                                * Short.parseShort(
+                                        ctx.SMALLINT_LITERAL().getText().replace("S", "")));
         return new ValueExpression.NumberConstantExpression(value);
     }
 
     @Override
-    public ValueExpression.NumberConstantExpression visitDoubleLiteral(EvalExpressionParser.DoubleLiteralContext ctx) {
+    public ValueExpression.NumberConstantExpression visitDoubleLiteral(
+            EvalExpressionParser.DoubleLiteralContext ctx) {
         int factor = ctx.MINUS() != null ? -1 : 1;
-        double value = factor * Double.parseDouble(ctx.DOUBLE_LITERAL().getText()
-                .replace("D", ""));
+        double value = factor * Double.parseDouble(ctx.DOUBLE_LITERAL().getText().replace("D", ""));
         return new ValueExpression.NumberConstantExpression(value);
     }
 
     @Override
-    public ValueExpression.NumberConstantExpression visitFloatLiteral(EvalExpressionParser.FloatLiteralContext ctx) {
+    public ValueExpression.NumberConstantExpression visitFloatLiteral(
+            EvalExpressionParser.FloatLiteralContext ctx) {
         int factor = ctx.MINUS() != null ? -1 : 1;
-        float value = factor * Float.parseFloat(ctx.FLOAT_LITERAL().getText()
-                .replace("F", ""));
+        float value = factor * Float.parseFloat(ctx.FLOAT_LITERAL().getText().replace("F", ""));
         return new ValueExpression.NumberConstantExpression(value);
     }
 
     @Override
-    public ValueExpression.NumberConstantExpression visitBigDecimalLiteral(EvalExpressionParser.BigDecimalLiteralContext ctx) {
+    public ValueExpression.NumberConstantExpression visitBigDecimalLiteral(
+            EvalExpressionParser.BigDecimalLiteralContext ctx) {
         BigDecimal value = new BigDecimal(ctx.BIGDECIMAL_LITERAL().getText().replace("BD", ""));
-        return new ValueExpression.NumberConstantExpression(ctx.MINUS() == null ? value : value.negate());
+        return new ValueExpression.NumberConstantExpression(
+                ctx.MINUS() == null ? value : value.negate());
     }
 
     @Override
-    public ComparisonOperator visitComparisonOperator(EvalExpressionParser.ComparisonOperatorContext ctx) {
+    public ComparisonOperator visitComparisonOperator(
+            EvalExpressionParser.ComparisonOperatorContext ctx) {
         if (ctx.EQ() != null) {
             return ComparisonOperator.EQ;
         } else if (ctx.NEQ() != null) {
@@ -216,7 +234,8 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
     }
 
     @Override
-    public ArithmeticOperator visitArithmeticOperator(EvalExpressionParser.ArithmeticOperatorContext ctx) {
+    public ArithmeticOperator visitArithmeticOperator(
+            EvalExpressionParser.ArithmeticOperatorContext ctx) {
         if (ctx.PLUS() != null) {
             return ArithmeticOperator.PLUS;
         } else if (ctx.MINUS() != null) {
@@ -231,7 +250,8 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
     }
 
     @Override
-    public PredicateOperator visitPredicateOperator(EvalExpressionParser.PredicateOperatorContext ctx) {
+    public PredicateOperator visitPredicateOperator(
+            EvalExpressionParser.PredicateOperatorContext ctx) {
         if (ctx.AND() != null) {
             return PredicateOperator.AND;
         }
@@ -241,9 +261,11 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
     // ======================================================================================
     // ----------------------------------- private helper -----------------------------------
 
-    private BooleanExpression visitBooleanExpression(EvalExpressionParser.BooleanExpressionContext ctx) {
+    private BooleanExpression visitBooleanExpression(
+            EvalExpressionParser.BooleanExpressionContext ctx) {
         if (ctx instanceof EvalExpressionParser.LogicalComparisonContext) {
-            EvalExpressionParser.LogicalComparisonContext context = (EvalExpressionParser.LogicalComparisonContext) ctx;
+            EvalExpressionParser.LogicalComparisonContext context =
+                    (EvalExpressionParser.LogicalComparisonContext) ctx;
             BooleanExpression left = visitBooleanExpression(context.left);
             BooleanExpression right = visitBooleanExpression(context.right);
             PredicateOperator operator = visitPredicateOperator(context.operator);

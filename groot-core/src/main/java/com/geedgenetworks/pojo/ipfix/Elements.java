@@ -22,8 +22,7 @@ public class Elements {
     private List<Element> Tunnels_elements;
     private List<Element> Stratum_elements;
 
-    public Elements() {
-    }
+    public Elements() {}
 
     public int getVersion() {
         return version;
@@ -171,25 +170,43 @@ public class Elements {
 
     @Override
     public String toString() {
-        return "Elements{" +
-                "version=" + version +
-                ", PEN_number=" + PEN_number +
-                ", domain_id=" + domain_id +
-                ", BASE_elements=" + BASE_elements +
-                ", SSL_elements=" + SSL_elements +
-                ", HTTP_elements=" + HTTP_elements +
-                ", MAIL_elements=" + MAIL_elements +
-                ", DNS_elements=" + DNS_elements +
-                ", DTLS_elements=" + DTLS_elements +
-                ", QUIC_elements=" + QUIC_elements +
-                ", FTP_elements=" + FTP_elements +
-                ", SIP_elements=" + SIP_elements +
-                ", RTP_elements=" + RTP_elements +
-                ", SSH_elements=" + SSH_elements +
-                ", BGP_elements=" + BGP_elements +
-                ", RDP_elements=" + RDP_elements +
-                ", Tunnels_elements=" + Tunnels_elements +
-                ", Stratum_elements=" + Stratum_elements +
-                '}';
+        return "Elements{"
+                + "version="
+                + version
+                + ", PEN_number="
+                + PEN_number
+                + ", domain_id="
+                + domain_id
+                + ", BASE_elements="
+                + BASE_elements
+                + ", SSL_elements="
+                + SSL_elements
+                + ", HTTP_elements="
+                + HTTP_elements
+                + ", MAIL_elements="
+                + MAIL_elements
+                + ", DNS_elements="
+                + DNS_elements
+                + ", DTLS_elements="
+                + DTLS_elements
+                + ", QUIC_elements="
+                + QUIC_elements
+                + ", FTP_elements="
+                + FTP_elements
+                + ", SIP_elements="
+                + SIP_elements
+                + ", RTP_elements="
+                + RTP_elements
+                + ", SSH_elements="
+                + SSH_elements
+                + ", BGP_elements="
+                + BGP_elements
+                + ", RDP_elements="
+                + RDP_elements
+                + ", Tunnels_elements="
+                + Tunnels_elements
+                + ", Stratum_elements="
+                + Stratum_elements
+                + '}';
     }
 }

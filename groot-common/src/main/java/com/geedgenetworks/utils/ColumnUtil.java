@@ -6,26 +6,21 @@ import java.util.Map;
 
 public class ColumnUtil {
 
-    public static Map<String, Object>  columnSelector(Map<String, Object> extractedFields, List<String> output_fields){
+    public static Map<String, Object> columnSelector(
+            Map<String, Object> extractedFields, List<String> output_fields) {
 
+        Map<String, Object> newExtractedFields = new HashMap<>();
+        if (output_fields != null && output_fields.size() > 0) {
 
-        Map<String, Object> newExtractedFields= new HashMap<>();
-        if(output_fields!=null && output_fields.size()>0){
+            for (String field : output_fields) {
 
-            for(String field: output_fields){
-
-                if(extractedFields.containsKey(field)){
-                    newExtractedFields.put(field,extractedFields.get(field));
+                if (extractedFields.containsKey(field)) {
+                    newExtractedFields.put(field, extractedFields.get(field));
                 }
-
             }
             return newExtractedFields;
+        } else {
+            return extractedFields;
         }
-        else{
-            return  extractedFields;
-        }
-
-
     }
-
 }
