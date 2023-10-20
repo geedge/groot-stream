@@ -11,6 +11,12 @@
 
     <artifactId>connector-ipfix-collector</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>org.cert.netsa</groupId>
+            <artifactId>netsa-io-ipfix_2.12</artifactId>
+            <version>1.6.0</version>
+        </dependency>
+    </dependencies>
 
 </project>

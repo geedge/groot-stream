@@ -13,7 +13,7 @@ public class GtpCLookup implements Udf {
     @Override
     public void withParameters(ProjectionFunction projection_function) {
         this.gtpCLookupUtil = new GtpCLookupUtil(new Configuration());
-        this.projectionFunction = projectionFunction;
+        this.projectionFunction = projection_function;
     }
 
     @Override

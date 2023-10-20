@@ -9,7 +9,7 @@ sources:
         topics:  ['SESSION-RECORD-COMPLETED']
         kafka.bootstrap.servers: 192.168.44.11:9092
         kafka.session.timeout.ms: 60000
-        kafka.max.poll.records: 3000
+        kafka.max.poll.recordf: 3000
         kafka.max.partition.fetch.bytes: 31457280
         kafka.security.protocol:
         kafka.ssl.keystore.location:
@@ -144,10 +144,10 @@ processing_pipelines:
       - function: SNOWFLAKE_ID
         lookup_fields: ['']
         output_fields: ['common_log_id']
-#      - function: EVAL
-#        output_fields: ['common_recv_time']
-#        parameters:
-#          value_expression: 'common_ingestion_time'
+      - function: EVAL
+        output_fields: ['common_recv_time']
+        parameters:
+          value_expression: 'common_ingestion_time'
       - function: FIRST_SIGNIFICANT_SUBDOMAIN
         lookup_fields: ['http_host','ssl_sni','quic_sni']
         output_fields: ['domain_sld']

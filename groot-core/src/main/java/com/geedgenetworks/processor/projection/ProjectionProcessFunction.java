@@ -16,7 +16,6 @@ import org.apache.flink.util.Collector;
 
 import java.lang.reflect.Method;
 import java.util.LinkedList;
-import java.util.Map;
 
 import static com.geedgenetworks.config.commonConfig.UDF_CLASS_REFLECT;
 import static com.geedgenetworks.utils.ColumnUtil.columnSelector;
@@ -36,21 +35,20 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        //   Map<String, UdfEntity> functions = new LinkedHashMap<>();
 
 
         LinkedList<UdfEntity> functions = new LinkedList<>();
         for (ProjectionFunction pf : projectionConfig.getFunctions()) {
             Expression compiledExp = null;
             UdfEntity udfEntity = new UdfEntity();
-            Map<String,String> dd = UDF_CLASS_REFLECT;
+            //平台注册的函数包含任务中配置的函数则对函数进行实例化
             if (UDF_CLASS_REFLECT.containsKey(pf.getFunction())) {
 
                 Class cls = Class.forName(UDF_CLASS_REFLECT.get(pf.getFunction()));
                 Udf udf = (Udf) cls.getConstructor().newInstance();
-                Method myMethod = cls.getDeclaredMethod("withParameters", ProjectionFunction.class);
-                myMethod.invoke(udf, pf);
-
+                Method withParametersMethod = cls.getDeclaredMethod("withParameters", ProjectionFunction.class);
+                withParametersMethod.invoke(udf, pf);
+                //函数如果包含filter,对表达式进行编译
                 if (pf.getFilter() != null) {
                     AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
                     instance.setCachedExpressionByDefault(true);
@@ -71,18 +69,20 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     }
 
     @Override
-    public void processElement(Event value, Context ctx, Collector<Event> out) throws Exception {
+    public void processElement(Event event, Context ctx, Collector<Event> out)  {
         if (functions != null) {
 
             for (UdfEntity udf : functions) {
                 try {
-                    if (value.isFinal()) {
+                    //判断是否命中drop函数逻辑
+                    if (!event.isFinal()) {
+                        //判断函数是否有filter，命中filter规则的event调用函数
                         if (udf.getCompiledExp() != null) {
-                            if ((Boolean) udf.getCompiledExp().execute(udf.getCompiledExp().newEnv("map", value.getExtractedFields()))) {
-                                udf.getUdfFunction().evaluate(value);
+                            if ((Boolean) udf.getCompiledExp().execute(udf.getCompiledExp().newEnv("map", event.getExtractedFields()))) {
+                                udf.getUdfFunction().evaluate(event);
                             }
                         } else {
-                            udf.getUdfFunction().evaluate(value);
+                            udf.getUdfFunction().evaluate(event);
                         }
                     } else {
                         break;
@@ -93,10 +93,11 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
             }
         }
+        //判断函数是否有output fields，减少输出字段
         if (projectionConfig.getOutput_fields() != null && projectionConfig.getOutput_fields().size() > 0) {
-            value.setExtractedFields(columnSelector(value.getExtractedFields(), projectionConfig.getOutput_fields()));
+            event.setExtractedFields(columnSelector(event.getExtractedFields(), projectionConfig.getOutput_fields()));
         }
-        out.collect(value);
+        out.collect(event);
     }
 
 

@@ -35,7 +35,6 @@ public class Execute {
 
 
         YamlEntity yamlEntity = new YamlEntity();
-
         Map<String, Object> sources = GrootYamlParser.getMap("sources",yamlMap);
         Map<String, Object> sinks = GrootYamlParser.getMap("sinks",yamlMap);
         Map<String, Object> filters = GrootYamlParser.getMap("filters",yamlMap);
@@ -43,8 +42,6 @@ public class Execute {
         Map<String, Object> processing_pipelines = GrootYamlParser.getMap("processing_pipelines",yamlMap);
         Map<String, Object> post_processing_pipelines = GrootYamlParser.getMap("post_processing_pipelines",yamlMap);
         Map<String, Object> application = GrootYamlParser.getMap("application",yamlMap);
-
-
         Map<String, Object> topologylist = (Map<String, Object>) application.get("topology");
         yamlEntity.setApplication(application);
         yamlEntity.setFilters(filters);
@@ -56,8 +53,6 @@ public class Execute {
 
 
         if (topologylist != null) {
-
-
             for (Map.Entry<String, Object> entry : topologylist.entrySet()) {
                 SingleOutputStreamOperator<Event> streamlineEventSingleOutputStreamOperator = null;
 
@@ -65,7 +60,6 @@ public class Execute {
                     JSONObject jo = new JSONObject((Map<String, Object>) sources.get(entry.getKey()));
                     JSONObject to = new JSONObject((Map<String, Object>) entry.getValue());
                     Topology topology = to.toJavaObject(Topology.class);
-
                     SourceConfig sourceConfig = jo.toJavaObject(SourceConfig.class);
                     checkSourceConfig(sourceConfig);
                     String type = sourceConfig.getType();
@@ -83,11 +77,9 @@ public class Execute {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-
                     try {
                         for (String name : topology.getNext()) {
                             excute(name, streamlineEventSingleOutputStreamOperator, yamlEntity, topologylist);
-
                         }
                     } catch (Exception e) {
                         throw new Exception("校验未通过");
@@ -95,7 +87,6 @@ public class Execute {
                 }
             }
             env.execute((String) application.getOrDefault("name", "job"));
-
         } else {
             logger.error("无可执行topologylist");
             throw new Exception("无可执行topologylist");
@@ -141,7 +132,6 @@ public class Execute {
                 if (topology.getParallelism() != 0) {
                     filterConfig.setParallelism(topology.getParallelism());
                 }
-
                 filterConfig.setName(name);
                 event = aviatorFilter.filterFunction(streamlineEventSingleOutputStreamOperator, filterConfig);
 
@@ -159,6 +149,7 @@ public class Execute {
 
             JSONObject jsonObject = new JSONObject((Map<String, Object>) yamlEntity.getProcessing_pipelines().get(name));
             event = InstantiateProcessor(event, jsonObject, name, streamlineEventSingleOutputStreamOperator, yamlEntity, topologyList);
+
         } else if (yamlEntity.getPost_processing_pipelines() != null && yamlEntity.getPost_processing_pipelines().containsKey(name)) {
 
             JSONObject jsonObject = new JSONObject((Map<String, Object>) yamlEntity.getPost_processing_pipelines().get(name));
@@ -169,35 +160,25 @@ public class Execute {
             JSONObject jsonObject = new JSONObject((Map<String, Object>) yamlEntity.getSinks().get(name));
             JSONObject to = new JSONObject((Map<String, Object>) topologyList.get(name));
             Topology topology = to.toJavaObject(Topology.class);
-
             SinkConfig kafkaSinkConfig = jsonObject.toJavaObject(SinkConfig.class);
             checkSinkConfig(kafkaSinkConfig);
-
             String sinkclassName = kafkaSinkConfig.getType();
             Class cls = null;
             Sink sink = null;
             try {
                 cls = Class.forName(sinkclassName);
-
                 sink = (Sink) cls.newInstance();
-
                 if (topology.getParallelism() != 0) {
-
                     kafkaSinkConfig.setParallelism(topology.getParallelism());
                 }
-
                 kafkaSinkConfig.setName(name);
                 sink.sink(streamlineEventSingleOutputStreamOperator, kafkaSinkConfig);
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
         } else {
-
-            logger.error("实例化filter:" + name + "失败");
-
-
+            logger.error("实例化sink:" + name + "失败");
         }
         return event;
     }
@@ -251,7 +232,6 @@ public class Execute {
 
 
         if (!StringUtil.isNotBlank(sourceConfig.getType())) {
-
             throw new Exception("校验未通过 source " + sourceConfig.getName() + " type 为空！");
         }
 
@@ -261,7 +241,6 @@ public class Execute {
 
 
         if (!StringUtil.isNotBlank(sinkConfig.getType())) {
-
             throw new Exception("校验未通过 sink " + sinkConfig.getName() + " type 为空！");
         }
 
@@ -271,7 +250,6 @@ public class Execute {
 
 
         if (!StringUtil.isNotBlank(filterConfig.getType())) {
-
             throw new Exception("校验未通过 filter " + filterConfig.getName() + " type 为空！");
         }
 
@@ -281,7 +259,6 @@ public class Execute {
 
 
         if (!StringUtil.isNotBlank(projectionConfig.getType())) {
-
             throw new Exception("校验未通过 projection " + projectionConfig.getName() + " type 为空！");
         }
 
@@ -291,7 +268,6 @@ public class Execute {
 
 
         if (!StringUtil.isNotBlank(aggregateConfig.getType())) {
-
             throw new Exception("校验未通过 projection " + aggregateConfig.getName() + " type 为空！");
         }
 

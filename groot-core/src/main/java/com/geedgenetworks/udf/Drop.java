@@ -24,7 +24,7 @@ public class Drop implements Udf {
     @Override
     public Event evaluate(Event event) {
         Boolean result = AviatorExcute( event.getExtractedFields()) ;
-        event.setFinal(!result);
+        event.setFinal(result);
         return event;
     }
 

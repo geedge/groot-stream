@@ -20,9 +20,8 @@ public class commonConfig {
       yamlData = yaml.load(GrootYamlParser.class.getClassLoader().getResourceAsStream("groot.yaml"));
       pluginData = loadYaml(GrootYamlParser.class.getClassLoader().getResourceAsStream("groot-platform-plugin.yaml"));
 
-      //      loadYaml(GrootYamlParser.class.getClassLoader().getResourceAsStream("groot.yaml"));
     } catch (Exception e) {
-      //    propService = null;
+      e.printStackTrace();
     }
   }
   public  static final  Map<String, String> UDF_CLASS_REFLECT = getClassReflect("udf",pluginData);
@@ -36,7 +35,6 @@ public class commonConfig {
   public  static final long NACOS_READ_TIMEOUT= GrootYamlParser.getIntProperty("nacos.read_timeout",yamlData);
   public  static final  String HOS_TOKEN= GrootYamlParser.getStringProperty("hos.token",yamlData);
   public  static final   int KNOWLEDGE_FILE_CHECK_NUMBER = GrootYamlParser.getIntProperty("knowledge.file_check_number",yamlData) ;
-
   public  static final String ID_ARRAY = GrootYamlParser.getStringProperty("knowledge.id_array",yamlData);
 
   public static final int HTTP_POOL_MAX_CONNECTION = GrootYamlParser.getIntProperty("http.pool.max_connection",yamlData);
