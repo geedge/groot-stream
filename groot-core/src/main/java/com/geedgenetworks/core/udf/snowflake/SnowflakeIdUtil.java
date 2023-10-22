@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.udf.snowflake;
 
-import com.geedgenetworks.core.config.commonConfig;
-import com.geedgenetworks.core.utils.DistributedLock;
+import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.common.utils.DistributedLock;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;

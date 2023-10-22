@@ -1,22 +1,22 @@
 package com.geedgenetworks.core.processor.projection;
 
-import com.geedgenetworks.core.udf.Udf;
+import com.geedgenetworks.core.udf.UDF;
 
 import com.googlecode.aviator.Expression;
 
 import java.io.Serializable;
 
 public class UdfEntity implements Serializable {
-    private Udf udf;
+    private UDF udf;
     private Expression compiledExp;
     private String name;
     private String className;
 
-    public Udf getUdfFunction() {
+    public UDF getUdfFunction() {
         return udf;
     }
 
-    public void setUdfFunction(Udf udf) {
+    public void setUdfFunction(UDF udf) {
         this.udf = udf;
     }
 

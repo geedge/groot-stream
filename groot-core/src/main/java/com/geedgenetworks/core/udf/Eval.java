@@ -3,21 +3,21 @@ package com.geedgenetworks.core.udf;
 import com.geedgenetworks.core.expressions.Calc;
 import com.geedgenetworks.core.expressions.codegen.CalcCodeConvertor;
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.ProjectionFunction;
+import com.geedgenetworks.core.pojo.UDFContext;
 
 import java.util.List;
 import java.util.Map;
 
-public class Eval implements Udf {
+public class Eval implements UDF {
 
     private String output;
 
     private Calc calc;
 
     @Override
-    public void withParameters(ProjectionFunction projection_function) throws Exception {
-        String expr = (String) projection_function.getParameters().get("value_expression");
-        List<String> outputField = projection_function.getOutput_fields();
+    public void init(UDFContext udfContext) throws Exception {
+        String expr = (String) udfContext.getParameters().get("value_expression");
+        List<String> outputField = udfContext.getOutput_fields();
         output = outputField.get(0);
         calc = CalcCodeConvertor.convert(expr);
     }

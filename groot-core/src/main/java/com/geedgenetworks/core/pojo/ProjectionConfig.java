@@ -1,14 +1,13 @@
 package com.geedgenetworks.core.pojo;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class ProjectionConfig implements Serializable {
 
     private int parallelism;
-    private ArrayList<ProjectionFunction> functions;
+    private List<UDFContext> functions;
     private String format;
     private String type;
     private List<String> output_fields;
@@ -31,11 +30,11 @@ public class ProjectionConfig implements Serializable {
         this.parallelism = parallelism;
     }
 
-    public ArrayList<ProjectionFunction> getFunctions() {
+    public List<UDFContext> getFunctions() {
         return functions;
     }
 
-    public void setFunctions(ArrayList<ProjectionFunction> functions) {
+    public void setFunctions(List<UDFContext> functions) {
         this.functions = functions;
     }
 

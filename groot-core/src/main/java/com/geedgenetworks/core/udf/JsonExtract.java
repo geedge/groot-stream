@@ -1,30 +1,30 @@
 package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.ProjectionFunction;
-import com.geedgenetworks.core.utils.JsonPathUtil;
+import com.geedgenetworks.core.pojo.UDFContext;
+import com.geedgenetworks.common.utils.JsonPathUtil;
 
-public class JsonExtract implements Udf {
+public class JsonExtract implements UDF {
 
-    private ProjectionFunction projection_function;
+    private UDFContext udfContext;
 
     @Override
-    public void withParameters(ProjectionFunction projection_function) {
-        this.projection_function = projection_function;
+    public void init(UDFContext udfContext) {
+        this.udfContext = udfContext;
     }
 
     @Override
     public Event evaluate(Event event) {
-        if (event.getExtractedFields().containsKey(projection_function.getLookup_fields().get(0))) {
+        if (event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))) {
 
             String result =
                     (String)
                             JsonPathUtil.analysis(
                                     event.getExtractedFields()
-                                            .get(projection_function.getLookup_fields().get(0))
+                                            .get(udfContext.getLookup_fields().get(0))
                                             .toString(),
-                                    projection_function.getParameters().get("param").toString());
-            event.getExtractedFields().put(projection_function.getOutput_fields().get(0), result);
+                                    udfContext.getParameters().get("param").toString());
+            event.getExtractedFields().put(udfContext.getOutput_fields().get(0), result);
         }
         return event;
     }

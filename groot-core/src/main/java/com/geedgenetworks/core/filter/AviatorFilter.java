@@ -2,7 +2,7 @@ package com.geedgenetworks.core.filter;
 
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.FilterConfig;
-import com.geedgenetworks.core.utils.ColumnUtil;
+import com.geedgenetworks.common.utils.ColumnUtil;
 
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.configuration.Configuration;

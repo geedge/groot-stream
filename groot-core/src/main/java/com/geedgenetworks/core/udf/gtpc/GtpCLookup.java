@@ -1,30 +1,30 @@
 package com.geedgenetworks.core.udf.gtpc;
 
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.ProjectionFunction;
-import com.geedgenetworks.core.udf.Udf;
+import com.geedgenetworks.core.pojo.UDFContext;
+import com.geedgenetworks.core.udf.UDF;
 
 import org.apache.flink.configuration.Configuration;
 
-public class GtpCLookup implements Udf {
+public class GtpCLookup implements UDF {
 
     private transient GtpCLookupUtil gtpCLookupUtil;
-    private ProjectionFunction projectionFunction;
+    private UDFContext udfContext;
 
     @Override
-    public void withParameters(ProjectionFunction projection_function) {
+    public void init(UDFContext udfContext) {
         this.gtpCLookupUtil = new GtpCLookupUtil(new Configuration());
-        this.projectionFunction = projection_function;
+        this.udfContext = udfContext;
     }
 
     @Override
     public Event evaluate(Event event) {
-        GtpCLookupUtil.GtpC gtpC = gtpCLookupUtil.get(projectionFunction.getLookup_fields().get(0));
+        GtpCLookupUtil.GtpC gtpC = gtpCLookupUtil.get(udfContext.getLookup_fields().get(0));
         if (gtpC != null) {
             event.getExtractedFields()
-                    .put(projectionFunction.getOutput_fields().get(0), gtpC.phoneNumber);
-            event.getExtractedFields().put(projectionFunction.getOutput_fields().get(1), gtpC.imsi);
-            event.getExtractedFields().put(projectionFunction.getOutput_fields().get(2), gtpC.imei);
+                    .put(udfContext.getOutput_fields().get(0), gtpC.phoneNumber);
+            event.getExtractedFields().put(udfContext.getOutput_fields().get(1), gtpC.imsi);
+            event.getExtractedFields().put(udfContext.getOutput_fields().get(2), gtpC.imei);
         }
         return event;
     }

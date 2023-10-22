@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.ProjectionFunction;
+import com.geedgenetworks.core.pojo.UDFContext;
 
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
@@ -11,18 +11,18 @@ import com.googlecode.aviator.Options;
 import java.io.Serializable;
 import java.util.Map;
 
-import static com.geedgenetworks.core.udf.Drop.Aviator.AviatorExcute;
+import static com.geedgenetworks.core.udf.Drop.Aviator.AviatorExecute;
 
-public class Drop implements Udf {
+public class Drop implements UDF {
 
     @Override
-    public void withParameters(ProjectionFunction projection_function) {
-        Aviator.init(projection_function.getFilter());
+    public void init (UDFContext udfContext) {
+        Aviator.init(udfContext.getFilter());
     }
 
     @Override
     public Event evaluate(Event event) {
-        Boolean result = AviatorExcute(event.getExtractedFields());
+        Boolean result = AviatorExecute(event.getExtractedFields());
         event.setFinal(result);
         return event;
     }
@@ -46,7 +46,7 @@ public class Drop implements Udf {
             compiledExp = instance.compile(expression, true);
         }
 
-        public static Boolean AviatorExcute(Map<String, Object> map) {
+        public static Boolean AviatorExecute(Map<String, Object> map) {
 
             Boolean bool = true;
             if (!"".equals(expression)) {

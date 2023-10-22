@@ -4,7 +4,7 @@ import com.geedgenetworks.connectors.kafka.util.KafkaUtils;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.SourceConfig;
 import com.geedgenetworks.core.source.Source;
-import com.geedgenetworks.core.utils.ColumnUtil;
+import com.geedgenetworks.common.utils.ColumnUtil;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;

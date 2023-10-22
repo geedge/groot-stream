@@ -1,26 +1,26 @@
 package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.ProjectionFunction;
+import com.geedgenetworks.core.pojo.UDFContext;
 
-public class Rename implements Udf {
-    private ProjectionFunction projection_function;
+public class Rename implements UDF {
+    private UDFContext udfContext;
 
     @Override
-    public void withParameters(ProjectionFunction projection_function) {
-        this.projection_function = projection_function;
+    public void init (UDFContext udfContext) {
+        this.udfContext = udfContext;
     }
 
     @Override
     public Event evaluate(Event event) {
-        if (event.getExtractedFields().containsKey(projection_function.getLookup_fields().get(0))) {
+        if (event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))) {
 
             event.getExtractedFields()
                     .put(
-                            projection_function.getOutput_fields().get(0),
+                            udfContext.getOutput_fields().get(0),
                             event.getExtractedFields()
-                                    .get(projection_function.getLookup_fields().get(0)));
-            event.getExtractedFields().remove(projection_function.getLookup_fields().get(0));
+                                    .get(udfContext.getLookup_fields().get(0)));
+            event.getExtractedFields().remove(udfContext.getLookup_fields().get(0));
         }
         return event;
     }

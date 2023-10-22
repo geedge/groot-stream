@@ -1,40 +1,40 @@
 package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.ProjectionFunction;
+import com.geedgenetworks.core.pojo.UDFContext;
 
-public class Domain implements Udf {
+public class Domain implements UDF {
 
-    private ProjectionFunction projection_function;
+    private UDFContext udfContext;
 
     @Override
-    public void withParameters(ProjectionFunction projection_function) {
-        this.projection_function = projection_function;
+    public void init(UDFContext udfContext) {
+        this.udfContext = udfContext;
     }
 
     @Override
     public Event evaluate(Event event) {
         String Domain = "";
 
-        if (event.getExtractedFields().containsKey(projection_function.getLookup_fields().get(0))) {
+        if (event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))) {
             Domain =
                     (String)
                             event.getExtractedFields()
-                                    .get(projection_function.getLookup_fields().get(0));
+                                    .get(udfContext.getLookup_fields().get(0));
         } else if (event.getExtractedFields()
-                .containsKey(projection_function.getLookup_fields().get(1))) {
+                .containsKey(udfContext.getLookup_fields().get(1))) {
             Domain =
                     (String)
                             event.getExtractedFields()
-                                    .get(projection_function.getLookup_fields().get(1));
+                                    .get(udfContext.getLookup_fields().get(1));
         } else if (event.getExtractedFields()
-                .containsKey(projection_function.getLookup_fields().get(2))) {
+                .containsKey(udfContext.getLookup_fields().get(2))) {
             Domain =
                     (String)
                             event.getExtractedFields()
-                                    .get(projection_function.getLookup_fields().get(2));
+                                    .get(udfContext.getLookup_fields().get(2));
         }
-        event.getExtractedFields().put(projection_function.getOutput_fields().get(0), Domain);
+        event.getExtractedFields().put(udfContext.getOutput_fields().get(0), Domain);
         return event;
     }
 

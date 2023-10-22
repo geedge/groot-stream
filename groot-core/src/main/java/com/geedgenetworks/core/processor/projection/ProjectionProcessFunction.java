@@ -1,11 +1,11 @@
 package com.geedgenetworks.core.processor.projection;
 
-import com.geedgenetworks.core.config.commonConfig;
-import com.geedgenetworks.core.udf.Udf;
-import com.geedgenetworks.core.utils.ColumnUtil;
+import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.core.udf.UDF;
+import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
-import com.geedgenetworks.core.pojo.ProjectionFunction;
+import com.geedgenetworks.core.pojo.UDFContext;
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -36,29 +36,29 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     public void open(Configuration parameters) throws Exception {
 
         LinkedList<UdfEntity> functions = new LinkedList<>();
-        for (ProjectionFunction pf : projectionConfig.getFunctions()) {
+        for (UDFContext udfContext : projectionConfig.getFunctions()) {
             Expression compiledExp = null;
             UdfEntity udfEntity = new UdfEntity();
             // 平台注册的函数包含任务中配置的函数则对函数进行实例化
-            if (commonConfig.UDF_CLASS_REFLECT.containsKey(pf.getFunction())) {
+            if (commonConfig.UDF_CLASS_REFLECT.containsKey(udfContext.getFunction())) {
 
-                Class cls = Class.forName(commonConfig.UDF_CLASS_REFLECT.get(pf.getFunction()));
-                Udf udf = (Udf) cls.getConstructor().newInstance();
+                Class cls = Class.forName(commonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
+                UDF udf = (UDF) cls.getConstructor().newInstance();
                 Method withParametersMethod =
-                        cls.getDeclaredMethod("withParameters", ProjectionFunction.class);
-                withParametersMethod.invoke(udf, pf);
+                        cls.getDeclaredMethod("init", UDFContext.class);
+                withParametersMethod.invoke(udf, udfContext);
                 // 函数如果包含filter,对表达式进行编译
-                if (pf.getFilter() != null) {
+                if (udfContext.getFilter() != null) {
                     AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
                     instance.setCachedExpressionByDefault(true);
                     instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
                     instance.setFunctionMissing(null);
-                    compiledExp = instance.compile(pf.getFilter(), true);
+                    compiledExp = instance.compile(udfContext.getFilter(), true);
                 }
                 udfEntity.setUdfFunction(udf);
                 udfEntity.setCompiledExp(compiledExp);
-                udfEntity.setName(pf.getName());
-                udfEntity.setClassName(commonConfig.UDF_CLASS_REFLECT.get(pf.getFunction()));
+                udfEntity.setName(udfContext.getName());
+                udfEntity.setClassName(commonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
                 functions.add(udfEntity);
             }
         }

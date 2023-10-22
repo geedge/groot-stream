@@ -1,25 +1,25 @@
 package com.geedgenetworks.core.udf.snowflake;
 
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.ProjectionFunction;
-import com.geedgenetworks.core.udf.Udf;
+import com.geedgenetworks.core.pojo.UDFContext;
+import com.geedgenetworks.core.udf.UDF;
 
 import java.io.Serializable;
 
-public class SnowflakeId implements Serializable, Udf {
+public class SnowflakeId implements Serializable, UDF {
 
-    private ProjectionFunction projection_function;
+    private UDFContext udfContext;
 
     @Override
-    public void withParameters(ProjectionFunction projection_function) {
-        this.projection_function = projection_function;
+    public void init(UDFContext udfContext) {
+        this.udfContext = udfContext;
     }
 
     @Override
     public Event evaluate(Event event) {
 
         event.getExtractedFields()
-                .put(projection_function.getOutput_fields().get(0), SnowflakeIdUtil.generateId());
+                .put(udfContext.getOutput_fields().get(0), SnowflakeIdUtil.generateId());
         return event;
     }
 

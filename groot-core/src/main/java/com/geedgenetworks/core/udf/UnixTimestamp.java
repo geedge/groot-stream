@@ -1,24 +1,24 @@
 package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.ProjectionFunction;
+import com.geedgenetworks.core.pojo.UDFContext;
 
-public class UnixTimestamp implements Udf {
+public class UnixTimestamp implements UDF {
 
-    private ProjectionFunction projection_function;
+    private UDFContext udfContext;
 
     @Override
-    public void withParameters(ProjectionFunction projection_function) {
-        this.projection_function = projection_function;
+    public void init(UDFContext udfContext) {
+        this.udfContext = udfContext;
     }
 
     @Override
     public Event evaluate(Event event) {
         long timestamp = System.currentTimeMillis();
-        if ("seconds".equals(projection_function.getParameters().get("precision"))) {
+        if ("seconds".equals(udfContext.getParameters().get("precision"))) {
             timestamp = timestamp / 1000;
         }
-        event.getExtractedFields().put(projection_function.getOutput_fields().get(0), timestamp);
+        event.getExtractedFields().put(udfContext.getOutput_fields().get(0), timestamp);
         return event;
     }
 

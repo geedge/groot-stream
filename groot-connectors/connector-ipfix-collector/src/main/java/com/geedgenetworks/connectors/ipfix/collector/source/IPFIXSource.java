@@ -33,8 +33,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static com.geedgenetworks.core.config.commonConfig.*;
-import static com.geedgenetworks.core.utils.ColumnUtil.columnSelector;
+import static com.geedgenetworks.common.config.commonConfig.*;
+import static com.geedgenetworks.common.utils.ColumnUtil.columnSelector;
 
 public class IPFIXSource implements Source {
     private static final Log logger = LogFactory.get();

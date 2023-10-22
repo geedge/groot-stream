@@ -1,32 +1,32 @@
 package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.ProjectionFunction;
+import com.geedgenetworks.core.pojo.UDFContext;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Map;
 
-public class Combine implements Udf {
+public class Combine implements UDF {
 
-    private ProjectionFunction projection_function;
+    private UDFContext udfContext;
 
     private StringBuilder stringBuilder;
 
     @Override
-    public void withParameters(ProjectionFunction projection_function) {
-        this.projection_function = projection_function;
-        if (projection_function.getParameters() != null
-                && projection_function.getParameters().size() != 0) {
+    public void init(UDFContext udfContext) {
+        this.udfContext = udfContext;
+        if (udfContext.getParameters() != null
+                && udfContext.getParameters().size() != 0) {
             ArrayList<String> keys = new ArrayList<>();
-            for (Map.Entry<String, Object> entry : projection_function.getParameters().entrySet()) {
+            for (Map.Entry<String, Object> entry : udfContext.getParameters().entrySet()) {
                 String key = entry.getKey();
                 keys.add(key);
             }
             keys.sort(new NaturalNumberStringComparator());
             stringBuilder = new StringBuilder();
             for (String key : keys) {
-                stringBuilder.append(projection_function.getParameters().get(key));
+                stringBuilder.append(udfContext.getParameters().get(key));
             }
         }
     }
@@ -34,11 +34,11 @@ public class Combine implements Udf {
     @Override
     public Event evaluate(Event event) {
 
-        if (event.getExtractedFields().containsKey(projection_function.getLookup_fields().get(0))) {
+        if (event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))) {
             stringBuilder.append(
-                    event.getExtractedFields().get(projection_function.getLookup_fields().get(0)));
+                    event.getExtractedFields().get(udfContext.getLookup_fields().get(0)));
             event.getExtractedFields()
-                    .put(projection_function.getOutput_fields().get(0), stringBuilder.toString());
+                    .put(udfContext.getOutput_fields().get(0), stringBuilder.toString());
         }
         return event;
     }
