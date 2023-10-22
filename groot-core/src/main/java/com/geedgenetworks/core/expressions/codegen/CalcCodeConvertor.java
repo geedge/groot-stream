@@ -4,8 +4,6 @@ import com.geedgenetworks.core.expressions.Calc;
 import com.geedgenetworks.core.expressions.EvalExpressionResolver;
 import com.geedgenetworks.core.expressions.Expression;
 import com.geedgenetworks.core.expressions.InvalidProgramException;
-
-import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.janino.SimpleCompiler;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -26,7 +24,7 @@ public class CalcCodeConvertor {
      * @param expr The mathematical expression to convert.
      * @return A Calc object capable of evaluating the expression.
      */
-    public static Calc convert(final String expr) throws Exception {
+    public static Calc convert(final String expr)  {
         return convert(Thread.currentThread().getContextClassLoader(), expr);
     }
 
@@ -37,7 +35,7 @@ public class CalcCodeConvertor {
      * @param classLoader The parent class loader.
      * @return A Calc object capable of evaluating the expression.
      */
-    public static Calc convert(final ClassLoader classLoader, final String expr) throws Exception {
+    public static Calc convert(final ClassLoader classLoader, final String expr) {
         EvalExpressionResolver expressionResolver = new EvalExpressionResolver();
         Expression expression = expressionResolver.resolve(expr);
         CodeGeneratorContext ctx = new CodeGeneratorContext();
@@ -76,8 +74,7 @@ public class CalcCodeConvertor {
     }
 
     private static Calc compile(
-            final ClassLoader classLoader, final String className, final String code)
-            throws Exception {
+            final ClassLoader classLoader, final String className, final String code) {
         SimpleCompiler compiler = new SimpleCompiler();
         compiler.setParentClassLoader(classLoader);
         try {
@@ -87,8 +84,7 @@ public class CalcCodeConvertor {
                     .asSubclass(Calc.class)
                     .getConstructor()
                     .newInstance();
-        } catch (CompileException e) {
-            System.err.println(code);
+        } catch (Exception e) {
             throw new InvalidProgramException(
                     "Calc program cannot be compiled. Please check expression syntax.");
         }

@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public interface UDF extends Serializable {
 
-    void init(UDFContext udfContext) throws Exception;
+    void init(UDFContext udfContext);
 
     Event evaluate(Event event);
 

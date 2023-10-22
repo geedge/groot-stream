@@ -15,7 +15,7 @@ public class Eval implements UDF {
     private Calc calc;
 
     @Override
-    public void init(UDFContext udfContext) throws Exception {
+    public void init(UDFContext udfContext) {
         String expr = (String) udfContext.getParameters().get("value_expression");
         List<String> outputField = udfContext.getOutput_fields();
         output = outputField.get(0);
