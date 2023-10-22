@@ -1,0 +1,225 @@
+sources:
+  kafkasource_bj:
+    format: json
+    type : com.geedgenetworks.connectors.kafka.source.KafkaSource
+    output_fields: ['common_end_timestamp_ms','common_start_timestamp_ms','common_ingestion_time','common_recv_time','common_log_id','common_flags','common_start_time','common_end_time','common_con_duration_ms','common_schema_type','common_client_ip','common_server_ip','common_client_port','common_server_port','common_app_label','common_app_full_path','common_l4_protocol','common_l7_protocol','common_out_link_id','common_in_link_id','http_host','http_url','http_response_line','http_status_code','ssl_sni','ssl_san','ssl_ja3_hash','ssl_ja3s_hash','ssl_cert_issuer','ssl_cert_subject','dns_qr','dns_opcode','dns_aa','dns_rcode','dns_qname','dns_qtype','dns_qclass','dns_sub','dns_rr','common_c2s_pkt_num','common_c2s_byte_num','common_s2c_pkt_num','common_s2c_byte_num','common_sessions','common_c2s_tcp_lostlen','common_s2c_tcp_lostlen','common_c2s_tcp_unorder_num','common_s2c_tcp_unorder_num','common_c2s_byte_retrans','common_s2c_byte_retrans','common_c2s_pkt_retrans','common_s2c_pkt_retrans','common_establish_latency_ms','http_response_latency_ms','ssl_con_latency_ms','dns_response_latency_ms']
+    # watermark_timestamp: common_recv_time
+   # watermark_lag: 60
+    properties:
+        topics:  ['SESSION-RECORD-COMPLETED']
+        kafka.bootstrap.servers: 192.168.44.11:9092
+        kafka.session.timeout.ms: 60000
+        kafka.max.poll.recordf: 3000
+        kafka.max.partition.fetch.bytes: 31457280
+        kafka.security.protocol:
+        kafka.ssl.keystore.location:
+        kafka.ssl.keystore.password:
+        kafka.ssl.truststore.location:
+        kafka.ssl.truststore.password:
+        kafka.ssl.key.password:
+        kafka.sasl.mechanism:
+        kafka.sasl.jaas.config:
+        kafka.buffer.memory:
+        kafka.group.id: SESSION-RECORD-COMPLETED-GROUP-test
+        kafka.auto.offset.reset: latest
+        kafka.max.request.size:
+        kafka.compression.type: none
+        message_timestamp_field: common_ingestion_time
+  ipfixsource:
+    type : com.geedgenetworks.connectors.ipfix.source.IPFIXSource
+    properties:
+      initial_port: 12345
+      port_number: 1
+      buffer_size: 65535
+      receive_buffer: 104857600
+      max_attempts: 10
+      service_name: udp_test
+      message_timestamp_field: common_ingestion_time
+
+filters:
+  http_filter:
+    type: com.geedgenetworks.filter.AviatorFilter
+    output_fields:
+    properties:
+      expression: map.common_schema_type == 'BASE' && map.common_server_port > 60
+
+
+pre_processing_pipelines:
+  common_pre_processor:
+    type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
+    output_fields:
+    properties:
+      key: value
+    functions:
+      - function: SNOWFLAKE_ID
+        lookup_fields: ['']
+        output_fields: ['common_log_id']
+        filter:
+      - function: DROP
+        lookup_fields: ['']
+        output_fields: ['']
+        filter: map.common_schema_type == 'HTTP' && map.common_server_port > 60
+        parameters:
+
+
+
+processing_pipelines:
+  session_record_processor:
+    type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
+    output_fields:
+      properties:
+      key: value
+    functions:
+      - function: SNOWFLAKE_ID
+        lookup_fields: ['']
+        output_fields: ['common_log_id']
+        filter:
+      - function: ASN_LOOKUP
+        lookup_fields: ['common_client_ip']
+        output_fields: ['common_client_asn']
+        parameters:
+          kb_vender : TSG
+      - function: ASN_LOOKUP
+        lookup_fields: ['common_server_ip']
+        output_fields: ['common_server_asn']
+        parameters:
+          kb_vender : TSG
+      - function: EVAL
+        output_fields: ['common_internal_ip']
+        parameters:
+          value_expression: 'common_direction=69 ? common_client_ip : common_server_ip'
+      - function: EVAL
+        output_fields: ['common_external_ip']
+        parameters:
+          value_expression: 'common_direction=73 ? common_client_ip : common_server_ip'
+      - function: JSON_EXTRACT
+        lookup_fields: ['common_device_tag']
+        output_fields: ['common_data_center']
+        filter:
+        parameters:
+          param: $.tags[?(@.tag=='data_center')][0].value
+      - function: JSON_EXTRACT
+        lookup_fields: ['common_device_tag']
+        output_fields: ['common_device_group']
+        filter:
+        parameters:
+          param: $.tags[?(@.tag=='device_group')][0].value
+      - function: GTP_C_LOOKUP
+        lookup_fields: [ 'common_tunnels' ]
+        output_fields: [ 'common_phone_number', 'common_imsi', 'common_imei' ]
+      - function: UNIX_TIMESTAMP_FUNCTION
+        output_fields: ['common_processing_time']
+        parameters:
+          precision : seconds
+      - function: EVAL
+        output_fields: ['common_recv_time']
+        parameters:
+          value_expression: 'common_ingestion_time'
+      - function: DOMAIN
+        lookup_fields: ['http_host','ssl_sni','quic_sni']
+        output_fields: ['common_server_fqdn']
+      - function: FIRST_SIGNIFICANT_SUBDOMAIN
+        lookup_fields: ['http_host','ssl_sni','quic_sni']
+        output_fields: ['common_server_domain']
+      - function: EVAL
+        output_fields: ['http_domain']
+        parameters:
+          value_expression: 'common_server_domain'
+      - function: BASE64_DECODE_TO_STRING
+        lookup_fields: ['mail_subject','mail_subject_charset']
+        output_fields: ['mail_subject']
+      - function: BASE64_DECODE_TO_STRING
+        lookup_fields: ['mail_attachment_name','mail_attachment_name_charset']
+        output_fields: ['mail_attachment_name']
+
+  cn_record_processor:
+    type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
+   # output_fields: ['common_log_id','common_ingestion_time','domain','domain_sld','common_recv_time','common_log_id','common_flags','common_start_time','common_end_time','common_con_duration_ms','common_schema_type','common_client_ip','common_server_ip','common_client_port','common_server_port','common_app_label','common_app_full_path','common_l4_protocol','common_l7_protocol','common_out_link_id','common_in_link_id','http_host','http_url','http_response_line','http_status_code','ssl_sni','ssl_san','ssl_ja3_hash','ssl_ja3s_hash','ssl_cert_issuer','ssl_cert_subject','dns_qr','dns_opcode','dns_aa','dns_rcode','dns_qname','dns_qtype','dns_qclass','dns_sub','dns_rr','common_c2s_pkt_num','common_c2s_byte_num','common_s2c_pkt_num','common_s2c_byte_num','common_sessions','common_c2s_tcp_lostlen','common_s2c_tcp_lostlen','common_c2s_tcp_unorder_num','common_s2c_tcp_unorder_num','common_c2s_byte_retrans','common_s2c_byte_retrans','common_c2s_pkt_retrans','common_s2c_pkt_retrans','common_establish_latency_ms','http_response_latency_ms','ssl_con_latency_ms','dns_response_latency_ms']
+    properties:
+      key: value
+    functions:
+      - function: SNOWFLAKE_ID
+        lookup_fields: ['']
+        output_fields: ['common_log_id']
+      - function: EVAL
+        output_fields: ['common_recv_time']
+        parameters:
+          value_expression: 'common_ingestion_time'
+      - function: FIRST_SIGNIFICANT_SUBDOMAIN
+        lookup_fields: ['http_host','ssl_sni','quic_sni']
+        output_fields: ['domain_sld']
+      - function: DOMAIN
+        lookup_fields: ['http_host','ssl_sni','quic_sni']
+        output_fields: ['domain']
+
+
+  aggregate_processor2:
+    type: com.geedgenetworks.processor.aggregate.AggregateProcessorImpl
+    group_by_fields: ['common_server_ip']
+    timestamp_field: common_recv_time
+    window_type: tumbling
+    window_interval_seconds: 60
+    output_fields:
+    properties:
+      key: value
+    function_list: 
+        - function: sum
+          input_fields: ['']
+          output_fields: ['']
+          filter: ''
+          parameters:
+
+sinks:
+  kafkasink_tsg:
+    format: json
+    type : com.geedgenetworks.connectors.kafka.sink.KafkaSink
+    properties:
+      topic:  SESSION-RECORD-IPFIX
+      kafka.bootstrap.servers: 192.168.44.12:9092
+      kafka.retries: 0
+      kafka.linger.ms: 10
+      kafka.request.timeout.ms: 30000
+      kafka.batch.size: 262144
+      kafka.buffer.memory: 134217728
+      kafka.max.request.size:  10485760
+      kafka.compression.type: snappy
+      kafka.security.protocol:
+      kafka.ssl.keystore.location:
+      kafka.ssl.keystore.password:
+      kafka.ssl.truststore.location:
+      kafka.ssl.truststore.password:
+      kafka.ssl.key.password:
+      kafka.sasl.mechanism:
+      kafka.sasl.jaas.config:
+
+  kafkasink_cn:
+    format: json
+    type : com.geedgenetworks.connectors.kafka.sink.KafkaSink
+    properties:
+      topic:  SESSION-RECORD-JSON
+      kafka.bootstrap.servers: 192.168.44.12:9092
+      kafka.retries: 0
+      kafka.linger.ms: 10
+      kafka.request.timeout.ms: 30000
+      kafka.batch.size: 262144
+      kafka.buffer.memory: 134217728
+      kafka.max.request.size:  10485760
+      kafka.compression.type: snappy
+      kafka.security.protocol:
+      kafka.ssl.keystore.location:
+      kafka.ssl.keystore.password:
+      kafka.ssl.truststore.location:
+      kafka.ssl.truststore.password:
+      kafka.ssl.key.password:
+      kafka.sasl.mechanism:
+      kafka.sasl.jaas.config:
+application:
+  name: groot-stream
+ # parallelism: 1
+  topology:
+    kafkasource_bj:
+      next: ['session_record_processor']
+    session_record_processor:
+      next: ['kafkasink_cn']
+    kafkasink_cn:
+      next: []

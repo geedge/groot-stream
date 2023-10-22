@@ -54,10 +54,10 @@ zookeeper:
      quorum: 192.168.44.12:2181
 
 knowledgebase:
-     file_storage_path:
-     file_storage_type:
+     file_storage_path: /knowledgebase/ETL-SESSION-RECORD-COMPLETED/
+     file_storage_type: hdfs
 hdfs:
-     servers:
+     servers: 192.168.44.11:9000,192.168.44.14:9000
 hbase:
      tick_tuple_freq_secs:
      gtpc_scan_max_rows: 10000
