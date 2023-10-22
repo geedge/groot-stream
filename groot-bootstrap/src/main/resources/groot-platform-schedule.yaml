@@ -28,7 +28,7 @@ sources:
 
 filters:
   ssl_filter:
-    type: com.geedgenetworks.filter.AviatorFilter
+    type: com.geedgenetworks.core.filter.AviatorFilter
     output_fields:
     properties:
       expression: map.common_schema_type == 'SSL'
@@ -36,7 +36,7 @@ filters:
 
 preprocessing_pipelines:
   preprocessing_processor:
-    type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     output_fields:
     properties:
       key: value
@@ -53,7 +53,7 @@ preprocessing_pipelines:
 
 processing_pipelines:
   session_record_processor:
-    type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     output_fields:
       properties:
       key: value
@@ -125,7 +125,7 @@ sinks:
     format: json
     type : com.geedgenetworks.connectors.kafka.sink.KafkaSink
     properties:
-      topic:  SESSION-RECORD-IPFIX
+      topic:  SESSION-RECORD-JSON
       kafka.bootstrap.servers: 192.168.44.12:9092
       kafka.retries: 0
       kafka.linger.ms: 10

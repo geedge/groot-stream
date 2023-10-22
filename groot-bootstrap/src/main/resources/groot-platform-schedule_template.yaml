@@ -38,7 +38,7 @@ sources:
 
 filters:
   http_filter:
-    type: com.geedgenetworks.filter.AviatorFilter
+    type: com.geedgenetworks.core.filter.AviatorFilter
     output_fields:
     properties:
       expression: map.common_schema_type == 'BASE' && map.common_server_port > 60
@@ -46,7 +46,7 @@ filters:
 
 pre_processing_pipelines:
   common_pre_processor:
-    type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     output_fields:
     properties:
       key: value
@@ -65,7 +65,7 @@ pre_processing_pipelines:
 
 processing_pipelines:
   session_record_processor:
-    type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     output_fields:
       properties:
       key: value
@@ -133,7 +133,7 @@ processing_pipelines:
         output_fields: ['mail_attachment_name']
 
   cn_record_processor:
-    type: com.geedgenetworks.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
    # output_fields: ['common_log_id','common_ingestion_time','domain','domain_sld','common_recv_time','common_log_id','common_flags','common_start_time','common_end_time','common_con_duration_ms','common_schema_type','common_client_ip','common_server_ip','common_client_port','common_server_port','common_app_label','common_app_full_path','common_l4_protocol','common_l7_protocol','common_out_link_id','common_in_link_id','http_host','http_url','http_response_line','http_status_code','ssl_sni','ssl_san','ssl_ja3_hash','ssl_ja3s_hash','ssl_cert_issuer','ssl_cert_subject','dns_qr','dns_opcode','dns_aa','dns_rcode','dns_qname','dns_qtype','dns_qclass','dns_sub','dns_rr','common_c2s_pkt_num','common_c2s_byte_num','common_s2c_pkt_num','common_s2c_byte_num','common_sessions','common_c2s_tcp_lostlen','common_s2c_tcp_lostlen','common_c2s_tcp_unorder_num','common_s2c_tcp_unorder_num','common_c2s_byte_retrans','common_s2c_byte_retrans','common_c2s_pkt_retrans','common_s2c_pkt_retrans','common_establish_latency_ms','http_response_latency_ms','ssl_con_latency_ms','dns_response_latency_ms']
     properties:
       key: value
@@ -154,7 +154,7 @@ processing_pipelines:
 
 
   aggregate_processor2:
-    type: com.geedgenetworks.processor.aggregate.AggregateProcessorImpl
+    type: com.geedgenetworks.core.processor.aggregate.AggregateProcessorImpl
     group_by_fields: ['common_server_ip']
     timestamp_field: common_recv_time
     window_type: tumbling

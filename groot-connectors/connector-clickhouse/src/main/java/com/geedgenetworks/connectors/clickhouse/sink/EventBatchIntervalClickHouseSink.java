@@ -1,6 +1,6 @@
 package com.geedgenetworks.connectors.clickhouse.sink;
 
-import com.geedgenetworks.pojo.Event;
+import com.geedgenetworks.core.pojo.Event;
 
 import com.github.housepower.data.Block;
 

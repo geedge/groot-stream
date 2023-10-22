@@ -1,8 +1,8 @@
 package com.geedgenetworks.connectors.clickhouse.sink;
 
-import com.geedgenetworks.pojo.Event;
-import com.geedgenetworks.pojo.SinkConfig;
-import com.geedgenetworks.sink.Sink;
+import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.core.pojo.SinkConfig;
+import com.geedgenetworks.core.sink.Sink;
 
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;

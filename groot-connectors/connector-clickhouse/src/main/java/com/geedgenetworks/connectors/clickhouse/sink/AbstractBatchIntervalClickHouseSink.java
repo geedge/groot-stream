@@ -1,6 +1,6 @@
 package com.geedgenetworks.connectors.clickhouse.sink;
 
-import com.geedgenetworks.connectors.clickhouse.jdbc.BytesCharVarSeq ;
+import com.geedgenetworks.connectors.clickhouse.jdbc.BytesCharVarSeq;
 import com.geedgenetworks.connectors.clickhouse.jdbc.ClickHouseBatchInsertConnection;
 import com.geedgenetworks.connectors.clickhouse.jdbc.ClickHousePreparedBatchInsertStatement;
 import com.geedgenetworks.connectors.clickhouse.jdbc.DataTypeStringV2;

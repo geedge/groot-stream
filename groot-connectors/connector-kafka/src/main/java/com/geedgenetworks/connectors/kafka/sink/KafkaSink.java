@@ -1,10 +1,10 @@
 package com.geedgenetworks.connectors.kafka.sink;
 
 import com.geedgenetworks.connectors.kafka.util.KafkaUtils;
-import com.geedgenetworks.pojo.Event;
-import com.geedgenetworks.pojo.SinkConfig;
-import com.geedgenetworks.sink.Sink;
-import com.geedgenetworks.utils.ColumnUtil;
+import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.core.pojo.SinkConfig;
+import com.geedgenetworks.core.sink.Sink;
+import com.geedgenetworks.core.utils.ColumnUtil;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
