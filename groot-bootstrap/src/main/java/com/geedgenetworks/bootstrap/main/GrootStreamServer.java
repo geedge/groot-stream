@@ -247,10 +247,10 @@ public class GrootStreamServer {
             checkProjectionConfig(projectionConfig);
 
             Class cls = null;
-            ProjectionProcessor projectionprocessor = null;
+            ProjectionProcessor projectionProcessor = null;
             try {
                 cls = Class.forName(projectionConfig.getType());
-                projectionprocessor = (ProjectionProcessor) cls.newInstance();
+                projectionProcessor = (ProjectionProcessor) cls.newInstance();
                 JSONObject to = new JSONObject((Map<String, Object>) topologyList.get(name));
                 Topology topology = to.toJavaObject(Topology.class);
                 if (topology.getParallelism() != 0) {
@@ -259,7 +259,7 @@ public class GrootStreamServer {
                 }
                 projectionConfig.setName(name);
                 event =
-                        projectionprocessor.projectionProcessorFunction(
+                        projectionProcessor.projectionProcessorFunction(
                                 streamlineEventSingleOutputStreamOperator, projectionConfig);
             } catch (Exception e) {
                 logger.error("实例化pipelines的projectionprocessor:" + name + "失败");

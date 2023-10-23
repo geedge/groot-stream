@@ -36,7 +36,7 @@ import java.util.Properties;
 import static com.geedgenetworks.common.config.commonConfig.*;
 import static com.geedgenetworks.common.utils.ColumnUtil.columnSelector;
 
-public class IPFIXSource implements Source {
+public class IPFixSource implements Source {
     private static final Log logger = LogFactory.get();
 
     private static SessionGroup sessionGroup;
@@ -52,8 +52,8 @@ public class IPFIXSource implements Source {
 
     @Override
     public SingleOutputStreamOperator<Event> source(StreamExecutionEnvironment env, SourceConfig sourceConfig) {
-        Map<String, Object> ipfixConfig = sourceConfig.getProperties();
-        UDPSource udpSource = new UDPSource(Integer.parseInt(ipfixConfig.get("initial_port").toString()), Integer.parseInt(ipfixConfig.get("max_attempts").toString()), Integer.parseInt(ipfixConfig.get("buffer_size").toString()), Integer.parseInt(ipfixConfig.get("receive_buffer").toString()), ipfixConfig.get("service_name").toString());
+        Map<String, Object> ipFixConfig = sourceConfig.getProperties();
+        UDPSource udpSource = new UDPSource(Integer.parseInt(ipFixConfig.get("initial_port").toString()), Integer.parseInt(ipFixConfig.get("max_attempts").toString()), Integer.parseInt(ipFixConfig.get("buffer_size").toString()), Integer.parseInt(ipFixConfig.get("receive_buffer").toString()), ipFixConfig.get("service_name").toString());
         DataStream<byte[]> sourceForSession = env.addSource(udpSource).setParallelism(Integer.parseInt(sourceConfig.getProperties().getOrDefault("port_number", 1).toString()));
         SingleOutputStreamOperator<Event> streamEvent = sourceForSession.flatMap(new FlatMapFunction<byte[], Event>() {
             @Override
