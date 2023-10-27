@@ -16,29 +16,21 @@ public class TopLevelDomain implements UDF {
     @Override
     public Event evaluate(Event event) {
         String topDomain = "";
+        for (String lookupField : udfContext.getLookup_fields()){
 
-        if (event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))) {
-            topDomain =
-                    FormatUtils.getTopPrivateDomain(
-                            (String)
-                                    event.getExtractedFields()
-                                            .get(udfContext.getLookup_fields().get(0)));
-        } else if (event.getExtractedFields()
-                .containsKey(udfContext.getLookup_fields().get(1))) {
-            topDomain =
-                    FormatUtils.getTopPrivateDomain(
-                            (String)
-                                    event.getExtractedFields()
-                                            .get(udfContext.getLookup_fields().get(1)));
-        } else if (event.getExtractedFields()
-                .containsKey(udfContext.getLookup_fields().get(2))) {
-            topDomain =
-                    FormatUtils.getTopPrivateDomain(
-                            (String)
-                                    event.getExtractedFields()
-                                            .get(udfContext.getLookup_fields().get(2)));
+            if(event.getExtractedFields().containsKey(lookupField)){
+
+                topDomain =
+                        FormatUtils.getTopPrivateDomain(
+                                (String)
+                                        event.getExtractedFields()
+                                                .get(lookupField));
+                topDomain = topDomain.substring(topDomain.indexOf(".") + 1);
+                break;
+            }
+
+
         }
-        topDomain = topDomain.substring(topDomain.indexOf(".") + 1);
         event.getExtractedFields().put(udfContext.getOutput_fields().get(0), topDomain);
         return event;
     }
