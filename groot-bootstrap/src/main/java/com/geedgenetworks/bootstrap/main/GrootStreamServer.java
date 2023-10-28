@@ -9,6 +9,8 @@ import com.geedgenetworks.core.processor.projection.ProjectionProcessor;
 import com.geedgenetworks.core.sink.Sink;
 import com.geedgenetworks.core.source.Source;
 import com.geedgenetworks.utils.StringUtil;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.slf4j.Logger;
@@ -21,11 +23,17 @@ public class GrootStreamServer {
 
     public static void main(String[] args) throws Exception {
 
-        //  conf.setString("rest.port", "9091");
-        //
-        //  StreamExecutionEnvironment env =
-        // StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf).getExecutionEnvironment();
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        //便于调试，临时支持本地环境执行 -local
+        boolean useLocalEnvironment = checkLocalExecution(args);
+        StreamExecutionEnvironment env = null;
+        if (useLocalEnvironment) {
+            Configuration conf = new Configuration();
+            conf.setInteger(RestOptions.PORT, 8082);
+            env = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(conf);
+        } else {
+            env = StreamExecutionEnvironment.getExecutionEnvironment();
+        }
+
         env.getConfig().enableObjectReuse();
 
         Map<String, Object> yamlMap =
@@ -33,8 +41,7 @@ public class GrootStreamServer {
                         GrootStreamServer.class
                                 .getClassLoader()
                                 .getResourceAsStream("groot-platform-schedule.yaml"));
-        //   Map<String, Object> classMap =
-        // loadYaml(Execute.class.getClassLoader().getResourceAsStream("groot-platform-plugin.yaml"));
+
 
         YamlEntity yamlEntity = new YamlEntity();
         Map<String, Object> sources = GrootYamlParser.getMap("sources", yamlMap);
@@ -101,6 +108,15 @@ public class GrootStreamServer {
             logger.error("无可执行topologylist");
             throw new Exception("无可执行topologylist");
         }
+    }
+
+    private static boolean checkLocalExecution(String[] args) {
+        for (String arg : args) {
+            if (arg.equals("-local")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void excute(

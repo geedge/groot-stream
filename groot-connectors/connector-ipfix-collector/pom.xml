@@ -13,7 +13,7 @@
     <dependencies>
         <dependency>
             <groupId>org.cert.netsa</groupId>
-            <artifactId>netsa-io-ipfix_2.12</artifactId>
+            <artifactId>netsa-io-ipfix_${scala.version}</artifactId>
             <version>1.6.0</version>
         </dependency>
     </dependencies>
