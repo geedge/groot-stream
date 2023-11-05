@@ -8,9 +8,9 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>groot-bootstrap</artifactId>
+    <artifactId>groot-stream-bootstrap</artifactId>
     <properties>
-        <debug.scope>provided</debug.scope>
+        <debug.scope>compile</debug.scope>
     </properties>
     <dependencies>
         <dependency>
@@ -30,7 +30,6 @@
             <artifactId>connector-kafka</artifactId>
             <version>${revision}</version>
         </dependency>
-
 
         <!--  Idea debug dependencies -->
         <dependency>
@@ -89,6 +88,10 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+        </dependency>
 
     </dependencies>
 

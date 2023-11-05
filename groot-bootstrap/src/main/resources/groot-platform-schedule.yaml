@@ -145,8 +145,9 @@ sinks:
 
 application:
   name: groot-stream
- # parallelism: 1
-  topology:
+  env:
+    execution.parallelism: 2
+  topology_original:
     kafka_source:
       next: ['ssl_filter']
     ssl_filter:
@@ -155,3 +156,13 @@ application:
       next: ['kafka_sink']
     kafka_sink:
       next: []
+  topology:
+    - input: kafka_source
+      output: ssl_filter
+      parallelism: 3
+    - input: ssl_filter
+      output: session_record_processor
+    - input: session_record_processor
+      output: kafka_sink
+
+

@@ -44,7 +44,7 @@
         <opencsv.version>3.3</opencsv.version>
         <jsonpath.version>2.4.0</jsonpath.version>
         <fastjson2.version>2.0.32</fastjson2.version>
-        <hutool.version>5.5.2</hutool.version>
+        <hutool.version>5.8.22</hutool.version>
         <galaxy.version>1.2</galaxy.version>
         <guava-retrying.version>2.0.0</guava-retrying.version>
         <ipaddress.version>5.3.3</ipaddress.version>
@@ -53,6 +53,8 @@
         <snakeyaml.version>1.29</snakeyaml.version>
         <nacos.version>1.2.0</nacos.version>
         <antlr4.version>4.8</antlr4.version>
+        <jcommander.version>1.81</jcommander.version>
+        <lombok.version>1.18.24</lombok.version>
 
     </properties>
 
@@ -110,14 +112,14 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>log4j-over-slf4j</artifactId>
                 <version>${slf4j.version}</version>
-                <scope>provided</scope>
+               <scope>provided</scope>
             </dependency>
             <!-- slf4j binding to log4j1.x -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
-                <scope>provided</scope>
+               <scope>provided</scope>
             </dependency>
             <!-- log4j2.x binding to slf4j.
               Use of the SLF4J adapter (log4j-to-slf4j-2.x.jar) together with the SLF4J bridge (log4j-slf4j-impl-2.x.jar) should never be attempted as it will cause events to endlessly be routed between SLF4J and Log4j 2
@@ -189,11 +191,23 @@
                 <scope>provided</scope>
             </dependency>
 
-
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-jexl3</artifactId>
                 <version>3.2.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.beust</groupId>
+                <artifactId>jcommander</artifactId>
+                <version>${jcommander.version}</version>
             </dependency>
 
             <dependency>
@@ -370,6 +384,56 @@
 
     </dependencyManagement>
 
+    <dependencies>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <!-- ***************** slf4j & provider & bridges start ***************** -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+        </dependency>
+        <!-- ***************** slf4j & provider & bridges end ***************** -->
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+
+
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
@@ -432,9 +496,9 @@
                         <configuration>
                             <transformers>
                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.geedgenetworks.bootstrap.main.GrootStreamServer</mainClass>
-                                </transformer>
+                              <!--  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.geedgenetworks.bootstrap.main.GrootStreamServerTmp</mainClass>
+                                </transformer>-->
                             </transformers>
                         </configuration>
 

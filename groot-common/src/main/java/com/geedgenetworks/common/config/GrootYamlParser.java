@@ -1,9 +1,13 @@
 package com.geedgenetworks.common.config;
 
-import org.yaml.snakeyaml.Yaml;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.setting.yaml.YamlUtil;
+import lombok.NonNull;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +22,11 @@ public final class GrootYamlParser {
     public static Integer getIntProperty(String key, Map<String, Object> yamlData) {
 
         return getYamlValue(yamlData, key, Integer.class);
+    }
+
+    public static Long getLongProperty(String key, Map<String, Object> yamlData) {
+
+        return getYamlValue(yamlData, key, Long.class);
     }
 
     public static <T> T getYamlValue(Map<String, Object> data, String key, Class<T> valueType) {
@@ -59,17 +68,16 @@ public final class GrootYamlParser {
         return classReflect;
     }
 
-    public static Map<String, Object> loadYaml(InputStream input) throws Exception {
-        // 读取YAML文件
-        Map<String, Object> yamlData = new HashMap<>();
-        Yaml yaml = new Yaml();
-        yamlData = yaml.load(input);
-        if (yamlData != null) {
-            return yamlData;
-        } else {
-            throw new Exception("加载yaml配置文件失败");
-        }
+    public static Map<String, Object> loadYaml(@NonNull String filePath) {
+        return loadYaml(Paths.get(filePath));
     }
+    public static Map<String, Object> loadYaml(@NonNull Path filePath) {
+        return loadYaml(IoUtil.toStream(filePath.toFile()));
+    }
+    public static Map<String, Object> loadYaml(InputStream input) {
+        return YamlUtil.load(input, Map.class);
+    }
+
 
     private static Object getValue(String key, Map<String, Object> data) {
         if (data.containsKey(key)) {
