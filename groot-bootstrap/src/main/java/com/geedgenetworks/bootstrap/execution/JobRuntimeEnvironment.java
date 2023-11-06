@@ -16,10 +16,7 @@ import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -107,7 +104,9 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         //init GlobalJobParameters
         EnvironmentUtil.initConfiguration(appConfig, configuration);
         Map<String, Object> options = GrootYamlParser.getMap(Constants.APPLICATION_ENV_OPTIONS,appConfig);
-        if (options.get(ExecutionConfigKey.ENV_TARGET_TYPE).toString().equals(TargetType.LOCAL.getTarget())) {
+        Optional<Object> optionalValue =  Optional.ofNullable(options.get(ExecutionConfigKey.ENV_TARGET_TYPE));
+
+        if (optionalValue.isPresent() && optionalValue.get().equals(TargetType.LOCAL.getTarget())) {
             configuration.setInteger(RestOptions.PORT, 8082);
             environment  = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(configuration);
         } else {
