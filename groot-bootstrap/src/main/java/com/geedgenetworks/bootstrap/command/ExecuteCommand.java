@@ -1,5 +1,6 @@
 package com.geedgenetworks.bootstrap.command;
 
+import cn.hutool.setting.yaml.YamlUtil;
 import com.geedgenetworks.bootstrap.exception.CommandExecuteException;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
@@ -7,7 +8,10 @@ import com.geedgenetworks.bootstrap.execution.JobExecution;
 import com.geedgenetworks.bootstrap.utils.ExecutionConfigKey;
 import com.geedgenetworks.bootstrap.utils.FileUtils;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.GrootYamlParser;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigUtil;
+import com.typesafe.config.ConfigValueFactory;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
@@ -27,19 +31,21 @@ public class ExecuteCommand implements Command<ExecuteCommandArgs> {
     public void execute() throws CommandExecuteException, ConfigCheckException {
         Path configFile = FileUtils.getConfigPath(executeCommandArgs);
         checkConfigExist(configFile);
-        Map<String, Object> configMap =  GrootYamlParser.loadYaml(configFile);
+        Map<String, Object> configMap = YamlUtil.loadByPath(configFile.toString());
+        ConfigObject configObject = ConfigValueFactory.fromMap(configMap);
+        Config config = configObject.toConfig();
+
         if (!executeCommandArgs.getJobName().equals(Constants.DEFAULT_JOB_NAME)) {
-          Map<String, Object> applicationMap = GrootYamlParser.getMap(Constants.APPLICATION, configMap);
-          applicationMap.put("name", executeCommandArgs.getJobName());
+          config = config.withValue(
+                  ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_NAME), ConfigValueFactory.fromAnyRef(executeCommandArgs.getJobName()));
         }
 
         if(executeCommandArgs.getTargetType() != null) {
-            Map<String, Object> applicationMap = GrootYamlParser.getMap(Constants.APPLICATION, configMap);
-            Map<String, Object> envMap = GrootYamlParser.getMap(Constants.APPLICATION_ENV_OPTIONS, applicationMap);
-            envMap.put(ExecutionConfigKey.ENV_TARGET_TYPE, executeCommandArgs.getTargetType().getTarget());
+            config = config.withValue(ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKey.ENV_TARGET_TYPE),
+                    ConfigValueFactory.fromAnyRef(executeCommandArgs.getTargetType().getTarget()));
         }
 
-        JobExecution jobExecution = new JobExecution(configMap);
+        JobExecution jobExecution = new JobExecution(config);
 
         try {
             jobExecution.execute();

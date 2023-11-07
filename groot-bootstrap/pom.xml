@@ -10,7 +10,7 @@
 
     <artifactId>groot-stream-bootstrap</artifactId>
     <properties>
-        <debug.scope>compile</debug.scope>
+        <debug.scope>provided</debug.scope>
     </properties>
     <dependencies>
         <dependency>

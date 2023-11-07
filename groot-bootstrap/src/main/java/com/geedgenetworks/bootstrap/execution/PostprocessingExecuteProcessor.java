@@ -5,12 +5,12 @@ import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.GrootYamlParser;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.core.processor.projection.ProjectionProcessor;
 import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Maps;
+import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.util.Map;
@@ -18,21 +18,22 @@ import java.util.Map;
 public class PostprocessingExecuteProcessor extends AbstractExecuteProcessor<String, ProjectionConfig> {
     private static final String PROCESSOR_TYPE = ProcessorType.POSTPROCESSING.getType();
 
-    public PostprocessingExecuteProcessor(Map<String, Object> configMap) {
-        super(GrootYamlParser.getMap(Constants.POSTPROCESSING_PIPELINES, configMap));
+    public PostprocessingExecuteProcessor(Config config) {
+        super(config);
     }
     @Override
-    protected Map<String, ProjectionConfig> initialize(Map<String, Object> operatorConfigMap) {
+    protected Map<String, ProjectionConfig> initialize(Config operatorConfig) {
         Map<String, ProjectionConfig> postprocessingConfigMap = Maps.newHashMap();
-        if(operatorConfigMap == null) {
-            return postprocessingConfigMap;
+        if (operatorConfig.hasPath(Constants.POSTPROCESSING_PIPELINES)) {
+            Map<String, Object>  operatorConfigMap = operatorConfig.getConfig(Constants.POSTPROCESSING_PIPELINES).root().unwrapped();
+            operatorConfigMap.forEach((key,value) -> {
+                ProjectionConfig projectionConfig = new JSONObject((Map<String, Object>) value).toJavaObject(ProjectionConfig.class);
+                checkProjectionConfig(projectionConfig);
+                projectionConfig.setName(key);
+                postprocessingConfigMap.put(key, projectionConfig);
+            });
         }
-        operatorConfigMap.forEach((key,value) -> {
-            ProjectionConfig projectionConfig = new JSONObject((Map<String, Object>) value).toJavaObject(ProjectionConfig.class);
-            checkProjectionConfig(projectionConfig);
-            projectionConfig.setName(key);
-            postprocessingConfigMap.put(key, projectionConfig);
-        });
+
         return postprocessingConfigMap;
     }
 

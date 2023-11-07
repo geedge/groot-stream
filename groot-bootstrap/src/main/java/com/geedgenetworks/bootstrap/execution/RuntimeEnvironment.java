@@ -1,18 +1,19 @@
 package com.geedgenetworks.bootstrap.execution;
 
 
+import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CheckResult;
+import com.typesafe.config.Config;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 
 public interface RuntimeEnvironment {
 
     //storage application config
-    RuntimeEnvironment setConfig(Map<String, Object> appConfig);
+    RuntimeEnvironment setConfig(Config config);
 
-    Map<String, Object> getConfig();
+    Config getConfig();
 
     CheckResult checkConfig();
 
@@ -20,8 +21,8 @@ public interface RuntimeEnvironment {
 
     void registerPlugin(List<URL> pluginPaths);
 
-    default void initialize(Map<String, Object> appConfig) {
-        this.setConfig(appConfig).prepare();
+    default void initialize(Config config) {
+        this.setConfig(config.getConfig(Constants.APPLICATION)).prepare();
     }
 
 

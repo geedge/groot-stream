@@ -5,11 +5,11 @@ import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.GrootYamlParser;
 import com.geedgenetworks.core.pojo.SourceConfig;
 import com.geedgenetworks.core.source.Source;
 import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Maps;
+import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
@@ -19,21 +19,21 @@ import java.util.Map;
 public class SourceExecuteProcessor extends AbstractExecuteProcessor<String,SourceConfig> {
     private static final String PROCESSOR_TYPE = ProcessorType.SOURCE.getType();
 
-    public SourceExecuteProcessor(Map<String, Object> configMap) {
-        super(GrootYamlParser.getMap(Constants.SOURCES, configMap));
+    public SourceExecuteProcessor(Config config) {
+        super(config);
     }
     @Override
-    protected Map<String, SourceConfig> initialize(Map<String, Object> operatorConfigMap) {
+    protected Map<String, SourceConfig> initialize(Config operatorConfig) {
         Map<String, SourceConfig> sourceConfigMap = Maps.newHashMap();
-        if(operatorConfigMap == null) {
-            return sourceConfigMap;
+        if (operatorConfig.hasPath(Constants.SOURCES)) {
+            Map<String, Object>  operatorConfigMap = operatorConfig.getConfig(Constants.SOURCES).root().unwrapped();
+            operatorConfigMap.forEach((key,value) -> {
+                SourceConfig sourceConfig = new JSONObject((Map<String, Object>) value).toJavaObject(SourceConfig.class);
+                checkSourceConfig(sourceConfig);
+                sourceConfig.setName(key);
+                sourceConfigMap.put(key, sourceConfig);
+            });
         }
-        operatorConfigMap.forEach((key,value) -> {
-            SourceConfig sourceConfig = new JSONObject((Map<String, Object>) value).toJavaObject(SourceConfig.class);
-            checkSourceConfig(sourceConfig);
-            sourceConfig.setName(key);
-            sourceConfigMap.put(key, sourceConfig);
-        });
         return sourceConfigMap;
     }
 

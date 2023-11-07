@@ -1,16 +1,21 @@
 package com.geedgenetworks.bootstrap.execution;
+
+import com.alibaba.fastjson2.JSONObject;
 import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.main.GrootStreamRunner;
 import com.geedgenetworks.bootstrap.utils.ExecutionConfigKey;
 import com.geedgenetworks.bootstrap.utils.StartBuilder;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.GrootYamlParser;
-import com.geedgenetworks.core.pojo.*;
+import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Lists;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigUtil;
+import com.typesafe.config.ConfigValueFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,7 +37,7 @@ public class JobExecution {
     private final DAGInfo dagInfo;
 
     private final List<URL> jarPaths;
-    public JobExecution(Map<String, Object> config) {
+    public JobExecution(Config config) {
         try {
             jarPaths = new ArrayList<>(Collections.singletonList(new File(StartBuilder.appBootstrapDir()
                     .resolve(GrootStreamRunner.APP_JAR_NAME).toString())
@@ -41,7 +46,7 @@ public class JobExecution {
             throw new JobExecuteException("load groot stream bootstrap error.", e);
         }
 
-        registerPlugin(GrootYamlParser.getMap(Constants.APPLICATION, config));
+        registerPlugin(config.getConfig(Constants.APPLICATION));
 
         this.sourceExecuteProcessor = new SourceExecuteProcessor(config);
         this.sinkExecuteProcessor = new SinkExecuteProcessor(config);
@@ -50,8 +55,9 @@ public class JobExecution {
         this.processingExecuteProcessor = new ProcessingExecuteProcessor(config);
         this.postprocessingExecuteProcessor = new PostprocessingExecuteProcessor(config);
 
+
         this.jobRuntimeEnvironment =
-                JobRuntimeEnvironment.getInstance(this.registerPlugin(GrootYamlParser.getMap(Constants.APPLICATION, config), jarPaths));
+                JobRuntimeEnvironment.getInstance(this.registerPlugin(config, jarPaths));
 
         this.sourceExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.sinkExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
@@ -63,11 +69,12 @@ public class JobExecution {
 
     }
 
-    private void registerPlugin(Map<String, Object> appConfig) {
+    private void registerPlugin(Config appConfig) {
         List<Path> thirdPartyJars = new ArrayList<>();
-        Map<String, Object> envConfig = GrootYamlParser.getMap(Constants.APPLICATION_ENV_OPTIONS,appConfig);
-        if(envConfig.containsKey(ExecutionConfigKey.JARS)) {
-            thirdPartyJars = new ArrayList<>(StartBuilder.getThirdPartyJars(GrootYamlParser.getStringProperty(ExecutionConfigKey.JARS, envConfig)));
+        Config envConfig = appConfig.getConfig(Constants.APPLICATION_ENV);
+        if(envConfig.hasPath(ExecutionConfigKey.JARS)) {
+            thirdPartyJars = new ArrayList<>(StartBuilder
+                    .getThirdPartyJars(envConfig.getString(ExecutionConfigKey.JARS)));
         }
         thirdPartyJars.addAll(StartBuilder.getPluginsJarDependencies());
 
@@ -89,17 +96,15 @@ public class JobExecution {
     }
 
 
-    private Map<String, Object> registerPlugin(Map<String, Object> appConfig, List<URL> jars) {
-       this.injectJarsToConfig(
-                appConfig, ExecutionConfigKey.PIPELINE_JARS, jars);
-        this.injectJarsToConfig(
-                appConfig, ExecutionConfigKey.PIPELINE_CLASSPATHS, jars);
-        return appConfig;
+    private Config registerPlugin(Config config , List<URL> jars) {
+       config = this.injectJarsToConfig(
+               config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV,ExecutionConfigKey.PIPELINE_JARS), jars);
+       return  this.injectJarsToConfig(
+                config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKey.PIPELINE_CLASSPATHS), jars);
     }
 
 
-    private void injectJarsToConfig(Map<String, Object>  appConfig, String key, List<URL> jars) {
-        Map<String, Object> envConfig = GrootYamlParser.getMap(Constants.APPLICATION_ENV_OPTIONS,appConfig);
+    private Config injectJarsToConfig(Config config, String path, List<URL> jars) {
         List<URL> validJars = new ArrayList<>();
         for (URL jarUrl : jars) {
             if (new File(jarUrl.getFile()).exists()) {
@@ -110,9 +115,9 @@ public class JobExecution {
             }
         }
 
-        if (envConfig.containsKey(key)) {
+        if (config.hasPath(path)) {
             Set<URL> paths =
-                    Arrays.stream(GrootYamlParser.getStringProperty(key, envConfig).split(";"))
+                    Arrays.stream(config.getString(path).split(";"))
                             .map(
                                     uri -> {
                                         try {
@@ -125,42 +130,66 @@ public class JobExecution {
                             .collect(Collectors.toSet());
             paths.addAll(validJars);
 
-            envConfig.put(key, paths.stream()
-                    .map(URL::toString)
-                    .distinct()
-                    .collect(Collectors.joining(";")));
-
-
+            config =  config.withValue(
+                    path,
+                    ConfigValueFactory.fromAnyRef(
+                            paths.stream()
+                                    .map(URL::toString)
+                                    .distinct()
+                                    .collect(Collectors.joining(";"))));
         } else {
-            envConfig.put(key, validJars.stream()
-                    .map(URL::toString)
-                    .distinct()
-                    .collect(Collectors.joining(";")));
+            config =
+                    config.withValue(
+                            path,
+                            ConfigValueFactory.fromAnyRef(
+                                    validJars.stream()
+                                            .map(URL::toString)
+                                            .distinct()
+                                            .collect(Collectors.joining(";"))));
         }
+        return config;
     }
 
-    private DAGInfo buildJobDAG(Map<String, Object> config) {
-        Map<String, Object> sources = GrootYamlParser.getMap(Constants.SOURCES, config);
-        Map<String, Object> sinks = GrootYamlParser.getMap(Constants.SINKS, config);
-        Map<String, Object> filters = GrootYamlParser.getMap(Constants.FILTERS, config);
-        Map<String, Object> preprocessingPipelines =
-                GrootYamlParser.getMap(Constants.PREPROCESSING_PIPELINES, config);
-        Map<String, Object> processingPipelines =
-                GrootYamlParser.getMap(Constants.PROCESSING_PIPELINES, config);
-        Map<String, Object> postprocessingPipelines =
-                GrootYamlParser.getMap(Constants.POSTPROCESSING_PIPELINES, config);
+    private DAGInfo buildJobDAG(Config config) {
 
-        List topology = GrootYamlParser.getList(Constants.APPLICATION_TOPOLOGY, jobRuntimeEnvironment.getConfig());
+        Map<String, Object> sources = null;
+        Map<String, Object> sinks = null;
+        Map<String, Object> filters = null;
+        Map<String, Object> preprocessingPipelines = null;
+        Map<String, Object> processingPipelines = null;
+        Map<String, Object> postprocessingPipelines = null;
+
+        if (config.hasPath(Constants.SOURCES)) {
+            sources = config.getConfig(Constants.SOURCES).root().unwrapped();
+        }
+        if (config.hasPath(Constants.SINKS)) {
+            sinks =config.getConfig(Constants.SINKS).root().unwrapped();
+        }
+        if (config.hasPath(Constants.FILTERS)) {
+            filters = config.getConfig(Constants.FILTERS).root().unwrapped();
+        }
+        if (config.hasPath(Constants.PREPROCESSING_PIPELINES)) {
+            preprocessingPipelines = config.getConfig(Constants.PREPROCESSING_PIPELINES).root().unwrapped();
+        }
+        if (config.hasPath(Constants.PROCESSING_PIPELINES)) {
+            processingPipelines = config.getConfig(Constants.PROCESSING_PIPELINES).root().unwrapped();
+        }
+        if (config.hasPath(Constants.POSTPROCESSING_PIPELINES)) {
+            postprocessingPipelines = config.getConfig(Constants.POSTPROCESSING_PIPELINES).root().unwrapped();
+        }
+
+        List<? extends Config> topology = jobRuntimeEnvironment.getConfig().getConfigList(Constants.APPLICATION_TOPOLOGY);
 
         List<Edge> edges = Lists.newArrayList();
+
         topology.forEach(item -> {
-            Edge edge = com.alibaba.fastjson2.JSONObject.from(item).toJavaObject(Edge.class);
+            Edge edge = JSONObject.from(item.root().unwrapped()).toJavaObject(Edge.class);
             edges.add(edge);
         });
         List<String> vertexList = new ArrayList<>();
         for(Edge edge : edges) {
             vertexList.add(edge.getInput());
-            vertexList.add(edge.getTarget());
+            vertexList.addAll(edge.getTargets());
         }
         vertexList = vertexList.stream().distinct().collect(Collectors.toList());
 
@@ -199,41 +228,45 @@ public class JobExecution {
         SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
 
         for(VertexInfo sourceVertex : sourceVertexInfoList) {
-            Edge start = next(sourceVertex.getName());
-            singleOutputStreamOperator = sourceExecuteProcessor.execute(singleOutputStreamOperator, start);
-            buildRouterPipeline(singleOutputStreamOperator, next(start.getTarget()));
+            Edge sourceInput = next(sourceVertex.getName());
+            singleOutputStreamOperator = sourceExecuteProcessor.execute(singleOutputStreamOperator, sourceInput);
+            for (String target : sourceInput.getTargets()) {
+                executeStreamOperator(singleOutputStreamOperator, sourceInput, target);
+            }
         }
 
         try {
             jobRuntimeEnvironment.getStreamExecutionEnvironment()
-                    .execute(jobRuntimeEnvironment.getConfig().getOrDefault("name", Constants.DEFAULT_JOB_NAME).toString());
+                    .execute(jobRuntimeEnvironment.getConfig().getString(Constants.APPLICATION_NAME));
         } catch (Exception e) {
             throw new JobExecuteException("Job Execute error", e);
         }
 
     }
 
-    private void buildRouterPipeline(SingleOutputStreamOperator<Event> singleOutputStreamOperator, Edge edge) {
-        VertexInfo vertexInfo = dagInfo.getVertexList().stream().filter(v -> v.getName().equals(edge.getInput())).findFirst().orElse(null);
+    private void executeStreamOperator(SingleOutputStreamOperator<Event> singleOutputStreamOperator, Edge edge, String target) {
+        VertexInfo vertexInfo = dagInfo.getVertexList().stream().filter(v -> v.getName().equals(target)).findFirst().orElse(null);
+        Edge nextEdge = next(target);
         if (vertexInfo.getType().name().equals(ProcessorType.FILTER.name())) {
-            singleOutputStreamOperator = filterExecuteProcessor.execute(singleOutputStreamOperator, edge);
+            singleOutputStreamOperator = filterExecuteProcessor.execute(singleOutputStreamOperator, nextEdge);
         } else if (vertexInfo.getType().name().equals(ProcessorType.PREPROCESSING.name())) {
-            singleOutputStreamOperator = preprocessingExecuteProcessor.execute(singleOutputStreamOperator, edge);
+            singleOutputStreamOperator = preprocessingExecuteProcessor.execute(singleOutputStreamOperator, nextEdge);
         } else if (vertexInfo.getType().name().equals(ProcessorType.PROCESSING.name())) {
-            singleOutputStreamOperator = processingExecuteProcessor.execute(singleOutputStreamOperator, edge);
+            singleOutputStreamOperator = processingExecuteProcessor.execute(singleOutputStreamOperator, nextEdge);
         } else if (vertexInfo.getType().name().equals(ProcessorType.POSTPROCESSING.name())) {
-            singleOutputStreamOperator = postprocessingExecuteProcessor.execute(singleOutputStreamOperator, edge);
+            singleOutputStreamOperator = postprocessingExecuteProcessor.execute(singleOutputStreamOperator, nextEdge);
+        } else if (vertexInfo.getType().name().equals(ProcessorType.SINK.name())) {
+            Edge endEdge = new Edge();
+            endEdge.setInput(target);
+            endEdge.setTargets(Lists.newArrayList(target));
+            singleOutputStreamOperator = sinkExecuteProcessor.execute(singleOutputStreamOperator, endEdge);
         } else {
             throw  new JobExecuteException("unsupported process type " + vertexInfo.getType().name());
         }
 
-        Edge nextEdge = next(edge.getTarget());
-        if (StringUtil.isNotEmpty(nextEdge)) {
-            buildRouterPipeline(singleOutputStreamOperator, nextEdge);
-        } else {
-            vertexInfo = dagInfo.getVertexList().stream().filter(v -> v.getName().equals(edge.getTarget())).findFirst().orElse(null);
-            if (vertexInfo.getType().name().equals(ProcessorType.SINK.name())) {
-                singleOutputStreamOperator = sinkExecuteProcessor.execute(singleOutputStreamOperator, edge);
+        if (nextEdge != null) {
+            for (String nextTarget : nextEdge.getTargets()) {
+                executeStreamOperator(singleOutputStreamOperator, nextEdge, nextTarget);
             }
         }
 
@@ -246,5 +279,8 @@ public class JobExecution {
         }
         return edge;
     }
+
+
+
 
 }

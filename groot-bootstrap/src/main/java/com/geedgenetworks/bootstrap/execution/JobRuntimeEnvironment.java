@@ -1,14 +1,12 @@
 package com.geedgenetworks.bootstrap.execution;
 
-import cn.hutool.core.map.MapUtil;
 import com.geedgenetworks.bootstrap.enums.TargetType;
 import com.geedgenetworks.bootstrap.utils.EnvironmentUtil;
 import com.geedgenetworks.bootstrap.utils.ExecutionConfigKey;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CheckResult;
-import com.geedgenetworks.common.config.GrootYamlParser;
 import com.geedgenetworks.common.utils.ReflectionUtils;
-import com.geedgenetworks.utils.StringUtil;
+import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.PipelineOptions;
@@ -16,24 +14,26 @@ import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class JobRuntimeEnvironment implements RuntimeEnvironment{
     private static volatile JobRuntimeEnvironment INSTANCE = null;
-    private Map<String, Object> appConfig;
+    private Config appConfig;
     private StreamExecutionEnvironment environment;
 
-    private JobRuntimeEnvironment(Map<String, Object> appConfig) {
-        this.initialize(appConfig);
+    private JobRuntimeEnvironment(Config config) {
+        this.initialize(config);
     }
 
-    public static JobRuntimeEnvironment getInstance(Map<String, Object> appConfig) {
+    public static JobRuntimeEnvironment getInstance(Config config) {
         if (INSTANCE == null) {
             synchronized (JobRuntimeEnvironment.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = new JobRuntimeEnvironment(appConfig);
+                    INSTANCE = new JobRuntimeEnvironment(config);
                 }
             }
         }
@@ -41,13 +41,13 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
     }
 
     @Override
-    public RuntimeEnvironment setConfig(Map<String, Object> appConfig) {
+    public RuntimeEnvironment setConfig(Config appConfig) {
         this.appConfig = appConfig;
         return this;
     }
 
     @Override
-    public Map<String, Object> getConfig() {
+    public Config getConfig() {
         return appConfig;
     }
 
@@ -103,10 +103,9 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         Configuration configuration = new Configuration();
         //init GlobalJobParameters
         EnvironmentUtil.initConfiguration(appConfig, configuration);
-        Map<String, Object> options = GrootYamlParser.getMap(Constants.APPLICATION_ENV_OPTIONS,appConfig);
-        Optional<Object> optionalValue =  Optional.ofNullable(options.get(ExecutionConfigKey.ENV_TARGET_TYPE));
-
-        if (optionalValue.isPresent() && optionalValue.get().equals(TargetType.LOCAL.getTarget())) {
+        Config envConfig = appConfig.getConfig(Constants.APPLICATION_ENV);
+        if (envConfig.hasPath(ExecutionConfigKey.ENV_TARGET_TYPE)
+                && envConfig.getString(ExecutionConfigKey.ENV_TARGET_TYPE).equals(TargetType.LOCAL.getTarget())) {
             configuration.setInteger(RestOptions.PORT, 8082);
             environment  = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(configuration);
         } else {
@@ -116,15 +115,14 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         // setTimeCharacteristic();
         // setCheckpoint();
         // EnvironmentUtil.setRestartStrategy(appConfig, environment.getConfig());
-        if(MapUtil.isNotEmpty(options)) {
-            if (StringUtil.isNotEmpty(options.get(ExecutionConfigKey.BUFFER_TIMEOUT_MILLIS))) {
-                long timeout = MapUtil.getLong(options, ExecutionConfigKey.BUFFER_TIMEOUT_MILLIS);
-                environment.setBufferTimeout(timeout);
-            }
-            if (StringUtil.isNotEmpty(options.get(ExecutionConfigKey.PARALLELISM))) {
-                int parallelism = MapUtil.getInt(options, ExecutionConfigKey.PARALLELISM);
-                environment.setParallelism(parallelism);
-            }
+        if (envConfig.hasPath(ExecutionConfigKey.BUFFER_TIMEOUT_MILLIS)) {
+            long timeout = envConfig.getLong(ExecutionConfigKey.BUFFER_TIMEOUT_MILLIS);
+            environment.setBufferTimeout(timeout);
+        }
+
+        if (envConfig.hasPath(ExecutionConfigKey.PARALLELISM)) {
+            int parallelism = envConfig.getInt(ExecutionConfigKey.PARALLELISM);
+            environment.setParallelism(parallelism);
         }
 
     }
