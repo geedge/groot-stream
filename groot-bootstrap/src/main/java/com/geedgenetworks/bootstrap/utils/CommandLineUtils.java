@@ -25,7 +25,7 @@ public final class CommandLineUtils {
                         .build();
         try {
             jCommander.parse(args);
-            obj.setUndefinedParameters(jCommander.getUnknownOptions());
+            obj.setOriginalParameters(jCommander.getUnknownOptions());
         } catch (ParameterException e) {
             System.err.println(e.getLocalizedMessage());
             exit(jCommander);

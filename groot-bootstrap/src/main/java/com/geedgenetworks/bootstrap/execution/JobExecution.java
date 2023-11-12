@@ -48,14 +48,12 @@ public class JobExecution {
 
         registerPlugin(config.getConfig(Constants.APPLICATION));
 
-        this.sourceExecuteProcessor = new SourceExecuteProcessor(config);
-        this.sinkExecuteProcessor = new SinkExecuteProcessor(config);
-        this.filterExecuteProcessor = new FilterExecuteProcessor(config);
-        this.preprocessingExecuteProcessor = new PreprocessingExecuteProcessor(config);
-        this.processingExecuteProcessor = new ProcessingExecuteProcessor(config);
-        this.postprocessingExecuteProcessor = new PostprocessingExecuteProcessor(config);
-
-
+        this.sourceExecuteProcessor = new SourceExecuteProcessor(jarPaths, config);
+        this.sinkExecuteProcessor = new SinkExecuteProcessor(jarPaths, config);
+        this.filterExecuteProcessor = new FilterExecuteProcessor(jarPaths, config);
+        this.preprocessingExecuteProcessor = new PreprocessingExecuteProcessor(jarPaths, config);
+        this.processingExecuteProcessor = new ProcessingExecuteProcessor(jarPaths, config);
+        this.postprocessingExecuteProcessor = new PostprocessingExecuteProcessor(jarPaths, config);
         this.jobRuntimeEnvironment =
                 JobRuntimeEnvironment.getInstance(this.registerPlugin(config, jarPaths));
 
@@ -88,8 +86,9 @@ public class JobExecution {
                     }
                 })
                 .collect(Collectors.toList());
+        log.info("jarDependencies: {}", jarDependencies);
         jarDependencies.forEach(url -> {
-            //todo
+            AbstractExecuteProcessor.ADD_URL_TO_CLASSLOADER.accept(Thread.currentThread().getContextClassLoader(), url);
         });
         jarPaths.addAll(jarDependencies);
 
@@ -98,7 +97,7 @@ public class JobExecution {
 
     private Config registerPlugin(Config config , List<URL> jars) {
        config = this.injectJarsToConfig(
-               config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV,ExecutionConfigKey.PIPELINE_JARS), jars);
+               config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKey.PIPELINE_JARS), jars);
        return  this.injectJarsToConfig(
                 config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKey.PIPELINE_CLASSPATHS), jars);
     }
@@ -221,6 +220,9 @@ public class JobExecution {
 
 
     public void execute() throws JobExecuteException {
+        log.info("All jars: {}", jarPaths);
+        //todo local mode need remove this option
+        jobRuntimeEnvironment.registerPlugin(jarPaths);
 
         List<VertexInfo> sourceVertexInfoList = dagInfo.getVertexList()
                 .stream().filter(v -> v.getType().name().equals(ProcessorType.SOURCE.name())).collect(Collectors.toList());
@@ -228,23 +230,25 @@ public class JobExecution {
         SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
 
         for(VertexInfo sourceVertex : sourceVertexInfoList) {
-            Edge sourceInput = next(sourceVertex.getName());
-            singleOutputStreamOperator = sourceExecuteProcessor.execute(singleOutputStreamOperator, sourceInput);
-            for (String target : sourceInput.getTargets()) {
-                executeStreamOperator(singleOutputStreamOperator, sourceInput, target);
+            Edge sourceEdge = next(sourceVertex.getName());
+            singleOutputStreamOperator = sourceExecuteProcessor.execute(singleOutputStreamOperator, sourceEdge);
+            for (String target : sourceEdge.getTargets()) {
+                buildJobGraph(singleOutputStreamOperator, sourceEdge, target);
             }
         }
 
         try {
+            log.info("Execution Plan: {}", jobRuntimeEnvironment.getStreamExecutionEnvironment().getExecutionPlan());
+            log.info('\n' + Constants.GROOT_LOGO);
             jobRuntimeEnvironment.getStreamExecutionEnvironment()
                     .execute(jobRuntimeEnvironment.getConfig().getString(Constants.APPLICATION_NAME));
         } catch (Exception e) {
-            throw new JobExecuteException("Job Execute error", e);
+            throw new JobExecuteException("Execute job error", e);
         }
 
     }
 
-    private void executeStreamOperator(SingleOutputStreamOperator<Event> singleOutputStreamOperator, Edge edge, String target) {
+    private void buildJobGraph(SingleOutputStreamOperator<Event> singleOutputStreamOperator, Edge edge, String target) {
         VertexInfo vertexInfo = dagInfo.getVertexList().stream().filter(v -> v.getName().equals(target)).findFirst().orElse(null);
         Edge nextEdge = next(target);
         if (vertexInfo.getType().name().equals(ProcessorType.FILTER.name())) {
@@ -266,7 +270,7 @@ public class JobExecution {
 
         if (nextEdge != null) {
             for (String nextTarget : nextEdge.getTargets()) {
-                executeStreamOperator(singleOutputStreamOperator, nextEdge, nextTarget);
+                buildJobGraph(singleOutputStreamOperator, nextEdge, nextTarget);
             }
         }
 
@@ -279,8 +283,6 @@ public class JobExecution {
         }
         return edge;
     }
-
-
 
 
 }

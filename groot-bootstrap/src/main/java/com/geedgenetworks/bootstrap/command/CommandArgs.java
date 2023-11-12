@@ -40,7 +40,7 @@ public abstract class CommandArgs {
     description = "job name")
     protected String jobName = Constants.DEFAULT_JOB_NAME;
 
-    protected List<String> undefinedParameters;
+    protected List<String> originalParameters;
 
     public  abstract Command<?> buildCommand();
 

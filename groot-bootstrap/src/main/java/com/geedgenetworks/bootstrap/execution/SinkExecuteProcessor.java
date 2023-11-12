@@ -14,17 +14,19 @@ import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
+import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 public class SinkExecuteProcessor extends AbstractExecuteProcessor<String, SinkConfig>{
     private static final String PROCESSOR_TYPE = ProcessorType.SINK.getType();
 
-    public SinkExecuteProcessor(Config config) {
-        super(config);
+    public SinkExecuteProcessor(List<URL> jarPaths, Config config) {
+        super(jarPaths, config);
     }
     @Override
-    protected Map<String, SinkConfig> initialize(Config operatorConfig) {
+    protected Map<String, SinkConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, SinkConfig> sinkConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.SINKS)) {
             Map<String, Object>  operatorConfigMap = operatorConfig.getConfig(Constants.SINKS).root().unwrapped();

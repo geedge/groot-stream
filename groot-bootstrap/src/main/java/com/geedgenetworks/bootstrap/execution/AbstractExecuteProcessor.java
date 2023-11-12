@@ -1,9 +1,14 @@
 package com.geedgenetworks.bootstrap.execution;
 
+import com.geedgenetworks.common.utils.ReflectionUtils;
 import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public abstract  class AbstractExecuteProcessor<K, V>
         implements ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> {
@@ -13,9 +18,9 @@ public abstract  class AbstractExecuteProcessor<K, V>
 
     protected final Map<K,V> operatorMap;
 
-    protected AbstractExecuteProcessor(Config  operatorConfig) {
+    protected AbstractExecuteProcessor(List<URL> jarPaths, Config  operatorConfig) {
         this.operatorConfig = operatorConfig;
-        this.operatorMap = initialize(operatorConfig);
+        this.operatorMap = initialize(jarPaths, operatorConfig);
     }
 
     @Override
@@ -24,5 +29,21 @@ public abstract  class AbstractExecuteProcessor<K, V>
 
     }
 
-    protected abstract Map<K, V> initialize(Config  operatorConfig);
+    protected abstract Map<K, V> initialize(List<URL> jarPaths, Config  operatorConfig);
+
+    protected  static final BiConsumer<ClassLoader, URL> ADD_URL_TO_CLASSLOADER =
+            (classLoader, url) -> {
+                if (classLoader.getClass().getName().endsWith("SafetyNetWrapperClassLoader")) {
+                    URLClassLoader c =
+                            (URLClassLoader) ReflectionUtils.getField(classLoader, "inner").get();
+                    ReflectionUtils.invoke(c, "addURL", url);
+                } else if (classLoader instanceof URLClassLoader) {
+                    ReflectionUtils.invoke(classLoader, "addURL", url);
+                } else {
+                    throw new RuntimeException(
+                            "Unsupported classloader: " + classLoader.getClass().getName());
+                }
+            };
+
+
 }

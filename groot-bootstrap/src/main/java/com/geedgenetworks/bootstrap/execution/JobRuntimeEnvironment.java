@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.PipelineOptions;
 import org.apache.flink.configuration.RestOptions;
+import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.net.URL;
@@ -53,20 +54,19 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
 
     @Override
     public CheckResult checkConfig() {
-        //todo
-        return null;
+        return EnvironmentUtil.checkRestartStrategy(appConfig);
     }
 
     @Override
     public RuntimeEnvironment prepare() {
         createStreamEnvironment();
+
         return this;
     }
 
     @Override
     public void registerPlugin(List<URL> pluginPaths) {
-
-        pluginPaths.forEach(url -> log.info("register plugins: {}", url));
+        pluginPaths.forEach(url -> log.info("Begin register plugins: {}", url));
         List<Configuration> configurations = new ArrayList<>();
         try {
             configurations.add((Configuration) Objects.requireNonNull(ReflectionUtils
@@ -112,9 +112,9 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
             environment = StreamExecutionEnvironment.getExecutionEnvironment(configuration);
         }
         environment.getConfig().enableObjectReuse();
-        // setTimeCharacteristic();
+        setTimeCharacteristic();
         // setCheckpoint();
-        // EnvironmentUtil.setRestartStrategy(appConfig, environment.getConfig());
+        EnvironmentUtil.setRestartStrategy(appConfig, environment.getConfig());
         if (envConfig.hasPath(ExecutionConfigKey.BUFFER_TIMEOUT_MILLIS)) {
             long timeout = envConfig.getLong(ExecutionConfigKey.BUFFER_TIMEOUT_MILLIS);
             environment.setBufferTimeout(timeout);
@@ -125,6 +125,28 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
             environment.setParallelism(parallelism);
         }
 
+    }
+
+    private void setTimeCharacteristic() {
+        if (appConfig.hasPath(ExecutionConfigKey.TIME_CHARACTERISTIC)) {
+            String timeType = appConfig.getString(ExecutionConfigKey.TIME_CHARACTERISTIC);
+            switch (timeType.toLowerCase()) {
+                case "event-time":
+                    environment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
+                    break;
+                case "ingestion-time":
+                    environment.setStreamTimeCharacteristic(TimeCharacteristic.IngestionTime);
+                    break;
+                case "processing-time":
+                    environment.setStreamTimeCharacteristic(TimeCharacteristic.ProcessingTime);
+                    break;
+                default:
+                    log.warn(
+                            "set time-characteristic failed, unknown time-characteristic [{}],only support event-time,ingestion-time,processing-time",
+                            timeType);
+                    break;
+            }
+        }
     }
 
 

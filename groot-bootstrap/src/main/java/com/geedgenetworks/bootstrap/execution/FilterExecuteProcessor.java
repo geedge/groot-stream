@@ -14,6 +14,8 @@ import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
+import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -21,11 +23,11 @@ public class FilterExecuteProcessor extends AbstractExecuteProcessor<String, Fil
 
     private static final String PROCESSOR_TYPE = ProcessorType.FILTER.getType();
 
-    public FilterExecuteProcessor(Config config) {
-        super(config);
+    public FilterExecuteProcessor(List<URL> jarPaths, Config config) {
+        super(jarPaths, config);
     }
     @Override
-    protected Map<String, FilterConfig> initialize(Config operatorConfig) {
+    protected Map<String, FilterConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, FilterConfig> filterConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.FILTERS)) {
             Map<String, Object>  operatorConfigMap = operatorConfig.getConfig(Constants.FILTERS).root().unwrapped();

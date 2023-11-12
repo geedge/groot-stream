@@ -13,17 +13,19 @@ import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
+import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 public class SourceExecuteProcessor extends AbstractExecuteProcessor<String,SourceConfig> {
     private static final String PROCESSOR_TYPE = ProcessorType.SOURCE.getType();
 
-    public SourceExecuteProcessor(Config config) {
-        super(config);
+    public SourceExecuteProcessor(List<URL> jarPaths, Config config) {
+        super(jarPaths, config);
     }
     @Override
-    protected Map<String, SourceConfig> initialize(Config operatorConfig) {
+    protected Map<String, SourceConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, SourceConfig> sourceConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.SOURCES)) {
             Map<String, Object>  operatorConfigMap = operatorConfig.getConfig(Constants.SOURCES).root().unwrapped();
@@ -34,6 +36,7 @@ public class SourceExecuteProcessor extends AbstractExecuteProcessor<String,Sour
                 sourceConfigMap.put(key, sourceConfig);
             });
         }
+
         return sourceConfigMap;
     }
 

@@ -33,7 +33,6 @@ public class ExecuteCommandArgs extends CommandArgs {
         if(checkConfig) {
             //to do check job config
         }
-
         return new ExecuteCommand(this);
     }
 
@@ -52,8 +51,8 @@ public class ExecuteCommandArgs extends CommandArgs {
                 + ", jobName='"
                 + jobName
                 + '\''
-                + ", undefinedParameters="
-                + undefinedParameters
+                + ", originalParameters="
+                + originalParameters
                 + '}';
     }
 

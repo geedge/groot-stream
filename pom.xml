@@ -362,6 +362,7 @@
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-client</artifactId>
                 <version>${hbase.version}</version>
+                <scope>provided</scope>
                 <exclusions>
                     <exclusion>
                         <groupId>org.slf4j</groupId>
@@ -431,8 +432,6 @@
         </dependency>
 
     </dependencies>
-
-
 
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>

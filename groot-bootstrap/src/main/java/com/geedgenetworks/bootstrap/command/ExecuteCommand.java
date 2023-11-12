@@ -30,11 +30,12 @@ public class ExecuteCommand implements Command<ExecuteCommandArgs> {
     @Override
     public void execute() throws CommandExecuteException, ConfigCheckException {
         Path configFile = FileUtils.getConfigPath(executeCommandArgs);
+        // check config file exist
         checkConfigExist(configFile);
         Map<String, Object> configMap = YamlUtil.loadByPath(configFile.toString());
         ConfigObject configObject = ConfigValueFactory.fromMap(configMap);
         Config config = configObject.toConfig();
-
+        // if user specified job name using command line arguments, override config option
         if (!executeCommandArgs.getJobName().equals(Constants.DEFAULT_JOB_NAME)) {
           config = config.withValue(
                   ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_NAME), ConfigValueFactory.fromAnyRef(executeCommandArgs.getJobName()));
@@ -46,7 +47,6 @@ public class ExecuteCommand implements Command<ExecuteCommandArgs> {
         }
 
         JobExecution jobExecution = new JobExecution(config);
-
         try {
             jobExecution.execute();
         } catch (Exception e) {

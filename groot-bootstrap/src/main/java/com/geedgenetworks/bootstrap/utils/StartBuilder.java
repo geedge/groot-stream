@@ -84,7 +84,7 @@ public class StartBuilder {
         Path libRootDir = libDir();
         if (Files.exists(libRootDir, new LinkOption[0]) && Files.isDirectory(libRootDir, new LinkOption[0])) {
             try {
-                Stream<Path> stream = Files.walk(libRootDir, 2, new FileVisitOption[]{FileVisitOption.FOLLOW_LINKS});
+                Stream<Path> stream = Files.walk(libRootDir, APP_LIB_DIR_DEPTH, new FileVisitOption[]{FileVisitOption.FOLLOW_LINKS});
                 Throwable var2 = null;
 
                 List var3;
@@ -141,7 +141,7 @@ public class StartBuilder {
         Path pluginRootDir = pluginRootDir();
         if (Files.exists(pluginRootDir, new LinkOption[0]) && Files.isDirectory(pluginRootDir, new LinkOption[0])) {
             try {
-                Stream<Path> stream = Files.walk(pluginRootDir, 3, new FileVisitOption[]{FileVisitOption.FOLLOW_LINKS});
+                Stream<Path> stream = Files.walk(pluginRootDir, PLUGIN_LIB_DIR_DEPTH, new FileVisitOption[]{FileVisitOption.FOLLOW_LINKS});
                 Throwable var2 = null;
 
                 List var3;

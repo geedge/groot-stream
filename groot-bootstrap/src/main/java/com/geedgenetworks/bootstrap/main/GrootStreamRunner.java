@@ -39,7 +39,7 @@ public class GrootStreamRunner {
             command.add("--target");
             command.add(bootstrapCommandArgs.getTargetType().getTarget());
         }
-        command.addAll(bootstrapCommandArgs.getUndefinedParameters());
+        command.addAll(bootstrapCommandArgs.getOriginalParameters());
         //set main class name
         command.add("-c");
         command.add(APP_NAME);

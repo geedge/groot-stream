@@ -13,16 +13,18 @@ import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
+import java.net.URL;
+import java.util.List;
 import java.util.Map;
 
 public class PreprocessingExecuteProcessor extends AbstractExecuteProcessor<String, ProjectionConfig> {
     private static final String PROCESSOR_TYPE = ProcessorType.PREPROCESSING.getType();
 
-    public PreprocessingExecuteProcessor(Config config) {
-        super(config);
+    public PreprocessingExecuteProcessor(List<URL> jarPaths, Config config) {
+        super(jarPaths, config);
     }
     @Override
-    protected Map<String, ProjectionConfig> initialize(Config operatorConfig) {
+    protected Map<String, ProjectionConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, ProjectionConfig> preprocessingConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.PREPROCESSING_PIPELINES)) {
             Map<String, Object>  operatorConfigMap = operatorConfig.getConfig(Constants.PREPROCESSING_PIPELINES).root().unwrapped();

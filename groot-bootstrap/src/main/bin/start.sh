@@ -20,7 +20,7 @@ done
 PRG_DIR=`dirname "$PRG"`
 APP_DIR=`cd "$PRG_DIR/.." >/dev/null; pwd`
 CONF_DIR=${APP_DIR}/config
-APP_JAR=${APP_DIR}/bootstrap/groot-stream-bootstrap.jar
+APP_JAR=${APP_DIR}/bootstrap/groot-bootstrap-1.0.jar
 APP_MAIN="com.geedgenetworks.bootstrap.main.GrootStreamRunner"
 
 if [ -f "${CONF_DIR}/groot-stream-env.sh" ]; then
@@ -42,6 +42,7 @@ if [ -e "${CONF_DIR}/log4j2.properties" ]; then
   JAVA_OPTS="${JAVA_OPTS} -Dgrootstream.logs.file_name=groot-stream-runner"
 fi
 
+echo ${JAVA_OPTS}
 CLASS_PATH=${APP_DIR}/bootstrap/logging/*:${APP_JAR}
 
 CMD=$(java ${JAVA_OPTS} -cp ${CLASS_PATH} ${APP_MAIN} ${args}) && EXIT_CODE=$? || EXIT_CODE=$?
