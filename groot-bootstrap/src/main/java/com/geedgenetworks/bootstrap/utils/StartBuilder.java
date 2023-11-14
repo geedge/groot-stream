@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
+
 public class StartBuilder {
     public static final int COLLECTION_SIZE = 16;
     private static final int APP_LIB_DIR_DEPTH = 2;
@@ -46,21 +48,44 @@ public class StartBuilder {
         GROOT_STREAM_HOME = grootStreamHome;
     }
 
+    public static String getGrootStreamHome() {
+        if (StringUtils.isNotEmpty(GROOT_STREAM_HOME)) {
+            return GROOT_STREAM_HOME;
+        }
+        String grootStreamHome = System.getProperty("GROOT_STREAM_HOME");
+        if (StringUtils.isBlank(grootStreamHome)) {
+            grootStreamHome = System.getenv("GROOT_STREAM_HOME");
+        }
+
+        if (StringUtils.isBlank(grootStreamHome)) {
+            grootStreamHome = appRootDir().toString();
+        }
+
+        GROOT_STREAM_HOME = grootStreamHome;
+        return GROOT_STREAM_HOME;
+
+    }
+
+
     public static Path appRootDir() {
-        if (DeployMode.RUN != MODE && !STARTER) {
-            if (DeployMode.RUN_APPLICATION != MODE) {
-                throw new IllegalStateException("Deploy mode not support : " + MODE);
-            } else {
-                return Paths.get("");
-            }
-        } else {
+        if (DeployMode.RUN == MODE || STARTER) {
             try {
-                String path = StartBuilder.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-                path = (new File(path)).getPath();
+                String path =
+                        StartBuilder.class
+                                .getProtectionDomain()
+                                .getCodeSource()
+                                .getLocation()
+                                .toURI()
+                                .getPath();
+                path = new File(path).getPath();
                 return Paths.get(path).getParent().getParent();
-            } catch (URISyntaxException var1) {
-                throw new RuntimeException(var1);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
             }
+        } else if (DeployMode.RUN_APPLICATION == MODE) {
+            return Paths.get("");
+        } else {
+            throw new IllegalStateException("deploy mode not support : " + MODE);
         }
     }
 
@@ -68,18 +93,27 @@ public class StartBuilder {
         return appRootDir().resolve("bootstrap");
     }
 
+    /**
+     * Plugin Root Dir
+     */
     public static Path pluginRootDir() {
-        return Paths.get(getGrootStreamHome(), "extensions/plugins");
+        return Paths.get(getGrootStreamHome(), "plugins");
     }
-
+    /** Plugin Connector Dir */
     public static Path connectorDir() {
-        return Paths.get(getGrootStreamHome(), "extensions/connectors");
+        return Paths.get(getGrootStreamHome(), "connectors");
     }
 
+
+    /** lib Dir */
     public static Path libDir() {
         return Paths.get(getGrootStreamHome(), "lib");
     }
 
+    /**
+     * return lib jars, which located in 'lib/*' or 'lib/{dir}/*'.
+     * @return
+     */
     public static List<Path> getLibJars() {
         Path libRootDir = libDir();
         if (Files.exists(libRootDir, new LinkOption[0]) && Files.isDirectory(libRootDir, new LinkOption[0])) {
@@ -122,6 +156,11 @@ public class StartBuilder {
     }
 
 
+    /**
+     * return the jar package configured in env jars
+     * @param paths
+     * @return
+     */
     public static Set<Path> getThirdPartyJars(String paths) {
         return (Set) Arrays.stream(paths.split(";")).filter((s) -> {
             return !"".equals(s);
@@ -137,70 +176,23 @@ public class StartBuilder {
         return appRootDir().resolve("plugins.tar.gz");
     }
 
+    /** return plugin's dependent jars, which located in 'plugins/${pluginName}/lib/*'. */
     public static List<Path> getPluginsJarDependencies() {
-        Path pluginRootDir = pluginRootDir();
-        if (Files.exists(pluginRootDir, new LinkOption[0]) && Files.isDirectory(pluginRootDir, new LinkOption[0])) {
-            try {
-                Stream<Path> stream = Files.walk(pluginRootDir, PLUGIN_LIB_DIR_DEPTH, new FileVisitOption[]{FileVisitOption.FOLLOW_LINKS});
-                Throwable var2 = null;
-
-                List var3;
-                try {
-                    var3 = (List)stream.filter((it) -> {
-                        return pluginRootDir.relativize(it).getNameCount() == 3;
-                    }).filter((it) -> {
-                        return it.getParent().endsWith("lib");
-                    }).filter((it) -> {
-                        return it.getFileName().toString().endsWith(".jar");
-                    }).collect(Collectors.toList());
-                } catch (Throwable var13) {
-                    var2 = var13;
-                    throw var13;
-                } finally {
-                    if (stream != null) {
-                        if (var2 != null) {
-                            try {
-                                stream.close();
-                            } catch (Throwable var12) {
-                                var2.addSuppressed(var12);
-                            }
-                        } else {
-                            stream.close();
-                        }
-                    }
-
-                }
-
-                return var3;
-            } catch (IOException var15) {
-                throw new RuntimeException(var15);
-            }
-        } else {
+        Path pluginRootDir = StartBuilder.pluginRootDir();
+        if (!Files.exists(pluginRootDir) || !Files.isDirectory(pluginRootDir)) {
             return Collections.emptyList();
         }
-    }
-
-
-    public static String getGrootStreamHome() {
-        if (StringUtils.isNotEmpty(GROOT_STREAM_HOME)) {
-            return GROOT_STREAM_HOME;
-        } else {
-            String grootStreamHome = System.getProperty("GROOT_STREAM_HOME");
-            if (StringUtils.isBlank(grootStreamHome)) {
-                grootStreamHome = System.getenv("GROOT_STREAM_HOME");
-            }
-
-            if (StringUtils.isBlank(grootStreamHome)) {
-                grootStreamHome = appRootDir().toString();
-            }
-
-            GROOT_STREAM_HOME = grootStreamHome;
-            return GROOT_STREAM_HOME;
+        try (Stream<Path> stream = Files.walk(pluginRootDir, PLUGIN_LIB_DIR_DEPTH, FOLLOW_LINKS)) {
+            return stream.filter(
+                            it ->
+                                    pluginRootDir.relativize(it).getNameCount()
+                                            == PLUGIN_LIB_DIR_DEPTH)
+                    .filter(it -> it.getParent().endsWith("lib"))
+                    .filter(it -> it.getFileName().toString().endsWith(".jar"))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
-
-
-
-
 
 }
