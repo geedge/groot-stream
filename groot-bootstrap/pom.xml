@@ -30,6 +30,7 @@
             <groupId>com.geedgenetworks</groupId>
             <artifactId>connector-kafka</artifactId>
             <version>${revision}</version>
+            <scope>${debug.scope}</scope>
         </dependency>
 
         <!--  Idea debug dependencies -->
