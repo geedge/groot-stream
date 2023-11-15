@@ -83,6 +83,7 @@ public class ExecuteCommandArgs extends CommandArgs {
         private static final List<DeployMode> DEPLOY_MODE_TYPE_LIST = new ArrayList<>();
 
         static {
+            DEPLOY_MODE_TYPE_LIST.add(DeployMode.CLIENT);
             DEPLOY_MODE_TYPE_LIST.add(DeployMode.RUN);
             DEPLOY_MODE_TYPE_LIST.add(DeployMode.RUN_APPLICATION);
         }
@@ -95,7 +96,7 @@ public class ExecuteCommandArgs extends CommandArgs {
             } else {
                 throw new IllegalArgumentException(
                         "Groot-Stream job on flink engine deploy mode only "
-                                + "support these options: [run, run-application]");
+                                + "support these options: [client, run, run-application]");
             }
         }
     }

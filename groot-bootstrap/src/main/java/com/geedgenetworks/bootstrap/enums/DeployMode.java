@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public enum DeployMode {
+    CLIENT("client"), // debug for IDE
     RUN("run"),
     RUN_APPLICATION("run-application");
     private final String deployMode;

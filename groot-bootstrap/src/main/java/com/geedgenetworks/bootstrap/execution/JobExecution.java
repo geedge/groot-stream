@@ -1,6 +1,7 @@
 package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.geedgenetworks.bootstrap.enums.DeployMode;
 import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.main.GrootStreamRunner;
@@ -38,12 +39,12 @@ public class JobExecution {
 
     private final List<URL> jarPaths;
     public JobExecution(Config config) {
-        try {
+       try {
             jarPaths = new ArrayList<>(Collections.singletonList(new File(StartBuilder.appBootstrapDir()
                     .resolve(GrootStreamRunner.APP_JAR_NAME).toString())
                     .toURI().toURL()));
         } catch (MalformedURLException e) {
-            throw new JobExecuteException("load groot stream bootstrap error.", e);
+            throw new JobExecuteException("load groot stream bootstrap jar error.", e);
         }
 
         registerPlugin(config.getConfig(Constants.APPLICATION));
@@ -86,7 +87,6 @@ public class JobExecution {
                     }
                 })
                 .collect(Collectors.toList());
-        log.info("jarDependencies: {}", jarDependencies);
         jarDependencies.forEach(url -> {
             AbstractExecuteProcessor.ADD_URL_TO_CLASSLOADER.accept(Thread.currentThread().getContextClassLoader(), url);
         });
@@ -220,10 +220,10 @@ public class JobExecution {
 
 
     public void execute() throws JobExecuteException {
-        log.info("All jars: {}", jarPaths);
-        //todo local mode need remove this option
-        jobRuntimeEnvironment.registerPlugin(jarPaths);
 
+        if (!StartBuilder.getDeployMode().name().equals(DeployMode.CLIENT.name())) {
+            jobRuntimeEnvironment.registerPlugin(jarPaths);
+        }
         List<VertexInfo> sourceVertexInfoList = dagInfo.getVertexList()
                 .stream().filter(v -> v.getType().name().equals(ProcessorType.SOURCE.name())).collect(Collectors.toList());
 

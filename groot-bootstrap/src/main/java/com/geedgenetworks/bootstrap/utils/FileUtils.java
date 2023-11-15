@@ -16,6 +16,7 @@ public class FileUtils {
     public static Path getConfigPath(@NonNull CommandArgs args) {
         switch (args.getDeployMode()) {
             case RUN:
+            case CLIENT:
                 return Paths.get(args.getConfigFile());
             case RUN_APPLICATION:
                 return Paths.get(getFileName(args.getConfigFile()));

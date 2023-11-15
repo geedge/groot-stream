@@ -25,4 +25,11 @@ When throwing an exception with a hint message and ensure that the exception has
    }
    ```
 
+## How to run a job in IDEA
+1. Open the `Run/Debug Configurations` window.
+2. Choose Main Class `com.geedgenetworks.bootstrap.main.GrootStreamServer`.
+3. Add VM options `-e client --target local -c /...../groot-stream/config/groot-stream-job.yaml`.
+4. Click the `Run` button.
+
+
 

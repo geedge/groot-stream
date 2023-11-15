@@ -42,7 +42,6 @@ public class StartBuilder {
         return MODE;
     }
 
-
     @VisibleForTesting
     public static void setGrootStreamHome(String grootStreamHome) {
         GROOT_STREAM_HOME = grootStreamHome;
@@ -68,7 +67,7 @@ public class StartBuilder {
 
 
     public static Path appRootDir() {
-        if (DeployMode.RUN == MODE || STARTER) {
+        if (DeployMode.CLIENT == MODE || DeployMode.RUN == MODE || STARTER) {
             try {
                 String path =
                         StartBuilder.class
