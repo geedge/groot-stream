@@ -10,7 +10,7 @@
 
     <artifactId>groot-bootstrap</artifactId>
     <properties>
-        <debug.scope>provided</debug.scope>
+        <debug.scope>compile</debug.scope>
     </properties>
     <dependencies>
 
@@ -30,7 +30,6 @@
             <groupId>com.geedgenetworks</groupId>
             <artifactId>connector-kafka</artifactId>
             <version>${revision}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!--  Idea debug dependencies -->

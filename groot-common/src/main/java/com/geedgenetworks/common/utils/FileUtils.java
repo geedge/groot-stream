@@ -180,4 +180,13 @@ public class FileUtils {
                     CommonErrorCode.UNSUPPORTED_OPERATION, errorMsg, e);
         }
     }
+    public static String getFileExtension(@NonNull String fullName) {
+        String fileName = new File(fullName).getName();
+        int dotIndex = fileName.lastIndexOf('.');
+        return (dotIndex == -1) ? "" : fileName.substring(dotIndex + 1);
+    }
+
+    public static String getFileName(@NonNull String filePath) {
+        return filePath.substring(filePath.lastIndexOf(File.separatorChar) + 1);
+    }
 }

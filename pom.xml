@@ -55,6 +55,7 @@
         <antlr4.version>4.8</antlr4.version>
         <jcommander.version>1.81</jcommander.version>
         <lombok.version>1.18.24</lombok.version>
+        <config.version>1.3.3</config.version>
 
     </properties>
 
@@ -224,6 +225,12 @@
                 <groupId>com.alibaba.nacos</groupId>
                 <artifactId>nacos-client</artifactId>
                 <version>${nacos.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.typesafe</groupId>
+                <artifactId>config</artifactId>
+                <version>${config.version}</version>
             </dependency>
 
             <dependency>

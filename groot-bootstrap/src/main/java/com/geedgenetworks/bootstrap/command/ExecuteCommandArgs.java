@@ -4,7 +4,7 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.geedgenetworks.bootstrap.enums.DeployMode;
 import com.geedgenetworks.bootstrap.enums.TargetType;
-import com.geedgenetworks.bootstrap.utils.StartBuilder;
+import com.geedgenetworks.bootstrap.execution.StartBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

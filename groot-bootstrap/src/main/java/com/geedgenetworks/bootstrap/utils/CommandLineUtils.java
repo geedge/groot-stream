@@ -3,6 +3,7 @@ package com.geedgenetworks.bootstrap.utils;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.geedgenetworks.bootstrap.command.CommandArgs;
+import com.geedgenetworks.bootstrap.command.UsageFormatter;
 import com.geedgenetworks.common.Constants;
 
 public final class CommandLineUtils {

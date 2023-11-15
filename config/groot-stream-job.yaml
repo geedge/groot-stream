@@ -159,10 +159,10 @@ sinks:
 application:
   name: groot-stream-test
   env:
-    execution.parallelism: 2
+    execution.parallelism: 1
   topology:
     - input: kafka_source
-      parallelism: 3
+      parallelism: 1
       targets:
         - ssl_filter
     - input: ssl_filter

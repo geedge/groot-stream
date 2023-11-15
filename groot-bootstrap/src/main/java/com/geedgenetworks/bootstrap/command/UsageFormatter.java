@@ -1,4 +1,4 @@
-package com.geedgenetworks.bootstrap.utils;
+package com.geedgenetworks.bootstrap.command;
 
 import com.beust.jcommander.*;
 

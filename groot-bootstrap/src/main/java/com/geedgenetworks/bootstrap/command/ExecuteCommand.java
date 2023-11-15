@@ -5,8 +5,8 @@ import com.geedgenetworks.bootstrap.exception.CommandExecuteException;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.execution.JobExecution;
-import com.geedgenetworks.bootstrap.utils.ExecutionConfigKey;
-import com.geedgenetworks.bootstrap.utils.FileUtils;
+import com.geedgenetworks.bootstrap.execution.ExecutionConfigKey;
+import com.geedgenetworks.bootstrap.utils.ConfigFileUtils;
 import com.geedgenetworks.common.Constants;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigObject;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static com.geedgenetworks.bootstrap.utils.FileUtils.checkConfigExist;
+import static com.geedgenetworks.bootstrap.utils.ConfigFileUtils.checkConfigExist;
 
 @Slf4j
 public class ExecuteCommand implements Command<ExecuteCommandArgs> {
@@ -29,7 +29,7 @@ public class ExecuteCommand implements Command<ExecuteCommandArgs> {
 
     @Override
     public void execute() throws CommandExecuteException, ConfigCheckException {
-        Path configFile = FileUtils.getConfigPath(executeCommandArgs);
+        Path configFile = ConfigFileUtils.getConfigPath(executeCommandArgs);
         // check config file exist
         checkConfigExist(configFile);
         Map<String, Object> configMap = YamlUtil.loadByPath(configFile.toString());
