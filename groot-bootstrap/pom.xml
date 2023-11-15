@@ -33,6 +33,20 @@
             <scope>${debug.scope}</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>connector-clickhouse</artifactId>
+            <version>${revision}</version>
+            <scope>${debug.scope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>connector-ipfix-collector</artifactId>
+            <version>${revision}</version>
+            <scope>${debug.scope}</scope>
+        </dependency>
+
         <!--  Idea debug dependencies -->
         <dependency>
             <groupId>org.apache.flink</groupId>
