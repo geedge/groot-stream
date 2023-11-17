@@ -7,6 +7,10 @@ import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
+import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.ecwid.consul.v1.ConsulClient;
+import com.ecwid.consul.v1.agent.model.NewCheck;
+import com.ecwid.consul.v1.agent.model.NewService;
 import com.geedgenetworks.connectors.ipfix.collector.util.IPFIXUtils;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.SourceConfig;
@@ -32,6 +36,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.geedgenetworks.common.config.commonConfig.*;
 import static com.geedgenetworks.common.utils.ColumnUtil.columnSelector;
@@ -39,11 +46,11 @@ import static com.geedgenetworks.common.utils.ColumnUtil.columnSelector;
 public class IPFixSource implements Source {
     private static final Log logger = LogFactory.get();
 
-    private static SessionGroup sessionGroup;
+    private static SessionGroup session_group;
 
     static {
         InfoModel model = InfoModel.getStandardInfoModel(true);
-        sessionGroup = new SessionGroup(model, null, false);
+        session_group = new SessionGroup(model, null, false);
         ArrayList<Node> elements = IPFIXUtils.getElements();
         for (Node element : elements) {
             model.importElements(element);
@@ -53,16 +60,22 @@ public class IPFixSource implements Source {
     @Override
     public SingleOutputStreamOperator<Event> source(StreamExecutionEnvironment env, SourceConfig sourceConfig) {
         Map<String, Object> ipFixConfig = sourceConfig.getProperties();
-        UDPSource udpSource = new UDPSource(Integer.parseInt(ipFixConfig.get("initial_port").toString()), Integer.parseInt(ipFixConfig.get("max_attempts").toString()), Integer.parseInt(ipFixConfig.get("buffer_size").toString()), Integer.parseInt(ipFixConfig.get("receive_buffer").toString()), ipFixConfig.get("service_name").toString());
+        UDPSource udpSource = new UDPSource(Integer.parseInt(ipFixConfig.get("initial_port").toString()),
+                Integer.parseInt(ipFixConfig.get("max_attempts").toString()),
+                Integer.parseInt(ipFixConfig.get("buffer_size").toString()),
+                Integer.parseInt(ipFixConfig.get("receive_buffer").toString()),
+                ipFixConfig.get("service_name").toString(),
+                Integer.parseInt(ipFixConfig.get("register_mode").toString()),
+                Integer.parseInt(ipFixConfig.get("health_check_interval").toString()));
         DataStream<byte[]> sourceForSession = env.addSource(udpSource).setParallelism(Integer.parseInt(sourceConfig.getProperties().getOrDefault("port_number", 1).toString()));
         SingleOutputStreamOperator<Event> streamEvent = sourceForSession.flatMap(new FlatMapFunction<byte[], Event>() {
             @Override
             public void flatMap(byte[] data, Collector<Event> out) {
                 try {
                     ByteBuffer buffer = ByteBuffer.wrap(data);
-                    RecordReader reader = new RecordReader(new ByteBufferMessageReader(buffer, sessionGroup));
+                    RecordReader reader = new RecordReader(new ByteBufferMessageReader(buffer, session_group));
                     if (reader.isEmpty()) {
-                        Iterator<Session> iterator = sessionGroup.iterator();
+                        Iterator<Session> iterator = session_group.iterator();
                         while (iterator.hasNext()) {
                             Session next = iterator.next();
                             logger.info("domain: " + next.observationDomain());
@@ -71,7 +84,7 @@ public class IPFixSource implements Source {
                         }
                     } else {
                         while (reader.hasNext()) {
-                            Event grootevent = new Event();
+                            Event grootEvent = new Event();
                             Record record = reader.next();
                             Iterator<Field> fields = record.fields();
                             Map<String, Object> fieldMap = new HashMap<>();
@@ -80,17 +93,16 @@ public class IPFixSource implements Source {
                                 fieldMap.put(field.ie().name(), field.value());
                             }
                             long epochSecond = record.exportTime().get().getEpochSecond();
-                            grootevent.set__timestamp(epochSecond);
+                            grootEvent.set__timestamp(epochSecond);
                             if (sourceConfig.getProperties().containsKey("message_timestamp_field")) {
-
                                 fieldMap.put(sourceConfig.getProperties().get("message_timestamp_field").toString(), epochSecond);
                             }
                             if (sourceConfig.getOutput_fields() != null && sourceConfig.getOutput_fields().size() > 0) {
                                 fieldMap = columnSelector(fieldMap, sourceConfig.getOutput_fields());
                             }
-                            grootevent.setExtractedFields(fieldMap);
-                            grootevent.setFinal(true);
-                            out.collect(grootevent);
+                            grootEvent.setExtractedFields(fieldMap);
+                            grootEvent.setFinal(true);
+                            out.collect(grootEvent);
                         }
                     }
                 } catch (Exception e) {
@@ -114,16 +126,21 @@ class UDPSource implements ParallelSourceFunction<byte[]> {
     private final int receive_buffer;
     private final String service_name;
     private transient DatagramChannel channel;
-    private transient NamingService namingService;
-    private int currentPort;
-    private String serverIP;
+    private transient NamingService naming_service;
+    private transient ConsulClient consul_client;
+    private int current_port;
+    private String server_ip;
+    private int register_mode;
+    private int health_check_interval;
 
-    public UDPSource(int initial_port, int max_attempts, int buffer_size, int receive_buffer, String service_name) {
+    public UDPSource(int initial_port, int max_attempts, int buffer_size, int receive_buffer, String service_name, int register_mode ,int health_check_interval) {
         this.initial_port = initial_port;
         this.buffer_size = buffer_size;
         this.max_attempts = max_attempts;
         this.receive_buffer = receive_buffer;
         this.service_name = service_name;
+        this.register_mode = register_mode;
+        this.health_check_interval = health_check_interval;
     }
 
     @Override
@@ -132,37 +149,30 @@ class UDPSource implements ParallelSourceFunction<byte[]> {
             channel = DatagramChannel.open();
             channel.setOption(StandardSocketOptions.SO_RCVBUF, receive_buffer);
             channel.configureBlocking(false);
-            currentPort = initial_port;
+            current_port = initial_port;
             int attempt = 1;
             while (attempt <= max_attempts) {
                 try {
-                    channel.bind(new InetSocketAddress(currentPort));
-                    Properties properties = new Properties();
-                    properties.setProperty(PropertyKeyConst.SERVER_ADDR, NACOS_SERVER_ADDR);
-                    properties.put("username", NACOS_USERNAME);
-                    properties.put("password", NACOS_PASSWORD);
+                    channel.bind(new InetSocketAddress(current_port));
                     InetAddress inetAddress = InetAddress.getLocalHost();
-                    serverIP = inetAddress.getHostAddress();
-                    namingService = NamingFactory.createNamingService(properties);
-                    namingService.registerInstance(service_name, serverIP, currentPort);
+                    server_ip = inetAddress.getHostAddress();
+                    registerInstance(server_ip, current_port);
                     break;
                 } catch (IOException e) {
                     // 捕获端口占用异常
                     if (e.getMessage().contains("Address already in use")) {
-                        logger.info("端口 " + currentPort + " 已被占用");
-                        currentPort++;
+                        logger.info("端口 " + current_port + " 已被占用");
+                        current_port++;
                         attempt++;
                     } else {
-                        logger.error(e.toString());
+                        logger.error(e.toString(), e);
                         channel = null;
                         break;
                     }
-
                 } catch (NacosException e) {
-                    logger.error(e.toString());
+                    logger.error(e.toString(), e);
                     channel = null;
                 }
-
             }
             ByteBuffer buffer = ByteBuffer.allocate(buffer_size);
             while (true) {
@@ -182,44 +192,63 @@ class UDPSource implements ParallelSourceFunction<byte[]> {
     @Override
     public void cancel() {
         IoUtil.close(channel);
-        try {
-            namingService.deregisterInstance(service_name, serverIP, currentPort);
-        } catch (NacosException e) {
-            logger.error(e.toString(), e);
-        }
-
+        deregisterInstance(server_ip, current_port);
     }
 
-
-    public DatagramChannel findAvailablePort(DatagramChannel channel, int initialPort, int maxAttempts, String service_name) {
-        int currentPort = initialPort;
-        int attempt = 1;
-        while (attempt <= maxAttempts) {
-            try {
-                channel.bind(new InetSocketAddress(currentPort));
-                Properties properties = new Properties();
-                properties.setProperty(PropertyKeyConst.SERVER_ADDR, NACOS_SERVER_ADDR);
-                properties.put("username", NACOS_USERNAME);
-                properties.put("password", NACOS_PASSWORD);
-                InetAddress inetAddress = InetAddress.getLocalHost();
-                String serverIP = inetAddress.getHostAddress();
-                NamingService namingService = NamingFactory.createNamingService(properties);
-                namingService.registerInstance(service_name, serverIP, currentPort);
-                return channel; // 找到可用端口
-            } catch (IOException e) {
-                // 捕获端口占用异常
-                if (e.getMessage().contains("Address already in use")) {
-                    logger.info("端口 " + currentPort + " 已被占用");
-                    currentPort++;
-                    attempt++;
-                } else {
-                    logger.error(e.toString());
-                    break;
+    private void registerInstance(String ip, int port) throws NacosException {
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        if (register_mode == 0) {
+            Properties properties = new Properties();
+            properties.setProperty(PropertyKeyConst.SERVER_ADDR, NACOS_SERVER_ADDR);
+            properties.setProperty(PropertyKeyConst.USERNAME, NACOS_USERNAME);
+            properties.setProperty(PropertyKeyConst.PASSWORD, NACOS_PASSWORD);
+            properties.setProperty(PropertyKeyConst.NAMESPACE, NACOS_NAMESPACE);
+            naming_service = NamingFactory.createNamingService(properties);
+            Instance instance = new Instance();
+            instance.setIp(ip);
+            instance.setPort(port);
+            instance.setEphemeral(true);
+            naming_service.registerInstance(service_name, instance);
+            executorService.scheduleAtFixedRate(() -> {
+                try {
+                    naming_service.registerInstance(service_name, instance);
+                } catch (NacosException e) {
+                    logger.error("nacos check instance healthy error.", e);
                 }
-            } catch (NacosException e) {
-                logger.error(e.toString());
-            }
+            }, 0, health_check_interval, TimeUnit.SECONDS);
+        } else {
+            consul_client = new ConsulClient(CONSUL_SERVER_ADDR, CONSUL_SERVER_PORT);
+            NewService newService = new NewService();
+            newService.setName(service_name);
+            newService.setId(ip + ":" + port);
+            newService.setAddress(ip);
+            newService.setPort(port);
+            consul_client.agentServiceRegister(newService, CONSUL_TOKEN);
+            NewCheck newCheck = new NewCheck();
+            newCheck.setTtl(health_check_interval + "s");
+            newCheck.setName(ip+":"+port);
+            newCheck.setId(ip+":"+port);
+            newCheck.setServiceId(ip+":"+port);
+            newCheck.setDeregisterCriticalServiceAfter("60s");
+            consul_client.agentCheckRegister(newCheck);
+            executorService.scheduleAtFixedRate(() -> consul_client.agentCheckPass(ip+":"+port, null, CONSUL_TOKEN),
+                    0, health_check_interval-1, TimeUnit.SECONDS);
         }
-        return null; // 无法找到可用端口
+    }
+
+    private void deregisterInstance(String ip, int port) {
+        try {
+            if (register_mode == 0) {
+                Instance instance = new Instance();
+                instance.setIp(ip);
+                instance.setPort(port);
+                instance.setEphemeral(false);
+                naming_service.deregisterInstance(service_name, instance);
+            } else {
+                consul_client.agentServiceDeregister(ip + ":" + port, CONSUL_TOKEN);
+            }
+        } catch (Exception e) {
+            logger.error(e.toString(), e);
+        }
     }
 }

@@ -47,6 +47,14 @@ public class commonConfig {
             GrootYamlParser.getStringProperty("nacos.group", yamlData);
     public static final long NACOS_READ_TIMEOUT =
             GrootYamlParser.getIntProperty("nacos.read_timeout", yamlData);
+
+    public static final String CONSUL_SERVER_ADDR =
+            GrootYamlParser.getStringProperty("consul.server_addr", yamlData);
+    public static final int CONSUL_SERVER_PORT =
+            GrootYamlParser.getIntProperty("consul.server_port", yamlData);
+    public static final String CONSUL_TOKEN =
+            GrootYamlParser.getStringProperty("consul.token", yamlData);
+
     public static final String HOS_TOKEN = GrootYamlParser.getStringProperty("hos.token", yamlData);
     public static final int KNOWLEDGE_FILE_CHECK_NUMBER =
             GrootYamlParser.getIntProperty("knowledge.file_check_number", yamlData);

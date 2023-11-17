@@ -25,16 +25,18 @@ sources:
         kafka.max.request.size:
         kafka.compression.type: none
         message_timestamp_field: common_ingestion_time
-  ipfixsource:
-    type : com.geedgenetworks.connectors.ipfix.source.IPFixSource
-    properties:
-      initial_port: 12345
-      port_number: 1
-      buffer_size: 65535
-      receive_buffer: 104857600
-      max_attempts: 10
-      service_name: udp_test
-      message_timestamp_field: common_ingestion_time
+    ipfix_source:
+      type: com.geedgenetworks.connectors.ipfix.collector.source.IPFixSource
+      properties:
+        initial_port: 12345
+        port_number: 3
+        buffer_size: 65535
+        receive_buffer: 104857600
+        max_attempts: 3
+        service_name: udp_test
+        register_mode: 1 # 0为nacos，1为consul
+        health_check_interval: 5 #单位s
+        message_timestamp_field: common_ingestion_time
 
 filters:
   http_filter:
