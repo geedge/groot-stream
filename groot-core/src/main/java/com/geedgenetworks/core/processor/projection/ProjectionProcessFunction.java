@@ -1,22 +1,22 @@
 package com.geedgenetworks.core.processor.projection;
 
+import cn.hutool.log.Log;
+import cn.hutool.log.LogFactory;
 import com.geedgenetworks.common.config.commonConfig;
-import com.geedgenetworks.core.udf.UDF;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.core.pojo.UDFContext;
-
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.util.Collector;
-
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
+import com.geedgenetworks.core.udf.UDF;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.flink.util.Collector;
 
 import java.lang.reflect.Method;
 import java.util.LinkedList;
@@ -36,31 +36,39 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     public void open(Configuration parameters) throws Exception {
 
         LinkedList<UdfEntity> functions = new LinkedList<>();
-        for (UDFContext udfContext : projectionConfig.getFunctions()) {
-            Expression compiledExp = null;
-            UdfEntity udfEntity = new UdfEntity();
-            // 平台注册的函数包含任务中配置的函数则对函数进行实例化
-            if (commonConfig.UDF_CLASS_REFLECT.containsKey(udfContext.getFunction())) {
+        try {
+            for (UDFContext udfContext : projectionConfig.getFunctions()) {
+                Expression compiledExp = null;
+                UdfEntity udfEntity = new UdfEntity();
+                // 平台注册的函数包含任务中配置的函数则对函数进行实例化
+                if (commonConfig.UDF_CLASS_REFLECT.containsKey(udfContext.getFunction())) {
 
-                Class cls = Class.forName(commonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
-                UDF udf = (UDF) cls.getConstructor().newInstance();
-                Method withParametersMethod =
-                        cls.getDeclaredMethod("init", UDFContext.class);
-                withParametersMethod.invoke(udf, udfContext);
-                // 函数如果包含filter,对表达式进行编译
-                if (udfContext.getFilter() != null) {
-                    AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
-                    instance.setCachedExpressionByDefault(true);
-                    instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
-                    instance.setFunctionMissing(null);
-                    compiledExp = instance.compile(udfContext.getFilter(), true);
+                    Class cls = Class.forName(commonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
+                    UDF udf = (UDF) cls.getConstructor().newInstance();
+                    Method withParametersMethod =
+                            cls.getDeclaredMethod("init", UDFContext.class);
+                    withParametersMethod.invoke(udf, udfContext);
+                    // 函数如果包含filter,对表达式进行编译
+                    if (udfContext.getFilter() != null) {
+                        AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
+                        instance.setCachedExpressionByDefault(true);
+                        instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
+                        instance.setFunctionMissing(null);
+                        compiledExp = instance.compile(udfContext.getFilter(), true);
+                    }
+                    udfEntity.setUdfFunction(udf);
+                    udfEntity.setCompiledExp(compiledExp);
+                    udfEntity.setName(udfContext.getName());
+                    udfEntity.setClassName(commonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
+                    functions.add(udfEntity);
+                } else {
+                    throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "No such udf function "+udfContext.getFunction());
                 }
-                udfEntity.setUdfFunction(udf);
-                udfEntity.setCompiledExp(compiledExp);
-                udfEntity.setName(udfContext.getName());
-                udfEntity.setClassName(commonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
-                functions.add(udfEntity);
             }
+        }catch (Exception e){
+
+            throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Function initialization exception !",e);
+
         }
         this.functions = functions;
     }
@@ -68,6 +76,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     @Override
     public void processElement(Event event, Context ctx, Collector<Event> out) {
         if (functions != null) {
+
 
             for (UdfEntity udf : functions) {
                 try {
@@ -92,6 +101,8 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     }
                 } catch (Exception e) {
                     logger.error(udf.getName() + " 函数执行出错 ！ " + e.toString());
+                //    throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Function execution exception  !");
+
                 }
             }
         }
@@ -104,4 +115,15 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         }
         out.collect(event);
     }
+
+    @Override
+    public void close() throws Exception {
+
+        for(UdfEntity udfEntity: functions){
+
+            udfEntity.getUdfFunction().close();
+        }
+        super.close();
+    }
+
 }

@@ -32,6 +32,11 @@ public class Drop implements UDF {
         return "DROP";
     }
 
+    @Override
+    public void close() {
+
+    }
+
     public static class Aviator implements Serializable {
         private static Expression compiledExp;
         private static String expression;

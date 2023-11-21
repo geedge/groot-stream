@@ -37,4 +37,9 @@ public class RadiusLookup implements UDF {
     public String functionName() {
         return "RADIUS_LOOKUP";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

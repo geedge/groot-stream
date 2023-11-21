@@ -39,4 +39,9 @@ public class TopLevelDomain implements UDF {
     public String functionName() {
         return "TOP_LEVEL_DOMAIN";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

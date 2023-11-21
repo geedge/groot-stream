@@ -33,4 +33,9 @@ public class GtpCLookup implements UDF {
     public String functionName() {
         return "GTP_C_LOOKUP";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

@@ -12,4 +12,7 @@ public interface UDF extends Serializable {
     Event evaluate(Event event);
 
     String functionName();
+
+    void close();
+
 }

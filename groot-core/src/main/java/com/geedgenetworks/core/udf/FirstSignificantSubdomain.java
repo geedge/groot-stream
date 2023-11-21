@@ -39,4 +39,9 @@ public class FirstSignificantSubdomain implements UDF {
     public String functionName() {
         return "FIRST_SIGNIFICANT_SUBDOMAIN";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

@@ -150,4 +150,9 @@ public class IpLocation implements UDF {
     public String functionName() {
         return "IP_LOCATION";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

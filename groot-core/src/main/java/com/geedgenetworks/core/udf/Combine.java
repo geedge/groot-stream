@@ -15,6 +15,10 @@ public class Combine implements UDF {
 
     @Override
     public void init(UDFContext udfContext) {
+
+            //生成一段随机代码
+
+
         this.udfContext = udfContext;
         if (udfContext.getParameters() != null
                 && udfContext.getParameters().size() != 0) {
@@ -46,6 +50,11 @@ public class Combine implements UDF {
     @Override
     public String functionName() {
         return "COMBINE";
+    }
+
+    @Override
+    public void close() {
+
     }
 
     static class NaturalNumberStringComparator implements Comparator<String> {

@@ -59,4 +59,9 @@ public class DecodeBase64 implements UDF {
     public String functionName() {
         return "BASE64_DECODE_TO_STRING";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

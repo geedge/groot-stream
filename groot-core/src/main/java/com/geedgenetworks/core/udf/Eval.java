@@ -33,4 +33,9 @@ public class Eval implements UDF {
     public String functionName() {
         return "EVAL";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

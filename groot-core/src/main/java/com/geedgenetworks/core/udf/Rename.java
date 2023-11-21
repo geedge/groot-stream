@@ -29,4 +29,9 @@ public class Rename implements UDF {
     public String functionName() {
         return "RENAME";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

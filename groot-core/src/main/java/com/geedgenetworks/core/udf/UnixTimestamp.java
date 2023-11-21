@@ -26,4 +26,9 @@ public class UnixTimestamp implements UDF {
     public String functionName() {
         return "UNIX_TIMESTAMP_FUNCTION";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

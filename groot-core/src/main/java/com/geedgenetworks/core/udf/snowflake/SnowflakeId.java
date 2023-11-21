@@ -27,4 +27,9 @@ public class SnowflakeId implements Serializable, UDF {
     public String functionName() {
         return "SNOWFLAKE_ID";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

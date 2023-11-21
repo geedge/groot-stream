@@ -33,4 +33,9 @@ public class SetDomain implements UDF {
     public String functionName() {
         return "SETDOMAIN";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

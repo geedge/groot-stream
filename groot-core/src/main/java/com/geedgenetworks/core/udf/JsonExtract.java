@@ -33,4 +33,9 @@ public class JsonExtract implements UDF {
     public String functionName() {
         return "JSON_EXTRACT";
     }
+
+    @Override
+    public void close() {
+
+    }
 }

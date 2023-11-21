@@ -42,4 +42,9 @@ public class AsnLookup implements UDF {
     public String functionName() {
         return "ASN_LOOKUP";
     }
+
+    @Override
+    public void close() {
+
+    }
 }
