@@ -115,7 +115,7 @@
                 <dependency>
                     <groupId>com.geedgenetworks</groupId>
                     <artifactId>groot-hbase-client</artifactId>
-                    <version>1.0</version>
+                    <version>${project.version}</version>
                     <scope>provided</scope>
                 </dependency>
 

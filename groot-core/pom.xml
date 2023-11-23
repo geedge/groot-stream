@@ -25,8 +25,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-client</artifactId>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>groot-hbase-client</artifactId>
         </dependency>
 
 
