@@ -9,13 +9,25 @@
     </parent>
 
     <artifactId>connector-ipfix-collector</artifactId>
+    <name>Groot : Connectors : IPFIX </name>
+    <properties>
+        <ipfix.version>1.6.0</ipfix.version>
+        <consul.version>1.4.5</consul.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.cert.netsa</groupId>
             <artifactId>netsa-io-ipfix_${scala.version}</artifactId>
-            <version>1.6.0</version>
+            <version>${ipfix.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.ecwid.consul</groupId>
+            <artifactId>consul-api</artifactId>
+            <version>${consul.version}</version>
+        </dependency>
+
     </dependencies>
 
 </project>

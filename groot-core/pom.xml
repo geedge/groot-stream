@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>groot-core</artifactId>
+    <name>Groot : Core </name>
 
     <dependencies>
         <dependency>

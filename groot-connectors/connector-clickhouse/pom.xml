@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>connector-clickhouse</artifactId>
+    <name>Groot : Connectors : ClickHouse </name>
 
     <properties>
         <clickhouse-jdbc.version>2.6.5</clickhouse-jdbc.version>

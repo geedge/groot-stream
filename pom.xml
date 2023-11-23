@@ -8,12 +8,15 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
 
+    <name>GrootStream :</name>
+
     <modules>
         <module>groot-common</module>
         <module>groot-core</module>
         <module>groot-connectors</module>
         <module>groot-bootstrap</module>
         <module>groot-tests</module>
+        <module>groot-release</module>
     </modules>
 
     <properties>
@@ -392,8 +395,8 @@
 
     </dependencyManagement>
 
+    <!--IDEA Environment jars -->
     <dependencies>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -517,6 +520,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${maven-assembly-plugin.version}</version>
             </plugin>
+
 
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

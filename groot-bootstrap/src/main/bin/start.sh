@@ -20,7 +20,7 @@ done
 PRG_DIR=`dirname "$PRG"`
 APP_DIR=`cd "$PRG_DIR/.." >/dev/null; pwd`
 CONF_DIR=${APP_DIR}/config
-APP_JAR=${APP_DIR}/bootstrap/groot-bootstrap-1.0.jar
+APP_JAR=${APP_DIR}/bootstrap/groot-bootstrap.jar
 APP_MAIN="com.geedgenetworks.bootstrap.main.GrootStreamRunner"
 
 if [ -f "${CONF_DIR}/groot-stream-env.sh" ]; then

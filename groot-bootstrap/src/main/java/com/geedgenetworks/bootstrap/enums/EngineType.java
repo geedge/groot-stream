@@ -1,7 +1,7 @@
 package com.geedgenetworks.bootstrap.enums;
 
 public enum EngineType {
-    FLINK13("flink", "groot-bootstrap-1.0.jar", "start.sh");
+    FLINK13("flink", "groot-bootstrap.jar", "start.sh");
 
     private final String engine;
 

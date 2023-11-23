@@ -10,6 +10,7 @@
 
     <artifactId>groot-connectors</artifactId>
     <packaging>pom</packaging>
+    <name>Groot : Connectors :</name>
     <modules>
         <module>connector-kafka</module>
         <module>connector-clickhouse</module>

@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>connector-kafka</artifactId>
+    <name>Groot : Connectors : Kafka </name>
     <dependencies>
         <dependency>
             <groupId>org.apache.flink</groupId>

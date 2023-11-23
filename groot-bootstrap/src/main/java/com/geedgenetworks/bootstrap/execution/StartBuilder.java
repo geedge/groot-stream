@@ -194,4 +194,19 @@ public class StartBuilder {
         }
     }
 
+    public static List<Path> getConnectorJars() {
+        Path connectorRootDir = StartBuilder.connectorDir();
+        if (!Files.exists(connectorRootDir) || !Files.isDirectory(connectorRootDir)) {
+            return Collections.emptyList();
+        }
+        try (Stream<Path> stream = Files.walk(connectorRootDir, 2, FOLLOW_LINKS)) {
+            return stream.filter(
+                            it -> !it.toFile().isDirectory())
+                    .filter(it -> it.getFileName().toString().endsWith(".jar"))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

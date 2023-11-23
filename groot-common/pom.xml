@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>groot-common</artifactId>
+    <name>Groot : Common </name>
 
     <properties>
 
@@ -64,12 +65,6 @@
         <dependency>
             <groupId>com.alibaba.nacos</groupId>
             <artifactId>nacos-client</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.ecwid.consul</groupId>
-            <artifactId>consul-api</artifactId>
-            <version>1.4.5</version>
         </dependency>
 
         <dependency>

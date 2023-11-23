@@ -73,6 +73,7 @@ public class JobExecution {
             thirdPartyJars = new ArrayList<>(StartBuilder
                     .getThirdPartyJars(envConfig.getString(ExecutionConfigKey.JARS)));
         }
+        thirdPartyJars.addAll(StartBuilder.getConnectorJars());
         thirdPartyJars.addAll(StartBuilder.getPluginsJarDependencies());
 
         List<URL> jarDependencies = Stream.concat(thirdPartyJars.stream(), StartBuilder.getLibJars().stream())
