@@ -103,9 +103,6 @@ processing_pipelines:
         output_fields: ['common_recv_time']
         parameters:
           value_expression: 'common_ingestion_time'
-      - function: DOMAIN
-        lookup_fields: ['http_host','ssl_sni','quic_sni']
-        output_fields: ['common_server_fqdn']
       - function: FIRST_SIGNIFICANT_SUBDOMAIN
         lookup_fields: ['http_host','ssl_sni','quic_sni']
         output_fields: ['common_server_domain']

@@ -9,3 +9,5 @@ udf:
   com.geedgenetworks.core.udf.TopLevelDomain
   com.geedgenetworks.core.udf.DecodeBase64
   com.geedgenetworks.core.udf.FirstSignificantSubdomain
+  com.geedgenetworks.core.udf.gtpc.GtpCLookup
+  com.geedgenetworks.core.udf.radius.RadiusLookup
