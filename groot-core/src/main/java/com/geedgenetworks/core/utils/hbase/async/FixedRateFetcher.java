@@ -1,4 +1,4 @@
-package com.geedgenetworks.common.utils.hbase.async;
+package com.geedgenetworks.core.utils.hbase.async;
 
 import org.apache.flink.api.common.time.Time;
 

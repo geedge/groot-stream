@@ -1,9 +1,9 @@
 package com.geedgenetworks.core.udf.gtpc;
 
 import com.geedgenetworks.common.config.commonConfig;
-import com.geedgenetworks.common.utils.hbase.HBaseClient;
-import com.geedgenetworks.common.utils.hbase.HbaseLookup;
-import com.geedgenetworks.common.utils.hbase.async.state.Cached;
+import com.geedgenetworks.core.utils.hbase.HBaseClient;
+import com.geedgenetworks.core.utils.hbase.HbaseLookup;
+import com.geedgenetworks.core.utils.hbase.async.state.Cached;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.flink.configuration.Configuration;

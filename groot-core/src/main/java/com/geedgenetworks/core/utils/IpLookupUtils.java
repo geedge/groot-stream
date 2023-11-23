@@ -1,4 +1,4 @@
-package com.geedgenetworks.common.utils;
+package com.geedgenetworks.core.utils;
 
 import com.geedgenetworks.common.config.commonConfig;
 

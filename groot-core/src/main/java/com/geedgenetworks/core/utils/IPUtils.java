@@ -1,4 +1,4 @@
-package com.geedgenetworks.common.utils;
+package com.geedgenetworks.core.utils;
 
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.PropertyKeyConst;
@@ -6,6 +6,8 @@ import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.common.utils.HttpClientUtils;
+import com.geedgenetworks.core.pojo.KnowLedgeEntity;
 import com.geedgenetworks.utils.IpLookupV2;
 import com.geedgenetworks.utils.StringUtil;
 import com.jayway.jsonpath.JsonPath;

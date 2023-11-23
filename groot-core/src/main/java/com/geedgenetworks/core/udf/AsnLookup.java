@@ -2,7 +2,7 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
-import com.geedgenetworks.common.utils.IPUtils;
+import com.geedgenetworks.core.utils.IPUtils;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;

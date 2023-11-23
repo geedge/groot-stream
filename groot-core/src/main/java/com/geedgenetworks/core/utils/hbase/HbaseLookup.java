@@ -1,10 +1,10 @@
-package com.geedgenetworks.common.utils.hbase;
+package com.geedgenetworks.core.utils.hbase;
 
-import com.geedgenetworks.common.utils.hbase.async.AsyncQueryExecutor;
-import com.geedgenetworks.common.utils.hbase.async.Fetcher;
-import com.geedgenetworks.common.utils.hbase.async.FixedRateFetcher;
-import com.geedgenetworks.common.utils.hbase.async.state.Cached;
-import com.geedgenetworks.common.utils.hbase.async.state.HeapCached;
+import com.geedgenetworks.core.utils.hbase.async.AsyncQueryExecutor;
+import com.geedgenetworks.core.utils.hbase.async.Fetcher;
+import com.geedgenetworks.core.utils.hbase.async.FixedRateFetcher;
+import com.geedgenetworks.core.utils.hbase.async.state.Cached;
+import com.geedgenetworks.core.utils.hbase.async.state.HeapCached;
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.hadoop.hbase.client.Connection;

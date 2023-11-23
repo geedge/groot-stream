@@ -1,4 +1,4 @@
-package com.geedgenetworks.common.utils.hbase.async.state;
+package com.geedgenetworks.core.utils.hbase.async.state;
 
 import java.io.Closeable;
 

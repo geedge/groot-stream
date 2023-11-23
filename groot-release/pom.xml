@@ -110,6 +110,16 @@
                     <version>${project.version}</version>
                     <scope>provided</scope>
                 </dependency>
+
+                <!--Hbase Jars -->
+                <dependency>
+                    <groupId>com.geedgenetworks</groupId>
+                    <artifactId>groot-hbase-client</artifactId>
+                    <version>1.0</version>
+                    <scope>provided</scope>
+                </dependency>
+
+
             </dependencies>
         </profile>
     </profiles>

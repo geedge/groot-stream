@@ -1,6 +1,6 @@
-package com.geedgenetworks.common.utils.hbase.async;
+package com.geedgenetworks.core.utils.hbase.async;
 
-import com.geedgenetworks.common.utils.hbase.async.state.Cached;
+import com.geedgenetworks.core.utils.hbase.async.state.Cached;
 
 /**
  * An abstract class for executing asynchronous queries and caching the results. This class

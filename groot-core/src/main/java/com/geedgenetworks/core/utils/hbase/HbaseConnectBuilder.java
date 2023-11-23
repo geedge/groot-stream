@@ -1,4 +1,4 @@
-package com.geedgenetworks.common.utils.hbase;
+package com.geedgenetworks.core.utils.hbase;
 
 import com.geedgenetworks.common.config.commonConfig;
 import com.github.rholder.retry.*;

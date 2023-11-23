@@ -1,4 +1,4 @@
-package com.geedgenetworks.common.utils;
+package com.geedgenetworks.core.pojo;
 
 import java.io.InputStream;
 

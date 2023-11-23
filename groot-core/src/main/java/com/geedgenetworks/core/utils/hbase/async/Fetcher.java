@@ -1,4 +1,4 @@
-package com.geedgenetworks.common.utils.hbase.async;
+package com.geedgenetworks.core.utils.hbase.async;
 
 /**
  * An interface for defining a fetcher that performs asynchronous data retrieval. Implementing

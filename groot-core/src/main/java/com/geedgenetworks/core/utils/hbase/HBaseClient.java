@@ -1,4 +1,4 @@
-package com.geedgenetworks.common.utils.hbase;
+package com.geedgenetworks.core.utils.hbase;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;

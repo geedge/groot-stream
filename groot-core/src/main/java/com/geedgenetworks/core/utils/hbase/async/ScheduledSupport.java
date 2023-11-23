@@ -1,4 +1,4 @@
-package com.geedgenetworks.common.utils.hbase.async;
+package com.geedgenetworks.core.utils.hbase.async;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
