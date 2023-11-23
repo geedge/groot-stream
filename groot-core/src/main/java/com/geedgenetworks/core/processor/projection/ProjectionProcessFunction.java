@@ -25,7 +25,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
     private static final Log logger = LogFactory.get();
     private final ProjectionConfig projectionConfig;
-    private LinkedList<UdfEntity> functions;
+    private LinkedList<UdfEntity> functions ;
 
     public ProjectionProcessFunction(ProjectionConfig projectionConfig) throws Exception {
 
@@ -35,7 +35,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     @Override
     public void open(Configuration parameters) throws Exception {
 
-        LinkedList<UdfEntity> functions = new LinkedList<>();
+         this.functions = new LinkedList<>();
         try {
             for (UDFContext udfContext : projectionConfig.getFunctions()) {
                 Expression compiledExp = null;
@@ -70,7 +70,6 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
             throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Function initialization exception !",e);
 
         }
-        this.functions = functions;
     }
 
     @Override

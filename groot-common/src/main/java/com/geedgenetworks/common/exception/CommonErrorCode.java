@@ -17,11 +17,11 @@ public enum CommonErrorCode implements GrootStreamErrorCodeSupplier {
 
     @Override
     public String getCode() {
-        return null;
+        return code;
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return description;
     }
 }
