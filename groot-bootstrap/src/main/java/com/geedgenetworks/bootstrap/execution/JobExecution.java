@@ -9,6 +9,7 @@ import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigUtil;
 import com.typesafe.config.ConfigValueFactory;
@@ -150,12 +151,12 @@ public class JobExecution {
 
     private DAGInfo buildJobDAG(Config config) {
 
-        Map<String, Object> sources = null;
-        Map<String, Object> sinks = null;
-        Map<String, Object> filters = null;
-        Map<String, Object> preprocessingPipelines = null;
-        Map<String, Object> processingPipelines = null;
-        Map<String, Object> postprocessingPipelines = null;
+        Map<String, Object> sources = Maps.newHashMap();
+        Map<String, Object> sinks =Maps.newHashMap();
+        Map<String, Object> filters = Maps.newHashMap();
+        Map<String, Object> preprocessingPipelines = Maps.newHashMap();
+        Map<String, Object> processingPipelines = Maps.newHashMap();
+        Map<String, Object> postprocessingPipelines = Maps.newHashMap();
 
         if (config.hasPath(Constants.SOURCES)) {
             sources = config.getConfig(Constants.SOURCES).root().unwrapped();

@@ -15,9 +15,9 @@
         <module>groot-core</module>
         <module>groot-connectors</module>
         <module>groot-bootstrap</module>
-        <module>groot-tests</module>
         <module>groot-release</module>
         <module>groot-shade</module>
+        <module>groot-example</module>
     </modules>
 
     <properties>
