@@ -31,6 +31,27 @@
                     <artifactId>log4j-over-slf4j</artifactId>
                 </exclusion>
 
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-common</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-auth</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-mapreduce-client-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.hadoop</groupId>
+                    <artifactId>hadoop-hdfs</artifactId>
+                </exclusion>
+
             </exclusions>
         </dependency>
     </dependencies>
@@ -67,6 +88,7 @@
                                     <pattern>org.apache.hbase</pattern>
                                     <shadedPattern>${grootstream.shade.package}.org.apache.hbase</shadedPattern>
                                 </relocation>
+
                             </relocations>
                         </configuration>
                     </execution>

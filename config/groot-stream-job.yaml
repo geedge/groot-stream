@@ -31,7 +31,7 @@ filters:
     type: com.geedgenetworks.core.filter.AviatorFilter
     output_fields:
     properties:
-      expression: map.common_schema_type == 'SSL'
+      expression: map.common_schema_type == 'SSL' || map.common_schema_type == 'HTTP' || map.common_schema_type == 'BASE'
 
 
 preprocessing_pipelines:

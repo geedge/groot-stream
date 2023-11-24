@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.geedgenetworks</groupId>
-        <artifactId>groot-stream-platform</artifactId>
+        <artifactId>groot-stream</artifactId>
         <version>${revision}</version>
     </parent>
 
@@ -25,10 +25,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.geedgenetworks</groupId>
-            <artifactId>groot-hbase-client</artifactId>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
         </dependency>
-
 
         <dependency>
             <groupId>org.apache.flink</groupId>

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.geedgenetworks</groupId>
-    <artifactId>groot-stream-platform</artifactId>
+    <artifactId>groot-stream</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
 
@@ -44,6 +44,7 @@
         <junit.version>5.9.0</junit.version>
         <flink.version>1.13.1</flink.version>
         <flink-shaded-hadoop-2.version>2.7.5-8.0</flink-shaded-hadoop-2.version>
+        <hbase.version>2.2.3</hbase.version>
         <scala.version>2.12</scala.version>
         <opencsv.version>3.3</opencsv.version>
         <jsonpath.version>2.4.0</jsonpath.version>
@@ -376,10 +377,21 @@
             </dependency>
 
             <dependency>
-                <groupId>com.geedgenetworks</groupId>
-                <artifactId>groot-hbase-client</artifactId>
-                <version>${project.version}</version>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-client</artifactId>
+                <version>${hbase.version}</version>
                 <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>log4j-over-slf4j</artifactId>
+                    </exclusion>
+
+                </exclusions>
             </dependency>
 
         </dependencies>

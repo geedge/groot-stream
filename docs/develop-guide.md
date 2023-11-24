@@ -31,5 +31,24 @@ When throwing an exception with a hint message and ensure that the exception has
 3. Add VM options `-e client --target local -c /...../groot-stream/config/groot-stream-job.yaml`.
 4. Click the `Run` button.
 
+## How to run a job in command line
+- Standalone Mode
+```shell
+cd "groot-stream-${version}"
+./bin/start.sh -c ./config/groot-stream-job.yaml --target remote -d -n groot-stream-job
+```
+- Yarn Mode
+```shell
+cd "groot-stream-${version}"
+./bin/start.sh -c ./config/groot-stream-job.yaml --target yarn-per-job -d -n groot-stream-job
+```
+
+
+## Run a job example
+All examples are in module `groot-stream-example`. You can run the example [ running or debugging a job in IDEA].
+e.g. we use `groot-stream-example/src/main/java/com/geedgenetworks/example/Bootsrap.java` as the example, when you produce some sample data in kafka and you could see the output as below .
+```json
+{"ip_string":"8.8.8.9","fqdn_string":"www.geedgenetworks.com","port_int32":80}
+```
 
 

@@ -10,6 +10,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 
+/**
+ * Kafka Producer sample data : {"ip_string":"8.8.8.9","fqdn_string":"www.geedgenetworks.com","port_int32":80,"others":123}
+ */
 public class BootstrapExample {
     public static void main(String[] args) throws FileNotFoundException, URISyntaxException {
         String configPath = args.length > 0 ? args[0] : "/examples/kafka-to-kafka-job.yaml";
