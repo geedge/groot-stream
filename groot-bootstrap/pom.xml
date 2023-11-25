@@ -50,6 +50,7 @@
             <scope>${scope}</scope>
         </dependency>
 
+
         <!--  Idea debug dependencies -->
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -110,8 +111,8 @@
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
-
         </dependency>
+
 
     </dependencies>
 

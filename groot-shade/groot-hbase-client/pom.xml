@@ -5,7 +5,7 @@
     <parent>
         <artifactId>groot-shade</artifactId>
         <groupId>com.geedgenetworks</groupId>
-        <version>1.0</version>
+        <version>${revision}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -88,7 +88,6 @@
                                     <pattern>org.apache.hbase</pattern>
                                     <shadedPattern>${grootstream.shade.package}.org.apache.hbase</shadedPattern>
                                 </relocation>
-
                             </relocations>
                         </configuration>
                     </execution>
