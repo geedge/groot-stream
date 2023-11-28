@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.udf.snowflake;
 
-import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.utils.DistributedLock;
 
 import cn.hutool.log.Log;
@@ -71,7 +71,7 @@ public class SnowflakeIdUtil {
 
     // ==============================Constructors=====================================
     static {
-        new SnowflakeIdUtil(commonConfig.ZOOKEEPER_QUORUM, commonConfig.DATA_CENTER_ID_NUM);
+        new SnowflakeIdUtil(CommonConfig.ZOOKEEPER_QUORUM, CommonConfig.DATA_CENTER_ID_NUM);
     }
     /** 构造函数 */
     public SnowflakeIdUtil(String zookeeperIp, long dataCenterIdNum) {

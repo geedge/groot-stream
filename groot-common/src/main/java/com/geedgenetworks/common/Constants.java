@@ -27,6 +27,22 @@ public final class Constants {
             "                                                                              \n";
 
 
+    public static final String SYSPROP_GROOTSTREAM_CONFIG = "grootstream.config";
+    public static final String HAZELCAST_GROOTSTREAM_CONF_FILE_PREFIX = "grootstream";
+    /**
+     * The default port number for the cluster auto-discovery mechanism's multicast communication.
+     */
+    public static final int DEFAULT_GROOTSTREAM_MULTICAST_PORT = 53326;
+    public static final String HAZELCAST_GROOTSTREAM_DEFAULT_YAML = "grootstream.yaml";
+
+    public static final String GROOTSTREAM_CLUSTER_NAME = "gt:impl:grootStreamServer";
+
+
+
+
+
+
+
 
 
 

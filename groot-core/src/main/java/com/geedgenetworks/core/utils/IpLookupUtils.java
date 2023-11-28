@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.utils;
 
-import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.common.config.CommonConfig;
 
 import com.geedgenetworks.utils.IpLookupV2;
 import com.geedgenetworks.utils.StringUtil;
@@ -192,15 +192,15 @@ public class IpLookupUtils {
     private static byte[] downloadFile(String fileName) {
         byte[] fileBytes = null;
         try {
-            String filePath = commonConfig.KNOWLEDGEBASE_FILE_STORAGE_PATH + fileName;
+            String filePath = CommonConfig.KNOWLEDGEBASE_FILE_STORAGE_PATH + fileName;
             fileBytes =
-                    "hdfs".equals(commonConfig.KNOWLEDGEBASE_FILE_STORAGE_TYPE)
+                    "hdfs".equals(CommonConfig.KNOWLEDGEBASE_FILE_STORAGE_TYPE)
                             ? HadoopUtils.downloadFileByBytes(filePath)
                             : new FileReader(filePath).readBytes();
         } catch (RuntimeException e) {
             logger.error(
                     "Failed to download file {} from {}, The exception message is:{}",
-                    commonConfig.KNOWLEDGEBASE_FILE_STORAGE_TYPE,
+                    CommonConfig.KNOWLEDGEBASE_FILE_STORAGE_TYPE,
                     fileName,
                     e.getMessage());
             e.printStackTrace();

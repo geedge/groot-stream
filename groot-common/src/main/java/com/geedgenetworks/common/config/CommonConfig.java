@@ -8,7 +8,7 @@ import static com.geedgenetworks.common.config.GrootYamlParser.getClassReflect;
 import static com.geedgenetworks.common.config.GrootYamlParser.loadYaml;
 
 /** Created by wk on 2021/1/6. */
-public class commonConfig {
+public class CommonConfig {
     public static Map<String, Object> yamlData;
     public static Map<String, Object> pluginData;
 

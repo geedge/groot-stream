@@ -1,0 +1,20 @@
+hazelcast:
+  cluster-name: grootstream
+  network:
+    join:
+      tcp-ip:
+        enabled: true
+        member-list:
+          - localhost
+    port:
+      auto-increment: true
+      port-count: 100
+      port: 5801
+  map:
+    map-name-template:
+      map-store:
+        enabled: true
+        initial-mode: EAGER
+        class-name: com.geedgenetworks.common.persistence.FileMapStore
+        properties:
+          path: /tmp/file-store-map

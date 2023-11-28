@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.udf.radius;
 
-import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.UDF;
@@ -21,7 +21,7 @@ public class RadiusLookup implements UDF {
     @Override
     public Event evaluate(Event event) {
 
-        if ("vsys".equals(commonConfig.DATA_RELATIONSHIP_MODEL)) {
+        if ("vsys".equals(CommonConfig.DATA_RELATIONSHIP_MODEL)) {
             int vsysId =
                     Integer.parseInt(event.getExtractedFields().get("common_vsys_id").toString());
             String value = radiusLookup.get(udfContext.getLookup_fields().get(0) + vsysId);

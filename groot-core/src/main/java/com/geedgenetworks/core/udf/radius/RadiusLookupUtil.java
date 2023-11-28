@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.udf.radius;
 
-import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.core.utils.hbase.HBaseClient;
 import com.geedgenetworks.core.utils.hbase.HbaseLookup;
 import com.geedgenetworks.core.utils.hbase.async.state.Cached;
@@ -42,19 +42,19 @@ public class RadiusLookupUtil extends HbaseLookup<String, String> {
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
                 client.scan(
-                        commonConfig.HBASE_RADIUS_TABLE_NAME,
-                        commonConfig.HBASE_RADIUS_SCAN_MAX_ROWS > 0
-                                ? commonConfig.HBASE_RADIUS_SCAN_MAX_ROWS
+                        CommonConfig.HBASE_RADIUS_TABLE_NAME,
+                        CommonConfig.HBASE_RADIUS_SCAN_MAX_ROWS > 0
+                                ? CommonConfig.HBASE_RADIUS_SCAN_MAX_ROWS
                                 : DEFAULT_HBASE_RADIUS_SCAN_MAX_ROWS,
                         TimeRange.allTime(),
                         ret -> {
                             String framedIp =
-                                    ret.getString(commonConfig.RADIUS_FAMILY_NAME, FIELD_NAME_FRAMED_IP);
-                            String account = ret.getString(commonConfig.RADIUS_FAMILY_NAME, FIELD_NAME_ACCOUNT);
+                                    ret.getString(CommonConfig.RADIUS_FAMILY_NAME, FIELD_NAME_FRAMED_IP);
+                            String account = ret.getString(CommonConfig.RADIUS_FAMILY_NAME, FIELD_NAME_ACCOUNT);
                             AcctStatusType type =
                                     AcctStatusType.of(
                                             ret.getInt(
-                                                    commonConfig.RADIUS_FAMILY_NAME,
+                                                    CommonConfig.RADIUS_FAMILY_NAME,
                                                     FIELD_NAME_ACCT_STATUS_TYPE));
                             switch (type) {
                                 case STOP:

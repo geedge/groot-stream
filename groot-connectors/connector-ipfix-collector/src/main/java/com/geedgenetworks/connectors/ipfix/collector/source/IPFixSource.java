@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.geedgenetworks.common.config.commonConfig.*;
+import static com.geedgenetworks.common.config.CommonConfig.*;
 import static com.geedgenetworks.common.utils.ColumnUtil.columnSelector;
 
 public class IPFixSource implements Source {

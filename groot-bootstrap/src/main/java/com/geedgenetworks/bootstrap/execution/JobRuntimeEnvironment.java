@@ -1,9 +1,11 @@
 package com.geedgenetworks.bootstrap.execution;
 
+import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.bootstrap.enums.TargetType;
 import com.geedgenetworks.bootstrap.utils.EnvironmentUtil;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CheckResult;
+import com.geedgenetworks.common.config.GrootStreamConfig;
 import com.geedgenetworks.common.utils.ReflectionUtils;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
@@ -23,17 +25,20 @@ import java.util.stream.Collectors;
 public class JobRuntimeEnvironment implements RuntimeEnvironment{
     private static volatile JobRuntimeEnvironment INSTANCE = null;
     private Config appConfig;
+
+    private GrootStreamConfig grootStreamConfig;
     private StreamExecutionEnvironment environment;
 
-    private JobRuntimeEnvironment(Config config) {
+    private JobRuntimeEnvironment(Config config, GrootStreamConfig grootStreamConfig) {
+        this.grootStreamConfig = grootStreamConfig;
         this.initialize(config);
     }
 
-    public static JobRuntimeEnvironment getInstance(Config config) {
+    public static JobRuntimeEnvironment getInstance(Config config, GrootStreamConfig grootStreamConfig) {
         if (INSTANCE == null) {
             synchronized (JobRuntimeEnvironment.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = new JobRuntimeEnvironment(config);
+                    INSTANCE = new JobRuntimeEnvironment(config, grootStreamConfig);
                 }
             }
         }
@@ -59,7 +64,6 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
     @Override
     public RuntimeEnvironment prepare() {
         createStreamEnvironment();
-
         return this;
     }
 
@@ -100,7 +104,6 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
     private void createStreamEnvironment() {
 
         Configuration configuration = new Configuration();
-        //init GlobalJobParameters
         EnvironmentUtil.initConfiguration(appConfig, configuration);
         Config envConfig = appConfig.getConfig(Constants.APPLICATION_ENV);
         if (envConfig.hasPath(ExecutionConfigKey.ENV_TARGET_TYPE)
@@ -110,7 +113,9 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         } else {
             environment = StreamExecutionEnvironment.getExecutionEnvironment(configuration);
         }
+        configuration.setString(Constants.SYSPROP_GROOTSTREAM_CONFIG, JSON.toJSONString(grootStreamConfig.getEngineConfig()));
         environment.getConfig().enableObjectReuse();
+        environment.getConfig().setGlobalJobParameters(configuration);
         setTimeCharacteristic();
         // setCheckpoint();
         EnvironmentUtil.setRestartStrategy(appConfig, environment.getConfig());

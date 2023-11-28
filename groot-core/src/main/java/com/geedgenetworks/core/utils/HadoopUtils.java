@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.utils;
 
-import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.common.config.CommonConfig;
 
 import com.geedgenetworks.utils.StringUtil;
 import org.apache.hadoop.conf.Configuration;
@@ -46,7 +46,7 @@ public class HadoopUtils {
             configuration.set("hadoop.proxyuser.root.groups", "*");
             configuration.set("dfs.nameservices", "ns1");
             configuration.set("dfs.ha.namenodes.ns1", "nn1,nn2");
-            String[] servers = StringUtil.split(commonConfig.HDFS_SERVERS, ",");
+            String[] servers = StringUtil.split(CommonConfig.HDFS_SERVERS, ",");
             configuration.set("dfs.namenode.rpc-address.ns1.nn1", servers[0]);
             configuration.set("dfs.namenode.rpc-address.ns1.nn2", servers[1]);
             configuration.set(

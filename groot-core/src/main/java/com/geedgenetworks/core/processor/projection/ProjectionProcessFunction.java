@@ -2,7 +2,7 @@ package com.geedgenetworks.core.processor.projection;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.utils.ColumnUtil;
@@ -41,9 +41,9 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                 Expression compiledExp = null;
                 UdfEntity udfEntity = new UdfEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
-                if (commonConfig.UDF_CLASS_REFLECT.containsKey(udfContext.getFunction())) {
+                if (CommonConfig.UDF_CLASS_REFLECT.containsKey(udfContext.getFunction())) {
 
-                    Class cls = Class.forName(commonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
+                    Class cls = Class.forName(CommonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
                     UDF udf = (UDF) cls.getConstructor().newInstance();
                     Method withParametersMethod =
                             cls.getDeclaredMethod("init", UDFContext.class);
@@ -59,7 +59,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     udfEntity.setUdfFunction(udf);
                     udfEntity.setCompiledExp(compiledExp);
                     udfEntity.setName(udfContext.getName());
-                    udfEntity.setClassName(commonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
+                    udfEntity.setClassName(CommonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
                     functions.add(udfEntity);
                 } else {
                     throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "No such udf function "+udfContext.getFunction());

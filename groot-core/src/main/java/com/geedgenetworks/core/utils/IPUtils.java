@@ -5,7 +5,7 @@ import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
-import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.utils.HttpClientUtils;
 import com.geedgenetworks.core.pojo.KnowLedgeEntity;
 import com.geedgenetworks.utils.IpLookupV2;
@@ -39,8 +39,8 @@ public class IPUtils {
                 "$.[?(@.version=='latest' && @.name in ['ip_v4_built_in','ip_v6_built_in','ip_v4_user_defined','ip_v6_user_defined','asn_v4','asn_v6']  && @.id in ['");
         //    sb.append(commonConfig.ID_ARRAY);
 
-        if (commonConfig.KNOWLEDGE_IPLOOKUP_MAP != null && commonConfig.KNOWLEDGE_IPLOOKUP_MAP.size() > 0) {
-            for (Map.Entry<String, Object> entry : commonConfig.KNOWLEDGE_IPLOOKUP_MAP.entrySet()) {
+        if (CommonConfig.KNOWLEDGE_IPLOOKUP_MAP != null && CommonConfig.KNOWLEDGE_IPLOOKUP_MAP.size() > 0) {
+            for (Map.Entry<String, Object> entry : CommonConfig.KNOWLEDGE_IPLOOKUP_MAP.entrySet()) {
                 Map<String, String> ids = (Map<String, String>) entry.getValue();
                 if (ids != null && ids.size() > 0) {
                     for (Map.Entry<String, String> obj : ids.entrySet()) {
@@ -50,8 +50,8 @@ public class IPUtils {
                 }
             }
         }
-        if (commonConfig.KNOWLEDGE_ASNLOOKUP_MAP != null && commonConfig.KNOWLEDGE_ASNLOOKUP_MAP.size() > 0) {
-            for (Map.Entry<String, Object> entry : commonConfig.KNOWLEDGE_ASNLOOKUP_MAP.entrySet()) {
+        if (CommonConfig.KNOWLEDGE_ASNLOOKUP_MAP != null && CommonConfig.KNOWLEDGE_ASNLOOKUP_MAP.size() > 0) {
+            for (Map.Entry<String, Object> entry : CommonConfig.KNOWLEDGE_ASNLOOKUP_MAP.entrySet()) {
                 Map<String, String> ids = (Map<String, String>) entry.getValue();
                 if (ids != null && ids.size() > 0) {
                     for (Map.Entry<String, String> obj : ids.entrySet()) {
@@ -65,16 +65,16 @@ public class IPUtils {
         KNOWLEDGE_EXPR = sb.toString();
         //       System.out.println("listening nacos config");
         Properties properties = new Properties();
-        properties.put(PropertyKeyConst.SERVER_ADDR, commonConfig.NACOS_SERVER_ADDR);
-        properties.setProperty(PropertyKeyConst.USERNAME, commonConfig.NACOS_USERNAME);
-        properties.setProperty(PropertyKeyConst.PASSWORD, commonConfig.NACOS_PASSWORD);
-        if (!StringUtil.isEmpty(commonConfig.NACOS_NAMESPACE)) {
-            properties.setProperty(PropertyKeyConst.NAMESPACE, commonConfig.NACOS_NAMESPACE);
+        properties.put(PropertyKeyConst.SERVER_ADDR, CommonConfig.NACOS_SERVER_ADDR);
+        properties.setProperty(PropertyKeyConst.USERNAME, CommonConfig.NACOS_USERNAME);
+        properties.setProperty(PropertyKeyConst.PASSWORD, CommonConfig.NACOS_PASSWORD);
+        if (!StringUtil.isEmpty(CommonConfig.NACOS_NAMESPACE)) {
+            properties.setProperty(PropertyKeyConst.NAMESPACE, CommonConfig.NACOS_NAMESPACE);
         }
         Properties nacosProperties = properties;
-        String dataId = commonConfig.NACOS_DATA_ID;
-        String group = commonConfig.NACOS_GROUP;
-        long readTimeout = commonConfig.NACOS_READ_TIMEOUT;
+        String dataId = CommonConfig.NACOS_DATA_ID;
+        String group = CommonConfig.NACOS_GROUP;
+        long readTimeout = CommonConfig.NACOS_READ_TIMEOUT;
         // 初始化定位库缓存
         logger.info("connect nacos：" + nacosProperties.getProperty(PropertyKeyConst.SERVER_ADDR));
         try {
@@ -161,7 +161,7 @@ public class IPUtils {
         if (isValid == 1) {
             try {
                 long start = System.currentTimeMillis();
-                Header header = new BasicHeader("token", commonConfig.HOS_TOKEN);
+                Header header = new BasicHeader("token", CommonConfig.HOS_TOKEN);
                 HttpClientUtils httpClientUtils = new HttpClientUtils();
                 inputStream = httpClientUtils.httpGetInputStream(fileUrl, 3000, header);
                 long end = System.currentTimeMillis();
@@ -176,8 +176,8 @@ public class IPUtils {
 
     public static void loadIpLook() throws Exception {
 
-        if (commonConfig.KNOWLEDGE_IPLOOKUP_MAP != null) {
-            for (Map.Entry<String, Object> entry : commonConfig.KNOWLEDGE_IPLOOKUP_MAP.entrySet()) {
+        if (CommonConfig.KNOWLEDGE_IPLOOKUP_MAP != null) {
+            for (Map.Entry<String, Object> entry : CommonConfig.KNOWLEDGE_IPLOOKUP_MAP.entrySet()) {
                 Map<String, String> ids = (Map<String, String>) entry.getValue();
                 IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
                 if (ids != null) {
@@ -214,8 +214,8 @@ public class IPUtils {
                 venderWithIpLookup.put(entry.getKey(), ipLookup);
             }
         }
-        if (commonConfig.KNOWLEDGE_ASNLOOKUP_MAP != null) {
-            for (Map.Entry<String, Object> entry : commonConfig.KNOWLEDGE_ASNLOOKUP_MAP.entrySet()) {
+        if (CommonConfig.KNOWLEDGE_ASNLOOKUP_MAP != null) {
+            for (Map.Entry<String, Object> entry : CommonConfig.KNOWLEDGE_ASNLOOKUP_MAP.entrySet()) {
                 Map<String, String> ids = (Map<String, String>) entry.getValue();
                 IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
                 if (ids != null) {

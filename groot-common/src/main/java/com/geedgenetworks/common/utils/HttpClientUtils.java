@@ -1,6 +1,6 @@
 package com.geedgenetworks.common.utils;
 
-import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.utils.StringUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.*;
@@ -57,9 +57,9 @@ public class HttpClientUtils {
     static {
 
         // 设置最大连接数
-        CONN_MANAGER.setMaxTotal(commonConfig.HTTP_POOL_MAX_CONNECTION);
+        CONN_MANAGER.setMaxTotal(CommonConfig.HTTP_POOL_MAX_CONNECTION);
         // 设置每个连接的路由数
-        CONN_MANAGER.setDefaultMaxPerRoute(commonConfig.HTTP_POOL_MAX_PER_ROUTE);
+        CONN_MANAGER.setDefaultMaxPerRoute(CommonConfig.HTTP_POOL_MAX_PER_ROUTE);
     }
 
     /**
@@ -96,9 +96,9 @@ public class HttpClientUtils {
             PoolingHttpClientConnectionManager connManager =
                     new PoolingHttpClientConnectionManager(socketFactoryRegistry);
             // 设置最大连接数
-            connManager.setMaxTotal(commonConfig.HTTP_POOL_MAX_CONNECTION);
+            connManager.setMaxTotal(CommonConfig.HTTP_POOL_MAX_CONNECTION);
             // 设置每个连接的路由数
-            connManager.setDefaultMaxPerRoute(commonConfig.HTTP_POOL_MAX_PER_ROUTE);
+            connManager.setDefaultMaxPerRoute(CommonConfig.HTTP_POOL_MAX_PER_ROUTE);
             return connManager;
         } catch (KeyManagementException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e.getMessage());
@@ -115,11 +115,11 @@ public class HttpClientUtils {
         RequestConfig requestConfig =
                 RequestConfig.custom()
                         // 获取连接超时时间
-                        .setConnectionRequestTimeout(commonConfig.HTTP_POOL_REQUEST_TIMEOUT)
+                        .setConnectionRequestTimeout(CommonConfig.HTTP_POOL_REQUEST_TIMEOUT)
                         // 请求超时时间
-                        .setConnectTimeout(commonConfig.HTTP_POOL_CONNECT_TIMEOUT)
+                        .setConnectTimeout(CommonConfig.HTTP_POOL_CONNECT_TIMEOUT)
                         // 响应超时时间
-                        .setSocketTimeout(commonConfig.HTTP_POOL_RESPONSE_TIMEOUT)
+                        .setSocketTimeout(CommonConfig.HTTP_POOL_RESPONSE_TIMEOUT)
                         .build();
 
         /*

@@ -11,12 +11,14 @@ import com.geedgenetworks.core.processor.projection.ProjectionProcessor;
 import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class PreprocessingExecuteProcessor extends AbstractExecuteProcessor<String, ProjectionConfig> {
     private static final String PROCESSOR_TYPE = ProcessorType.PREPROCESSING.getType();
 
@@ -41,7 +43,6 @@ public class PreprocessingExecuteProcessor extends AbstractExecuteProcessor<Stri
 
     @Override
     public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Edge edge) throws JobExecuteException {
-
         Class cls = null;
         ProjectionProcessor projectionProcessor = null;
         SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;

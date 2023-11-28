@@ -6,6 +6,7 @@ import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.main.GrootStreamRunner;
 import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.GrootStreamConfig;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Lists;
@@ -37,7 +38,7 @@ public class JobExecution {
     private final DAGInfo dagInfo;
 
     private final List<URL> jarPaths;
-    public JobExecution(Config config) {
+    public JobExecution(Config config, GrootStreamConfig grootStreamConfig) {
        try {
             jarPaths = new ArrayList<>(Collections.singletonList(new File(StartBuilder.appBootstrapDir()
                     .resolve(GrootStreamRunner.APP_JAR_NAME).toString())
@@ -55,7 +56,7 @@ public class JobExecution {
         this.processingExecuteProcessor = new ProcessingExecuteProcessor(jarPaths, config);
         this.postprocessingExecuteProcessor = new PostprocessingExecuteProcessor(jarPaths, config);
         this.jobRuntimeEnvironment =
-                JobRuntimeEnvironment.getInstance(this.registerPlugin(config, jarPaths));
+                JobRuntimeEnvironment.getInstance(this.registerPlugin(config, jarPaths), grootStreamConfig);
 
         this.sourceExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.sinkExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);

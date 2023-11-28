@@ -67,6 +67,15 @@
             <artifactId>httpclient</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.lmax</groupId>
+            <artifactId>disruptor</artifactId>
+        </dependency>
+
 
         <!-- flink  -->
         <dependency>

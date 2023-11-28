@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.udf.gtpc;
 
-import com.geedgenetworks.common.config.commonConfig;
+import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.core.utils.hbase.HBaseClient;
 import com.geedgenetworks.core.utils.hbase.HbaseLookup;
 import com.geedgenetworks.core.utils.hbase.async.state.Cached;
@@ -44,22 +44,22 @@ public class GtpCLookupUtil extends HbaseLookup<String, GtpCLookupUtil.GtpC> {
                 StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
                 client.scan(
-                        commonConfig.HBASE_GTPC_TABLE_NAME,
-                        commonConfig.HBASE_GTPC_SCAN_MAX_ROWS > 0
-                                ? commonConfig.HBASE_GTPC_SCAN_MAX_ROWS
+                        CommonConfig.HBASE_GTPC_TABLE_NAME,
+                        CommonConfig.HBASE_GTPC_SCAN_MAX_ROWS > 0
+                                ? CommonConfig.HBASE_GTPC_SCAN_MAX_ROWS
                                 : DEFAULT_HBASE_GTPC_SCAN_MAX_ROWS,
                         TimeRange.allTime(),
                         ret -> {
                             String upLinkTeId =
-                                    ret.getString(commonConfig.GTPC_FAMILY_NAME, FIELD_NAME_UP_LINK_TE_ID);
+                                    ret.getString(CommonConfig.GTPC_FAMILY_NAME, FIELD_NAME_UP_LINK_TE_ID);
                             String downLinkTeId =
-                                    ret.getString(commonConfig.GTPC_FAMILY_NAME, FIELD_NAME_DOWN_LINK_TE_ID);
-                            String imsi = ret.getString(commonConfig.GTPC_FAMILY_NAME, FIELD_NAME_IMSI);
-                            String imei = ret.getString(commonConfig.GTPC_FAMILY_NAME, FIELD_NAME_IMEI);
+                                    ret.getString(CommonConfig.GTPC_FAMILY_NAME, FIELD_NAME_DOWN_LINK_TE_ID);
+                            String imsi = ret.getString(CommonConfig.GTPC_FAMILY_NAME, FIELD_NAME_IMSI);
+                            String imei = ret.getString(CommonConfig.GTPC_FAMILY_NAME, FIELD_NAME_IMEI);
                             String phoneNumber =
-                                    ret.getString(commonConfig.GTPC_FAMILY_NAME, FIELD_NAME_PHONE_NUMBER);
+                                    ret.getString(CommonConfig.GTPC_FAMILY_NAME, FIELD_NAME_PHONE_NUMBER);
                             MsgType msgType =
-                                    MsgType.of(ret.getInt(commonConfig.GTPC_FAMILY_NAME, FIELD_NAME_MSG_TYPE));
+                                    MsgType.of(ret.getInt(CommonConfig.GTPC_FAMILY_NAME, FIELD_NAME_MSG_TYPE));
                             switch (msgType) {
                                 case CREATE:
                                     GtpC gtpC = new GtpC(phoneNumber, imsi, imei);

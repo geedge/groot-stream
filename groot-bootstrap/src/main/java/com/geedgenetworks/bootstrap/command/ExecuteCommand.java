@@ -4,10 +4,12 @@ import cn.hutool.setting.yaml.YamlUtil;
 import com.geedgenetworks.bootstrap.exception.CommandExecuteException;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
-import com.geedgenetworks.bootstrap.execution.JobExecution;
 import com.geedgenetworks.bootstrap.execution.ExecutionConfigKey;
+import com.geedgenetworks.bootstrap.execution.JobExecution;
 import com.geedgenetworks.bootstrap.utils.ConfigFileUtils;
 import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.ConfigProvider;
+import com.geedgenetworks.common.config.GrootStreamConfig;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigUtil;
@@ -29,6 +31,7 @@ public class ExecuteCommand implements Command<ExecuteCommandArgs> {
 
     @Override
     public void execute() throws CommandExecuteException, ConfigCheckException {
+        GrootStreamConfig grootStreamConfig = ConfigProvider.locateAndGetGrootStreamConfig();
         Path configFile = ConfigFileUtils.getConfigPath(executeCommandArgs);
         // check config file exist
         checkConfigExist(configFile);
@@ -46,7 +49,7 @@ public class ExecuteCommand implements Command<ExecuteCommandArgs> {
                     ConfigValueFactory.fromAnyRef(executeCommandArgs.getTargetType().getTarget()));
         }
 
-        JobExecution jobExecution = new JobExecution(config);
+        JobExecution jobExecution = new JobExecution(config, grootStreamConfig);
         try {
             jobExecution.execute();
         } catch (Exception e) {
@@ -54,4 +57,8 @@ public class ExecuteCommand implements Command<ExecuteCommandArgs> {
         }
 
     }
+
+
+
+
 }

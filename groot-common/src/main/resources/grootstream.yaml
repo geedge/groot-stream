@@ -1,0 +1,50 @@
+grootstream:
+  engine:
+    tick_tuple_freq_secs: 90
+    gtpc_scan_max_rows: 10000
+    radius_scan_max_rows: 10000
+    radius_table_name: RADIUS-TABLE
+    gtpc_table_name: GTPC-TABLE
+    hbase_rpc_timeout: 60000
+    http_con_pool:
+      max_total: 400
+      max_per_route: 60
+      connection_request_timeout: 60000
+      connect_timeout: 60000
+      socket_timeout: 60000
+    knowledge_base:
+      file_check_number: 3
+      asnlookup:
+        - vendor_id: TSG
+          default_mmdb_file: 7ce2f9890950ba90-fcc25696bf11a8a0
+          user_defined_mmdb_file: 7ce2f9890950ba90-71f13b3736863ddb
+        - vendor_id: CN
+          default_mmdb_file: 7ce2f9890950ba90-fcc25696bf11a8a0
+          user_defined_mmdb_file: 7ce2f9890950ba90-71f13b3736863ddb
+      storage:
+        fs_type: hdfs
+        fs_default_path: /knowledgebase/ETL-SESSION-RECORD-COMPLETED/
+    snowflake:
+      data_center_id_num: 1
+    nacos:
+      server_addr: 192.168.44.12:8848
+      username: nacos
+      password: nacos
+      namespace: test
+      data_id: knowledge_base.json
+      group: DEFAULT_GROUP
+      read_timeout: 5000
+    consul:
+      server_addr: 192.168.41.30
+      server_port: 8500
+      token: c989b503-1d74-f49c-5698-e90fe461e938
+    hos:
+      token: c21f969b5f03d33d43e04f8f136e7682
+    zookeeper:
+      quorum: 192.168.44.12:2181
+    hdfs:
+      servers: 192.168.44.11:9000,192.168.44.14:9000
+
+
+
+
