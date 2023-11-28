@@ -35,7 +35,7 @@ filters:
 
 
 preprocessing_pipelines:
-  preprocessing_processor:
+  preprocessing_processor: # [object] Preprocessing Pipeline
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     output_fields:
     properties:
@@ -52,12 +52,12 @@ preprocessing_pipelines:
         parameters:
 
 processing_pipelines:
-  session_record_processor:
+  session_record_processor: # [object] Processing Pipeline
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     output_fields:
       properties:
       key: value
-    functions:
+    functions: # [array of object] Function List
       - function: SNOWFLAKE_ID
         lookup_fields: ['']
         output_fields: ['common_log_id']
@@ -154,12 +154,12 @@ sinks:
       kafka.compression.type: snappy
 
 application:
-  name: groot-stream-test
+  name: groot-stream-test # [string] Application Name
   env:
-    execution.parallelism: 1
+    execution.parallelism: 1 # [number] Job-Level Parallelism
   topology:
     - input: kafka_source
-      parallelism: 1
+      parallelism: 1 # [number] Parallelism of Source
       targets:
         - ssl_filter
     - input: ssl_filter
