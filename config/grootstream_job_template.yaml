@@ -157,16 +157,20 @@ application:
   name: groot-stream-test # [string] Application Name
   env:
     execution.parallelism: 1 # [number] Job-Level Parallelism
-  topology:
-    - input: kafka_source
-      parallelism: 1 # [number] Parallelism of Source
-      targets:
-        - ssl_filter
-    - input: ssl_filter
-      targets:
-       - session_record_processor
-    - input: session_record_processor
-      targets:
-        - kafka_sink_a
-        - kafka_sink_b
+  topology: # [array of object] Node List. It will be used build data flow for job dag graph.
+    - name: kafka_source # [string] Node Name, must be unique. It will be used as the name of the corresponding Flink operator. eg. kafka_source the processor type as SOURCE.
+      parallelism: 1 # [number] Operator-Level Parallelism.
+      downstream: [ssl_filter]
+    - name: ssl_filter
+      parallelism: 1
+      downstream: [session_record_processor]
+    - name: session_record_processor
+      parallelism: 1
+      downstream: [kafka_sink_a, kafka_sink_b]
+    - name: kafka_sink_a
+      parallelism: 1
+      downstream: []
+    - name: kafka_sink_b
+      parallelism: 1
+      downstream: []
 

@@ -35,7 +35,7 @@ public class JobExecution {
     private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> preprocessingExecuteProcessor;
     private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> processingExecuteProcessor;
     private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> postprocessingExecuteProcessor;
-    private final DAGInfo dagInfo;
+    private final List<Node> nodes;
 
     private final List<URL> jarPaths;
     public JobExecution(Config config, GrootStreamConfig grootStreamConfig) {
@@ -64,7 +64,7 @@ public class JobExecution {
         this.preprocessingExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.processingExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.postprocessingExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.dagInfo = buildJobDAG(config);
+        this.nodes = buildJobNode(config);
 
     }
 
@@ -150,7 +150,7 @@ public class JobExecution {
         return config;
     }
 
-    private DAGInfo buildJobDAG(Config config) {
+    private List<Node> buildJobNode(Config config) {
 
         Map<String, Object> sources = Maps.newHashMap();
         Map<String, Object> sinks =Maps.newHashMap();
@@ -180,42 +180,32 @@ public class JobExecution {
 
         List<? extends Config> topology = jobRuntimeEnvironment.getConfig().getConfigList(Constants.APPLICATION_TOPOLOGY);
 
-        List<Edge> edges = Lists.newArrayList();
+        List<Node> nodes = Lists.newArrayList();
 
         topology.forEach(item -> {
-            Edge edge = JSONObject.from(item.root().unwrapped()).toJavaObject(Edge.class);
-            edges.add(edge);
+            Node node = JSONObject.from(item.root().unwrapped()).toJavaObject(Node.class);
+            nodes.add(node);
         });
-        List<String> vertexList = new ArrayList<>();
-        for(Edge edge : edges) {
-            vertexList.add(edge.getInput());
-            vertexList.addAll(edge.getTargets());
-        }
-        vertexList = vertexList.stream().distinct().collect(Collectors.toList());
 
-        List<VertexInfo> vertexInfoList = new ArrayList<>();
-        for(String vertex : vertexList) {
-            VertexInfo vertexInfo = new VertexInfo();
-            vertexInfo.setName(vertex);
-            if (sources.containsKey(vertex)) {
-                vertexInfo.setType(ProcessorType.SOURCE);
-            } else if (sinks.containsKey(vertex)) {
-                vertexInfo.setType(ProcessorType.SINK);
-            } else if (filters.containsKey(vertex)) {
-                vertexInfo.setType(ProcessorType.FILTER);
-            } else if (preprocessingPipelines.containsKey(vertex)) {
-                vertexInfo.setType(ProcessorType.PREPROCESSING);
-            } else if (processingPipelines.containsKey(vertex)) {
-                vertexInfo.setType(ProcessorType.PROCESSING);
-            } else if (postprocessingPipelines.containsKey(vertex)) {
-                vertexInfo.setType(ProcessorType.POSTPROCESSING);
+        for(Node node : nodes) {
+            if (sources.containsKey(node.getName())) {
+                node.setType(ProcessorType.SOURCE);
+            } else if (sinks.containsKey(node.getName())) {
+                node.setType(ProcessorType.SINK);
+            } else if (filters.containsKey(node.getName())) {
+                node.setType(ProcessorType.FILTER);
+            } else if (preprocessingPipelines.containsKey(node.getName())) {
+                node.setType(ProcessorType.PREPROCESSING);
+            } else if (processingPipelines.containsKey(node.getName())) {
+                node.setType(ProcessorType.PROCESSING);
+            } else if (postprocessingPipelines.containsKey(node.getName())) {
+                node.setType(ProcessorType.POSTPROCESSING);
+            } else {
+                throw new JobExecuteException("unsupported process type " + node.getName());
             }
-            vertexInfoList.add(vertexInfo);
         }
-        DAGInfo tmpDAG = new DAGInfo();
-        tmpDAG.setEdges(edges);
-        tmpDAG.setVertexList(vertexInfoList);
-        return tmpDAG;
+
+        return nodes;
 
     }
 
@@ -225,16 +215,15 @@ public class JobExecution {
         if (!StartBuilder.getDeployMode().name().equals(DeployMode.CLIENT.name())) {
             jobRuntimeEnvironment.registerPlugin(jarPaths);
         }
-        List<VertexInfo> sourceVertexInfoList = dagInfo.getVertexList()
+        List<Node> sourceNodes = nodes
                 .stream().filter(v -> v.getType().name().equals(ProcessorType.SOURCE.name())).collect(Collectors.toList());
 
         SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
 
-        for(VertexInfo sourceVertex : sourceVertexInfoList) {
-            Edge sourceEdge = next(sourceVertex.getName());
-            singleOutputStreamOperator = sourceExecuteProcessor.execute(singleOutputStreamOperator, sourceEdge);
-            for (String target : sourceEdge.getTargets()) {
-                buildJobGraph(singleOutputStreamOperator, sourceEdge, target);
+        for(Node sourceNode : sourceNodes) {
+            singleOutputStreamOperator = sourceExecuteProcessor.execute(singleOutputStreamOperator, sourceNode);
+            for (String nodeName : sourceNode.getDownstream()) {
+                buildJobGraph(singleOutputStreamOperator, nodeName);
             }
         }
 
@@ -249,40 +238,32 @@ public class JobExecution {
 
     }
 
-    private void buildJobGraph(SingleOutputStreamOperator<Event> singleOutputStreamOperator, Edge edge, String target) {
-        VertexInfo vertexInfo = dagInfo.getVertexList().stream().filter(v -> v.getName().equals(target)).findFirst().orElse(null);
-        Edge nextEdge = next(target);
-        if (vertexInfo.getType().name().equals(ProcessorType.FILTER.name())) {
-            singleOutputStreamOperator = filterExecuteProcessor.execute(singleOutputStreamOperator, nextEdge);
-        } else if (vertexInfo.getType().name().equals(ProcessorType.PREPROCESSING.name())) {
-            singleOutputStreamOperator = preprocessingExecuteProcessor.execute(singleOutputStreamOperator, nextEdge);
-        } else if (vertexInfo.getType().name().equals(ProcessorType.PROCESSING.name())) {
-            singleOutputStreamOperator = processingExecuteProcessor.execute(singleOutputStreamOperator, nextEdge);
-        } else if (vertexInfo.getType().name().equals(ProcessorType.POSTPROCESSING.name())) {
-            singleOutputStreamOperator = postprocessingExecuteProcessor.execute(singleOutputStreamOperator, nextEdge);
-        } else if (vertexInfo.getType().name().equals(ProcessorType.SINK.name())) {
-            Edge endEdge = new Edge();
-            endEdge.setInput(target);
-            endEdge.setTargets(Lists.newArrayList(target));
-            singleOutputStreamOperator = sinkExecuteProcessor.execute(singleOutputStreamOperator, endEdge);
+    private void buildJobGraph(SingleOutputStreamOperator<Event> singleOutputStreamOperator, String downstreamNodeName) {
+        Node node = getNode(downstreamNodeName);
+        if (node.getType().name().equals(ProcessorType.FILTER.name())) {
+            singleOutputStreamOperator = filterExecuteProcessor.execute(singleOutputStreamOperator, node);
+        } else if (node.getType().name().equals(ProcessorType.PREPROCESSING.name())) {
+            singleOutputStreamOperator = preprocessingExecuteProcessor.execute(singleOutputStreamOperator, node);
+        } else if (node.getType().name().equals(ProcessorType.PROCESSING.name())) {
+            singleOutputStreamOperator = processingExecuteProcessor.execute(singleOutputStreamOperator, node);
+        } else if (node.getType().name().equals(ProcessorType.POSTPROCESSING.name())) {
+            singleOutputStreamOperator = postprocessingExecuteProcessor.execute(singleOutputStreamOperator, node);
+        } else if (node.getType().name().equals(ProcessorType.SINK.name())) {
+            singleOutputStreamOperator = sinkExecuteProcessor.execute(singleOutputStreamOperator, node);
         } else {
-            throw  new JobExecuteException("unsupported process type " + vertexInfo.getType().name());
+            throw new JobExecuteException("unsupported process type " + node.getType().name());
         }
 
-        if (nextEdge != null) {
-            for (String nextTarget : nextEdge.getTargets()) {
-                buildJobGraph(singleOutputStreamOperator, nextEdge, nextTarget);
+        if (StringUtil.isNotEmpty(node.getDownstream())) {
+            for (String nodeName : node.getDownstream()) {
+                buildJobGraph(singleOutputStreamOperator, nodeName);
             }
         }
 
     }
 
-    private Edge next(String input) {
-        Edge edge = dagInfo.getEdges().stream().filter(v-> v.getInput().equals(input)).findFirst().orElse(null);
-        if (StringUtil.isNotEmpty(edge)) {
-            dagInfo.getEdges().remove(edge);
-        }
-        return edge;
+    private Node getNode(String name) {
+        return nodes.stream().filter(v-> v.getName().equals(name)).findFirst().orElse(null);
     }
 
 

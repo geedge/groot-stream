@@ -1,5 +1,6 @@
 package com.geedgenetworks.bootstrap.execution;
 
+import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,9 +13,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class Edge implements Serializable {
-    private String input;
-    private List<String> targets;
+public class Node implements Serializable {
+    private String name;
+    private ProcessorType type;
+    private List<String> downstream;
     private int parallelism;
 
 }

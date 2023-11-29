@@ -43,8 +43,8 @@ public class FilterExecuteProcessor extends AbstractExecuteProcessor<String, Fil
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Edge edge) throws JobExecuteException {
-        FilterConfig filterConfig = operatorMap.get(edge.getInput());
+    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Node node) throws JobExecuteException {
+        FilterConfig filterConfig = operatorMap.get(node.getName());
         String className = filterConfig.getType();
         Class cls = null;
         AviatorFilter aviatorFilter = null;
@@ -52,8 +52,8 @@ public class FilterExecuteProcessor extends AbstractExecuteProcessor<String, Fil
         try {
             cls = Class.forName(className);
             aviatorFilter = (AviatorFilter) cls.newInstance();
-            if (edge.getParallelism() > 0) {
-                filterConfig.setParallelism(edge.getParallelism());
+            if (node.getParallelism() > 0) {
+                filterConfig.setParallelism(node.getParallelism());
             }
 
             singleOutputStreamOperator =

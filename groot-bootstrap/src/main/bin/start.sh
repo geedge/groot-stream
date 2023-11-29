@@ -23,8 +23,8 @@ CONF_DIR=${APP_DIR}/config
 APP_JAR=${APP_DIR}/bootstrap/groot-bootstrap.jar
 APP_MAIN="com.geedgenetworks.bootstrap.main.GrootStreamRunner"
 
-if [ -f "${CONF_DIR}/groot-stream-env.sh" ]; then
-    . "${CONF_DIR}/groot-stream-env.sh"
+if [ -f "${CONF_DIR}/grootstream_env.sh" ]; then
+    . "${CONF_DIR}/grootstream_env.sh"
 fi
 
 if [ $# == 0 ]
@@ -51,7 +51,7 @@ if [ ${EXIT_CODE} -eq 2618 ]; then
     echo "${CMD}"
     exit 0
 elif [ ${EXIT_CODE} -eq 0 ]; then
-    echo "Execute Groot Stream Job: $(echo "${CMD}" | tail -n 1)"
+    echo "Execute GrootStream Job: $(echo "${CMD}" | tail -n 1)"
     eval $(echo "${CMD}" | tail -n 1)
 else
     echo "${CMD}"

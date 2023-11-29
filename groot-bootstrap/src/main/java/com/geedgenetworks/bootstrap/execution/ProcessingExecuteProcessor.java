@@ -40,18 +40,18 @@ public class ProcessingExecuteProcessor extends AbstractExecuteProcessor<String,
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Edge edge) throws JobExecuteException {
+    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Node node) throws JobExecuteException {
 
         Class cls = null;
         ProjectionProcessor projectionProcessor = null;
         SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
-        ProjectionConfig projectionConfig = operatorMap.get(edge.getInput());
+        ProjectionConfig projectionConfig = operatorMap.get(node.getName());
         try {
             cls = Class.forName(projectionConfig.getType());
             projectionProcessor = (ProjectionProcessor) cls.newInstance();
 
-            if (edge.getParallelism() > 0) {
-                projectionConfig.setParallelism(edge.getParallelism());
+            if (node.getParallelism() > 0) {
+                projectionConfig.setParallelism(node.getParallelism());
             }
             singleOutputStreamOperator =
                     projectionProcessor.projectionProcessorFunction(

@@ -42,9 +42,9 @@ public class SinkExecuteProcessor extends AbstractExecuteProcessor<String, SinkC
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Edge edge) throws JobExecuteException {
+    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Node node) throws JobExecuteException {
 
-        SinkConfig sinkConfig = operatorMap.get(edge.getInput());
+        SinkConfig sinkConfig = operatorMap.get(node.getName());
         String className = sinkConfig.getType();
         SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
         Class cls = null;
@@ -52,8 +52,8 @@ public class SinkExecuteProcessor extends AbstractExecuteProcessor<String, SinkC
         try {
             cls = Class.forName(className);
             sink = (Sink) cls.newInstance();
-            if (edge.getParallelism() > 0) {
-                sinkConfig.setParallelism(edge.getParallelism());
+            if (node.getParallelism() > 0) {
+                sinkConfig.setParallelism(node.getParallelism());
             }
             sink.sink(inputDataStream, sinkConfig);
         } catch (Exception e) {
