@@ -41,23 +41,21 @@ public class SourceExecuteProcessor extends AbstractExecuteProcessor<String,Sour
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Node node) throws JobExecuteException {
+    public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
         SourceConfig sourceConfig = operatorMap.get(node.getName());
-        SingleOutputStreamOperator singleOutputStreamOperator = null;
-        Class cls = null;
-        Source source = null;
+
         try {
-            cls = Class.forName(sourceConfig.getType());
-            source = (Source) cls.newInstance();
+            Class cls = Class.forName(sourceConfig.getType());
+            Source source = (Source) cls.newInstance();
             if (node.getParallelism() >0) {
                 sourceConfig.setParallelism(node.getParallelism());
             }
-            singleOutputStreamOperator =
+            dataStream =
                     source.source(jobRuntimeEnvironment.getStreamExecutionEnvironment(), sourceConfig);
         } catch (Exception e) {
             throw new JobExecuteException("create source operator error", e);
         }
-        return singleOutputStreamOperator;
+        return dataStream;
     }
     private void checkSourceConfig(SourceConfig sourceConfig) {
         if (!StringUtil.isNotBlank(sourceConfig.getType())) {

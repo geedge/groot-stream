@@ -125,7 +125,6 @@
         </dependency>
 
 
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-test-utils_${scala.version}</artifactId>
@@ -137,9 +136,6 @@
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
         </dependency>
-
-
-
 
 
     </dependencies>

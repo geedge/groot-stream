@@ -39,7 +39,7 @@ When throwing an exception with a hint message and ensure that the exception has
 cd "groot-stream-${version}"
 ./bin/start.sh -c ./config/grootstream_job_template.yaml --target remote -d -n groot-stream-job
 ```
-- Yarn Mode
+- Yarn Per-job Mode
 ```shell
 cd "groot-stream-${version}"
 ./bin/start.sh -c ./config/grootstream_job_template.yaml --target yarn-per-job -d -n groot-stream-job

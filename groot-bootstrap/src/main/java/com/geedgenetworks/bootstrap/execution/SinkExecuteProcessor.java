@@ -5,7 +5,6 @@ import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.SinkConfig;
 import com.geedgenetworks.core.sink.Sink;
 import com.geedgenetworks.utils.StringUtil;
@@ -42,24 +41,21 @@ public class SinkExecuteProcessor extends AbstractExecuteProcessor<String, SinkC
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Node node) throws JobExecuteException {
+    public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
 
         SinkConfig sinkConfig = operatorMap.get(node.getName());
         String className = sinkConfig.getType();
-        SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
-        Class cls = null;
-        Sink sink = null;
         try {
-            cls = Class.forName(className);
-            sink = (Sink) cls.newInstance();
+            Class cls = Class.forName(className);
+            Sink sink = (Sink) cls.newInstance();
             if (node.getParallelism() > 0) {
                 sinkConfig.setParallelism(node.getParallelism());
             }
-            sink.sink(inputDataStream, sinkConfig);
+            sink.sink(dataStream, sinkConfig);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return dataStream;
     }
 
     private void checkSinkConfig(SinkConfig sinkConfig) {
