@@ -12,7 +12,7 @@
     <name>Groot : Bootstrap </name>
 
     <properties>
-        <scope>compile</scope>
+        <scope>provided</scope>
     </properties>
 
     <dependencies>

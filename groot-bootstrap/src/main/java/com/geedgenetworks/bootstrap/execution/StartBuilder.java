@@ -23,7 +23,7 @@ public class StartBuilder {
     private static final int APP_LIB_DIR_DEPTH = 2;
     private static final int PLUGIN_LIB_DIR_DEPTH = 3;
     private static DeployMode MODE;
-    private static String GROOT_STREAM_HOME;
+    private static String GROOTSTREAM_HOME;
     private static boolean STARTER = false;
 
     private StartBuilder() {
@@ -44,24 +44,24 @@ public class StartBuilder {
 
     @VisibleForTesting
     public static void setGrootStreamHome(String grootStreamHome) {
-        GROOT_STREAM_HOME = grootStreamHome;
+        GROOTSTREAM_HOME = grootStreamHome;
     }
 
     public static String getGrootStreamHome() {
-        if (StringUtils.isNotEmpty(GROOT_STREAM_HOME)) {
-            return GROOT_STREAM_HOME;
+        if (StringUtils.isNotEmpty(GROOTSTREAM_HOME)) {
+            return GROOTSTREAM_HOME;
         }
-        String grootStreamHome = System.getProperty("GROOT_STREAM_HOME");
+        String grootStreamHome = System.getProperty("GROOTSTREAM_HOME");
         if (StringUtils.isBlank(grootStreamHome)) {
-            grootStreamHome = System.getenv("GROOT_STREAM_HOME");
+            grootStreamHome = System.getenv("GROOTSTREAM_HOME");
         }
 
         if (StringUtils.isBlank(grootStreamHome)) {
             grootStreamHome = appRootDir().toString();
         }
 
-        GROOT_STREAM_HOME = grootStreamHome;
-        return GROOT_STREAM_HOME;
+        GROOTSTREAM_HOME = grootStreamHome;
+        return GROOTSTREAM_HOME;
 
     }
 
