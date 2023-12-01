@@ -18,7 +18,7 @@ public class JsonEventDeserializationSchema implements DeserializationSchema<Eve
     public JsonEventDeserializationSchema(StructType dataType, boolean ignoreParseErrors) {
         this.dataType = dataType;
         this.ignoreParseErrors = ignoreParseErrors;
-        this.converter = new JsonToMapDataConverter(dataType, ignoreParseErrors);
+        this.converter = dataType != null ?new JsonToMapDataConverter(dataType, ignoreParseErrors):null;
     }
 
     @Override
