@@ -1,42 +1,42 @@
 package com.geedgenetworks.core.pojo;
 
+import com.geedgenetworks.core.types.StructType;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 public class SourceConfig implements Serializable {
-
-    private String name;
-    private int parallelism;
-    private Map<String, Object> properties;
-    private String watermark_timestamp;
-    private Long watermark_lag;
     private String type;
-    private String format;
-    private List<String> output_fields;
-
-    public String getName() {
-        return name;
+    private List<Object> fields;
+    private StructType dataType;
+    private String watermark_timestamp;
+    private String watermark_timestamp_unit;
+    private Long watermark_lag;
+    private Map<String, String> properties;
+    private String name;
+    public String getType() {
+        return type;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public int getParallelism() {
-        return parallelism;
+    public List<Object> getFields() {
+        return fields;
     }
 
-    public void setParallelism(int parallelism) {
-        this.parallelism = parallelism;
+    public void setFields(List<Object> fields) {
+        this.fields = fields;
     }
 
-    public Map<String, Object> getProperties() {
-        return properties;
+    public StructType getDataType() {
+        return dataType;
     }
 
-    public void setProperties(Map<String, Object> properties) {
-        this.properties = properties;
+    public void setDataType(StructType dataType) {
+        this.dataType = dataType;
     }
 
     public String getWatermark_timestamp() {
@@ -47,6 +47,14 @@ public class SourceConfig implements Serializable {
         this.watermark_timestamp = watermark_timestamp;
     }
 
+    public String getWatermark_timestamp_unit() {
+        return watermark_timestamp_unit;
+    }
+
+    public void setWatermark_timestamp_unit(String watermark_timestamp_unit) {
+        this.watermark_timestamp_unit = watermark_timestamp_unit;
+    }
+
     public Long getWatermark_lag() {
         return watermark_lag;
     }
@@ -55,27 +63,19 @@ public class SourceConfig implements Serializable {
         this.watermark_lag = watermark_lag;
     }
 
-    public String getType() {
-        return type;
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
     }
 
-    public String getFormat() {
-        return format;
+    public String getName() {
+        return name;
     }
 
-    public void setFormat(String format) {
-        this.format = format;
-    }
-
-    public List<String> getOutput_fields() {
-        return output_fields;
-    }
-
-    public void setOutput_fields(List<String> output_fields) {
-        this.output_fields = output_fields;
+    public void setName(String name) {
+        this.name = name;
     }
 }

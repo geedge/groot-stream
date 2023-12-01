@@ -2,7 +2,7 @@ package com.geedgenetworks.connectors.kafka.sink;
 
 import com.geedgenetworks.connectors.kafka.util.KafkaUtils;
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.SinkConfig;
+import com.geedgenetworks.core.pojo.SinkConfigOld;
 import com.geedgenetworks.core.sink.Sink;
 import com.geedgenetworks.common.utils.ColumnUtil;
 
@@ -16,7 +16,7 @@ public class KafkaSink implements Sink {
     @Override
     public void sink(
             SingleOutputStreamOperator<Event> streamlineEventSingleOutputStreamOperator,
-            SinkConfig sinkConfig)
+            SinkConfigOld sinkConfig)
             throws Exception {
         if (sinkConfig.getParallelism() != 0) {
             streamlineEventSingleOutputStreamOperator

@@ -4,15 +4,14 @@ import java.io.Serializable;
 import java.util.Map;
 
 public class Event implements Serializable {
+    public static final String INTERNAL_TIMESTAMP_KEY = "__timestamp";
 
     private Map<String, Object> extractedFields;
-    private Map<String, Object> internalFields;
 
     private String __inputId;
 
-    private long __timestamp;
 
-    private boolean isFinal;
+    private boolean isFinal = true;
 
     public Map<String, Object> getExtractedFields() {
         return extractedFields;
@@ -22,13 +21,6 @@ public class Event implements Serializable {
         this.extractedFields = extractedFields;
     }
 
-    public Map<String, Object> getInternalFields() {
-        return internalFields;
-    }
-
-    public void setInternalFields(Map<String, Object> internalFields) {
-        this.internalFields = internalFields;
-    }
 
     public String get__inputId() {
         return __inputId;
@@ -36,14 +28,6 @@ public class Event implements Serializable {
 
     public void set__inputId(String __inputId) {
         this.__inputId = __inputId;
-    }
-
-    public long get__timestamp() {
-        return __timestamp;
-    }
-
-    public void set__timestamp(long __timestamp) {
-        this.__timestamp = __timestamp;
     }
 
     public boolean isFinal() {

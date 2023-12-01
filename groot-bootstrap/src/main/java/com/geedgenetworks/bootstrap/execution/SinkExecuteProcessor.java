@@ -5,13 +5,17 @@ import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.core.connector.sink.SinkProvider;
+import com.geedgenetworks.core.factories.FactoryUtil;
+import com.geedgenetworks.core.factories.SinkTableFactory;
+import com.geedgenetworks.core.factories.TableFactory;
 import com.geedgenetworks.core.pojo.SinkConfig;
-import com.geedgenetworks.core.sink.Sink;
 import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.net.URL;
@@ -43,22 +47,22 @@ public class SinkExecuteProcessor extends AbstractExecuteProcessor<String, SinkC
 
     @Override
     public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Node node) throws JobExecuteException {
-
         SinkConfig sinkConfig = operatorMap.get(node.getName());
-        String className = sinkConfig.getType();
-        SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
-        Class cls = null;
-        Sink sink = null;
         try {
-            cls = Class.forName(className);
-            sink = (Sink) cls.newInstance();
+            SinkTableFactory sinkTableFactory = FactoryUtil.discoverTableFactory(SinkTableFactory.class, sinkConfig.getType());
+            Map<String, String> options = sinkConfig.getProperties();
+            Configuration configuration = Configuration.fromMap(options);
+            TableFactory.Context context = new TableFactory.Context(null, null, options, configuration);
+            SinkProvider sinkProvider = sinkTableFactory.getSinkProvider(context);
+            DataStreamSink<?> dataStreamSink = sinkProvider.consumeDataStream(inputDataStream);
             if (node.getParallelism() > 0) {
-                sinkConfig.setParallelism(node.getParallelism());
+                dataStreamSink.setParallelism(node.getParallelism());
             }
-            sink.sink(inputDataStream, sinkConfig);
+            dataStreamSink.name(sinkConfig.getName());
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new JobExecuteException("create sink operator error", e);
         }
+
         return null;
     }
 

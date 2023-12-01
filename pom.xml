@@ -18,6 +18,7 @@
         <module>groot-release</module>
         <module>groot-shade</module>
         <module>groot-example</module>
+        <module>groot-formats</module>
     </modules>
 
     <properties>

@@ -1,15 +1,16 @@
 sources:
   kafka_source:
-    format: json
-    type : com.geedgenetworks.connectors.kafka.source.KafkaSource
-    output_fields: ['common_end_timestamp_ms','common_start_timestamp_ms','common_ingestion_time','common_recv_time','common_log_id','common_flags','common_start_time','common_end_time','common_con_duration_ms','common_schema_type','common_client_ip','common_server_ip','common_client_port','common_server_port','common_app_label','common_app_full_path','common_l4_protocol','common_l7_protocol','common_out_link_id','common_in_link_id','http_host','http_url','http_response_line','http_status_code','ssl_sni']
+    type : kafka
+    # 数据schema: 配置则转换校验, 只输出配置的列；没配置Map<String, Object>直接输出
+    # fields:
     # watermark_timestamp: common_recv_time
-   # watermark_lag: 60
+    # watermark_timestamp_unit: ms
+    # watermark_lag: 60
     properties:
-        topics:  ['SESSION-RECORD-COMPLETED']
+        topic:  SESSION-RECORD-COMPLETED
         kafka.bootstrap.servers: 192.168.44.11:9092
         kafka.session.timeout.ms: 60000
-        kafka.max.poll.recordf: 3000
+        kafka.max.poll.records: 3000
         kafka.max.partition.fetch.bytes: 31457280
         kafka.security.protocol:
         kafka.ssl.keystore.location:
@@ -24,7 +25,25 @@ sources:
         kafka.auto.offset.reset: latest
         kafka.max.request.size:
         kafka.compression.type: none
-        message_timestamp_field: common_ingestion_time
+        format: json
+
+  inline_source:
+    type : inline
+    # 数据schema: 配置则转换校验, 只输出配置的列；没配置Map<String, Object>直接输出
+    fields:
+      - name: log_id
+        type: bigint
+      - name: recv_time
+        type: bigint
+      - name: client_ip
+        type: string
+    # watermark_timestamp: recv_time
+    # watermark_timestamp_unit: s
+    # watermark_lag: 60
+    properties:
+      data:  '{"log_id": 1, "recv_time":"111", "client_ip":"192.168.0.1"}'
+      format: json
+      json.ignore.parse.errors: false
 
 filters:
   ssl_filter:
@@ -54,8 +73,9 @@ preprocessing_pipelines:
 processing_pipelines:
   session_record_processor: # [object] Processing Pipeline
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    remove_fields:
     output_fields:
-      properties:
+    properties:
       key: value
     functions: # [array of object] Function List
       - function: SNOWFLAKE_ID
@@ -119,8 +139,7 @@ processing_pipelines:
 
 sinks:
   kafka_sink_a:
-    format: json
-    type : com.geedgenetworks.connectors.kafka.sink.KafkaSink
+    type: kafka
     properties:
       topic:  SESSION-RECORD-JSON
       kafka.bootstrap.servers: 192.168.44.12:9092
@@ -139,9 +158,10 @@ sinks:
       kafka.ssl.key.password:
       kafka.sasl.mechanism:
       kafka.sasl.jaas.config:
+      format: json
+
   kafka_sink_b:
-    format: json
-    type: com.geedgenetworks.connectors.kafka.sink.KafkaSink
+    type: kafka
     properties:
       topic: SESSION-RECORD-COMPLETED-TEST
       kafka.bootstrap.servers: 192.168.44.12:9092
@@ -152,6 +172,12 @@ sinks:
       kafka.buffer.memory: 134217728
       kafka.max.request.size: 10485760
       kafka.compression.type: snappy
+      format: json
+
+  print_sink:
+    type: print
+    properties:
+      format: json
 
 application:
   name: groot-stream-test # [string] Application Name

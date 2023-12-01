@@ -13,7 +13,7 @@ import com.ecwid.consul.v1.agent.model.NewCheck;
 import com.ecwid.consul.v1.agent.model.NewService;
 import com.geedgenetworks.connectors.ipfix.collector.util.IPFIXUtils;
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.SourceConfig;
+import com.geedgenetworks.core.pojo.SourceConfigOld;
 import com.geedgenetworks.core.source.Source;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -58,7 +58,7 @@ public class IPFixSource implements Source {
     }
 
     @Override
-    public SingleOutputStreamOperator<Event> source(StreamExecutionEnvironment env, SourceConfig sourceConfig) {
+    public SingleOutputStreamOperator<Event> source(StreamExecutionEnvironment env, SourceConfigOld sourceConfig) {
         Map<String, Object> ipFixConfig = sourceConfig.getProperties();
         UDPSource udpSource = new UDPSource(Integer.parseInt(ipFixConfig.get("initial_port").toString()),
                 Integer.parseInt(ipFixConfig.get("max_attempts").toString()),
@@ -93,7 +93,7 @@ public class IPFixSource implements Source {
                                 fieldMap.put(field.ie().name(), field.value());
                             }
                             long epochSecond = record.exportTime().get().getEpochSecond();
-                            grootEvent.set__timestamp(epochSecond);
+                            fieldMap.put(Event.INTERNAL_TIMESTAMP_KEY, epochSecond);
                             if (sourceConfig.getProperties().containsKey("message_timestamp_field")) {
                                 fieldMap.put(sourceConfig.getProperties().get("message_timestamp_field").toString(), epochSecond);
                             }

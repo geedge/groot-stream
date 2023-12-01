@@ -1,7 +1,7 @@
 package com.geedgenetworks.connectors.clickhouse.sink;
 
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.SinkConfig;
+import com.geedgenetworks.core.pojo.SinkConfigOld;
 import com.geedgenetworks.core.sink.Sink;
 
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -15,7 +15,7 @@ import java.util.Properties;
 public class ClickHouseSink implements Sink {
 
     @Override
-    public void sink(SingleOutputStreamOperator<Event> operator, SinkConfig sinkConfig)
+    public void sink(SingleOutputStreamOperator<Event> operator, SinkConfigOld sinkConfig)
             throws Exception {
         ParameterTool parameter = getParameterTool(sinkConfig.getProperties());
         int batchSize = parameter.getInt("batch_size", 100000);

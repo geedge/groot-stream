@@ -72,7 +72,7 @@ public class GrootStreamServerTmp {
                             new JSONObject((Map<String, Object>) sources.get(entry.getKey()));
                     JSONObject to = new JSONObject((Map<String, Object>) entry.getValue());
                     Topology topology = to.toJavaObject(Topology.class);
-                    SourceConfig sourceConfig = jo.toJavaObject(SourceConfig.class);
+                    SourceConfigOld sourceConfig = jo.toJavaObject(SourceConfigOld.class);
                     checkSourceConfig(sourceConfig);
                     String type = sourceConfig.getType();
                     Class cls = null;
@@ -225,7 +225,7 @@ public class GrootStreamServerTmp {
                     new JSONObject((Map<String, Object>) yamlEntity.getSinks().get(name));
             JSONObject to = new JSONObject((Map<String, Object>) topologyList.get(name));
             Topology topology = to.toJavaObject(Topology.class);
-            SinkConfig kafkaSinkConfig = jsonObject.toJavaObject(SinkConfig.class);
+            SinkConfigOld kafkaSinkConfig = jsonObject.toJavaObject(SinkConfigOld.class);
             checkSinkConfig(kafkaSinkConfig);
             String sinkclassName = kafkaSinkConfig.getType();
             Class cls = null;
@@ -304,14 +304,14 @@ public class GrootStreamServerTmp {
         return event;
     }
 
-    private static void checkSourceConfig(SourceConfig sourceConfig) throws Exception {
+    private static void checkSourceConfig(SourceConfigOld sourceConfig) throws Exception {
 
         if (!StringUtil.isNotBlank(sourceConfig.getType())) {
             throw new Exception("校验未通过 source " + sourceConfig.getName() + " type 为空！");
         }
     }
 
-    private static void checkSinkConfig(SinkConfig sinkConfig) throws Exception {
+    private static void checkSinkConfig(SinkConfigOld sinkConfig) throws Exception {
 
         if (!StringUtil.isNotBlank(sinkConfig.getType())) {
             throw new Exception("校验未通过 sink " + sinkConfig.getName() + " type 为空！");

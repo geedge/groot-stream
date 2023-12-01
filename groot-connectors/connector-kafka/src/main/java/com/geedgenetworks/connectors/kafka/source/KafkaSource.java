@@ -2,7 +2,7 @@ package com.geedgenetworks.connectors.kafka.source;
 
 import com.geedgenetworks.connectors.kafka.util.KafkaUtils;
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.SourceConfig;
+import com.geedgenetworks.core.pojo.SourceConfigOld;
 import com.geedgenetworks.core.source.Source;
 import com.geedgenetworks.common.utils.ColumnUtil;
 
@@ -26,7 +26,7 @@ public class KafkaSource implements Source {
 
     @Override
     public SingleOutputStreamOperator<Event> source(
-            StreamExecutionEnvironment env, SourceConfig sourceConfig) throws Exception {
+            StreamExecutionEnvironment env, SourceConfigOld sourceConfig) throws Exception {
         DataStreamSource<Tuple2<String, Long>> sourceForSession =
                 env.addSource(
                         KafkaUtils.timestampDeserializationConsumer(sourceConfig.getProperties()));
@@ -44,7 +44,8 @@ public class KafkaSource implements Source {
                                 event.setFinal(true);
                                 try {
                                     Map<String, Object> values = JSON.parseObject(message.f0);
-                                    event.set__timestamp(message.f1);
+                                    //event.set__timestamp(message.f1);
+                                    values.put(Event.INTERNAL_TIMESTAMP_KEY, message.f1);
                                     if (sourceConfig
                                             .getProperties()
                                             .containsKey("message_timestamp_field")) {
