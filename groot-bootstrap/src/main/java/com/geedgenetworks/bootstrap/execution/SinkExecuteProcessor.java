@@ -46,7 +46,7 @@ public class SinkExecuteProcessor extends AbstractExecuteProcessor<String, SinkC
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Node node) throws JobExecuteException {
+    public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
         SinkConfig sinkConfig = operatorMap.get(node.getName());
         try {
             SinkTableFactory sinkTableFactory = FactoryUtil.discoverTableFactory(SinkTableFactory.class, sinkConfig.getType());
@@ -54,7 +54,7 @@ public class SinkExecuteProcessor extends AbstractExecuteProcessor<String, SinkC
             Configuration configuration = Configuration.fromMap(options);
             TableFactory.Context context = new TableFactory.Context(null, null, options, configuration);
             SinkProvider sinkProvider = sinkTableFactory.getSinkProvider(context);
-            DataStreamSink<?> dataStreamSink = sinkProvider.consumeDataStream(inputDataStream);
+            DataStreamSink<?> dataStreamSink = sinkProvider.consumeDataStream(dataStream);
             if (node.getParallelism() > 0) {
                 dataStreamSink.setParallelism(node.getParallelism());
             }

@@ -63,7 +63,7 @@
         <lombok.version>1.18.24</lombok.version>
         <config.version>1.3.3</config.version>
         <hazelcast.version>5.1</hazelcast.version>
-        <disruptor.version>3.4.4</disruptor.version>
+
 
     </properties>
 
@@ -260,11 +260,6 @@
                 <artifactId>hazelcast</artifactId>
                 <version>${hazelcast.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.lmax</groupId>
-                <artifactId>disruptor</artifactId>
-                <version>${disruptor.version}</version>
-            </dependency>
 
 
             <!-- flink dependencies -->
@@ -397,39 +392,10 @@
     <!--IDEA Environment jars -->
     <dependencies>
 
-
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
-
-        <!-- ***************** slf4j & provider & bridges start ***************** -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
-        </dependency>
-        <!-- ***************** slf4j & provider & bridges end ***************** -->
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -472,6 +438,7 @@
                     <artifactSet>
                         <excludes>
                             <exclude>com.google.code.findbugs:jsr305</exclude>
+                            <exclude>org.slf4j:slf4j-api</exclude>
                             <exclude>org.slf4j:slf4j-jdk14</exclude>
                             <exclude>org.slf4j:slf4j-jcl</exclude>
                             <exclude>org.slf4j:slf4j-nop</exclude>
@@ -482,6 +449,11 @@
                             <exclude>log4j:*</exclude>
                             <exclude>commons-logging:*</exclude>
                             <exclude>ch.qos.logback:*</exclude>
+                            <exclude>org.apache.logging.log4j:log4j-api</exclude>
+                            <exclude>org.apache.logging.log4j:log4j-core</exclude>
+                            <exclude>org.apache.logging.log4j:log4j-slf4j-impl</exclude>
+                            <exclude>org.apache.logging.log4j:log4j-1.2-api</exclude>
+                            <exclude>org.apache.logging.log4j:log4j-to-slf4j</exclude>
                         </excludes>
                     </artifactSet>
                     <filters>

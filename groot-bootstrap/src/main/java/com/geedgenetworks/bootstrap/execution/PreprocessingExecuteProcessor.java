@@ -5,7 +5,6 @@ import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.core.processor.projection.ProjectionProcessor;
 import com.geedgenetworks.utils.StringUtil;
@@ -42,10 +41,9 @@ public class PreprocessingExecuteProcessor extends AbstractExecuteProcessor<Stri
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Node node) throws JobExecuteException {
+    public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
         Class cls = null;
         ProjectionProcessor projectionProcessor = null;
-        SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
         ProjectionConfig projectionConfig = operatorMap.get(node.getName());
         try {
             cls = Class.forName(projectionConfig.getType());
@@ -54,13 +52,13 @@ public class PreprocessingExecuteProcessor extends AbstractExecuteProcessor<Stri
             if (node.getParallelism() > 0) {
                 projectionConfig.setParallelism(node.getParallelism());
             }
-            singleOutputStreamOperator =
+            dataStream =
                     projectionProcessor.projectionProcessorFunction(
-                            inputDataStream, projectionConfig);
+                            dataStream, projectionConfig);
         } catch (Exception e) {
             throw new JobExecuteException("create preprocessing operator error", e);
         }
-        return singleOutputStreamOperator;
+        return dataStream;
     }
     private static void checkProjectionConfig(ProjectionConfig projectionConfig) {
 

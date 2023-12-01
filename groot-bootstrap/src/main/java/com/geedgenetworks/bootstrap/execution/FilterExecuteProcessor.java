@@ -6,7 +6,6 @@ import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.core.filter.AviatorFilter;
-import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.FilterConfig;
 import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Maps;
@@ -43,12 +42,11 @@ public class FilterExecuteProcessor extends AbstractExecuteProcessor<String, Fil
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Node node) throws JobExecuteException {
+    public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
         FilterConfig filterConfig = operatorMap.get(node.getName());
         String className = filterConfig.getType();
         Class cls = null;
         AviatorFilter aviatorFilter = null;
-        SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
         try {
             cls = Class.forName(className);
             aviatorFilter = (AviatorFilter) cls.newInstance();
@@ -56,14 +54,14 @@ public class FilterExecuteProcessor extends AbstractExecuteProcessor<String, Fil
                 filterConfig.setParallelism(node.getParallelism());
             }
 
-            singleOutputStreamOperator =
+            dataStream =
                     aviatorFilter.filterFunction(
-                            inputDataStream, filterConfig);
+                            dataStream, filterConfig);
         } catch (Exception e) {
             throw new JobExecuteException("create filter operator error", e);
         }
 
-        return singleOutputStreamOperator;
+        return dataStream;
     }
 
     private void checkFilterConfig(FilterConfig filterConfig) {

@@ -26,10 +26,12 @@ When throwing an exception with a hint message and ensure that the exception has
    ```
 
 ## How to run a job in IDEA
-1. Open the `Run/Debug Configurations` window.
-2. Choose Main Class `com.geedgenetworks.bootstrap.main.GrootStreamServer`.
-3. Add VM options `-e client --target local -c /...../groot-stream/config/grootstream_job_template.yaml`.
-4. Click the `Run` button.
+1. Set `groot-bootstrap` module pom.xml scope to `compile`.
+2. Open the `Run/Debug Configurations` window.
+3. Choose -cp `groot-bootstrap`
+4. Choose Main Class `com.geedgenetworks.bootstrap.main.GrootStreamServer`.
+5. Add VM options `-e client --target local -c /...../groot-stream/config/grootstream_job_template.yaml`.
+6. Click the `Run` button.
 
 ## How to run a job in command line
 - Standalone Mode
@@ -37,7 +39,7 @@ When throwing an exception with a hint message and ensure that the exception has
 cd "groot-stream-${version}"
 ./bin/start.sh -c ./config/grootstream_job_template.yaml --target remote -d -n groot-stream-job
 ```
-- Yarn Mode
+- Yarn Per-job Mode
 ```shell
 cd "groot-stream-${version}"
 ./bin/start.sh -c ./config/grootstream_job_template.yaml --target yarn-per-job -d -n groot-stream-job

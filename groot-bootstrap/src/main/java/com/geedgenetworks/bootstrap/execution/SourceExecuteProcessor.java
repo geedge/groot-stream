@@ -56,7 +56,7 @@ public class SourceExecuteProcessor extends AbstractExecuteProcessor<String, Sou
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator inputDataStream, Node node) throws JobExecuteException {
+    public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
         SourceConfig sourceConfig = operatorMap.get(node.getName());
 
         try {
@@ -66,7 +66,7 @@ public class SourceExecuteProcessor extends AbstractExecuteProcessor<String, Sou
             TableFactory.Context context = new TableFactory.Context(sourceConfig.getDataType(), sourceConfig.getDataType(), options, configuration);
             SourceProvider sourceProvider = tableFactory.getSourceProvider(context);
 
-            SingleOutputStreamOperator<Event> dataStream = sourceProvider.produceDataStream(jobRuntimeEnvironment.getStreamExecutionEnvironment());
+            dataStream = sourceProvider.produceDataStream(jobRuntimeEnvironment.getStreamExecutionEnvironment());
             if (node.getParallelism() > 0) {
                 dataStream.setParallelism(node.getParallelism());
             }
