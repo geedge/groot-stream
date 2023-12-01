@@ -6,6 +6,8 @@ import com.geedgenetworks.core.utils.IPUtils;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.geedgenetworks.core.utils.factory;
+import org.apache.flink.api.common.functions.RuntimeContext;
 
 public class AsnLookup implements UDF {
 
@@ -14,7 +16,7 @@ public class AsnLookup implements UDF {
     private String vender;
 
     @Override
-    public void init(UDFContext udfContext) {
+    public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         this.udfContext = udfContext;
         this.vender = udfContext.getParameters().get("kb_vender").toString();
     }

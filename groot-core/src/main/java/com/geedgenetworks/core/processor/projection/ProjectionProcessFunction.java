@@ -45,9 +45,10 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
                     Class cls = Class.forName(CommonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
                     UDF udf = (UDF) cls.getConstructor().newInstance();
-                    Method withParametersMethod =
+                    udf.open(getRuntimeContext(), udfContext);
+                  /*  Method withParametersMethod =
                             cls.getDeclaredMethod("init", UDFContext.class);
-                    withParametersMethod.invoke(udf, udfContext);
+                    withParametersMethod.invoke(udf, udfContext);*/
                     // 函数如果包含filter,对表达式进行编译
                     if (udfContext.getFilter() != null) {
                         AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();

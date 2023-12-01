@@ -3,12 +3,14 @@ package com.geedgenetworks.core.udf;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.utils.IPUtils;
+import com.geedgenetworks.core.utils.IPKnowledgeBase;
 import com.geedgenetworks.utils.StringUtil;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
+import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.util.HashMap;
 
@@ -20,10 +22,11 @@ public class IpLocation implements UDF {
     private String option;
 
     @Override
-    public void init(UDFContext udfContext) {
+    public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         this.udfContext = udfContext;
         this.vender = udfContext.getParameters().get("kb_vender").toString();
-        this.option = udfContext.getParameters().get("option").toString();
+      //  this.option = udfContext.getParameters().get("option").toString();
+        this.option ="IP_TO_COUNTRY";
     }
 
     @Override
@@ -49,7 +52,7 @@ public class IpLocation implements UDF {
                     event.getExtractedFields()
                             .put(
                                     udfContext.getOutput_fields().get(0),
-                                    IPUtils.venderWithIpLookup
+                                    IPKnowledgeBase.venderWithIpLookup
                                             .get(vender)
                                             .provinceLookup(
                                                     event.getExtractedFields()
@@ -63,7 +66,7 @@ public class IpLocation implements UDF {
                     event.getExtractedFields()
                             .put(
                                     udfContext.getOutput_fields().get(0),
-                                    IPUtils.venderWithIpLookup
+                                    IPKnowledgeBase.venderWithIpLookup
                                             .get(vender)
                                             .cityLookup(
                                                     event.getExtractedFields()
@@ -77,7 +80,7 @@ public class IpLocation implements UDF {
                     event.getExtractedFields()
                             .put(
                                     udfContext.getOutput_fields().get(0),
-                                    IPUtils.venderWithIpLookup
+                                    IPKnowledgeBase.venderWithIpLookup
                                             .get(vender)
                                             .cityLookupDetail(
                                                     event.getExtractedFields()
@@ -91,7 +94,7 @@ public class IpLocation implements UDF {
                     event.getExtractedFields()
                             .put(
                                     udfContext.getOutput_fields().get(0),
-                                    IPUtils.venderWithIpLookup
+                                    IPKnowledgeBase.venderWithIpLookup
                                             .get(vender)
                                             .locationLookupDetail(
                                                     event.getExtractedFields()
@@ -103,7 +106,7 @@ public class IpLocation implements UDF {
                     break;
                 case "IP_TO_GEO":
                     String geo =
-                            IPUtils.venderWithIpLookup
+                            IPKnowledgeBase.venderWithIpLookup
                                     .get(vender)
                                     .latLngLookup(
                                             event.getExtractedFields()
@@ -123,7 +126,7 @@ public class IpLocation implements UDF {
                 case "IP_TO_PROVIDER":
                     HashMap<String, Object> serverIpMap =
                             JSON.parseObject(
-                                    IPUtils.venderWithIpLookup
+                                    IPKnowledgeBase.venderWithIpLookup
                                             .get(vender)
                                             .asnLookupDetail(
                                                     event.getExtractedFields()

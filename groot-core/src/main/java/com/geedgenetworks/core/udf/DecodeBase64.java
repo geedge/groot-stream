@@ -1,11 +1,14 @@
 package com.geedgenetworks.core.udf;
 
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.utils.StringUtil;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
@@ -16,8 +19,15 @@ public class DecodeBase64 implements UDF {
     private UDFContext udfContext;
 
     @Override
-    public void init(UDFContext udfContext) {
+    public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
+        if(udfContext.getLookup_fields().size() !=2){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
+        }
+        if(udfContext.getOutput_fields().size() != 1){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
+        }
         this.udfContext = udfContext;
+
     }
 
     @Override
@@ -64,4 +74,7 @@ public class DecodeBase64 implements UDF {
     public void close() {
 
     }
+
+
+
 }

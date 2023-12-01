@@ -7,6 +7,7 @@ import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
+import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -16,7 +17,7 @@ import static com.geedgenetworks.core.udf.Drop.Aviator.AviatorExecute;
 public class Drop implements UDF {
 
     @Override
-    public void init (UDFContext udfContext) {
+    public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         Aviator.init(udfContext.getFilter());
     }
 

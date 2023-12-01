@@ -4,6 +4,7 @@ import com.geedgenetworks.core.expressions.Calc;
 import com.geedgenetworks.core.expressions.codegen.CalcCodeConvertor;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
+import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class Eval implements UDF {
     private Calc calc;
 
     @Override
-    public void init(UDFContext udfContext) {
+    public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         String expr = (String) udfContext.getParameters().get("value_expression");
         List<String> outputField = udfContext.getOutput_fields();
         output = outputField.get(0);

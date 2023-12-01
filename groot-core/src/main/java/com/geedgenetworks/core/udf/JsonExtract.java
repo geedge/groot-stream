@@ -1,17 +1,36 @@
 package com.geedgenetworks.core.udf;
 
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.common.utils.JsonPathUtil;
+import org.apache.flink.api.common.functions.RuntimeContext;
 
 public class JsonExtract implements UDF {
 
     private UDFContext udfContext;
 
     @Override
-    public void init(UDFContext udfContext) {
+    public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         this.udfContext = udfContext;
+        if(udfContext.getLookup_fields().size() != 1){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
+        }
+        if(udfContext.getOutput_fields().size() != 1){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
+        }
+        if(udfContext.getParameters() == null){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function must contain parameters");
+        }
+        if(!udfContext.getParameters().containsKey("param")){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey param");
+        }
+
     }
+
+
+
 
     @Override
     public Event evaluate(Event event) {
@@ -29,6 +48,8 @@ public class JsonExtract implements UDF {
         return event;
     }
 
+
+
     @Override
     public String functionName() {
         return "JSON_EXTRACT";
@@ -36,6 +57,5 @@ public class JsonExtract implements UDF {
 
     @Override
     public void close() {
-
     }
 }

@@ -2,12 +2,13 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
+import org.apache.flink.api.common.functions.RuntimeContext;
 
 public class Rename implements UDF {
     private UDFContext udfContext;
 
     @Override
-    public void init (UDFContext udfContext) {
+    public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         this.udfContext = udfContext;
     }
 

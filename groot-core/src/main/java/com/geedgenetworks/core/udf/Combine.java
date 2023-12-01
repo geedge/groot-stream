@@ -2,6 +2,7 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
+import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,11 +14,9 @@ public class Combine implements UDF {
 
     private StringBuilder stringBuilder;
 
+
     @Override
-    public void init(UDFContext udfContext) {
-
-            //生成一段随机代码
-
+    public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
         this.udfContext = udfContext;
         if (udfContext.getParameters() != null
@@ -67,4 +66,5 @@ public class Combine implements UDF {
             return n1.compareTo(n2);
         }
     }
+
 }
