@@ -6,7 +6,6 @@ import com.geedgenetworks.core.utils.IPUtils;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.geedgenetworks.core.utils.factory;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 public class AsnLookup implements UDF {

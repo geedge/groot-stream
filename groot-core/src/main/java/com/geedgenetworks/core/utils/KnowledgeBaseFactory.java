@@ -1,5 +1,6 @@
 package com.geedgenetworks.core.utils;
 
+import com.geedgenetworks.common.utils.HttpClientUtils;
 import com.geedgenetworks.core.pojo.KnowLedgeEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
