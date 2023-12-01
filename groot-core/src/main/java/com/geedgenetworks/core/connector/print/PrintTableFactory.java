@@ -32,13 +32,14 @@ public class PrintTableFactory implements SinkTableFactory {
         // 获取encodingFormat
         EncodingFormat encodingFormat = helper.discoverEncodingFormat(EncodingFormatFactory.class, FactoryUtil.FORMAT);
 
+        helper.validate(); // 校验参数
+
         StructType dataType = context.getSchema();
         ReadableConfig config = context.getConfiguration();
 
         int type = config.get(TYPE);
         final PrintSinkFunction sinkFunction = new PrintSinkFunction(dataType, encodingFormat, type);
         return new SinkProvider(){
-
             @Override
             public DataStreamSink<?> consumeDataStream(DataStream<Event> dataStream) {
                 return dataStream.addSink(sinkFunction);

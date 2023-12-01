@@ -135,7 +135,7 @@ public class ClickHouseUtils {
                         columnNames.toArray(new String[columnNames.size()]),
                         columnDefaultValues.toArray(new Object[columnDefaultValues.size()]));
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOG.error("ClickHouse Connection Exception url:" + urls[urlIndex], e);
                 if (retryCount >= 3) {
                     throw e;
                 }
@@ -172,7 +172,7 @@ public class ClickHouseUtils {
                                 ((ClickHouseConnection) connection).serverContext());
                 return tz;
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOG.error("ClickHouse Connection Exception url:" + urls[urlIndex], e);
                 if (retryCount >= 3) {
                     throw e;
                 }
@@ -207,7 +207,7 @@ public class ClickHouseUtils {
                 Block block = ((ClickHouseConnection) connection).getSampleBlock(sql);
                 return block;
             } catch (SQLException e) {
-                e.printStackTrace();
+                LOG.error("ClickHouse getInsertBlock Exception url:" + urls[urlIndex], e);
                 if (retryCount >= 3) {
                     throw e;
                 }

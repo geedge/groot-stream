@@ -94,35 +94,37 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         initClickHouseParams();
         onInit(parameters);
         lastFlushTs = System.currentTimeMillis();
-        outThread =
-                new Thread(
-                        () -> {
-                            while (!closed) {
+        final String threadName = "BatchIntervalSink-" + (getRuntimeContext().getIndexOfThisSubtask() + 1) + "/" + getRuntimeContext().getNumberOfParallelSubtasks();
+        outThread = new Thread(() -> {
+            while (!closed) {
+                try {
+                    Block list;
+                    try {
+                        list = outBatchQueue.poll(2, TimeUnit.SECONDS);
+                        if (list == null) {
+                            if (System.currentTimeMillis() - lastFlushTs >= batchIntervalMs) {
+                                lock.lock();
                                 try {
-                                    Block list;
-                                    try {
-                                        list = outBatchQueue.poll(2, TimeUnit.SECONDS);
-                                        if (list == null) {
-                                            if (System.currentTimeMillis() - lastFlushTs
-                                                    >= batchIntervalMs) {
-                                                flush();
-                                            }
-                                            continue;
-                                        }
-                                    } catch (InterruptedException e) {
-                                        continue;
+                                    // 正常情况应该是一个线程生产，一个消费。防止极限情况生产线程刚好生产，造成死锁。
+                                    if(outBatchQueue.isEmpty()){
+                                        flush();
                                     }
-
-                                    onFlush(list);
-                                } catch (Exception e) {
-                                    flushException = e;
+                                } finally {
+                                    lock.unlock();
                                 }
                             }
-                        },
-                        "BatchIntervalSink-"
-                                + (getRuntimeContext().getIndexOfThisSubtask() + 1)
-                                + "/"
-                                + getRuntimeContext().getNumberOfParallelSubtasks());
+                            continue;
+                        }
+                    } catch (InterruptedException e) {
+                        continue;
+                    }
+
+                    doFlushAndResetBlock(list, true);
+                } catch (Exception e) {
+                    flushException = e;
+                }
+            }
+        }, threadName);
         outThread.start();
     }
 
@@ -214,7 +216,9 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 // LOG.warn("flush");
                 flush();
             }
-        } finally {
+        } catch (Exception e) {
+            LOG.error("转换ck类型异常", e);
+        } finally{
             lock.unlock();
         }
     }
@@ -233,12 +237,23 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         }
     }
 
-    private void onFlush(Block block) throws Exception {
+    private void doFlushAndResetBlock(Block block, boolean recycle) throws Exception {
+        try {
+            doFlush(block);
+        } finally {
+            ClickHouseUtils.resetInsertBlockColumns(block);
+            if(recycle){
+                // 必须保证放入freeBatchQueue，否则发生异常没放入freeBatchQueue会导致block丢失，freeBatchQueue.take()申请block时会一直阻塞
+                freeBatchQueue.put(block);
+            }
+        }
+    }
+
+    private void doFlush(Block block) throws Exception {
         long start = System.currentTimeMillis();
         int rowCnt = block.rowCnt();
         ClickHouseUtils.showBlockColumnsByteSize(block); // 仅用于测试
-        LOG.warn(
-                "flush " + rowCnt + " start:" + new Timestamp(start) + "," + (start - lastFlushTs));
+        LOG.warn("flush " + rowCnt + " start:" + new Timestamp(start) + "," + (start - lastFlushTs));
         lastFlushTs = System.currentTimeMillis();
 
         int retryCount = 0;
@@ -259,16 +274,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 ClickHouseUtils.copyInsertBlockColumns(block, stmt.getBlock());
                 stmt.executeBatch();
 
-                ClickHouseUtils.resetInsertBlockColumns(block);
-                freeBatchQueue.put(block);
-
-                LOG.warn(
-                        "flush "
-                                + rowCnt
-                                + " end:"
-                                + new Timestamp(System.currentTimeMillis())
-                                + ","
-                                + (System.currentTimeMillis() - start));
+                LOG.warn("flush " + rowCnt + " end:" + new java.sql.Timestamp(System.currentTimeMillis()) + "," + (System.currentTimeMillis() - start));
 
                 return;
             } catch (SQLException e) {
@@ -279,7 +285,18 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 }
             } finally {
                 if (stmt != null) {
-                    stmt.close();
+                    try {
+                        stmt.close();
+                    } catch (SQLException e) {
+                        LOG.error("ClickHouseBatchInsertFail url:" + url, e);
+                        if (retryCount >= 3) {
+                            //throw e;
+                            if (connection != null) {
+                                connection.close();
+                            }
+                            return;
+                        }
+                    }
                 }
                 if (connection != null) {
                     connection.close();
@@ -308,7 +325,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 lock.lock();
                 try {
                     if (batch.rowCnt() > 0) {
-                        onFlush(batch);
+                        doFlushAndResetBlock(batch, false);
                     }
                 } catch (Exception e) {
                     flushException = e;
