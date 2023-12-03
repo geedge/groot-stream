@@ -1,12 +1,11 @@
 sources:
   kafka_source:
     type : kafka
-    # 数据schema: 配置则转换校验, 只输出配置的列；没配置Map<String, Object>直接输出
-    # fields:
-    # watermark_timestamp: common_recv_time
-    # watermark_timestamp_unit: ms
-    # watermark_lag: 60
-    properties:
+    # fields: # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
+    # watermark_timestamp: common_recv_time # [string] Watermark Field Name
+    # watermark_timestamp_unit: ms # [string] Watermark Unit, default is ms
+    # watermark_lag: 60 # [number] Watermark Lag, default is 60
+    properties: # [object] Source Properties
         topic:  SESSION-RECORD-COMPLETED
         kafka.bootstrap.servers: 192.168.44.11:9092
         kafka.session.timeout.ms: 60000
@@ -25,12 +24,11 @@ sources:
         kafka.auto.offset.reset: latest
         kafka.max.request.size:
         kafka.compression.type: none
-        format: json
+        format: json # [string] Data Format, default is json
 
   inline_source:
     type : inline
-    # 数据schema: 配置则转换校验, 只输出配置的列；没配置Map<String, Object>直接输出
-    fields:
+    fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
       - name: log_id
         type: bigint
       - name: recv_time
@@ -46,7 +44,7 @@ sources:
       json.ignore.parse.errors: false
 
 filters:
-  ssl_filter:
+  schema_type_filter:
     type: com.geedgenetworks.core.filter.AviatorFilter
     output_fields:
     properties:
@@ -71,7 +69,6 @@ preprocessing_pipelines:
         parameters:
 
 processing_pipelines:
-
   session_record_processor: # [object] Processing Pipeline
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     remove_fields:
@@ -127,72 +124,6 @@ processing_pipelines:
         lookup_fields: [ mail_attachment_name,mail_attachment_name_charset ]
         output_fields: [ mail_attachment_name ]
 
-#session_record_processor: # [object] Processing Pipeline
-#  type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
-#  remove_fields:
-#  output_fields:
-#  properties:
-#    key: value
-#  functions: # [array of object] Function List
-#    - function: SNOWFLAKE_ID
-#      lookup_fields: ['']
-#      output_fields: ['common_log_id']
-#      filter:
-#    - function: ASN_LOOKUP
-#      lookup_fields: ['common_client_ip']
-#      output_fields: ['common_client_asn']
-#      parameters:
-#        kb_vender : TSG
-#    - function: ASN_LOOKUP
-#      lookup_fields: ['common_server_ip']
-#      output_fields: ['common_server_asn']
-#      parameters:
-#        kb_vender : TSG
-#    - function: EVAL
-#      output_fields: ['common_internal_ip']
-#      parameters:
-#        value_expression: 'common_direction=69 ? common_client_ip : common_server_ip'
-#    - function: EVAL
-#      output_fields: ['common_external_ip']
-#      parameters:
-#        value_expression: 'common_direction=73 ? common_client_ip : common_server_ip'
-#    - function: JSON_EXTRACT
-#      lookup_fields: ['common_device_tag']
-#      output_fields: ['common_data_center']
-#      filter:
-#      parameters:
-#        param: $.tags[?(@.tag=='data_center')][0].value
-#    - function: JSON_EXTRACT
-#      lookup_fields: ['common_device_tag']
-#      output_fields: ['common_device_group']
-#      filter:
-#      parameters:
-#        param: $.tags[?(@.tag=='device_group')][0].value
-#    - function: GTP_C_LOOKUP
-#      lookup_fields: [ 'common_tunnels' ]
-#      output_fields: [ 'common_phone_number', 'common_imsi', 'common_imei' ]
-#    - function: UNIX_TIMESTAMP_FUNCTION
-#      output_fields: ['common_processing_time']
-#      parameters:
-#        precision : seconds
-#    - function: EVAL
-#      output_fields: ['common_recv_time']
-#      parameters:
-#        value_expression: 'common_ingestion_time'
-#    - function: FIRST_SIGNIFICANT_SUBDOMAIN
-#      lookup_fields: ['http_host','ssl_sni','quic_sni']
-#      output_fields: ['common_server_domain']
-#    - function: EVAL
-#      output_fields: ['http_domain']
-#      parameters:
-#        value_expression: 'common_server_domain'
-#    - function: BASE64_DECODE_TO_STRING
-#      lookup_fields: ['mail_subject','mail_subject_charset']
-#      output_fields: ['mail_subject']
-#    - function: BASE64_DECODE_TO_STRING
-#      lookup_fields: ['mail_attachment_name','mail_attachment_name_charset']
-#      output_fields: ['mail_attachment_name']
-
 sinks:
   kafka_sink_a:
     type: kafka
@@ -235,15 +166,15 @@ sinks:
     properties:
       format: json
 
-application:
+application: # [object] Application Configuration
   name: groot-stream-test # [string] Application Name
-  env:
+  env: # [object] Environment Variables
     execution.parallelism: 1 # [number] Job-Level Parallelism
   topology: # [array of object] Node List. It will be used build data flow for job dag graph.
     - name: kafka_source # [string] Node Name, must be unique. It will be used as the name of the corresponding Flink operator. eg. kafka_source the processor type as SOURCE.
       parallelism: 1 # [number] Operator-Level Parallelism.
-      downstream: [ssl_filter]
-    - name: ssl_filter
+      downstream: [schema_type_filter] # [array of string] Downstream Node Name List.
+    - name: schema_type_filter
       parallelism: 1
       downstream: [session_record_processor]
     - name: session_record_processor

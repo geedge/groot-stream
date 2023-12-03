@@ -15,8 +15,6 @@
 |groot-docs       | Docs module of groot-stream, which is responsible for providing documents.                                  |
 |groot-release    | Release module of groot-stream, which is responsible for providing release scripts.                         |
 
-
-
 ## How to write a high quality Git commit message
 
 > [purpose] [module name] [sub-module name] Description (JIRA Issue ID)

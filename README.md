@@ -5,6 +5,11 @@ Groot Stream Platform helps you process netflow data - logs, metrics etc. - in r
 ## Table of contents
 
 - [Features](#features)
+- [Groot Stream Workflow](#groot-stream-workflow)
+- [Supported Connectors & Functions](#supported-connectors--functions)
+- [Minimum Requirements](#minimum-requirements)
+- [Getting Started](#getting-started)
+- [Documentation](#documentation)
 
 ## Features
 
