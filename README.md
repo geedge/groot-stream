@@ -1,92 +1,91 @@
-# groot-platform
+# Groot Stream Platform
 
+Groot Stream Platform helps you process netflow data - logs, metrics etc. - in real time, high reliability and high performance, distributed data integration tool.
 
+## Table of contents
 
-## Getting started
+- [Features](#features)
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Features
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Groot Stream is is designed to simplify the operation of ETL (Extract, Transform, Load). It efficiently collects data from multiple sources and processes and enriches it. 
+- **Real-time data processing**: Using Flink as the execution engine, it can provide high throughput and low-latency processing capabilities for large-scale data streams.
+- **Designed for extension**: Plugin-based management that support for User-defined Functions, Sources, and Sinks.
+- **Highly Configurable**: Customize data flow through YML templates to swiftly fulfill ETL requirements without development.
+- **Out-of-the-box Functions**: Built-in functions for data processing, including data type conversion, data filtering, data aggregation, and data enrichment.
 
-## Add your files
+## Groot Stream Workflow
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+![Groot Stream Workflow](docs/images/groot_stream_architecture.jpeg)
 
+Configure a job, you'll set up Sources, Filters, Processing Pipeline, and Sinks, and will assemble several built-in functions into a Processing Pipeline. The job will then be deployed to a Flink cluster for execution. 
+- **Source**: The data source of the job, which can be a Kafka topic, a IPFIX Collector, or a file.
+- **Filter**: Filters data based on specified conditions.
+- **Pipelines**: The fundamental unit of data stream processing is the processor, categorized by functionality into stateless and stateful processors. Each processor can assemble built-in functions into a pipeline. 
+  - **Pre-processing Pipeline**: Optional. Processes data before it enters the processing pipeline.
+  - **Processing Pipeline**: Core data transformation pipeline.
+  - **Post-processing Pipeline**: Optional. Processes data after it exits the processing pipeline.
+- **Sink**: The data sink of the job, which can be a Kafka topic, a ClickHouse table, or a file.
+
+## Supported Connectors & Functions
+
+- [Source Connectors](docs/sources)
+- [Sink Connectors](docs/sinks)
+- [Functions](docs/functions)
+
+## Minimum Requirements
+
+- Java 8
+- Maven 3.5.4
+- Scala 2.12
+- Flink 1.13.1
+
+## Getting Started
+
+### Building
+
+Run the following Maven command to build the project modules using parallel threads:
+```shell
+mvn clean install -T2C
 ```
-cd existing_repo
-git remote add origin https://git.mesalab.cn/bigdata/tsg/flink/groot-platform.git
-git branch -M main
-git push -uf origin main
+Run the following Maven command to build the project modules and Skip Tests:
+```shell 
+mvn clean install -DskipTests
 ```
+### Deploying
 
-## Integrate with your tools
+Copy the `groot-release/target/groot-stream-${version}-bin.tar.gz` file to the target machine and extract it:
+```shell
+tar -zxvf groot-stream-${version}-bin.tar.gz
+ls -lh groot-stream-${version}
+```
+### Starting 
 
-- [ ] [Set up project integrations](https://git.mesalab.cn/bigdata/tsg/flink/groot-platform/-/settings/integrations)
+### Running job in your IDE
+1. Set `groot-bootstrap` module pom.xml scope to `compile`.
+2. Open the `Run/Debug Configurations` window.
+3. Choose -cp `groot-bootstrap`
+4. Choose Main Class `com.geedgenetworks.bootstrap.main.GrootStreamServer`.
+5. Add VM options `-e client --target local -c /...../groot-stream/config/grootstream_job_template.yaml`.
+6. Click the `Run` button.
 
-## Collaborate with your team
+#### Running the CLI
+- Run the following command to start the groot-stream server for Standalone Mode:
+```shell
+cd "groot-stream-${version}"
+./bin/start.sh -c ./config/grootstream_job_template.yaml --target remote -d -n groot-stream-job
+```
+- Run the following command to start the groot-stream server for Yarn Per-job Mode:
+```shell
+cd "groot-stream-${version}"
+./bin/start.sh -c ./config/grootstream_job_template.yaml --target yarn-per-job -d -n groot-stream-job
+```
+### Configuring
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+The [Groot User Guide](docs/user-guide) provides detailed information on how to configure a job.
 
-## Test and Deploy
+## Documentation
 
-Use the built-in continuous integration in GitLab.
+See the [Groot Stream Documentation](https://docs.geedge.net/pages/viewpage.action?pageId=91325479) for more information.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
 
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.

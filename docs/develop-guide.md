@@ -1,5 +1,22 @@
 # Develop Guide
 
+## Modules Overview
+
+| Module Name     | Description                                                                                                |
+|:----------------|:-----------------------------------------------------------------------------------------------------------|
+| groot-bootstrap | The main module of groot-stream, which is responsible for starting the groot-stream server.                |
+| groot-common    | Common module of groot-stream, which is responsible for providing common functions.                        |
+| groot-core      | Core module of groot-stream, which is responsible for providing core functions.                            |
+| groot-connectors| Connector module of groot-stream, which is responsible for providing connectors.                           |
+| groot-formats   | Format module of groot-stream, which is responsible for providing the ability of formatting data.          |
+| groot-shade     | Shaded module of groot-stream, which is responsible for providing the ability of solving package conflict. |
+| groot-example   | Example module of groot-stream, which is responsible for providing examples.                               |
+|groot-test       | Test module of groot-stream, which is responsible for providing test cases.                                |
+|groot-docs       | Docs module of groot-stream, which is responsible for providing documents.                                  |
+|groot-release    | Release module of groot-stream, which is responsible for providing release scripts.                         |
+
+
+
 ## How to write a high quality Git commit message
 
 > [purpose] [module name] [sub-module name] Description (JIRA Issue ID)
@@ -25,26 +42,11 @@ When throwing an exception with a hint message and ensure that the exception has
    }
    ```
 
-## How to run a job in IDEA
-1. Set `groot-bootstrap` module pom.xml scope to `compile`.
-2. Open the `Run/Debug Configurations` window.
-3. Choose -cp `groot-bootstrap`
-4. Choose Main Class `com.geedgenetworks.bootstrap.main.GrootStreamServer`.
-5. Add VM options `-e client --target local -c /...../groot-stream/config/grootstream_job_template.yaml`.
-6. Click the `Run` button.
+## Design Principles
 
-## How to run a job in command line
-- Standalone Mode
-```shell
-cd "groot-stream-${version}"
-./bin/start.sh -c ./config/grootstream_job_template.yaml --target remote -d -n groot-stream-job
-```
-- Yarn Per-job Mode
-```shell
-cd "groot-stream-${version}"
-./bin/start.sh -c ./config/grootstream_job_template.yaml --target yarn-per-job -d -n groot-stream-job
-```
-
+1. Package structure: `com.geedgenetworks.[module].[sub-module]`. `groot-stream` is the parent module, and other modules are dependent on it.
+2. Module naming: `groot-[module]`. e.g. `groot-common`, `groot-core`, `groot-connectors`, `groot-bootstrap`, `groot-example`, etc.
+3. For unchecked exception (RuntimeException) within the 'groot-common' module, a global exception handling class named 'GrootRuntimeException' is defined. 
 
 ## Run a job example
 All examples are in module `groot-stream-example`. You can run the example [ running or debugging a job in IDEA].
@@ -52,5 +54,4 @@ e.g. we use `groot-stream-example/src/main/java/com/geedgenetworks/example/Boots
 ```json
 {"ip_string":"8.8.8.9","fqdn_string":"www.geedgenetworks.com","port_int32":80}
 ```
-
 
