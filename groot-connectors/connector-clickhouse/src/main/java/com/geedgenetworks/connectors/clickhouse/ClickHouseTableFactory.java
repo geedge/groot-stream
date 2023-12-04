@@ -58,6 +58,8 @@ public class ClickHouseTableFactory implements SinkTableFactory {
         final Set<ConfigOption<?>> options = new HashSet<>();
         options.add(HOST);
         options.add(TABLE);
+        options.add(CONNECTION_USER);
+        options.add(CONNECTION_PASSWORD);
         return options;
     }
 
