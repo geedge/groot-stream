@@ -8,6 +8,13 @@ public class Record {
 
     public Record() {}
 
+    public Record(int enterpriseId, String name, String dataType, int elementId) {
+        this.enterpriseId = enterpriseId;
+        this.name = name;
+        this.dataType = dataType;
+        this.elementId = elementId;
+    }
+
     public int getEnterpriseId() {
         return enterpriseId;
     }

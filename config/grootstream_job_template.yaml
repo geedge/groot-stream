@@ -43,6 +43,21 @@ sources:
       format: json
       json.ignore.parse.errors: false
 
+  ipfix_source:
+    type: ipfix
+#    fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
+#      - name: log_id
+#        type: bigint
+    properties:
+      initial.port: 12345
+      port.number: 3
+      max.attempts: 3
+      buffer.size: 65535
+      receive.buffer: 104857600
+      service.discovery.register.mode: 0 # 0为nacos，1为consul，其他为不使用服务发现
+      service.discovery.service.name: ipfix_test
+      service.discovery.health.check.interval: 5 #单位s
+
 filters:
   schema_type_filter:
     type: com.geedgenetworks.core.filter.AviatorFilter
