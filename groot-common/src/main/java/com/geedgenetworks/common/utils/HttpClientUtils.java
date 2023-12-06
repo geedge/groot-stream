@@ -48,7 +48,8 @@ public class HttpClientUtils {
     private static final PoolingHttpClientConnectionManager CONN_MANAGER =
             new PoolingHttpClientConnectionManager();
 
-    private static Logger logger = LoggerFactory.getLogger(HttpClientUtils.class);
+    private  final Logger logger = LoggerFactory.getLogger(HttpClientUtils.class);
+
     public static final String ERROR_MESSAGE = "-1";
 
     /*
@@ -110,7 +111,7 @@ public class HttpClientUtils {
      *
      * @return Http客户端连接对象
      */
-    private CloseableHttpClient getHttpClient() {
+    private CloseableHttpClient getHttpClient(int socketTimeOut) {
         // 创建Http请求配置参数
         RequestConfig requestConfig =
                 RequestConfig.custom()
@@ -197,7 +198,7 @@ public class HttpClientUtils {
         String msg = ERROR_MESSAGE;
 
         // 获取客户端连接对象
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = getHttpClient(CommonConfig.HTTP_POOL_RESPONSE_TIMEOUT);
         CloseableHttpResponse response = null;
 
         try {
@@ -252,7 +253,7 @@ public class HttpClientUtils {
     public String httpPost(URI uri, String requestBody, Header... headers) {
         String msg = ERROR_MESSAGE;
         // 获取客户端连接对象
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = getHttpClient(CommonConfig.HTTP_POOL_RESPONSE_TIMEOUT);
 
         // 创建POST请求对象
         CloseableHttpResponse response = null;
@@ -303,25 +304,12 @@ public class HttpClientUtils {
         return msg;
     }
 
-    /** 拼装url url ,参数map */
-    public static void setUrlWithParams(
-            URIBuilder uriBuilder, String path, Map<String, Object> params) {
-        try {
-            uriBuilder.setPath(path);
-            if (params != null && !params.isEmpty()) {
-                for (Map.Entry<String, Object> kv : params.entrySet()) {
-                    uriBuilder.setParameter(kv.getKey(), kv.getValue().toString());
-                }
-            }
-        } catch (Exception e) {
-            logger.error("拼接url出错,uri : {}, path : {},参数: {}", uriBuilder.toString(), path, params);
-        }
-    }
+
 
     public InputStream httpGetInputStream(String url, int socketTimeout, Header... headers) {
         InputStream result = null;
         // 获取客户端连接对象
-        CloseableHttpClient httpClient = getHttpClient();
+        CloseableHttpClient httpClient = getHttpClient(socketTimeout);
         // 创建GET请求对象
         HttpGet httpGet = new HttpGet(url);
         if (StringUtil.isNotEmpty(headers)) {
@@ -356,6 +344,51 @@ public class HttpClientUtils {
                     response.close();
                 } catch (IOException e) {
                     logger.error("Release Connection error:{}", e.getMessage());
+                }
+            }
+            return result;
+        }
+    }
+
+
+
+    public byte[] httpGetByte(String url, int socketTimeout, Header... headers) {
+        byte[] result = null;
+        // 获取客户端连接对象
+        CloseableHttpClient httpClient = getHttpClient(socketTimeout);
+        // 创建GET请求对象
+        HttpGet httpGet = new HttpGet(url);
+        if (StringUtil.isNotEmpty(headers)) {
+            for (Header h : headers) {
+                httpGet.addHeader(h);
+            }
+        }
+        CloseableHttpResponse response = null;
+
+        try {
+            // 执行请求
+            response = httpClient.execute(httpGet);
+            // 获取响应实体
+            result = IOUtils.toByteArray(response.getEntity().getContent());
+            // 获取响应信息
+            EntityUtils.consume(response.getEntity());
+        } catch (ClientProtocolException e) {
+            logger.error("current file: {},Protocol error:{}", url, e.getMessage());
+
+        } catch (ParseException e) {
+            logger.error("current file: {}, Parser error:{}", url, e.getMessage());
+
+        } catch (IOException e) {
+            logger.error("current file: {},IO error:{}", url, e.getMessage());
+
+        } finally {
+            if (null != response) {
+                try {
+                    EntityUtils.consume(response.getEntity());
+                    response.close();
+                } catch (IOException e) {
+                    logger.error("Release Connection error:{}", e.getMessage());
+
                 }
             }
             return result;

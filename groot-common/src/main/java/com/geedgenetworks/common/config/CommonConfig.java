@@ -2,6 +2,12 @@ package com.geedgenetworks.common.config;
 
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static com.geedgenetworks.common.config.GrootYamlParser.getClassReflect;
@@ -10,7 +16,8 @@ import static com.geedgenetworks.common.config.GrootYamlParser.loadYaml;
 /** Created by wk on 2021/1/6. */
 public class CommonConfig {
     public static Map<String, Object> yamlData;
-    public static Map<String, Object> pluginData;
+    public static List<String> udfPluginData = new ArrayList<>();
+    public static List<String> knowledgeBasePluginData = new ArrayList<>();
 
     static {
         try {
@@ -20,18 +27,43 @@ public class CommonConfig {
                             GrootYamlParser.class
                                     .getClassLoader()
                                     .getResourceAsStream("groot.yaml"));
-            pluginData =
-                    loadYaml(
-                            GrootYamlParser.class
-                                    .getClassLoader()
-                                    .getResourceAsStream("groot-platform-plugin.yaml"));
+
+                InputStream inputStreamUdf = GrootYamlParser.class.getClassLoader().getResourceAsStream("groot-platform-plugin");
+                if (inputStreamUdf != null) {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(inputStreamUdf));
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        // 解析每行并添加到列表
+                        udfPluginData.add(line);
+                    }
+                    br.close();
+                } else {
+                    System.out.println("udf-plugin配置文件不存在");
+
+                }
+            InputStream inputStreamKnowledgeBase = GrootYamlParser.class.getClassLoader().getResourceAsStream("groot-platform-knowledge-base-plugin");
+            if (inputStreamKnowledgeBase != null) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(inputStreamKnowledgeBase));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    // 解析每行并添加到列表
+                    knowledgeBasePluginData.add(line);
+                }
+                br.close();
+            } else {
+                System.out.println("knowledge配置文件不存在");
+
+            }
+
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static final Map<String, String> UDF_CLASS_REFLECT = getClassReflect("udf", pluginData);
+    public static final Map<String, String> UDF_CLASS_REFLECT = getClassReflect(udfPluginData);
+
+    public static final Map<String, String> KNOWLEDGE_BASE_CLASS_REFLECT = getClassReflect(knowledgeBasePluginData);
 
     public static final String NACOS_SERVER_ADDR =
             GrootYamlParser.getStringProperty("nacos.server_addr", yamlData);

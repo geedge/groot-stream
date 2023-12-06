@@ -3,6 +3,7 @@ package com.geedgenetworks.common.config;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -19,7 +20,7 @@ public class EngineConfig implements Serializable {
     private String gtpcTableName = ServerConfigOptions.GTPC_TABLE_NAME.defaultValue();
     private int hbaseRpcTimeout = ServerConfigOptions.HBASE_RPC_TIMEOUT.defaultValue();
     private HttpConPoolConfig httpConPoolConfig = ServerConfigOptions.HTTP_CON_POOL.defaultValue();
-    private KnowledgeBaseConfig knowledgeBaseConfig = ServerConfigOptions.KNOWLEDGE_BASE.defaultValue();
+    private List<KnowledgeConfig> knowledgeBaseConfig = ServerConfigOptions.KNOWLEDGE_BASE.defaultValue();
     private SnowflakeConfig snowflakeConfig = ServerConfigOptions.SNOWFLAKE.defaultValue();
     private NacosConfig nacosConfig = ServerConfigOptions.NACOS.defaultValue();
     private ConsulConfig consulConfig = ServerConfigOptions.CONSUL.defaultValue();
@@ -29,7 +30,7 @@ public class EngineConfig implements Serializable {
 
 
 
-    public void setKnowledgeBaseConfig(KnowledgeBaseConfig knowledgeBaseConfig) {
+    public void setKnowledgeBaseConfig(List<KnowledgeConfig> knowledgeBaseConfig) {
         checkNotNull(knowledgeBaseConfig, ServerConfigOptions.KNOWLEDGE_BASE + "knowledgeConfig should not be null");
         this.knowledgeBaseConfig = knowledgeBaseConfig;
     }

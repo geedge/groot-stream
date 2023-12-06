@@ -13,17 +13,20 @@ grootstream:
       connect_timeout: 60000
       socket_timeout: 60000
     knowledge_base:
-      file_check_number: 3
-      asnlookup:
-        - vendor_id: TSG
+      - name: tsg_asnlookup
+        type: asnlookup
+        properties:
+          fs_type: hos
+          fs_default_path: http://path
+        files:
           default_mmdb_file: 7ce2f9890950ba90-fcc25696bf11a8a0
           user_defined_mmdb_file: 7ce2f9890950ba90-71f13b3736863ddb
-        - vendor_id: CN
+      - name: cn_asnlookup
+        type: asnlookup
+        files:
           default_mmdb_file: 7ce2f9890950ba90-fcc25696bf11a8a0
           user_defined_mmdb_file: 7ce2f9890950ba90-71f13b3736863ddb
-      storage:
-        fs_type: hdfs
-        fs_default_path: /knowledgebase/ETL-SESSION-RECORD-COMPLETED/
+
     snowflake:
       data_center_id_num: 1
     nacos:

@@ -2,7 +2,10 @@ package com.geedgenetworks.common.config;
 
 import com.alibaba.fastjson2.TypeReference;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServerConfigOptions {
 
@@ -76,30 +79,30 @@ public class ServerConfigOptions {
             .defaultValue(new HttpConPoolConfig())
             .withDescription("The http con pool configuration.");
 
-    public static final Option<Integer> KNOWLEDGE_BASE_FILE_CHECK_NUMBER =
-            Options.key("file_check_number")
-                    .intType()
-                    .defaultValue(3)
-                    .withDescription("The check number of knowledge file.");
-    public static final Option<String> ASN_LOOKUP_VENDOR_ID =
-            Options.key("vendor_id")
+    public static final Option<Map<String, String>> KNOWLEDGE_BASE_PROPERTIES =
+            Options.key("properties")
+                    .mapType()
+                    .defaultValue(new HashMap<String,String>())
+                    .withDescription("The properties of knowledgebase");
+    public static final Option<String> KNOWLEDGE_BASE_NAME =
+            Options.key("name")
                     .stringType()
                     .defaultValue("")
-                    .withDescription("The vendor id of asn lookup.");
-    public static final Option<String> ASN_LOOKUP_DEFAULT_MMDB_FILE =
-            Options.key("default_mmdb_file")
+                    .withDescription("The name of knowledgebase.");
+    public static final Option<String> KNOWLEDGE_BASE_TYPE =
+            Options.key("type")
                     .stringType()
                     .defaultValue("")
-                    .withDescription("The default mmdb file of asn lookup.");
+                    .withDescription("The type of knowledgebase.");
 
-    public static final Option<String> ASN_LOOKUP_USER_DEFINED_MMDB_FILE =
-            Options.key("user_defined_mmdb_file")
-                    .stringType()
-                    .defaultValue("")
-                    .withDescription("The user defined mmdb file of asn lookup.");
+    public static final Option<List<String>> KNOWLEDGE_BASE_FILES =
+            Options.key("files")
+                    .listType()
+                    .defaultValue(new ArrayList<>())
+                    .withDescription("The files of knowledgebase.");
 
-    public static final Option<List<AsnLookupConfig>> KNOWLEDGE_BASE_ASN_LOOKUP = Options.key("asnlookup")
-            .type(new TypeReference<List<AsnLookupConfig>>() {})
+    public static final Option<List<KnowledgeConfig>> KNOWLEDGE_BASE_ASN_LOOKUP = Options.key("asnlookup")
+            .type(new TypeReference<List<KnowledgeConfig>>() {})
             .noDefaultValue()
             .withDescription("The asn lookup configuration.");
 
@@ -118,10 +121,10 @@ public class ServerConfigOptions {
             .withDescription("The storage configuration of knowledge base.");
 
 
-    public static final Option<KnowledgeBaseConfig> KNOWLEDGE_BASE =
+    public static final Option<List<KnowledgeConfig>> KNOWLEDGE_BASE =
             Options.key("knowledge_base")
-                    .type(new TypeReference<KnowledgeBaseConfig>() {})
-                    .defaultValue(new KnowledgeBaseConfig())
+                    .type(new TypeReference<List<KnowledgeConfig>>() {})
+                    .defaultValue(new ArrayList<>())
                     .withDescription("The knowledge base configuration.");
 
     public static final Option<String> SNOWFLAKE_DATA_CENTER_ID =

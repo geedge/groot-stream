@@ -7,7 +7,9 @@ import com.hazelcast.logging.Logger;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.hazelcast.internal.config.DomConfigHelper.*;
 
@@ -65,7 +67,7 @@ public class YamlGrootStreamDomConfigProcessor extends AbstractDomConfigProcesso
                 engineConfig.setHbaseRpcTimeout(getIntegerValue(ServerConfigOptions.HBASE_RPC_TIMEOUT.key(), getTextContent(node)));
             } else if (ServerConfigOptions.HTTP_CON_POOL.key().equals(name)) {
                 engineConfig.setHttpConPoolConfig(parseHttpConPoolConfig(node));
-            } else if (ServerConfigOptions.KNOWLEDGE_BASE.key().equals(name)) {
+            } else if (ServerConfigOptions. KNOWLEDGE_BASE.key().equals(name)) {
                 engineConfig.setKnowledgeBaseConfig(parseKnowledgeBaseConfig(node));
             } else if (ServerConfigOptions.SNOWFLAKE.key().equals(name)) {
                 engineConfig.setSnowflakeConfig(parseSnowflakeConfig(node));
@@ -202,63 +204,55 @@ public class YamlGrootStreamDomConfigProcessor extends AbstractDomConfigProcesso
 
     }
 
-    private KnowledgeBaseConfig parseKnowledgeBaseConfig(Node knowledgeBaseNode) {
-        KnowledgeBaseConfig knowledgeBaseConfig = new KnowledgeBaseConfig();
+    private List<KnowledgeConfig> parseKnowledgeBaseConfig(Node knowledgeBaseNode) {
+
+        List<KnowledgeConfig> knowledgeConfigList = new ArrayList<>();
         for (Node node : childElements(knowledgeBaseNode)) {
-            String name = cleanNodeName(node);
-            if (ServerConfigOptions.KNOWLEDGE_BASE_FILE_CHECK_NUMBER.key().equals(name)) {
-                knowledgeBaseConfig.setFileCheckNumber(getIntegerValue(ServerConfigOptions.KNOWLEDGE_BASE_FILE_CHECK_NUMBER.key(), getTextContent(node)));
-            } else if (ServerConfigOptions.KNOWLEDGE_BASE_ASN_LOOKUP.key().equals(name)) {
-                knowledgeBaseConfig.setAsnLookupConfigList(parseAsnLookupConfigList(node));
-            } else if (ServerConfigOptions.KNOWLEDGE_BASE_STORAGE.key().equals(name)) {
-                knowledgeBaseConfig.setStorageConfig(parseStorageConfig(node));
-            } else {
-                LOGGER.warning("Unrecognized configuration element: " + name);
-            }
+            knowledgeConfigList.add(parseKnowledgeConfig(node));
         }
-        return knowledgeBaseConfig;
+        return knowledgeConfigList;
     }
 
-    private StorageConfig parseStorageConfig(Node storageNode) {
-        StorageConfig storageConfig = new StorageConfig();
-        for (Node node : childElements(storageNode)) {
-            String name = cleanNodeName(node);
-            if (ServerConfigOptions.KNOWLEDGE_BASE_STORAGE_FS_TYPE.key().equals(name)) {
-                storageConfig.setFsType(getTextContent(node));
-            } else if (ServerConfigOptions.KNOWLEDGE_BASE_STORAGE_FS_DEFAULT_PATH.key().equals(name)) {
-                storageConfig.setFsDefaultPath(getTextContent(node));
-            } else {
-                LOGGER.warning("Unrecognized configuration element: " + name);
-            }
-        }
-        return storageConfig;
-    }
 
-    private List<AsnLookupConfig> parseAsnLookupConfigList(Node asnLookupListNode) {
-        List<AsnLookupConfig> asnLookupConfigList = new ArrayList<>();
-        for (Node node : childElements(asnLookupListNode)) {
-            String name = cleanNodeName(node);
-            asnLookupConfigList.add(parseAsnLookupConfig(node));
-        }
-        return asnLookupConfigList;
-    }
 
-   private AsnLookupConfig parseAsnLookupConfig(Node asnLookupNode) {
-        AsnLookupConfig asnLookupConfig = new AsnLookupConfig();
+   private KnowledgeConfig parseKnowledgeConfig(Node asnLookupNode) {
+        KnowledgeConfig knowledgeConfig = new KnowledgeConfig();
         for (Node node : childElements(asnLookupNode)) {
             String name = cleanNodeName(node);
 
-            if (ServerConfigOptions.ASN_LOOKUP_VENDOR_ID.key().equals(name)) {
-                asnLookupConfig.setVendorId(getTextContent(node));
-            } else if (ServerConfigOptions.ASN_LOOKUP_DEFAULT_MMDB_FILE.key().equals(name)) {
-                asnLookupConfig.setDefaultMMDBFile(getTextContent(node));
-            } else if (ServerConfigOptions.ASN_LOOKUP_USER_DEFINED_MMDB_FILE.key().equals(name)) {
-                asnLookupConfig.setUserDefinedMMDBFile(getTextContent(node));
-            } else {
-                LOGGER.warning("Unrecognized configuration element: " + name);
+            if (ServerConfigOptions.KNOWLEDGE_BASE_NAME.key().equals(name)) {
+                knowledgeConfig.setName(getTextContent(node));
+            } else if (ServerConfigOptions.KNOWLEDGE_BASE_TYPE.key().equals(name)) {
+                knowledgeConfig.setType(getTextContent(node));
+            } else if (ServerConfigOptions.KNOWLEDGE_BASE_FILES.key().equals(name)) {
+                knowledgeConfig.setFiles(parseFilesConfig(node));
+            } else if (ServerConfigOptions.KNOWLEDGE_BASE_PROPERTIES.key().equals(name)) {
+                knowledgeConfig.setProperties(parseKnowledgePropertiesConfig(node));
+            }
+            else{
+                    LOGGER.warning("Unrecognized configuration element: " + name);
             }
         }
-        return asnLookupConfig;
+        return knowledgeConfig;
+    }
+
+    private Map<String, String> parseKnowledgePropertiesConfig(Node properties) {
+        Map<String, String> propertiesMap = new HashMap<>();
+        for (Node node : childElements(properties)) {
+            String name = cleanNodeName(node);
+            propertiesMap.put(name,getTextContent(node));
+        }
+        return propertiesMap;
+    }
+
+    private List<String> parseFilesConfig(Node files) {
+
+        List<String> asnLookupConfigList = new ArrayList<>();
+        for (Node node : childElements(files)) {
+            String name = cleanNodeName(node);
+            asnLookupConfigList.add(name);
+        }
+        return asnLookupConfigList;
     }
 
 

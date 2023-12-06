@@ -18,7 +18,8 @@ public class Drop implements UDF {
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-        Aviator.init(udfContext.getFilter());
+        String value_expression = udfContext.getParameters().get("filter_expression").toString();
+        Aviator.init(value_expression);
     }
 
     @Override

@@ -2,7 +2,9 @@ package com.geedgenetworks.core.processor.projection;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.geedgenetworks.common.config.CommonConfig;
+import com.alibaba.fastjson.JSON;
+import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.utils.ColumnUtil;
@@ -10,16 +12,20 @@ import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.UDF;
+import com.geedgenetworks.core.utils.KnowledgeBaseSchedule;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
+import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
 import java.lang.reflect.Method;
 import java.util.LinkedList;
+
+import static com.geedgenetworks.common.config.ServerConfigOptions.KNOWLEDGE_BASE;
 
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
@@ -37,6 +43,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
          this.functions = new LinkedList<>();
         try {
+            KnowledgeBaseSchedule.getInstance();
             for (UDFContext udfContext : projectionConfig.getFunctions()) {
                 Expression compiledExp = null;
                 UdfEntity udfEntity = new UdfEntity();
@@ -46,9 +53,6 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     Class cls = Class.forName(CommonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
                     UDF udf = (UDF) cls.getConstructor().newInstance();
                     udf.open(getRuntimeContext(), udfContext);
-                  /*  Method withParametersMethod =
-                            cls.getDeclaredMethod("init", UDFContext.class);
-                    withParametersMethod.invoke(udf, udfContext);*/
                     // 函数如果包含filter,对表达式进行编译
                     if (udfContext.getFilter() != null) {
                         AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
@@ -81,7 +85,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
             for (UdfEntity udf : functions) {
                 try {
                     // 判断是否命中drop函数逻辑
-                    if (!event.isFinal()) {
+                    if (event.isFinal()) {
                         // 判断函数是否有filter，命中filter规则的event调用函数
                         if (udf.getCompiledExp() != null) {
                             if ((Boolean)
@@ -113,7 +117,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     ColumnUtil.columnSelector(
                             event.getExtractedFields(), projectionConfig.getOutput_fields()));
         }
-        out.collect(event);
+        if(event.isFinal()){out.collect(event);}
     }
 
     @Override

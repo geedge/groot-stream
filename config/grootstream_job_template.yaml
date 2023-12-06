@@ -6,57 +6,37 @@ sources:
     # watermark_timestamp_unit: ms # [string] Watermark Unit, default is ms
     # watermark_lag: 60 # [number] Watermark Lag, default is 60
     properties: # [object] Source Properties
-        topic:  SESSION-RECORD-COMPLETED
-        kafka.bootstrap.servers: 192.168.44.11:9092
-        kafka.session.timeout.ms: 60000
-        kafka.max.poll.records: 3000
-        kafka.max.partition.fetch.bytes: 31457280
-        kafka.security.protocol:
-        kafka.ssl.keystore.location:
-        kafka.ssl.keystore.password:
-        kafka.ssl.truststore.location:
-        kafka.ssl.truststore.password:
-        kafka.ssl.key.password:
-        kafka.sasl.mechanism:
-        kafka.sasl.jaas.config:
-        kafka.buffer.memory:
-        kafka.group.id: SESSION-RECORD-COMPLETED-GROUP-GROOT-STREAM-20231021
-        kafka.auto.offset.reset: latest
-        kafka.max.request.size:
-        kafka.compression.type: none
-        format: json # [string] Data Format, default is json
+      topic:  SESSION-RECORD-COMPLETED
+      kafka.bootstrap.servers: 192.168.44.11:9092
+      kafka.session.timeout.ms: 60000
+      kafka.max.poll.records: 3000
+      kafka.max.partition.fetch.bytes: 31457280
+      kafka.security.protocol:
+      kafka.ssl.keystore.location:
+      kafka.ssl.keystore.password:
+      kafka.ssl.truststore.location:
+      kafka.ssl.truststore.password:
+      kafka.ssl.key.password:
+      kafka.sasl.mechanism:
+      kafka.sasl.jaas.config:
+      kafka.buffer.memory:
+      kafka.group.id: SESSION-RECORD-COMPLETED-GROUP-GROOT-STREAM-20231021
+      kafka.auto.offset.reset: latest
+      kafka.max.request.size:
+      kafka.compression.type: none
+      format: json # [string] Data Format, default is json
 
   inline_source:
     type : inline
     fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
-      - name: log_id
-        type: bigint
-      - name: recv_time
-        type: bigint
-      - name: client_ip
-        type: string
+
     # watermark_timestamp: recv_time
     # watermark_timestamp_unit: s
     # watermark_lag: 60
     properties:
-      data:  '{"log_id": 1, "recv_time":"111", "client_ip":"192.168.0.1"}'
+      data:  '{"log_id": 1, "recv_time":"111", "client_ip":"192.168.0.1","server_ip":"120.233.20.242","common_schema_type":"BASE"}'
       format: json
       json.ignore.parse.errors: false
-
-  ipfix_source:
-    type: ipfix
-#    fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
-#      - name: log_id
-#        type: bigint
-    properties:
-      initial.port: 12345
-      port.number: 3
-      max.attempts: 3
-      buffer.size: 65535
-      receive.buffer: 104857600
-      service.discovery.register.mode: 0 # 0为nacos，1为consul，其他为不使用服务发现
-      service.discovery.service.name: ipfix_test
-      service.discovery.health.check.interval: 5 #单位s
 
 filters:
   schema_type_filter:
@@ -78,10 +58,10 @@ preprocessing_pipelines:
         output_fields: ['common_log_id']
         filter:
       - function: DROP
-        lookup_fields: ['']
-        output_fields: ['']
-        filter: map.common_schema_type == 'HTTP' && map.common_server_port > 60
+        lookup_fields: [ '' ]
+        output_fields: [ '' ]
         parameters:
+          filter_expression: map.common_schema_type == 'BASE' && map.common_server_port > 60
 
 processing_pipelines:
   session_record_processor: # [object] Processing Pipeline
@@ -91,6 +71,12 @@ processing_pipelines:
     properties:
       key: value
     functions: # [array of object] Function List
+      - function: ASN_LOOKUP
+        lookup_fields: [server_ip]
+        output_fields: [server_asn]
+        parameters:
+          option: IP_TO_ASN
+          vendor_id : tsg_asnlookup
       - function: SNOWFLAKE_ID
         lookup_fields: [ '' ]
         output_fields: [ common_log_id ]
@@ -186,7 +172,7 @@ application: # [object] Application Configuration
   env: # [object] Environment Variables
     execution.parallelism: 1 # [number] Job-Level Parallelism
   topology: # [array of object] Node List. It will be used build data flow for job dag graph.
-    - name: kafka_source # [string] Node Name, must be unique. It will be used as the name of the corresponding Flink operator. eg. kafka_source the processor type as SOURCE.
+    - name: inline_source # [string] Node Name, must be unique. It will be used as the name of the corresponding Flink operator. eg. kafka_source the processor type as SOURCE.
       parallelism: 1 # [number] Operator-Level Parallelism.
       downstream: [schema_type_filter] # [array of string] Downstream Node Name List.
     - name: schema_type_filter

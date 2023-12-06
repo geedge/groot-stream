@@ -2,7 +2,6 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
-import com.geedgenetworks.core.utils.IPUtils;
 import com.geedgenetworks.core.utils.IPKnowledgeBase;
 import com.geedgenetworks.utils.StringUtil;
 
@@ -38,7 +37,7 @@ public class IpLocation implements UDF {
                     event.getExtractedFields()
                             .put(
                                     udfContext.getOutput_fields().get(0),
-                                    IPUtils.venderWithIpLookup
+                                    IPKnowledgeBase.venderWithIpLookup
                                             .get(vender)
                                             .countryLookup(
                                                     event.getExtractedFields()

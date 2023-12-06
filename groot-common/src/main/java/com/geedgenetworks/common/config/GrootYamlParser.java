@@ -46,12 +46,11 @@ public final class GrootYamlParser {
                 : null;
     }
 
-    public static Map<String, String> getClassReflect(String key, Map<String, Object> yamlData) {
-        String value = (String) getValue(key, yamlData);
-        String[] classArray = value.split(" ");
+    public static Map<String, String> getClassReflect(List<String> plugins) {
+
         Map<String, String> classReflect = new HashMap<>();
 
-        for (String classPath : classArray) {
+        for (String classPath : plugins) {
 
             Class cls = null;
             try {

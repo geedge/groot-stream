@@ -32,7 +32,7 @@ public class IPKnowledgeBase {
 
     public static void updateKnowledgeBase(Map<String, KnowLedgeEntity> map) throws Exception {
 
-            for (Map.Entry<String, KnowLedgeEntity> entry : map.entrySet()) {
+           /* for (Map.Entry<String, KnowLedgeEntity> entry : map.entrySet()) {
                 IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
 
                         try {
@@ -65,7 +65,7 @@ public class IPKnowledgeBase {
                 }
                 IpLookupV2 ipLookup = ipLookupBuilder.build();
                 venderWithIpLookup.put(entry.getKey(), ipLookup);
-            }
+            }*/
 
     }
 

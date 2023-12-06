@@ -19,8 +19,8 @@ public class YamlGrootStreamConfigParserTest {
         Assertions.assertEquals(90, config.getEngineConfig().getTickTupleFreqSecs());
         Assertions.assertNotNull(config.getEngineConfig().getNacosConfig().getServerAddr());
         Assertions.assertTrue(config.getEngineConfig().getHttpConPoolConfig().getSocketTimeout() > 0);
-        Assertions.assertNotNull(config.getEngineConfig().getKnowledgeBaseConfig().getAsnLookupConfigList());
-        Assertions.assertEquals("hdfs", config.getEngineConfig().getKnowledgeBaseConfig().getStorageConfig().getFsType());
+        Assertions.assertNotNull(config.getEngineConfig().getKnowledgeBaseConfig());
+        Assertions.assertEquals("hos", config.getEngineConfig().getKnowledgeBaseConfig().get(0).getProperties().get("fs_type"));
 
     }
 
