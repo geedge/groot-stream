@@ -64,15 +64,6 @@ public class AsnLookup implements UDF {
             default:
                     break;
         }
-        System.out.println(ASNKnowledgeBase.getVenderWithAsnLookup()
-                .get(vender)
-                .asnLookup(
-                        event.getExtractedFields()
-                                .get(
-                                        udfContext
-                                                .getLookup_fields()
-                                                .get(0))
-                                .toString()));
         return event;
     }
 
