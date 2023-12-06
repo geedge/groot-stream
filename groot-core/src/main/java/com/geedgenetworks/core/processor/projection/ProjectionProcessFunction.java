@@ -2,8 +2,6 @@ package com.geedgenetworks.core.processor.projection;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.alibaba.fastjson.JSON;
-import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
@@ -17,15 +15,11 @@ import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
-import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
-import java.lang.reflect.Method;
 import java.util.LinkedList;
-
-import static com.geedgenetworks.common.config.ServerConfigOptions.KNOWLEDGE_BASE;
 
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
@@ -50,7 +44,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (CommonConfig.UDF_CLASS_REFLECT.containsKey(udfContext.getFunction())) {
 
-                    Class cls = Class.forName(CommonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
+                    Class<?> cls = Class.forName(CommonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
                     UDF udf = (UDF) cls.getConstructor().newInstance();
                     udf.open(getRuntimeContext(), udfContext);
                     // 函数如果包含filter,对表达式进行编译
@@ -93,7 +87,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                                             .execute(
                                                     udf.getCompiledExp()
                                                             .newEnv(
-                                                                    "map",
+                                                                    "event",
                                                                     event.getExtractedFields()))) {
                                 udf.getUdfFunction().evaluate(event);
                             }

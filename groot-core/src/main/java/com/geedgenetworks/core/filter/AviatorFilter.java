@@ -92,7 +92,7 @@ public class AviatorFilter implements Filter {
 
             Boolean bool = true;
             if (!"".equals(expression)) {
-                bool = (Boolean) compiledExp.execute(compiledExp.newEnv("map", map));
+                bool = (Boolean) compiledExp.execute(compiledExp.newEnv("event", map));
             }
             return bool;
         }

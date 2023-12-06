@@ -60,9 +60,7 @@ preprocessing_pipelines:
       - function: DROP
         lookup_fields: [ '' ]
         output_fields: [ '' ]
-        parameters:
-          filter_expression: map.common_schema_type == 'BASE' && map.common_server_port > 60
-
+        filter:  event.common_schema_type == 'BASE'
 processing_pipelines:
   session_record_processor: # [object] Processing Pipeline
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
@@ -71,6 +69,7 @@ processing_pipelines:
     properties:
       key: value
     functions: # [array of object] Function List
+
       - function: ASN_LOOKUP
         lookup_fields: [server_ip]
         output_fields: [server_asn]
