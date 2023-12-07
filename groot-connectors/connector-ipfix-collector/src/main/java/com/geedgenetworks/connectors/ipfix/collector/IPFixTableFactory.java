@@ -1,6 +1,5 @@
 package com.geedgenetworks.connectors.ipfix.collector;
 
-import com.geedgenetworks.connectors.ipfix.collector.util.IPFIXUtils;
 import com.geedgenetworks.core.connector.source.SourceProvider;
 import com.geedgenetworks.core.factories.FactoryUtil;
 import com.geedgenetworks.core.factories.SourceTableFactory;
@@ -13,8 +12,10 @@ import scala.xml.Node;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import static com.geedgenetworks.connectors.ipfix.collector.IPFixConnectorOptionsUtil.PROPERTIES_PREFIX;
 
 public class IPFixTableFactory implements SourceTableFactory {
     public static final String IDENTIFIER = "ipfix";
@@ -22,16 +23,17 @@ public class IPFixTableFactory implements SourceTableFactory {
     @Override
     public SourceProvider getSourceProvider(Context context) {
         final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
-        helper.validate();
+        helper.validateExcept(PROPERTIES_PREFIX);
         StructType physicalDataType = context.getPhysicalDataType();
         ReadableConfig config = context.getConfiguration();
+        Map<String, String> options = context.getOptions();
         InfoModel model = InfoModel.getStandardInfoModel(true);
         SessionGroup sessionGroup = new SessionGroup(model, null, false);
         ArrayList<Node> elements = IPFIXUtils.getElements();
         for (Node element : elements) {
             model.importElements(element);
         }
-        return new IPFixSourceProvider(physicalDataType, config, sessionGroup);
+        return new IPFixSourceProvider(physicalDataType, config, options, sessionGroup);
     }
 
     @Override
@@ -43,7 +45,6 @@ public class IPFixTableFactory implements SourceTableFactory {
     public Set<ConfigOption<?>> requiredOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
         options.add(IPFixConnectorOptions.INITIAL_PORT);
-        options.add(IPFixConnectorOptions.SERVICE_DISCOVERY_SERVICE_NAME);
         return options;
     }
 
@@ -54,8 +55,6 @@ public class IPFixTableFactory implements SourceTableFactory {
         options.add(IPFixConnectorOptions.MAX_ATTEMPTS);
         options.add(IPFixConnectorOptions.PORT_NUMBER);
         options.add(IPFixConnectorOptions.RECEIVE_BUFFER);
-        options.add(IPFixConnectorOptions.SERVICE_DISCOVERY_REGISTER_MODE);
-        options.add(IPFixConnectorOptions.SERVICE_DISCOVERY_HEALTH_CHECK_INTERVAL);
         return options;
     }
 }

@@ -1,7 +1,6 @@
-package com.geedgenetworks.connectors.ipfix.collector.util;
+package com.geedgenetworks.connectors.ipfix.collector;
 
 import cn.hutool.json.JSONArray;
-import com.geedgenetworks.connectors.ipfix.collector.IPFixSourceProvider;
 import com.geedgenetworks.core.pojo.ipfix.Record;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -12,8 +11,6 @@ import scala.xml.Node;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class IPFIXUtils {
     private static final Log logger = LogFactory.get();
@@ -41,19 +38,5 @@ public class IPFIXUtils {
             logger.error("load ipfix.json error.", e);
         }
         return nodes;
-    }
-
-    public static Map<String, Object> dataConverter(Map<String, Object> extractedFields, Map<String, IPFixSourceProvider.ValueConverter> filedConverters) throws Exception {
-        Map<String, Object> newExtractedFields = new HashMap<>();
-        if (filedConverters != null && filedConverters.size() > 0) {
-            for (String field : filedConverters.keySet()) {
-                if (extractedFields.containsKey(field)) {
-                    newExtractedFields.put(field, filedConverters.get(field).convert(extractedFields.get(field)));
-                }
-            }
-            return newExtractedFields;
-        } else {
-            return extractedFields;
-        }
     }
 }
