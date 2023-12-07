@@ -1,85 +1,83 @@
 #!/bin/bash
 
-set -eu
-
-# Stop job by name in standalone mode
-stop_standalone_job_by_name() {
-    # Check if a Job Name is provided as an argument
-    if [ $# -ne 1 ]; then
-        echo "Usage: $0 <job_name>"
-        exit 1
-    fi
-
-    # Assign the first argument to the variable 'job_name'
-    job_name=$1
-
-    # Get the Job ID of the job with the specified name
-    job_info=$(flink list -r | grep -i "$job_name")
-    job_id=$(echo "$job_info" | awk '{print $4}')
-
-    # Check if the job with the specified name was found
-    if [ -z "$job_id" ]; then
-        echo "No Flink job with the name '$job_name' found to stop in standalone mode."
-        exit 1
-    fi
-
-    # Stop the Flink job using the obtained Job ID
-    flink cancel $job_id
-
-    # Check the exit status of the previous command
-    if [ $? -eq 0 ]; then
-        echo "Flink job with Job ID $job_id and name '$job_name' has been successfully stopped in standalone mode."
-        exit 0
-    else
-        echo "Failed to stop the Flink job with Job ID $job_id and name '$job_name' in standalone mode."
-        exit 1
-    fi
+# Function to display usage
+display_usage() {
+    echo "Usage: $0 <DEPLOYMENT_MODE> <JOB_NAME>"
+    echo "DEPLOYMENT_MODE: standalone, yarn-per-job, or yarn-session"
 }
-
-# Function to stop Flink job by name in YARN mode
-stop_yarn_job_by_name() {
-    # Check if a Job Name is provided as an argument
-    if [ $# -ne 1 ]; then
-        echo "Usage: $0 <job_name>"
-        exit 1
-    fi
-
-    # Assign the first argument to the variable 'job_name'
-    job_name=$1
-
-    # Get the Flink jobs information from YARN ResourceManager
-    jobs_info=$(yarn application -list -appTypes FLINK | grep -i "$job_name")
-
-    # Extract the Application ID from the job information
-    application_id=$(echo "$jobs_info" | awk '{print $1}')
-
-    # Check if the job with the specified name was found
-    if [ -z "$application_id" ]; then
-        echo "No Flink job with the name '$job_name' found to stop in YARN mode."
-        exit 1
-    fi
-
-    # Stop the YARN application using 'yarn application -kill' command
-    yarn application -kill $application_id
-
-    # Check the exit status of the previous command
-    if [ $? -eq 0 ]; then
-        echo "Flink job with Application ID $application_id and name '$job_name' has been successfully stopped in YARN mode."
-        exit 0
-    else
-        echo "Failed to stop the Flink job with Application ID $application_id and name '$job_name' in YARN mode."
-        exit 1
-    fi
+# Function to stop Flink jobs based on deployment mode
+stop_jobs() {
+    case $1 in
+        standalone)
+            "$FLINK_HOME"/bin/flink list -r -m "$FLINK_JOB_MANAGER_ADDRESS" | grep "$job_name" | awk '{print $4}' | while read -r jobId
+            do
+                "$FLINK_HOME"/bin/flink cancel "$jobId" -m "$FLINK_JOB_MANAGER_ADDRESS"
+                echo "Stopped Flink job with JobID: $jobId"
+            done
+            ;;
+        yarn-per-job)
+           # Command to stop YARN applications for the specified job name
+            yarn application -list -appStates RUNNING | grep "$JOB_NAME" | awk '{print $1}' | while read -r appId
+            do
+                yarn application -kill "$appId"
+                echo "Stopped YARN application with ApplicationID: $appId"
+            done
+            ;;
+        yarn-session)
+            "$FLINK_HOME"/bin/flink list -r -yid "$YARN_ADDRESS" | grep "$job_name" | awk '{print $4}' | while read -r jobId
+            do
+                "$FLINK_HOME"/bin/flink cancel "$jobId" -yid "$YARN_ADDRESS"
+                echo "Stopped Flink job with JobID: $jobId"
+            done
+            ;;
+        *)
+            echo "Invalid DEPLOYMENT_MODE. Choose from: standalone, yarn-per-job, yarn-session"
+            exit 1
+            ;;
+    esac
 }
+set -euo pipefail
 
-# Check if a Job Name is provided
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <job_name>"
+# resolve links - $0 may be a softlink
+PRG=$(readlink -f "$0")
+PRG_DIR=$(dirname "$PRG")
+APP_DIR=$(cd "$PRG_DIR/.." && pwd)
+CONF_DIR="$APP_DIR/config"
+
+# Source environment variables if available
+if [ -f "${CONF_DIR}/grootstream_env.sh" ]; then
+    . "${CONF_DIR}/grootstream_env.sh"
+fi
+
+# Check dependencies
+if ! command -v yarn &> /dev/null || ! command -v flink &> /dev/null || [ -z "${FLINK_HOME:-}" ]; then
+    echo "Flink or YARN not found or FLINK_HOME environment variable not set properly. Please check your environment setup."
     exit 1
 fi
 
-# Try stopping the job by name in standalone mode first
-stop_standalone_job_by_name $1 || {
-    # If stopping in standalone mode fails, attempt to stop in YARN mode
-    stop_yarn_job_by_name $1
-}
+# Validate input arguments
+if [ "$#" -ne 2 ]; then
+    display_usage
+    exit 1
+fi
+
+# Assigning input arguments to variables
+deployment_mode=$1  # standalone, yarn-per-job, or yarn-session
+job_name=$2  # The Flink job name to stop
+
+# Trim whitespace from job_name
+job_name=$(echo "$job_name" | tr -d '[:space:]')
+
+# Checking for empty input arguments
+if [ -z "$deployment_mode" ] || [ -z "$job_name" ]; then
+    display_usage
+    exit 1
+fi
+
+# Execute stop_jobs function with provided arguments
+stop_jobs "$deployment_mode" "$job_name"
+
+
+
+
+
