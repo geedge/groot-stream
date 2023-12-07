@@ -10,9 +10,8 @@
     </parent>
 
     <artifactId>format-json</artifactId>
-    <name>Groot : Formats : Json </name>
+    <name>Groot : Formats : Format-Json </name>
     <dependencies>
-
     </dependencies>
 
 </project>
