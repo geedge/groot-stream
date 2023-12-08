@@ -1,26 +1,23 @@
-package com.geedgenetworks.core.utils;
+package com.geedgenetworks.core.utils.KnowlegdeBase;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.TypeReference;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeConfig;
-import com.geedgenetworks.common.utils.HttpClientUtils;
 import com.geedgenetworks.core.pojo.KnowLedgeEntity;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
+import java.lang.reflect.Method;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.geedgenetworks.core.utils.ScheduTask.startTask;
 
 
 public class KnowledgeBaseSchedule {
+
+    private static Timer timer;
 
     public static Map<String, KnowledgeConfig> knowledgeConfigMap = new ConcurrentHashMap<>();
     public static  Map<String, List<KnowLedgeEntity>> KnowLedgeEntityMap = new ConcurrentHashMap<>();
@@ -30,51 +27,57 @@ public class KnowledgeBaseSchedule {
 
     private static KnowledgeBaseSchedule instance;
 
-    public static synchronized KnowledgeBaseSchedule getInstance() throws Exception {
+    public static synchronized KnowledgeBaseSchedule getInstance()  {
         if (instance == null) {
             instance = new KnowledgeBaseSchedule();
             knowledgeBaseClassReflect =CommonConfig.KNOWLEDGE_BASE_CLASS_REFLECT;
-            startTask();
+            ScheduTask.startTask();
         }
         return instance;
     }
 
-    public static void  updateKnowledgeBase(String name) throws Exception {
+    public static void  updateKnowledgeBase(String name)  {
 
         try {
             // 获取私有构造方法
             Class<?> cls = Class.forName(knowledgeBaseClassReflect.get(knowledgeConfigMap.get(name).getType()));
             Constructor<?> constructor = cls.getDeclaredConstructor();
             constructor.setAccessible(true);
-            knowledgeUtil instance = (knowledgeUtil) constructor.newInstance();
+          //  knowledgeUtil instance = (knowledgeUtil) constructor.newInstance();
 
+            Method createInstanceMethod = cls.getMethod("getInstance");
+            AbstractKnowledgeBase instance = (AbstractKnowledgeBase) createInstanceMethod.invoke(null);
             // 使用实例调用方法
             instance.updateKnowledgeBase(knowledgeConfigMap.get(name));
-        } catch (NoSuchMethodException | InstantiationException |
-                 IllegalAccessException | InvocationTargetException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
         }
     }
 
 
 
-    public static synchronized  void initKnowledgeBase(KnowledgeConfig KnowledgeConfig)  {
+    public static synchronized  void initKnowledgeBase(KnowledgeConfig KnowledgeConfig)   {
 
-        if (!knowledgeConfigMap.containsKey(KnowledgeConfig.getName())) {
-            List<KnowLedgeEntity> knowLedgeEntityList = new ArrayList<>();
-            try {
-                knowledgeConfigMap.put(KnowledgeConfig.getName(), KnowledgeConfig);
-                updateKnowledgeBase(KnowledgeConfig.getName());
-                for (String id : KnowledgeConfig.getFiles()) {
-                    KnowLedgeEntity knowLedgeEntity = getMetadata(id);
-                    knowLedgeEntityList.add(knowLedgeEntity);
+        if (instance == null) {
+            getInstance();
+        }
+            if (!knowledgeConfigMap.containsKey(KnowledgeConfig.getName())) {
+                List<KnowLedgeEntity> knowLedgeEntityList = new ArrayList<>();
+                try {
+                    knowledgeConfigMap.put(KnowledgeConfig.getName(), KnowledgeConfig);
+                    updateKnowledgeBase(KnowledgeConfig.getName());
+                    for (String id : KnowledgeConfig.getFiles()) {
+                        KnowLedgeEntity knowLedgeEntity = getMetadata(id);
+                        knowLedgeEntityList.add(knowLedgeEntity);
+                    }
+                    KnowLedgeEntityMap.put(KnowledgeConfig.getName(), knowLedgeEntityList);
+                } catch (Exception e) {
+                    logger.error("initKnowledgeBase  " + KnowledgeConfig.getName() + " error: " + e.getMessage());
                 }
                 KnowLedgeEntityMap.put(KnowledgeConfig.getName(), knowLedgeEntityList);
-            } catch (Exception e) {
-                logger.error("initKnowledgeBase  " + KnowledgeConfig.getName() + " error: " + e.getMessage());
             }
-            KnowLedgeEntityMap.put(KnowledgeConfig.getName(), knowLedgeEntityList);
-        }
+
+
     }
     private static KnowLedgeEntity getMetadata(String id) {
 
@@ -124,8 +127,37 @@ public class KnowledgeBaseSchedule {
 
 
 
+    static  class ScheduTask extends TimerTask {
 
 
+        @Override
+        public void run() {
+            for (Map.Entry<String, KnowledgeConfig> entry : knowledgeConfigMap.entrySet()) {
+                Boolean flag = null;
+                try {
+                    flag = checkUpdateMesssage(entry.getValue().getName());
+                    if(flag){
+                        updateKnowledgeBase(entry.getKey());
+                    }
+                } catch (NoSuchAlgorithmException e) {
+                    logger.error(e.getMessage());
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                }
+            }
+        }
 
+        public static void startTask() {
+            timer = new Timer();
+            timer.schedule(new ScheduTask(), 0, 300000); // 每隔300秒执行一次任务
+        }
+
+        public static void stopTask() {
+            if (timer != null) {
+                timer.cancel();
+                timer = null;
+            }
+        }
+    }
 
 }

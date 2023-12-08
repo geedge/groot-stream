@@ -10,7 +10,7 @@ import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.UDF;
-import com.geedgenetworks.core.utils.KnowledgeBaseSchedule;
+import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseSchedule;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;

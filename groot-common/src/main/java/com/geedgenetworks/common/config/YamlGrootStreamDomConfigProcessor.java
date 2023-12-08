@@ -53,30 +53,14 @@ public class YamlGrootStreamDomConfigProcessor extends AbstractDomConfigProcesso
         final EngineConfig engineConfig = config.getEngineConfig();
         for (Node node : childElements(engineNode)) {
             String name = cleanNodeName(node);
-            if (ServerConfigOptions.TICK_TUPLE_FREQ_SECS.key().equals(name)) {
-                engineConfig.setTickTupleFreqSecs(getIntegerValue(ServerConfigOptions.TICK_TUPLE_FREQ_SECS.key(), getTextContent(node)));
-            } else if (ServerConfigOptions.GTPC_SCAN_MAX_ROWS.key().equals(name)) {
-                engineConfig.setGtpcScanMaxRows(getIntegerValue(ServerConfigOptions.GTPC_SCAN_MAX_ROWS.key(), getTextContent(node)));
-            } else if (ServerConfigOptions.RADIUS_SCAN_MAX_ROWS.key().equals(name)) {
-                engineConfig.setRadiusScanMaxRows(getIntegerValue(ServerConfigOptions.RADIUS_SCAN_MAX_ROWS.key(), getTextContent(node)));
-            } else if (ServerConfigOptions.RADIUS_TABLE_NAME.key().equals(name)) {
-                engineConfig.setRadiusTableName(getTextContent(node));
-            } else if (ServerConfigOptions.GTPC_TABLE_NAME.key().equals(name)) {
-                engineConfig.setGtpcTableName(getTextContent(node));
-            } else if (ServerConfigOptions.HBASE_RPC_TIMEOUT.key().equals(name)) {
-                engineConfig.setHbaseRpcTimeout(getIntegerValue(ServerConfigOptions.HBASE_RPC_TIMEOUT.key(), getTextContent(node)));
-            } else if (ServerConfigOptions.HTTP_CON_POOL.key().equals(name)) {
+            if (ServerConfigOptions.HTTP_CON_POOL.key().equals(name)) {
                 engineConfig.setHttpConPoolConfig(parseHttpConPoolConfig(node));
             } else if (ServerConfigOptions. KNOWLEDGE_BASE.key().equals(name)) {
                 engineConfig.setKnowledgeBaseConfig(parseKnowledgeBaseConfig(node));
-            } else if (ServerConfigOptions.SNOWFLAKE.key().equals(name)) {
-                engineConfig.setSnowflakeConfig(parseSnowflakeConfig(node));
             } else if (ServerConfigOptions.NACOS.key().equals(name)) {
                 engineConfig.setNacosConfig(parseNacosConfig(node));
             } else if (ServerConfigOptions.CONSUL.key().equals(name)) {
                 engineConfig.setConsulConfig(parseConsulConfig(node));
-            } else if (ServerConfigOptions.HOS.key().equals(name)) {
-                engineConfig.setHosConfig(parseHosConfig(node));
             } else if (ServerConfigOptions.ZOOKEEPER.key().equals(name)) {
                 engineConfig.setZookeeperConfig(parseZookeeperConfig(node));
             } else if (ServerConfigOptions.HDFS.key().equals(name)) {
@@ -89,18 +73,6 @@ public class YamlGrootStreamDomConfigProcessor extends AbstractDomConfigProcesso
         }
     }
 
-    private HosConfig parseHosConfig(Node hosNode) {
-        HosConfig hosConfig = new HosConfig();
-        for (Node node : childElements(hosNode)) {
-            String name = cleanNodeName(node);
-            if (ServerConfigOptions.HOS_TOKEN.key().equals(name)) {
-                hosConfig.setToken(getTextContent(node));
-            } else {
-                LOGGER.warning("Unrecognized configuration element: " + name);
-            }
-        }
-        return hosConfig;
-    }
 
     private ZookeeperConfig parseZookeeperConfig(Node zookeeperNode) {
         ZookeeperConfig zookeeperConfig = new ZookeeperConfig();
@@ -170,18 +142,7 @@ public class YamlGrootStreamDomConfigProcessor extends AbstractDomConfigProcesso
         return nacosConfig;
     }
 
-    private SnowflakeConfig parseSnowflakeConfig(Node snowflakeNode) {
-        SnowflakeConfig snowflakeConfig = new SnowflakeConfig();
-        for (Node node : childElements(snowflakeNode)) {
-            String name = cleanNodeName(node);
-            if (ServerConfigOptions.SNOWFLAKE_DATA_CENTER_ID.key().equals(name)) {
-                snowflakeConfig.setDataCenterId(getTextContent(node));
-            } else {
-                LOGGER.warning("Unrecognized configuration element: " + name);
-            }
-        }
-        return snowflakeConfig;
-    }
+
     private HttpConPoolConfig parseHttpConPoolConfig(Node httpConPoolNode) {
         HttpConPoolConfig httpConPoolConfig = new HttpConPoolConfig();
         for (Node node : childElements(httpConPoolNode)) {
@@ -212,8 +173,6 @@ public class YamlGrootStreamDomConfigProcessor extends AbstractDomConfigProcesso
         }
         return knowledgeConfigList;
     }
-
-
 
    private KnowledgeConfig parseKnowledgeConfig(Node asnLookupNode) {
         KnowledgeConfig knowledgeConfig = new KnowledgeConfig();

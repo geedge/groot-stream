@@ -21,8 +21,8 @@ grootstream:
         files:
           default_mmdb_file: 7ce2f9890950ba90-fcc25696bf11a8a0
           user_defined_mmdb_file: 7ce2f9890950ba90-71f13b3736863ddb
-      - name: cn_asnlookup
-        type: asnlookup
+      - name: tsg_geoiplookup
+        type: geoiplookup
         files:
           default_mmdb_file: 7ce2f9890950ba90-fcc25696bf11a8a0
           user_defined_mmdb_file: 7ce2f9890950ba90-71f13b3736863ddb

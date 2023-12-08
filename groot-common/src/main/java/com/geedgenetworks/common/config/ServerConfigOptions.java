@@ -9,41 +9,6 @@ import java.util.Map;
 
 public class ServerConfigOptions {
 
-    public static final Option<Integer> TICK_TUPLE_FREQ_SECS =
-            Options.key("tick_tuple_freq_secs")
-                    .intType()
-                    .defaultValue(60)
-                    .withDescription("The frequency of tick tuple (in seconds).");
-
-    public static final Option<Integer> GTPC_SCAN_MAX_ROWS =
-            Options.key("gtpc_scan_max_rows")
-                    .intType()
-                    .defaultValue(10000)
-                    .withDescription("The max rows of gtpc scan.");
-
-    public static  final Option<Integer> RADIUS_SCAN_MAX_ROWS =
-            Options.key("radius_scan_max_rows")
-                    .intType()
-                    .defaultValue(10000)
-                    .withDescription("The max rows of radius scan.");
-
-    public static final Option<String> RADIUS_TABLE_NAME =
-            Options.key("radius_table_name")
-                    .stringType()
-                    .defaultValue("RADIUS-TABLE")
-                    .withDescription("The table name of radius.");
-
-    public static final Option<String> GTPC_TABLE_NAME =
-            Options.key("gtpc_table_name")
-                    .stringType()
-                    .defaultValue("GTPC-TABLE")
-                    .withDescription("The table name of gtpc.");
-
-    public static final Option<Integer> HBASE_RPC_TIMEOUT =
-            Options.key("hbase_rpc_timeout")
-                    .intType()
-                    .defaultValue(60000)
-                    .withDescription("The rpc timeout of hbase.");
 
     public static final Option<Integer> HTTP_CON_POOL_MAX_TOTAL =
             Options.key("max_total")
@@ -101,10 +66,6 @@ public class ServerConfigOptions {
                     .defaultValue(new ArrayList<>())
                     .withDescription("The files of knowledgebase.");
 
-    public static final Option<List<KnowledgeConfig>> KNOWLEDGE_BASE_ASN_LOOKUP = Options.key("asnlookup")
-            .type(new TypeReference<List<KnowledgeConfig>>() {})
-            .noDefaultValue()
-            .withDescription("The asn lookup configuration.");
 
     public static final Option<String> KNOWLEDGE_BASE_STORAGE_FS_TYPE = Options.key("fs_type")
             .stringType()
@@ -116,9 +77,6 @@ public class ServerConfigOptions {
             .defaultValue("")
             .withDescription("The default path of knowledge base storage.");
 
-    public static final Option<StorageConfig> KNOWLEDGE_BASE_STORAGE = Options.key("storage").type(new TypeReference<StorageConfig>() {})
-            .defaultValue(new StorageConfig())
-            .withDescription("The storage configuration of knowledge base.");
 
 
     public static final Option<List<KnowledgeConfig>> KNOWLEDGE_BASE =

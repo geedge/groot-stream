@@ -3,9 +3,6 @@ package com.geedgenetworks.core.udf.test.simple;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.Rename;
-import com.geedgenetworks.core.utils.ASNKnowledgeBase;
-import com.geedgenetworks.core.utils.KnowledgeBaseSchedule;
-import com.geedgenetworks.utils.IpLookupV2;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

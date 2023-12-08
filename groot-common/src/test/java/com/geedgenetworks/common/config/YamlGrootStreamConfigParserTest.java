@@ -16,7 +16,6 @@ public class YamlGrootStreamConfigParserTest {
             throw new RuntimeException("can't find yaml in resources");
         }
         Assertions.assertNotNull(config);
-        Assertions.assertEquals(90, config.getEngineConfig().getTickTupleFreqSecs());
         Assertions.assertNotNull(config.getEngineConfig().getNacosConfig().getServerAddr());
         Assertions.assertTrue(config.getEngineConfig().getHttpConPoolConfig().getSocketTimeout() > 0);
         Assertions.assertNotNull(config.getEngineConfig().getKnowledgeBaseConfig());

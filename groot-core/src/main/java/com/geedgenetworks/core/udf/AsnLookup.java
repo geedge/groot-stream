@@ -8,11 +8,11 @@ import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
-import com.geedgenetworks.core.utils.ASNKnowledgeBase;
+import com.geedgenetworks.core.utils.KnowlegdeBase.AsnKnowledgeBase;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.geedgenetworks.core.utils.KnowledgeBaseSchedule;
+import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseSchedule;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 
@@ -37,6 +37,9 @@ public class AsnLookup implements UDF {
             if(vender.equals(knowledgeConfig.getName())){
                 KnowledgeBaseSchedule.initKnowledgeBase(knowledgeConfig);
             }
+            else {
+                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The param vendor_id value is not correct");
+            }
         }
 
     }
@@ -51,7 +54,7 @@ public class AsnLookup implements UDF {
                 event.getExtractedFields()
                         .put(
                                 udfContext.getOutput_fields().get(0),
-                                ASNKnowledgeBase.getVenderWithAsnLookup()
+                                AsnKnowledgeBase.getVenderWithAsnLookup()
                                         .get(vender)
                                         .asnLookup(
                                                 event.getExtractedFields()
