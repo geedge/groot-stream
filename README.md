@@ -13,7 +13,7 @@ Groot Stream Platform helps you process netflow data - logs, metrics etc. - in r
 
 ## Features
 
-Groot Stream is is designed to simplify the operation of ETL (Extract, Transform, Load). It efficiently collects data from multiple sources and processes and enriches it. 
+Groot Stream is designed to simplify the operation of ETL (Extract, Transform, Load). It efficiently collects data from multiple sources and processes and enriches it. 
 - **Real-time data processing**: Using Flink as the execution engine, it can provide high throughput and low-latency processing capabilities for large-scale data streams.
 - **Designed for extension**: Plugin-based management that support for User-defined Functions, Sources, and Sinks.
 - **Highly Configurable**: Customize data flow through YML templates to swiftly fulfill ETL requirements without development.
