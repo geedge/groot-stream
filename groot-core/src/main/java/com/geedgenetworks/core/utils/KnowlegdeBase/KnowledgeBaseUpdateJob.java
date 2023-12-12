@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseScheduler.startTask;
+import static com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseScheduler.stopTask;
 
 
 public class KnowledgeBaseUpdateJob implements Job {
@@ -146,7 +147,6 @@ public class KnowledgeBaseUpdateJob implements Job {
 
     public static synchronized  Boolean  checkUpdateMesssage (String name)  {
 
-        System.out.println("check +++++++++++++++++++++++++++++++++++++");
        /* Boolean changeFlag = false;
         if(!KnowLedgeEntityMap.get(name).isEmpty()) {
 
@@ -168,6 +168,10 @@ public class KnowledgeBaseUpdateJob implements Job {
         }*/
         return true;
 
+    }
+
+    public static void destroyKnowledgeBase() {
+        stopTask();
     }
 
     @Override

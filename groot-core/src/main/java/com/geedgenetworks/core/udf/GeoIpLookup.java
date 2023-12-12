@@ -302,10 +302,6 @@ public class GeoIpLookup implements UDF {
 
     @Override
     public void close() {
-        try {
-            shutdownScheduler();
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
+        KnowledgeBaseUpdateJob.destroyKnowledgeBase();
     }
 }

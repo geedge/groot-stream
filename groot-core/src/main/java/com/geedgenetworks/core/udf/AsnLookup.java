@@ -71,11 +71,7 @@ public class AsnLookup implements UDF {
     @Override
     public void close() {
 
-        try {
-            shutdownScheduler();
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
+        KnowledgeBaseUpdateJob.destroyKnowledgeBase();
     }
 
     private void checkUdfContext(UDFContext udfContext) {
