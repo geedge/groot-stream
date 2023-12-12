@@ -16,12 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class AsnKnowledgeBase extends AbstractKnowledgeBase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AsnKnowledgeBase.class);
     @Getter
     private static Map<String, IpLookupV2> venderWithAsnLookup = new ConcurrentHashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(AsnKnowledgeBase.class);
     private static AsnKnowledgeBase instance;
     // 私有构造函数，防止外部实例化
+
 
     public static synchronized AsnKnowledgeBase getInstance()  {
         if (instance == null) {

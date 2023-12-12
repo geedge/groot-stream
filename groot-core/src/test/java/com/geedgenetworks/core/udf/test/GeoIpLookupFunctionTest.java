@@ -5,6 +5,7 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.GeoIpLookup;
 import com.geedgenetworks.core.utils.KnowlegdeBase.IpKnowledgeBase;
+import com.geedgenetworks.domain.LocationResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -82,7 +83,7 @@ public class GeoIpLookupFunctionTest {
         String latLngLookup  = IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").latLngLookup("2600:1015:b002::");
         String ispLookup  = IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").ispLookup("2600:1015:b002::");
         String infoLookupToJSONString  = IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").infoLookupToJSONString("2600:1015:b002::");
-        //String infoLookup  = (String) IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").infoLookup("2600:1015:b002::");
+        LocationResponse infoLookup  = (LocationResponse) IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").infoLookup("2600:1015:b002::");
 
 
         System.out.println("countryLookup:" + countryLookup);
@@ -94,7 +95,7 @@ public class GeoIpLookupFunctionTest {
          System.out.println("ispLookup:" + ispLookup);
          System.out.println("infoLookupToJSONString:" + infoLookupToJSONString);
          System.out.println("infoLookup:" + IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").infoLookup("2600:1015:b002::"));
-         System.out.println("----------------------------");
+         System.out.println(infoLookup+"----------------------------");
 
 
        // assertEquals("6167", asn);

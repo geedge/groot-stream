@@ -23,7 +23,7 @@ public class YamlGrootStreamDomConfigProcessor extends AbstractDomConfigProcesso
         this.config = config;
     }
 
-    @Override
+/*    @Override
     public void buildConfig(Node rootNode) {
         for (Node node : childElements(rootNode)) {
             String nodeName = cleanNodeName(node);
@@ -38,18 +38,20 @@ public class YamlGrootStreamDomConfigProcessor extends AbstractDomConfigProcesso
                 occurrenceSet.add(nodeName);
             }
         }
-    }
+    }*/
 
-    private boolean handleNode(Node node, String name) {
-        if (GrootStreamConfigSections.ENGINE.isEqual(name)) {
+/*    private boolean handleNode(Node node, String name) {
+        if (GrootStreamConfigSections.GROOTSTREAM.isEqual(name)) {
             parseEngineConfig(node, config);
         } else {
             return true;
         }
-        return false;
-    }
+        parseEngineConfig(node, config);
 
-    private void parseEngineConfig(Node engineNode, GrootStreamConfig config) {
+        return false;
+    }*/
+
+    public void buildConfig(Node engineNode) {
         final EngineConfig engineConfig = config.getEngineConfig();
         for (Node node : childElements(engineNode)) {
             String name = cleanNodeName(node);
@@ -65,12 +67,24 @@ public class YamlGrootStreamDomConfigProcessor extends AbstractDomConfigProcesso
                 engineConfig.setZookeeperConfig(parseZookeeperConfig(node));
             } else if (ServerConfigOptions.HDFS.key().equals(name)) {
                 engineConfig.setHdfsConfig(parseHdfsConfig(node));
+            } else if (ServerConfigOptions.PROPERTIES.key().equals(name)) {
+                engineConfig.setPropertiesConfig(parsePropertiesConfig(node));
             } else {
                 LOGGER.warning("Unrecognized configuration element: " + name);
 
             }
 
         }
+    }
+
+    private Map<String, String> parsePropertiesConfig(Node properties) {
+
+            Map<String, String> propertiesMap = new HashMap<>();
+            for (Node node : childElements(properties)) {
+                String name = cleanNodeName(node);
+                propertiesMap.put(name,getTextContent(node));
+            }
+            return propertiesMap;
     }
 
 

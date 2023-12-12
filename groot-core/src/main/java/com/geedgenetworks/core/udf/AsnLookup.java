@@ -12,14 +12,18 @@ import com.geedgenetworks.core.utils.KnowlegdeBase.AsnKnowledgeBase;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
-import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseSchedule;
+import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
+import org.quartz.SchedulerException;
 
+import static com.geedgenetworks.core.utils.SchedulerUtils.shutdownScheduler;
+
+@Slf4j
 public class AsnLookup implements UDF {
 
     private UDFContext udfContext;
-    private static final Log logger = LogFactory.get();
     private String vender;
     private String option;
 
@@ -30,18 +34,7 @@ public class AsnLookup implements UDF {
         this.udfContext = udfContext;
         this.vender = udfContext.getParameters().get("vendor_id").toString();
         this.option = udfContext.getParameters().get("option").toString();
-        Configuration configuration = (Configuration) runtimeContext
-                .getExecutionConfig().getGlobalJobParameters();
-        EngineConfig engineConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), EngineConfig.class);
-        for(KnowledgeConfig knowledgeConfig : engineConfig.getKnowledgeBaseConfig()){
-            if(vender.equals(knowledgeConfig.getName())){
-                KnowledgeBaseSchedule.initKnowledgeBase(knowledgeConfig);
-            }
-            else {
-                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The param vendor_id value is not correct");
-            }
-        }
-
+        KnowledgeBaseUpdateJob.initKnowledgeBase(vender,AsnKnowledgeBase.getInstance(), runtimeContext);
     }
 
 
@@ -78,6 +71,11 @@ public class AsnLookup implements UDF {
     @Override
     public void close() {
 
+        try {
+            shutdownScheduler();
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void checkUdfContext(UDFContext udfContext) {

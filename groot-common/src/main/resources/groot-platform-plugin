@@ -7,3 +7,5 @@ com.geedgenetworks.core.udf.UnixTimestamp
 com.geedgenetworks.core.udf.Domain
 com.geedgenetworks.core.udf.DecodeBase64
 com.geedgenetworks.core.udf.GeoIpLookup
+com.geedgenetworks.core.udf.PathCombine
+com.geedgenetworks.core.udf.UnixTimestampConverter

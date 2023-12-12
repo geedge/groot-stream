@@ -197,6 +197,10 @@ public class ServerConfigOptions {
             .defaultValue(new HdfsConfig())
             .withDescription("The hdfs configuration.");
 
-
+    public static final Option<Map<String, String>> PROPERTIES =
+            Options.key("properties")
+                    .mapType()
+                    .defaultValue(new HashMap<String,String>())
+                    .withDescription("The properties of grootstream");
 
 }

@@ -8,14 +8,15 @@ import com.geedgenetworks.utils.StringUtil;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
+@Slf4j
 public class DecodeBase64 implements UDF {
 
-    private static final Log logger = LogFactory.get();
     private UDFContext udfContext;
 
     @Override
@@ -51,9 +52,9 @@ public class DecodeBase64 implements UDF {
                     }
                 }
             } catch (RuntimeException e) {
-                logger.error("Resolve Base64 exception, exception information:" + e.getMessage());
+                log.error("Resolve Base64 exception, exception information:" + e.getMessage());
             } catch (UnsupportedEncodingException e) {
-                logger.error(
+                log.error(
                         "The Character Encoding ["
                                 + charset.toString()
                                 + "] is not supported.exception information:"

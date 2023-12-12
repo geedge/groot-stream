@@ -74,7 +74,7 @@ public class UnixTimestampConverter implements UDF {
 
     @Override
     public String functionName() {
-        return "UNIX_TIMESTAMP_FUNCTION";
+        return "UNIX_TIMESTAMP_CONVERTER";
     }
 
     @Override

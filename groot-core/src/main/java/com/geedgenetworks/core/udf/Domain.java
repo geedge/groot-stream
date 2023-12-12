@@ -7,15 +7,16 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.utils.FormatUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
+@Slf4j
 public class Domain implements UDF {
 
     private UDFContext udfContext;
 
     private String option;
 
-    private static final Log logger = LogFactory.get();
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
@@ -35,7 +36,8 @@ public class Domain implements UDF {
         }
         else{
             if(!udfContext.getParameters().get("option").toString().equals("TOP_LEVEL_DOMAIN") &&
-                    !udfContext.getParameters().get("option").toString().equals("FIRST_SIGNIFICANT_SUBDOMAIN")){
+                    !udfContext.getParameters().get("option").toString().equals("FIRST_SIGNIFICANT_SUBDOMAIN") &&
+                    !udfContext.getParameters().get("option").toString().equals("FQDN")){
                 throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters option value is not correct");
             }
         }
@@ -68,7 +70,7 @@ public class Domain implements UDF {
                                                 event.getExtractedFields()
                                                         .get(lookupField));
                         break;
-                        default:
+                    case "FQDN":
                             domain = (String) event.getExtractedFields()
                                     .get(lookupField);
                             break;

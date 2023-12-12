@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -20,6 +21,7 @@ public class EngineConfig implements Serializable {
     private ConsulConfig consulConfig = ServerConfigOptions.CONSUL.defaultValue();
     private ZookeeperConfig zookeeperConfig = ServerConfigOptions.ZOOKEEPER.defaultValue();
     private HdfsConfig hdfsConfig = ServerConfigOptions.HDFS.defaultValue();
+    private Map<String,String> propertiesConfig = ServerConfigOptions.PROPERTIES.defaultValue();
 
 
     public void setKnowledgeBaseConfig(List<KnowledgeConfig> knowledgeBaseConfig) {

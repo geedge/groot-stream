@@ -10,7 +10,7 @@ import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.UDF;
-import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseSchedule;
+import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
@@ -18,8 +18,11 @@ import com.googlecode.aviator.Options;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
+import org.quartz.SchedulerException;
 
 import java.util.LinkedList;
+
+import static com.geedgenetworks.core.utils.SchedulerUtils.shutdownScheduler;
 
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
@@ -37,7 +40,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
          this.functions = new LinkedList<>();
         try {
-            KnowledgeBaseSchedule.getInstance();
+          //  KnowledgeBaseUpdateJob.getInstance();
             for (UDFContext udfContext : projectionConfig.getFunctions()) {
                 Expression compiledExp = null;
                 UdfEntity udfEntity = new UdfEntity();
@@ -120,6 +123,11 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         for(UdfEntity udfEntity: functions){
 
             udfEntity.getUdfFunction().close();
+        }
+        try {
+            shutdownScheduler();
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
         }
         super.close();
     }

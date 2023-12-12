@@ -8,24 +8,32 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.utils.KnowlegdeBase.IpKnowledgeBase;
-import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseSchedule;
+import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
+import com.geedgenetworks.domain.LocationResponse;
 import com.geedgenetworks.utils.StringUtil;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
+import org.quartz.SchedulerException;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import static com.geedgenetworks.core.utils.SchedulerUtils.shutdownScheduler;
+
+@Slf4j
 public class GeoIpLookup implements UDF {
 
     private UDFContext udfContext;
-    private static final Log logger = LogFactory.get();
     private String vender;
     private String option;
+
+    private Map<String,String> geolocation_field_mapping;
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
@@ -33,17 +41,11 @@ public class GeoIpLookup implements UDF {
         this.udfContext = udfContext;
         this.vender = udfContext.getParameters().get("vendor_id").toString();
         this.option = udfContext.getParameters().get("option").toString();
-        Configuration configuration = (Configuration) runtimeContext
-                .getExecutionConfig().getGlobalJobParameters();
-        EngineConfig engineConfig = com.alibaba.fastjson.JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), EngineConfig.class);
-        for(KnowledgeConfig knowledgeConfig : engineConfig.getKnowledgeBaseConfig()){
-            if(vender.equals(knowledgeConfig.getName())){
-                KnowledgeBaseSchedule.initKnowledgeBase(knowledgeConfig);
-            }
-            else {
-                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The param vendor_id value is not correct");
-            }
+        if(option.equals("IP_TO_OBJECT")){
+            this.geolocation_field_mapping = (Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
         }
+        KnowledgeBaseUpdateJob.initKnowledgeBase(vender,IpKnowledgeBase.getInstance(),runtimeContext);
+
     }
 
 
@@ -134,13 +136,10 @@ public class GeoIpLookup implements UDF {
                                                                     .getLookup_fields()
                                                                     .get(0))
                                                     .toString());
-                    String[] latLng = geo.split(",");
-                    if (latLng.length == 2) {
+
                         event.getExtractedFields()
-                                .put(udfContext.getOutput_fields().get(0), latLng[0]);
-                        event.getExtractedFields()
-                                .put(udfContext.getOutput_fields().get(1), latLng[1]);
-                    }
+                                .put(udfContext.getOutput_fields().get(0), geo);
+
                     break;
                 case "IP_TO_PROVIDER":
                     HashMap<String, Object> serverIpMap =
@@ -176,21 +175,64 @@ public class GeoIpLookup implements UDF {
                                                             .toString()));
                     break;
                 case "IP_TO_OBJECT":
-                    event.getExtractedFields()
-                            .put(
-                                    udfContext.getOutput_fields().get(0),
-                                    IpKnowledgeBase.getVenderWithIpLookup()
-                                            .get(vender)
-                                            .infoLookup(
-                                                    event.getExtractedFields()
-                                                            .get(
-                                                                    udfContext
-                                                                            .getLookup_fields()
-                                                                            .get(0))
-                                                            .toString()));
-                    break;
-                default:
-                    break;
+
+                    LocationResponse response = (LocationResponse) IpKnowledgeBase.getVenderWithIpLookup()
+                            .get(vender)
+                            .infoLookup(
+                                    event.getExtractedFields()
+                                            .get(
+                                                    udfContext
+                                                            .getLookup_fields()
+                                                            .get(0))
+                                            .toString());
+
+                    for (Map.Entry<String, String> entry : geolocation_field_mapping.entrySet()) {
+                        switch (entry.getKey()) {
+                            case "COUNTRY":
+                                event.getExtractedFields()
+                                        .put(entry.getValue(), response.getCountry());
+                                break;
+                            case "PROVINCE":
+                                event.getExtractedFields()
+                                        .put(entry.getValue(), response.getSuperAdministrativeArea());
+                                break;
+                            case "CITY":
+                                event.getExtractedFields()
+                                        .put(entry.getValue(), response.getAdministrativeArea());
+                                break;
+                            case "LONGITUDE":
+                                event.getExtractedFields()
+                                        .put(entry.getValue(), response.getLongitude());
+                                break;
+                            case "LATITUDE":
+                                event.getExtractedFields()
+                                        .put(entry.getValue(), response.getLatitude());
+                                break;
+                            case "ISP":
+                                event.getExtractedFields()
+                                        .put(entry.getValue(), response.getIsp());
+                                break;
+                            case "ORGANIZATION ":
+                                event.getExtractedFields()
+                                        .put(entry.getValue(), response.getOrganization());
+                                break;
+                            default:
+                                break;
+                        }
+                        event.getExtractedFields()
+                                .put(
+                                        udfContext.getOutput_fields().get(0),
+                                        IpKnowledgeBase.getVenderWithIpLookup()
+                                                .get(vender)
+                                                .infoLookup(
+                                                        event.getExtractedFields()
+                                                                .get(
+                                                                        udfContext
+                                                                                .getLookup_fields()
+                                                                                .get(0))
+                                                                .toString()));
+                        break;
+                    }
             }
         }
         return event;
@@ -231,7 +273,22 @@ public class GeoIpLookup implements UDF {
                     throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey geolocation_field_mapping");
 
                 }
+                else {
+                    Map<String,String> geolocation_field_mapping =(Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
 
+                    if(!geolocation_field_mapping.isEmpty()){
+
+                        for (Map.Entry<String, String> entry : geolocation_field_mapping.entrySet()) {
+
+                            if(!entry.getKey().equals("COUNTRY") && !entry.getKey().equals("PROVINCE") && !entry.getKey().equals("CITY") && !entry.getKey().equals("LONGITUDE") && !entry.getKey().equals("LATITUDE") && !entry.getKey().equals("ISP") && !entry.getKey().equals("ORGANIZATION")){
+                                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters geolocation_field_mapping value is not correct");
+                            }
+                        }
+                    }
+                    else {
+                        throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters geolocation_field_mapping value is not correct");
+                    }
+                }
             }
         }
 
@@ -245,6 +302,10 @@ public class GeoIpLookup implements UDF {
 
     @Override
     public void close() {
-
+        try {
+            shutdownScheduler();
+        } catch (SchedulerException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
