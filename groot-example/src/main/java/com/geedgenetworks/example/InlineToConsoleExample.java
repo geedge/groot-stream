@@ -10,12 +10,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 
-/**
- * Kafka Producer sample data : {"ip_string":"8.8.8.9","fqdn_string":"www.geedgenetworks.com","port_int32":80,"others":123}
- */
-public class BootstrapExample {
+
+public class InlineToConsoleExample {
     public static void main(String[] args) throws FileNotFoundException, URISyntaxException {
-        String configPath = args.length > 0 ? args[0] : "/examples/kafka-to-kafka-job.yaml";
+        String configPath = args.length > 0 ? args[0] : "/examples/inline-to-console-job.yaml";
         String configFile = getTestConfigFile(configPath);
         ExecuteCommandArgs executeCommandArgs = new ExecuteCommandArgs();
         executeCommandArgs.setConfigFile(configFile);
@@ -29,7 +27,7 @@ public class BootstrapExample {
 
     public static String getTestConfigFile(String configFile)
             throws FileNotFoundException, URISyntaxException {
-        URL resource = BootstrapExample.class.getResource(configFile);
+        URL resource = InlineToConsoleExample.class.getResource(configFile);
         if (resource == null) {
             throw new FileNotFoundException("Can't find config file: " + configFile);
         }

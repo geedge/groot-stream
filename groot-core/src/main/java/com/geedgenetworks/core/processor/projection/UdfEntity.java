@@ -3,12 +3,10 @@ package com.geedgenetworks.core.processor.projection;
 import com.geedgenetworks.core.udf.UDF;
 
 import com.googlecode.aviator.Expression;
-
 import java.io.Serializable;
-
 public class UdfEntity implements Serializable {
     private UDF udf;
-    private Expression compiledExp;
+    private Expression filterExpression;
     private String name;
     private String className;
 
@@ -20,12 +18,12 @@ public class UdfEntity implements Serializable {
         this.udf = udf;
     }
 
-    public Expression getCompiledExp() {
-        return compiledExp;
+    public Expression getFilterExpression() {
+        return filterExpression;
     }
 
-    public void setCompiledExp(Expression compiledExp) {
-        this.compiledExp = compiledExp;
+    public void setFilterExpression(Expression filterExpression) {
+        this.filterExpression = filterExpression;
     }
 
     public String getName() {

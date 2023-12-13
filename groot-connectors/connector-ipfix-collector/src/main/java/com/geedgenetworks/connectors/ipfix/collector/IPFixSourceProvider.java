@@ -73,7 +73,6 @@ public class IPFixSourceProvider implements SourceProvider {
                         }
                         fieldMap.put(Event.INTERNAL_TIMESTAMP_KEY, record.exportTime().get().getEpochSecond() * 1000);
                         event.setExtractedFields(fieldMap);
-                        event.setFinal(true);
                         out.collect(event);
                     }
                 } catch (NoTemplateException e) {

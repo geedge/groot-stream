@@ -41,7 +41,6 @@ public class KafkaSource implements Source {
                             public Event map(Tuple2<String, Long> message) {
 
                                 Event event = new Event();
-                                event.setFinal(true);
                                 try {
                                     Map<String, Object> values = JSON.parseObject(message.f0);
                                     //event.set__timestamp(message.f1);
@@ -65,7 +64,6 @@ public class KafkaSource implements Source {
                                     event.setExtractedFields(values);
                                     return event;
                                 } catch (Exception e) {
-                                    event.setFinal(false);
                                     logger.error(e.toString());
                                     return event;
                                 }

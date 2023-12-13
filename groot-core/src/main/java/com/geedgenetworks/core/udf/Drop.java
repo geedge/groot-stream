@@ -13,7 +13,7 @@ public class Drop implements UDF {
 
     @Override
     public Event evaluate(Event event) {
-        event.setFinal(false);
+        event.setFinal(true);
         return event;
     }
 
