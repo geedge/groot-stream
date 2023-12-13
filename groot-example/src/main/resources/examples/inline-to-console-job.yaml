@@ -48,7 +48,7 @@ processing_pipelines:
       - function: DROP
         lookup_fields: [ '' ]
         output_fields: [ '' ]
-        filter:  event.decoded_as == 'SSL'
+        filter:  event.client_ip == '192.168.10.100'
       - function: SNOWFLAKE_ID
         lookup_fields: [ '' ]
         output_fields: [ log_id ]

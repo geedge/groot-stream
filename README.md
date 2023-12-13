@@ -51,11 +51,11 @@ Configure a job, you'll set up Sources, Filters, Processing Pipeline, and Sinks,
 
 Run the following Maven command to build the project modules using parallel threads:
 ```shell
-mvn clean install -T2C
+./mvnw clean install -T2C
 ```
 Run the following Maven command to build the project modules and Skip Tests:
 ```shell 
-mvn clean install -DskipTests
+./mvnw clean install -DskipTests
 ```
 ### Deploying
 
