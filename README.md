@@ -34,9 +34,9 @@ Configure a job, you'll set up Sources, Filters, Processing Pipeline, and Sinks,
 
 ## Supported Connectors & Functions
 
-- [Source Connectors](docs/sources)
-- [Sink Connectors](docs/sinks)
-- [Functions](docs/functions)
+- [Source Connectors](docs/connector/source)
+- [Sink Connectors](docs/connector/sink)
+- [Functions](docs/UDF)
 
 ## Minimum Requirements
 
