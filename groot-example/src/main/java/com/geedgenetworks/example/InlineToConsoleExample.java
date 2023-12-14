@@ -22,7 +22,6 @@ public class InlineToConsoleExample {
         executeCommandArgs.setTargetType(TargetType.LOCAL);
         executeCommandArgs.setVariables(null);
         GrootStreamServer.run(executeCommandArgs.buildCommand());
-
     }
 
     public static String getTestConfigFile(String configFile)

@@ -40,7 +40,7 @@ preprocessing_pipelines:
 processing_pipelines:
   session_record_processor: # [object] Processing Pipeline
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
-    remove_fields:
+    remove_fields: [log_id]
     output_fields:
     properties:
       key: value

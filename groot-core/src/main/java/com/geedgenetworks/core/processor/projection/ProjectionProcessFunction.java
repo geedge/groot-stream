@@ -78,7 +78,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
         for(UdfEntity udfEntity: functions){
             try {
-                if (event.isFinal()) {
+                if (event.isDropped()) {
                     break;
                 } else {
                     boolean executionUDF = udfEntity.getFilterExpression() != null
@@ -100,7 +100,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     ColumnUtil.columnSelector(
                             event.getExtractedFields(), projectionConfig.getOutput_fields()));
         }
-        if(!event.isFinal()){out.collect(event);}
+        if(!event.isDropped()){out.collect(event);}
     }
 
     @Override
