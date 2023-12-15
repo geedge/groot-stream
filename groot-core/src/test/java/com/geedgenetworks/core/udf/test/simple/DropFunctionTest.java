@@ -27,7 +27,7 @@ public class DropFunctionTest {
         drop.open(null, udfContext);
         Event event = new Event();
         Event result = drop.evaluate(event);
-        assertTrue(result.isFinal());
+        assertTrue(result.isDropped());
     }
 
 

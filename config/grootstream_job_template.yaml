@@ -112,6 +112,8 @@ processing_pipelines:
         lookup_fields: [ '' ]
         output_fields: [ log_id ]
         filter:
+        parameters:
+          data_center_id_num: 1
 
       - function: JSON_EXTRACT
         lookup_fields: [ device_tag ]
@@ -138,11 +140,6 @@ processing_pipelines:
         parameters:
           precision: seconds
 
-      - function: EVAL
-        output_fields: [ recv_time ]
-        parameters:
-          value_expression: 'ingestion_time'
-
       - function: DOMAIN
         lookup_fields: [ http_host,ssl_sni,dtls_sni,quic_sni ]
         output_fields: [ server_domain ]
@@ -161,31 +158,31 @@ processing_pipelines:
         lookup_fields: [ packet_capture_file ]
         output_fields: [ packet_capture_file ]
         parameters:
-          path: [ global.hos_path, global.pcap_file_bucket_name, packet_capture_file ]
+          path: [ props.hos.path, props.hos.bucket.name.traffic_file, packet_capture_file]
 
       - function: PATH_COMBINE
         lookup_fields: [ rtp_pcap_path ]
         output_fields: [ rtp_pcap_path ]
         parameters:
-          path: [ global.hos_path, global.pcap_file_bucket_name, rtp_pcap_path ]
+          path: [ props.hos.path, props.hos.bucket.name.troubleshooting_file, rtp_pcap_path ]
 
       - function: PATH_COMBINE
         lookup_fields: [ http_request_body ]
         output_fields: [ http_request_body ]
         parameters:
-          path: [ global.hos_path, global.traffic_file_bucket, http_request_body ]
+          path: [ props.hos.path, props.hos.bucket.name.traffic_file, http_request_body ]
 
       - function: PATH_COMBINE
         lookup_fields: [ http_response_body ]
         output_fields: [ http_response_body ]
         parameters:
-          path: [ global.hos_path, global.traffic_file_bucket, http_response_body ]
+          path: [ props.hos.path, props.hos.bucket.name.traffic_file, http_response_body ]
 
       - function: PATH_COMBINE
         lookup_fields: [ mail_eml_file ]
         output_fields: [ mail_eml_file ]
         parameters:
-          path: [ global.hos_path, global.traffic_file_bucket, mail_eml_file ]
+          path: [ props.hos.path, props.hos.bucket.name.traffic_file, mail_eml_file ]
 
 
 sinks:

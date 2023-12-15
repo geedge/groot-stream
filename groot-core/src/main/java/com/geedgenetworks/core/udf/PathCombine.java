@@ -10,6 +10,7 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 
 import java.util.*;
+
 @Slf4j
 public class PathCombine implements UDF {
 
@@ -18,6 +19,7 @@ public class PathCombine implements UDF {
     private StringBuilder stringBuilder;
 
     private Map<String, String> pathParameters = new LinkedHashMap<>();
+
 
 
 
@@ -33,14 +35,15 @@ public class PathCombine implements UDF {
         Map<String,String>  propertiesConfig =engineConfig.getPropertiesConfig();
         if (udfContext.getParameters() != null
                 && !udfContext.getParameters().isEmpty()) {
-
-            Object object = udfContext.getParameters().get("path");
-            ArrayList<Object> arrayList = new ArrayList<>(Collections.singletonList(object));
-            for (Object key : arrayList) {
-                String column =key.toString();
-                if(column.startsWith("grootstream.properties")){
-                    String propertiesConfigKey = column.replaceAll("grootstream.properties.","").trim();
+            String path = udfContext.getParameters().get("path").toString();
+            String cleanedInput = path.replaceAll("\\[|\\]|\\s+", "").replaceAll("\"", "");;
+            // 使用逗号分隔项并转换为数组
+            String[] itemArray = cleanedInput.split(",");
+            for (String column : itemArray) {
+                if(column.startsWith("props.")){
+                    String propertiesConfigKey = column.replaceAll("props.","").trim();
                     if(propertiesConfig.containsKey(propertiesConfigKey)) {
+
                         pathParameters.put(column,propertiesConfig.get(propertiesConfigKey));//待定义全局变量
                     }
                     else {
@@ -50,16 +53,7 @@ public class PathCombine implements UDF {
                 else {
                     pathParameters.put(column,"");
                 }
-            }
 
-            ArrayList<String> keys = new ArrayList<>();
-            for (Map.Entry<String, Object> entry : udfContext.getParameters().entrySet()) {
-                String key = entry.getKey();
-                keys.add(key);
-            }
-            stringBuilder = new StringBuilder();
-            for (String key : keys) {
-                stringBuilder.append(udfContext.getParameters().get(key));
             }
         }
     }
@@ -68,16 +62,23 @@ public class PathCombine implements UDF {
 
     @Override
     public Event evaluate(Event event) {
-        StringBuilder stringBuilder = new StringBuilder();
+        List<String> pathBuilder = new LinkedList<>();
         for (Map.Entry<String, String> entry : pathParameters.entrySet()) {
             if (entry.getValue().isEmpty()) {
-                stringBuilder.append(event.getExtractedFields().getOrDefault(entry.getKey(),"").toString());
+
+                if(event.getExtractedFields().containsKey(entry.getKey())) {
+                    pathBuilder.add(event.getExtractedFields().get(entry.getKey()).toString());
+                }
+                else {
+                    return event;
+                }
             }
             else {
-                stringBuilder.append(entry.getValue());
+                pathBuilder.add(entry.getValue());
             }
         }
-        event.getExtractedFields().put(udfContext.getOutput_fields().get(0), stringBuilder.toString());
+        String path = joinUrlParts(pathBuilder);
+        event.getExtractedFields().put(udfContext.getOutput_fields().get(0), path);
         return event;
     }
 
@@ -91,5 +92,18 @@ public class PathCombine implements UDF {
 
     }
 
-
+    public static String joinUrlParts(List<String> parts) {
+        StringBuilder url = new StringBuilder();
+        for (int i = 0; i < parts.size(); i++) {
+            String part = parts.get(i).trim();
+            if (i > 0 && !part.startsWith("/")) {
+                url.append("/");
+            }
+            if (part.endsWith("/")) {
+                part = part.substring(0, part.length() - 1);
+            }
+            url.append(part);
+        }
+        return url.toString();
+    }
 }

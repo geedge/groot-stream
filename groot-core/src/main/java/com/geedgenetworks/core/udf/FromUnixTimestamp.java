@@ -40,31 +40,29 @@ public class FromUnixTimestamp implements UDF {
 
     @Override
     public Event evaluate(Event event) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-               switch (udfContext.getParameters().get("precision").toString()) {
-                   case "seconds":
-                       sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                       break;
-                   case "milliseconds":
-                       sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
-                       break;
-                   case "microseconds":
-                       sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS:000");
-                       break;
-                   case "nanoseconds":
-                       sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS:000:000");
-                       break;
-                   default:
-                       break;
-               }
-               if(event.getExtractedFields().get(udfContext.getLookup_fields().get(0)).toString()!=null){
+
+               if(event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))){
+                   SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                   switch (udfContext.getParameters().get("precision").toString()) {
+                       case "seconds":
+                           sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                           break;
+                       case "milliseconds":
+                           sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+                           break;
+                       case "microseconds":
+                           sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS:000");
+                           break;
+                       case "nanoseconds":
+                           sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS:000:000");
+                           break;
+                       default:
+                           break;
+                   }
                    sdf.setTimeZone(TimeZone.getTimeZone(udfContext.getParameters().get("timezone").toString()));
                    String timestamp = sdf.format(Long.parseLong(event.getExtractedFields().get(udfContext.getLookup_fields().get(0)).toString()));
                    event.getExtractedFields().put(udfContext.getOutput_fields().get(0), timestamp);
-               }else {
-                   log.error("timestamp_field is null");
                }
-
                return  event;
     }
 

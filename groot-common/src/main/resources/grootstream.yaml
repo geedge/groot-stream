@@ -1,11 +1,5 @@
 grootstream:
 
-  http_con_pool:
-    max_total: 400
-    max_per_route: 60
-    connection_request_timeout: 60000
-    connect_timeout: 60000
-    socket_timeout: 60000
   knowledge_base:
     - name: tsg_asnlookup
       type: asnlookup
@@ -13,13 +7,14 @@ grootstream:
         fs_type: hos
         fs_default_path: http://path
       files:
-        7ce2f9890950ba90-fcc25696bf11a8a0
-        7ce2f9890950ba90-71f13b3736863ddb
+         - http://192.168.44.12:9098/hos/knowledge_base_bucket/757732ce-8214-4c34-aea2-aca6c51a7e82-YXNuX2J1aWx0aW4=.mmdb
+
     - name: tsg_geoiplookup
       type: geoiplookup
       files:
-        7ce2f9890950ba90-fcc25696bf11a8a0
-        7ce2f9890950ba90-71f13b3736863ddb
+         - 7ce2f9890950ba90-fcc25696bf11a8a0
+         - 7ce2f9890950ba90-71f13b3736863ddb
   properties:
-    hos.path: //path
-    hos.traffic.file.bucket: bucket
+    hos.path: http://192.168.44.12:8089
+    hos.bucket.name.traffic_file: traffic_file_bucket
+    hos.bucket.name.troubleshooting_file: troubleshooting_file_bucket

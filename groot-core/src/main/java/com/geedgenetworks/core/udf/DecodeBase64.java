@@ -41,7 +41,7 @@ public class DecodeBase64 implements UDF {
                             event.getExtractedFields()
                                     .get(udfContext.getLookup_fields().get(0));
             Object charset =
-                    event.getExtractedFields().get(udfContext.getLookup_fields().get(1));
+                    event.getExtractedFields().getOrDefault(udfContext.getLookup_fields().get(1),"");
             try {
                 if (StringUtil.isNotBlank(message)) {
                     byte[] base64decodedBytes = Base64.getDecoder().decode(message);

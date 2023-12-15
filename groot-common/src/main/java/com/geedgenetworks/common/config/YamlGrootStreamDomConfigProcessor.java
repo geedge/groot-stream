@@ -222,8 +222,8 @@ public class YamlGrootStreamDomConfigProcessor extends AbstractDomConfigProcesso
 
         List<String> asnLookupConfigList = new ArrayList<>();
         for (Node node : childElements(files)) {
-            String name = cleanNodeName(node);
-            asnLookupConfigList.add(name);
+            String value = node.getNodeValue();
+            asnLookupConfigList.add(value);
         }
         return asnLookupConfigList;
     }
