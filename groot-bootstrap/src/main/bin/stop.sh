@@ -17,7 +17,7 @@ stop_jobs() {
             ;;
         yarn-per-job)
            # Command to stop YARN applications for the specified job name
-            yarn application -list -appStates RUNNING | grep "$JOB_NAME" | awk '{print $1}' | while read -r appId
+            yarn application -list -appStates RUNNING | grep "$job_name" | awk '{print $1}' | while read -r appId
             do
                 yarn application -kill "$appId"
                 echo "Stopped YARN application with ApplicationID: $appId"
