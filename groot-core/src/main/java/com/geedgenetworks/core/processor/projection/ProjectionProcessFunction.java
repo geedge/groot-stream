@@ -59,7 +59,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     }
                     udfEntity.setUdfFunction(udf);
                     udfEntity.setFilterExpression(filterExpression);
-                    udfEntity.setName(udfContext.getName());
+                    udfEntity.setName(udfContext.getFunction());
                     udfEntity.setClassName(CommonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
                     functions.add(udfEntity);
                 } else {
@@ -88,7 +88,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     }
                 }
             } catch (Exception e) {
-                log.error("Function execution exception !", e);
+                log.error("Function "+udfEntity.getName()+" execution exception !", e);
             }
 
         }
