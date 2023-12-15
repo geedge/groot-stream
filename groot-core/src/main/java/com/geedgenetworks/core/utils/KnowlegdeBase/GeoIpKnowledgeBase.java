@@ -2,7 +2,7 @@ package com.geedgenetworks.core.utils.KnowlegdeBase;
 
 
 import com.geedgenetworks.common.config.KnowledgeConfig;
-import com.geedgenetworks.core.pojo.KnowLedgeEntity;
+import com.geedgenetworks.core.pojo.KnowLedgeFileEntity;
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -31,11 +31,11 @@ public class IpKnowledgeBase extends AbstractKnowledgeBase {
 
         for (int i = 0; i < knowledgeConfig.getFiles().size(); i++) {
             try {
-                KnowLedgeEntity knowLedgeEntity = getMetadata(knowledgeConfig.getFiles().get(i));
+                KnowLedgeFileEntity knowLedgeFileEntity = getMetadata(knowledgeConfig.getFiles().get(i));
 
 
-                byte[] fileByte = downloadFile(knowLedgeEntity.getPath(), knowLedgeEntity.getIsValid());
-                if (calculateSHA256(fileByte).equals(knowLedgeEntity.getSha256())) {
+                byte[] fileByte = downloadFile(knowLedgeFileEntity.getPath(), knowLedgeFileEntity.getIsValid());
+                if (calculateSHA256(fileByte).equals(knowLedgeFileEntity.getSha256())) {
                     switch (i) {
                         case 0:
                             ipLookupBuilder.loadDataFile(new ByteArrayInputStream(fileByte));
