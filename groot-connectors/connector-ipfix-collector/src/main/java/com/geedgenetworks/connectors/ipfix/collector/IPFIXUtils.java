@@ -18,7 +18,7 @@ public class IPFIXUtils {
     public static ArrayList<Node> getElements() {
         ArrayList<Node> nodes = new ArrayList<>();
         try {
-            JSONObject jsonObject = JSONUtil.readJSONObject(new File(IPFIXUtils.class.getClassLoader().getResource("ipfix.json").getPath()), StandardCharsets.UTF_8);
+            JSONObject jsonObject = JSONUtil.readJSONObject(new File(IPFIXUtils.class.getClassLoader().getResource("ipfix_schema.json").getPath()), StandardCharsets.UTF_8);
             int penNumber = (int) jsonObject.get("PEN_number");
             for (Object jsonValue : jsonObject.values()) {
                 if (jsonValue instanceof JSONArray) {
@@ -35,7 +35,7 @@ public class IPFIXUtils {
                 }
             }
         } catch (Exception e) {
-            logger.error("load ipfix.json error.", e);
+            logger.error("load ipfix_schema.json error.", e);
         }
         return nodes;
     }
