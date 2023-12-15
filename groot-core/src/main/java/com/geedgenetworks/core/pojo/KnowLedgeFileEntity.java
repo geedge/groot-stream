@@ -1,8 +1,6 @@
 package com.geedgenetworks.core.pojo;
 
-import java.io.InputStream;
-
-public class KnowLedgeEntity {
+public class KnowLedgeFileEntity {
 
     private String id;
     private String name;

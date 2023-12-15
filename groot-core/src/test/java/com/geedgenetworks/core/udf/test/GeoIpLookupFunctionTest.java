@@ -4,7 +4,7 @@ import com.geedgenetworks.common.config.KnowledgeConfig;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.GeoIpLookup;
-import com.geedgenetworks.core.utils.KnowlegdeBase.IpKnowledgeBase;
+import com.geedgenetworks.core.utils.KnowlegdeBase.GeoIpKnowledgeBase;
 import com.geedgenetworks.domain.LocationResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -73,17 +73,17 @@ public class GeoIpLookupFunctionTest {
         knowledgeConfig.setName("tsg_geoiplookup");
         knowledgeConfig.setType("geoiplookup");
         knowledgeConfig.setFiles(Arrays.asList("acf1db8589c5e277-ead1a65e1c3973dc","acf1db8589c5e277-ead1a65e1c3973dc"));
-        IpKnowledgeBase ipKnowledgeBase = IpKnowledgeBase.getInstance();
-        ipKnowledgeBase.updateKnowledgeBase(knowledgeConfig);
-        String countryLookup  = IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").countryLookup("2600:1015:b002::");
-        String provinceLookup  = IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").provinceLookup("2600:1015:b002::");
-        String cityLookup  = IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").cityLookup("2600:1015:b002::");
-        String cityLookupDetail  = IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").cityLookupDetail("2600:1015:b002::");
-        String locationLookupDetail  = IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").locationLookupDetail("2600:1015:b002::");
-        String latLngLookup  = IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").latLngLookup("2600:1015:b002::");
-        String ispLookup  = IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").ispLookup("2600:1015:b002::");
-        String infoLookupToJSONString  = IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").infoLookupToJSONString("2600:1015:b002::");
-        LocationResponse infoLookup  = (LocationResponse) IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").infoLookup("2600:1015:b002::");
+        GeoIpKnowledgeBase geoIpKnowledgeBase = GeoIpKnowledgeBase.getInstance();
+        geoIpKnowledgeBase.updateKnowledgeBase(knowledgeConfig);
+        String countryLookup  = GeoIpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").countryLookup("2600:1015:b002::");
+        String provinceLookup  = GeoIpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").provinceLookup("2600:1015:b002::");
+        String cityLookup  = GeoIpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").cityLookup("2600:1015:b002::");
+        String cityLookupDetail  = GeoIpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").cityLookupDetail("2600:1015:b002::");
+        String locationLookupDetail  = GeoIpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").locationLookupDetail("2600:1015:b002::");
+        String latLngLookup  = GeoIpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").latLngLookup("2600:1015:b002::");
+        String ispLookup  = GeoIpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").ispLookup("2600:1015:b002::");
+        String infoLookupToJSONString  = GeoIpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").infoLookupToJSONString("2600:1015:b002::");
+        LocationResponse infoLookup  = (LocationResponse) GeoIpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").infoLookup("2600:1015:b002::");
 
 
         System.out.println("countryLookup:" + countryLookup);
@@ -94,7 +94,7 @@ public class GeoIpLookupFunctionTest {
          System.out.println("latLngLookup:" + latLngLookup);
          System.out.println("ispLookup:" + ispLookup);
          System.out.println("infoLookupToJSONString:" + infoLookupToJSONString);
-         System.out.println("infoLookup:" + IpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").infoLookup("2600:1015:b002::"));
+         System.out.println("infoLookup:" + GeoIpKnowledgeBase.getVenderWithIpLookup().get("tsg_geoiplookup").infoLookup("2600:1015:b002::"));
          System.out.println(infoLookup+"----------------------------");
 
 

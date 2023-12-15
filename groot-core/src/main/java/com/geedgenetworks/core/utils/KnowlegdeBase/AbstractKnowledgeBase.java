@@ -1,9 +1,8 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase;
 
-import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.config.KnowledgeConfig;
-import com.geedgenetworks.common.utils.HttpClientUtils;
-import com.geedgenetworks.core.pojo.KnowLedgeEntity;
+import com.geedgenetworks.core.pojo.KnowLedgeFileEntity;
+import com.geedgenetworks.core.utils.HttpClientPoolUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +42,8 @@ public abstract class AbstractKnowledgeBase {
         if (isValid == 1) {
             try {
                 long start = System.currentTimeMillis();
-                HttpClientUtils httpClientUtils = new HttpClientUtils();
-                inputStream = httpClientUtils.httpGetByte(fileUrl, 3000);
+                HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
+                inputStream = httpClientPoolUtil.httpGetByte(fileUrl);
                 long end = System.currentTimeMillis();
                 logger.info(
                         "download file " + fileUrl + " finished, speed " + (end - start) + " ms");
@@ -55,16 +54,16 @@ public abstract class AbstractKnowledgeBase {
         return inputStream;
     }
 
-     static KnowLedgeEntity getMetadata(String id) {
+     static KnowLedgeFileEntity getMetadata(String id) {
 
         try {
 //                HttpClientUtils httpClientUtils = new HttpClientUtils();
             // String metadate  = httpClientUtils.httpGet(URI.create("/v1/knowledge_base/"+ id +"/meta")) ;
 //临时写死
-            KnowLedgeEntity knowLedgeEntity1 =  new KnowLedgeEntity();
-            knowLedgeEntity1.setIsValid(1);
-            knowLedgeEntity1.setSha256("2a2defd9c96ea5434ac628d3dc4fc6790e30d84c218b02fe798dbc6772dbf76c");
-            knowLedgeEntity1.setPath("http://192.168.44.12:9098/hos/knowledge_base_bucket/84ec56db-8f3b-440a-af79-15148d7cd3c8-YXNuX2J1aWx0aW4=.mmdb");
+            KnowLedgeFileEntity knowLedgeFileEntity1 =  new KnowLedgeFileEntity();
+            knowLedgeFileEntity1.setIsValid(1);
+            knowLedgeFileEntity1.setSha256("2a2defd9c96ea5434ac628d3dc4fc6790e30d84c218b02fe798dbc6772dbf76c");
+            knowLedgeFileEntity1.setPath("http://192.168.44.12:9098/hos/knowledge_base_bucket/757732ce-8214-4c34-aea2-aca6c51a7e82-YXNuX2J1aWx0aW4=.mmdb");
 
 /*
              KnowLedgeEntity knowLedgeEntity2 =  new KnowLedgeEntity();
@@ -77,7 +76,7 @@ public abstract class AbstractKnowledgeBase {
             knowLedgeEntity.setPath("http://192.168.44.12:9098/hos/knowledge_base_hos_bucket/1e8aabe7-2170-445c-9124-6051332ca7d6-YXNuX2J1aWx0aW4=.mmdb");
     /*           List<KnowLedgeEntity> knowLedgeEntityList = JSON.parseObject(metadate, new TypeReference<List<KnowLedgeEntity>>() {});
               return knowLedgeEntityList.get(0);*/
-            return knowLedgeEntity1;
+            return knowLedgeFileEntity1;
         } catch (Exception e) {
             logger.error("get file Metadata " + id + " error: " + e.getMessage());
         }

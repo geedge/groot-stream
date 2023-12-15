@@ -12,16 +12,16 @@ import java.io.ByteArrayInputStream;
 import java.util.*;
 
 
-public class IpKnowledgeBase extends AbstractKnowledgeBase {
+public class GeoIpKnowledgeBase extends AbstractKnowledgeBase {
 
     @Getter
     private static Map<String, IpLookupV2> venderWithIpLookup = new HashMap<>();
-    private static final Logger logger = LoggerFactory.getLogger(IpKnowledgeBase.class);
-    private static IpKnowledgeBase instance;
+    private static final Logger logger = LoggerFactory.getLogger(GeoIpKnowledgeBase.class);
+    private static GeoIpKnowledgeBase instance;
 
-    public static synchronized IpKnowledgeBase getInstance()  {
+    public static synchronized GeoIpKnowledgeBase getInstance()  {
         if (instance == null) {
-            instance = new IpKnowledgeBase();
+            instance = new GeoIpKnowledgeBase();
         }
         return instance;
     }

@@ -1,30 +1,21 @@
 package com.geedgenetworks.core.udf;
 
-import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.EngineConfig;
-import com.geedgenetworks.common.config.KnowledgeConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
-import com.geedgenetworks.core.utils.KnowlegdeBase.IpKnowledgeBase;
+import com.geedgenetworks.core.utils.KnowlegdeBase.GeoIpKnowledgeBase;
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
 import com.geedgenetworks.domain.LocationResponse;
 import com.geedgenetworks.utils.StringUtil;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.configuration.Configuration;
-import org.quartz.SchedulerException;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.geedgenetworks.core.utils.SchedulerUtils.shutdownScheduler;
 
 @Slf4j
 public class GeoIpLookup implements UDF {
@@ -44,8 +35,13 @@ public class GeoIpLookup implements UDF {
         if(option.equals("IP_TO_OBJECT")){
             this.geolocation_field_mapping = (Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
         }
-        KnowledgeBaseUpdateJob.initKnowledgeBase(vender,IpKnowledgeBase.getInstance(),runtimeContext);
-
+        KnowledgeBaseUpdateJob.initKnowledgeBase(vender, GeoIpKnowledgeBase.getInstance(),runtimeContext);
+        if(GeoIpKnowledgeBase.getVenderWithIpLookup()!=null && GeoIpKnowledgeBase.getVenderWithIpLookup().containsKey(vender)){
+            log.debug("Init GeoIpLookup success ");
+        }
+        else {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init GeoIpLookup error ");
+        }
     }
 
 
@@ -59,7 +55,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(
                                     udfContext.getOutput_fields().get(0),
-                                    IpKnowledgeBase.getVenderWithIpLookup()
+                                    GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .countryLookup(
                                                     event.getExtractedFields()
@@ -73,7 +69,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(
                                     udfContext.getOutput_fields().get(0),
-                                    IpKnowledgeBase.getVenderWithIpLookup()
+                                    GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .provinceLookup(
                                                     event.getExtractedFields()
@@ -87,7 +83,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(
                                     udfContext.getOutput_fields().get(0),
-                                    IpKnowledgeBase.getVenderWithIpLookup()
+                                    GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .cityLookup(
                                                     event.getExtractedFields()
@@ -101,7 +97,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(
                                     udfContext.getOutput_fields().get(0),
-                                    IpKnowledgeBase.getVenderWithIpLookup()
+                                    GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .cityLookupDetail(
                                                     event.getExtractedFields()
@@ -115,7 +111,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(
                                     udfContext.getOutput_fields().get(0),
-                                    IpKnowledgeBase.getVenderWithIpLookup()
+                                    GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .locationLookupDetail(
                                                     event.getExtractedFields()
@@ -127,7 +123,7 @@ public class GeoIpLookup implements UDF {
                     break;
                 case "IP_TO_LATLNG":
                     String geo =
-                            IpKnowledgeBase.getVenderWithIpLookup()
+                            GeoIpKnowledgeBase.getVenderWithIpLookup()
                                     .get(vender)
                                     .latLngLookup(
                                             event.getExtractedFields()
@@ -144,7 +140,7 @@ public class GeoIpLookup implements UDF {
                 case "IP_TO_PROVIDER":
                     HashMap<String, Object> serverIpMap =
                             JSON.parseObject(
-                                    IpKnowledgeBase.getVenderWithIpLookup()
+                                    GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .ispLookup(
                                                     event.getExtractedFields()
@@ -164,7 +160,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(
                                     udfContext.getOutput_fields().get(0),
-                                    IpKnowledgeBase.getVenderWithIpLookup()
+                                    GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .infoLookupToJSONString(
                                                     event.getExtractedFields()
@@ -176,7 +172,7 @@ public class GeoIpLookup implements UDF {
                     break;
                 case "IP_TO_OBJECT":
 
-                    LocationResponse response = (LocationResponse) IpKnowledgeBase.getVenderWithIpLookup()
+                    LocationResponse response = (LocationResponse) GeoIpKnowledgeBase.getVenderWithIpLookup()
                             .get(vender)
                             .infoLookup(
                                     event.getExtractedFields()
@@ -222,7 +218,7 @@ public class GeoIpLookup implements UDF {
                         event.getExtractedFields()
                                 .put(
                                         udfContext.getOutput_fields().get(0),
-                                        IpKnowledgeBase.getVenderWithIpLookup()
+                                        GeoIpKnowledgeBase.getVenderWithIpLookup()
                                                 .get(vender)
                                                 .infoLookup(
                                                         event.getExtractedFields()

@@ -66,7 +66,7 @@ public class AsnLookupFunctionTest {
         udfContext.setParameters(new HashMap<>());
         udfContext.getParameters().put("option","IP_TO_ASN");
         udfContext.getParameters().put("vendor_id","tsg_asnlookup");
-        KnowledgeConfig knowledgeConfig = new KnowledgeConfig();
+   /*     KnowledgeConfig knowledgeConfig = new KnowledgeConfig();
         knowledgeConfig.setName("tsg_asnlookup");
         knowledgeConfig.setType("asnlookup");
         knowledgeConfig.setFiles(Arrays.asList("7ce2f9890950ba90-fcc25696bf11a8a0","7ce2f9890950ba90-71f13b3736863ddb"));
@@ -76,7 +76,7 @@ public class AsnLookupFunctionTest {
                 .get("tsg_asnlookup")
                 .asnLookup("2600:1015:b002::");
 
-    //    assertEquals("6167", asn);
+        assertEquals("6167", asn);*/
 
     }
 

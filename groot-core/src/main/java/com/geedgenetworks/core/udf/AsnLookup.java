@@ -13,6 +13,7 @@ import com.geedgenetworks.core.utils.KnowlegdeBase.AsnKnowledgeBase;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
+import com.geedgenetworks.utils.IpLookupV2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -35,34 +36,39 @@ public class AsnLookup implements UDF {
         this.vender = udfContext.getParameters().get("vendor_id").toString();
         this.option = udfContext.getParameters().get("option").toString();
         KnowledgeBaseUpdateJob.initKnowledgeBase(vender,AsnKnowledgeBase.getInstance(), runtimeContext);
+
+        if(AsnKnowledgeBase.getVenderWithAsnLookup()!=null && AsnKnowledgeBase.getVenderWithAsnLookup().containsKey(vender)){
+            log.debug("Init AsnKnowledgeBase success ");
+        }
+        else {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init AsnKnowledgeBase error ");
+        }
     }
 
 
     @Override
     public Event evaluate(Event event) {
 
+        if(AsnKnowledgeBase.getVenderWithAsnLookup()!=null && AsnKnowledgeBase.getVenderWithAsnLookup().containsKey(vender)){
 
-        switch (option){
-            case "IP_TO_ASN":
-                event.getExtractedFields()
-                        .put(
-                                udfContext.getOutput_fields().get(0),
-                                AsnKnowledgeBase.getVenderWithAsnLookup()
-                                        .get(vender)
-                                        .asnLookup(
-                                                event.getExtractedFields()
-                                                        .get(
-                                                                udfContext
-                                                                        .getLookup_fields()
-                                                                        .get(0))
-                                                        .toString()));
-                    break;
-            default:
-                    break;
+            if(event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))){
+                switch (option) {
+                    case "IP_TO_ASN":
+                        String asn = AsnKnowledgeBase.getVenderWithAsnLookup()
+                                .get(vender)
+                                    .asnLookup(event.getExtractedFields().get(udfContext.getLookup_fields().get(0)).toString());
+                        if(!asn.isEmpty()) {
+                            event.getExtractedFields()
+                                    .put(udfContext.getOutput_fields().get(0), asn);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
         return event;
     }
-
     @Override
     public String functionName() {
         return "ASN_LOOKUP";

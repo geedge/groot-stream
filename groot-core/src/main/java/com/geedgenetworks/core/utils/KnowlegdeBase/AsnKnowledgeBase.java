@@ -3,7 +3,6 @@ package com.geedgenetworks.core.utils.KnowlegdeBase;
 
 import com.geedgenetworks.common.config.KnowledgeConfig;
 
-import com.geedgenetworks.core.pojo.KnowLedgeEntity;
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ public class AsnKnowledgeBase extends AbstractKnowledgeBase {
 
         IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
 
-        for (int i = 0; i < knowledgeConfig.getFiles().size(); i++) {
+       /* for (int i = 0; i < knowledgeConfig.getFiles().size(); i++) {
             try {
                 KnowLedgeEntity knowLedgeEntity = getMetadata(knowledgeConfig.getFiles().get(i));
                 byte[] fileByte = downloadFile(knowLedgeEntity.getPath(), knowLedgeEntity.getIsValid());
@@ -52,6 +51,23 @@ public class AsnKnowledgeBase extends AbstractKnowledgeBase {
                 } else {
                     logger.error("check file sha256 error ");
                     return false;
+                }
+            } catch (Exception e) {
+                logger.error("updateKnowledgeBase error " + e.getMessage());
+                return false;
+            }
+        }*/
+        //临时写死等网关接口
+        for (int i = 0; i < knowledgeConfig.getFiles().size(); i++) {
+            try {
+                byte[] fileByte = downloadFile(knowledgeConfig.getFiles().get(i), 1);
+                    switch (i) {
+                        case 0:
+                            asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(fileByte));
+                            break;
+                        case 1:
+                            asnLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
+                            break;
                 }
             } catch (Exception e) {
                 logger.error("updateKnowledgeBase error " + e.getMessage());

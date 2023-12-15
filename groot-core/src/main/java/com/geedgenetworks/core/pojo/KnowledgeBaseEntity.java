@@ -8,8 +8,8 @@ import java.util.List;
 @Data
 public class KnowledgeBaseEntity {
 
-    private List<KnowLedgeEntity> knowLedgeEntityList;
     private KnowledgeConfig knowledgeConfig;
+    private List<KnowLedgeFileEntity> knowLedgeFileEntityList;
     private AbstractKnowledgeBase abstractKnowledgeBase;
 
 
