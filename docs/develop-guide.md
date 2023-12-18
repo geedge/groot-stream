@@ -48,8 +48,8 @@ When throwing an exception with a hint message and ensure that the exception has
 
 ## Run a job example
 All examples are in module `groot-stream-example`. You can run the example [ running or debugging a job in IDEA].
-e.g. we use `groot-stream-example/src/main/java/com/geedgenetworks/example/Bootsrap.java` as the example, when you produce some sample data in kafka and you could see the output as below .
+e.g. we use `groot-stream-example/src/main/java/com/geedgenetworks/example/InlineToConsoleExample.java` as the example, when you produce some sample data in `Inline` and you could see the result in console. as follows:
 ```json
-{"ip_string":"8.8.8.9","fqdn_string":"www.geedgenetworks.com","port_int32":80}
+{"log_id":155652727148914688,"decoded_as":"BASE","recv_time":111,"fqdn_string":"baidu.com","server_ip":"120.233.20.242","additional_field_subdomain":"baidu.com","client_ip":"192.168.0.1"}
 ```
 

@@ -1,5 +1,6 @@
 package com.geedgenetworks.common.config;
 
+import com.geedgenetworks.common.Constants;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.YamlClientConfigBuilder;
 import com.hazelcast.client.config.impl.YamlClientConfigLocator;
@@ -26,9 +27,9 @@ public class ConfigProvider {
     public static GrootStreamConfig locateAndGetGrootStreamConfig(Properties properties) {
         YamlGrootStreamConfigLocator yamlConfigLocator = new YamlGrootStreamConfigLocator();
         GrootStreamConfig config;
-
+        validateSuffixInSystemProperty(Constants.SYSPROP_GROOTSTREAM_CONFIG);
        if (yamlConfigLocator.locateFromSystemProperty()) {
-            // 1. Try loading YAML config if provided in system property
+            // 1. Try loading YAML config if provided in system property and start job specific properties
             config = new YamlGrootStreamConfigBuilder(yamlConfigLocator)
                     .setProperties(properties)
                     .build();
@@ -83,6 +84,11 @@ public class ConfigProvider {
         return config;
     }
 
+    /**
+     * Locates and loads Hazelcast configurations from various locations.
+     * @param properties
+     * @return
+     */
     public static Config locateAndGetMemberConfig(Properties properties) {
         validateSuffixInSystemProperty(SYSPROP_MEMBER_CONFIG);
 
