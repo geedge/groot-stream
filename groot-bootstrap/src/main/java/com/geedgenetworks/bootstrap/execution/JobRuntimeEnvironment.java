@@ -113,6 +113,7 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         } else {
             environment = StreamExecutionEnvironment.getExecutionEnvironment(configuration);
         }
+        configuration.setString(Constants.MAPPING_GROOTSTREAM_UDF, JSON.toJSONString(grootStreamConfig.getUdfMappingConfig()));
         configuration.setString(Constants.SYSPROP_GROOTSTREAM_CONFIG, JSON.toJSONString(grootStreamConfig.getEngineConfig()));
         environment.getConfig().enableObjectReuse();
         environment.getConfig().setGlobalJobParameters(configuration);

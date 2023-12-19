@@ -37,7 +37,9 @@ public final class Constants {
 
     public static final String GROOTSTREAM_CLUSTER_NAME = "gt:impl:grootStreamServer";
 
+    public static final String MAPPING_GROOTSTREAM_UDF = "groot-platform-udf";
 
+    public static final String MAPPING_GROOTSTREAM_UDF_DEFAULT_PLUGIN = "groot-platform-udf.plugin";
 
 
 

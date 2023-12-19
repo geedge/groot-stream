@@ -5,6 +5,7 @@ import com.hazelcast.config.Config;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.util.List;
 
 @Slf4j
 public class GrootStreamConfig {
@@ -12,6 +13,7 @@ public class GrootStreamConfig {
 
     private Config hazelcastConfig;
 
+    private List<String> udfMappingConfig;
 
     static {
         String value = grootStreamHome();
@@ -55,4 +57,12 @@ public class GrootStreamConfig {
         return engineConfig;
     }
 
+
+    public List<String> getUdfMappingConfig() {
+        return udfMappingConfig;
+    }
+
+    public void setUdfMappingConfig(List<String> udfMappingConfig) {
+        this.udfMappingConfig = udfMappingConfig;
+    }
 }

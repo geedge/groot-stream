@@ -2,6 +2,8 @@ package com.geedgenetworks.core.processor.projection;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.alibaba.fastjson.JSON;
+import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
@@ -15,12 +17,17 @@ import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.quartz.SchedulerException;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static com.geedgenetworks.core.utils.SchedulerUtils.shutdownScheduler;
 
@@ -37,6 +44,15 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     @Override
     public void open(Configuration parameters) throws Exception {
 
+        Configuration configuration = (Configuration) getRuntimeContext()
+                .getExecutionConfig().getGlobalJobParameters();
+        List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.MAPPING_GROOTSTREAM_UDF), List.class);
+        Map<String,String>  udfClassReflect =getClassReflect(udfClassNameLists);
+
+
+
+
+
          this.functions = new LinkedList<>();
         try {
           //  KnowledgeBaseUpdateJob.getInstance();
@@ -44,9 +60,9 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                 Expression filterExpression = null;
                 UdfEntity udfEntity = new UdfEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
-                if (CommonConfig.UDF_CLASS_REFLECT.containsKey(udfContext.getFunction())) {
+                if (udfClassReflect.containsKey(udfContext.getFunction())) {
 
-                    Class<?> cls = Class.forName(CommonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
+                    Class<?> cls = Class.forName(udfClassReflect.get(udfContext.getFunction()));
                     UDF udf = (UDF) cls.getConstructor().newInstance();
                     udf.open(getRuntimeContext(), udfContext);
                     // 函数如果包含filter,对表达式进行编译
@@ -60,7 +76,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     udfEntity.setUdfFunction(udf);
                     udfEntity.setFilterExpression(filterExpression);
                     udfEntity.setName(udfContext.getFunction());
-                    udfEntity.setClassName(CommonConfig.UDF_CLASS_REFLECT.get(udfContext.getFunction()));
+                    udfEntity.setClassName(udfClassReflect.get(udfContext.getFunction()));
                     functions.add(udfEntity);
                 } else {
                     throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "No such udf function "+udfContext.getFunction());
@@ -101,6 +117,26 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                             event.getExtractedFields(), projectionConfig.getOutput_fields()));
         }
         if(!event.isDropped()){out.collect(event);}
+    }
+    public static Map<String, String> getClassReflect(List<String> plugins) {
+
+        Map<String, String> classReflect = new HashMap<>();
+
+        for (String classPath : plugins) {
+
+            Class cls = null;
+            try {
+                cls = Class.forName(classPath);
+                Method method = cls.getMethod("functionName");
+                Object object = cls.newInstance();
+                String result = (String) method.invoke(object);
+                classReflect.put(result, classPath);
+                System.out.println("Returned Value: " + result);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return classReflect;
     }
 
     @Override

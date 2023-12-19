@@ -14,6 +14,7 @@ import org.w3c.dom.Node;
 import java.io.InputStream;
 import java.util.Properties;
 
+import static com.geedgenetworks.common.config.ConfigProvider.locateAndGetMappingConfig;
 import static com.hazelcast.internal.config.yaml.W3cDomUtil.asW3cNode;
 
 public class YamlGrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
@@ -24,6 +25,7 @@ public class YamlGrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
     }
 
     public YamlGrootStreamConfigBuilder(YamlGrootStreamConfigLocator locator) {
+
         if (locator == null) {
             locator = new YamlGrootStreamConfigLocator();
             locator.locateEverywhere();
@@ -51,6 +53,7 @@ public class YamlGrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
             throw ExceptionUtil.rethrow(e);
         }
         config.setHazelcastConfig(ConfigProvider.locateAndGetMemberConfig(getProperties()));
+        config.setUdfMappingConfig(ConfigProvider.locateAndGetMappingConfig(getProperties()));
         return config;
     }
 

@@ -9,6 +9,7 @@ import com.hazelcast.config.YamlConfigBuilder;
 import com.hazelcast.internal.config.YamlConfigLocator;
 
 import java.io.ByteArrayInputStream;
+import java.util.List;
 import java.util.Properties;
 
 import static com.hazelcast.internal.config.DeclarativeConfigUtil.*;
@@ -118,4 +119,34 @@ public class ConfigProvider {
         return config;
     }
 
+    public static List<String> locateAndGetMappingConfig(Properties properties) {
+        //validateSuffixInSystemProperty(SYSPROP_MEMBER_CONFIG);
+
+        List<String> config;
+
+        MappingUdfGrootStreamConfigLocator mappingGrootStreamConfigLocator = new MappingUdfGrootStreamConfigLocator();
+        if (mappingGrootStreamConfigLocator.locateFromSystemProperty()) {
+            // 1. Try loading config if provided in system property, and it is an YAML file
+
+
+            config =
+                    new MappingUdfGrootStreamConfigBuilder(mappingGrootStreamConfigLocator.getIn())
+                            .setProperties(properties)
+                            .build();
+        } else if (mappingGrootStreamConfigLocator.locateInWorkDirOrOnClasspath()) {
+            // 2. Try loading YAML config from the working directory or from the classpath
+            config =
+                    new MappingUdfGrootStreamConfigBuilder(mappingGrootStreamConfigLocator.getIn())
+                            .setProperties(properties)
+                            .build();
+        } else {
+            // 3. Loading the default YAML configuration file
+            mappingGrootStreamConfigLocator.locateDefault();
+            config =
+                    new MappingUdfGrootStreamConfigBuilder(mappingGrootStreamConfigLocator.getIn())
+                            .setProperties(properties)
+                            .build();
+        }
+        return config;
+    }
 }
