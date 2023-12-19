@@ -11,6 +11,7 @@ public class ProjectionConfig implements Serializable {
     private String format;
     private String type;
     private List<String> output_fields;
+    private List<String> remove_fields;
     private Map<String, Object> properties;
     private String name;
 
@@ -68,5 +69,13 @@ public class ProjectionConfig implements Serializable {
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
+    }
+
+    public List<String> getRemove_fields() {
+        return remove_fields;
+    }
+
+    public void setRemove_fields(List<String> remove_fields) {
+        this.remove_fields = remove_fields;
     }
 }

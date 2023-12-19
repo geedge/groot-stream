@@ -7,10 +7,10 @@ import java.util.Map;
 public class ColumnUtil {
 
     public static Map<String, Object> columnSelector(
-            Map<String, Object> extractedFields, List<String> output_fields) {
 
+            Map<String, Object> extractedFields, List<String> output_fields) {
         Map<String, Object> newExtractedFields = new HashMap<>();
-        if (output_fields != null && output_fields.size() > 0) {
+        if (output_fields != null && !output_fields.isEmpty()) {
 
             for (String field : output_fields) {
 
@@ -22,5 +22,17 @@ public class ColumnUtil {
         } else {
             return extractedFields;
         }
+    }
+
+    public static Map<String, Object> columnRemover(
+            Map<String, Object> extractedFields, List<String> remove_fields) {
+        if (remove_fields != null && !remove_fields.isEmpty()) {
+
+            for (String field : remove_fields) {
+
+                extractedFields.remove(field);
+            }
+        }
+        return extractedFields;
     }
 }

@@ -44,18 +44,14 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     @Override
     public void open(Configuration parameters) throws Exception {
 
-        Configuration configuration = (Configuration) getRuntimeContext()
-                .getExecutionConfig().getGlobalJobParameters();
-        List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.MAPPING_GROOTSTREAM_UDF), List.class);
-        Map<String,String>  udfClassReflect =getClassReflect(udfClassNameLists);
-
-
-
-
-
-         this.functions = new LinkedList<>();
+        this.functions = new LinkedList<>();
         try {
-          //  KnowledgeBaseUpdateJob.getInstance();
+            Configuration configuration = (Configuration) getRuntimeContext()
+                    .getExecutionConfig().getGlobalJobParameters();
+            List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.MAPPING_GROOTSTREAM_UDF), List.class);
+            Map<String,String>  udfClassReflect =getClassReflect(udfClassNameLists);
+
+            //  KnowledgeBaseUpdateJob.getInstance();
             for (UDFContext udfContext : projectionConfig.getFunctions()) {
                 Expression filterExpression = null;
                 UdfEntity udfEntity = new UdfEntity();
@@ -111,10 +107,16 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
         // 判断函数是否有output fields，减少输出字段
         if (projectionConfig.getOutput_fields() != null
-                && projectionConfig.getOutput_fields().size() > 0) {
+                && !projectionConfig.getOutput_fields().isEmpty()) {
             event.setExtractedFields(
                     ColumnUtil.columnSelector(
                             event.getExtractedFields(), projectionConfig.getOutput_fields()));
+        }
+        if (projectionConfig.getRemove_fields() != null
+                && !projectionConfig.getRemove_fields().isEmpty()) {
+            event.setExtractedFields(
+                    ColumnUtil.columnRemover(
+                            event.getExtractedFields(), projectionConfig.getRemove_fields()));
         }
         if(!event.isDropped()){out.collect(event);}
     }
