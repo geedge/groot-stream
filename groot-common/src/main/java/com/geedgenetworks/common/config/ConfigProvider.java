@@ -120,7 +120,6 @@ public class ConfigProvider {
     }
 
     public static List<String> locateAndGetMappingConfig(Properties properties) {
-        //validateSuffixInSystemProperty(SYSPROP_MEMBER_CONFIG);
 
         List<String> config;
 
