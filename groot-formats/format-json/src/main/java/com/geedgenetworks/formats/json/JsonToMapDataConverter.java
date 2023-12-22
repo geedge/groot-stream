@@ -23,7 +23,7 @@ public class JsonToMapDataConverter implements Serializable {
         this.filedConverters = Arrays.stream(dataType.fields).collect(Collectors.toMap(f -> f.name, f -> this.makeConverter(f.dataType)));
     }
 
-    public Map<String, Object> convert(byte[] message){
+    public Map<String, Object> convert(String message){
         try (JSONReader reader = JSONReader.of(message)) {
             if (!reader.nextIfMatch('{')) {
                 throw new JSONException("object not start with {");
@@ -46,12 +46,12 @@ public class JsonToMapDataConverter implements Serializable {
 
             return obj;
         } catch (Exception e) {
-            LOG.error("json解析失败", e);
+            LOG.error(String.format("json解析失败for:%s", message), e);
             if(ignoreParseErrors){
-                return new HashMap<>();
+                return null;
             }
 
-            throw new UnsupportedOperationException("json格式不正确:" + new String(message, StandardCharsets.UTF_8));
+            throw new UnsupportedOperationException("json格式不正确:" + message);
         }
     }
 

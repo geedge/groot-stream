@@ -28,7 +28,11 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
                 // int columnIdx = batch.paramIdx2ColumnIdx(i);
                 // batch.setObject(columnIdx, convertToCkDataType(columnTypes[i], value));
                 // batch.setObject(i, convertToCkDataType(dataType, value));
-                batch.setObject(i, columnConverters[i].convert(value));
+                try {
+                    batch.setObject(i, columnConverters[i].convert(value));
+                } catch (Exception e) {
+                    throw new RuntimeException(columnNames[i] + "列转换值出错:" + value + ", event data:" + map, e);
+                }
             }
         }
 

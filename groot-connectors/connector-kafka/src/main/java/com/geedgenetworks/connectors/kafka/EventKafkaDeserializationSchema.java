@@ -37,8 +37,10 @@ public class EventKafkaDeserializationSchema implements KafkaDeserializationSche
     public void deserialize(ConsumerRecord<byte[], byte[]> record, Collector<Event> out) throws Exception {
         try {
             Event event = valueDeserialization.deserialize(record.value());
-            event.getExtractedFields().put(Event.INTERNAL_TIMESTAMP_KEY, record.timestamp());
-            out.collect(event);
+            if(event != null){
+                event.getExtractedFields().put(Event.INTERNAL_TIMESTAMP_KEY, record.timestamp());
+                out.collect(event);
+            }
         }catch (Exception e) {
             LOG.error("反序列化失败", e);
         }
