@@ -48,7 +48,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         try {
             Configuration configuration = (Configuration) getRuntimeContext()
                     .getExecutionConfig().getGlobalJobParameters();
-            List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.MAPPING_GROOTSTREAM_UDF), List.class);
+            List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
             Map<String,String>  udfClassReflect =getClassReflect(udfClassNameLists);
 
             //  KnowledgeBaseUpdateJob.getInstance();

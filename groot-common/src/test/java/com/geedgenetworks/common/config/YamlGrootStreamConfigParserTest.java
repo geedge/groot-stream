@@ -7,11 +7,11 @@ public class YamlGrootStreamConfigParserTest {
 
     @Test
     public void testGrootStreamConfig() {
-        YamlGrootStreamConfigLocator yamlConfigLocator = new YamlGrootStreamConfigLocator();
+        GrootStreamConfigLocator yamlConfigLocator = new GrootStreamConfigLocator();
         GrootStreamConfig config;
         if (yamlConfigLocator.locateInWorkDirOrOnClasspath()) {
             // 2. Try loading YAML config from the working directory or from the classpath
-            config = new YamlGrootStreamConfigBuilder(yamlConfigLocator).setProperties(null).build();
+            config = new GrootStreamConfigBuilder(yamlConfigLocator).setProperties(null).build();
         } else {
             throw new RuntimeException("can't find yaml in resources");
         }

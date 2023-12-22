@@ -13,27 +13,25 @@ import org.w3c.dom.Node;
 
 import java.io.InputStream;
 import java.util.Properties;
-
-import static com.geedgenetworks.common.config.ConfigProvider.locateAndGetMappingConfig;
 import static com.hazelcast.internal.config.yaml.W3cDomUtil.asW3cNode;
 
-public class YamlGrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
+public class GrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
     private final InputStream in;
 
-    public YamlGrootStreamConfigBuilder() {
-        this((YamlGrootStreamConfigLocator) null);
+    public GrootStreamConfigBuilder() {
+        this((GrootStreamConfigLocator) null);
     }
 
-    public YamlGrootStreamConfigBuilder(YamlGrootStreamConfigLocator locator) {
+    public GrootStreamConfigBuilder(GrootStreamConfigLocator locator) {
 
         if (locator == null) {
-            locator = new YamlGrootStreamConfigLocator();
+            locator = new GrootStreamConfigLocator();
             locator.locateEverywhere();
         }
         this.in = locator.getIn();
     }
 
-    public YamlGrootStreamConfigBuilder(@NonNull InputStream inputStream) {
+    public GrootStreamConfigBuilder(@NonNull InputStream inputStream) {
         this.in = inputStream;
     }
 
@@ -53,7 +51,7 @@ public class YamlGrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
             throw ExceptionUtil.rethrow(e);
         }
         config.setHazelcastConfig(ConfigProvider.locateAndGetMemberConfig(getProperties()));
-        config.setUdfMappingConfig(ConfigProvider.locateAndGetMappingConfig(getProperties()));
+        config.setUDFPluginConfig(ConfigProvider.locateAndGetUDFPluginConfig(getProperties()));
         return config;
     }
 
@@ -78,9 +76,9 @@ public class YamlGrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
         replaceVariables(w3cRootNode);
         importDocuments(grootStreamRoot);
 
-        new YamlGrootStreamDomConfigProcessor(true, config).buildConfig(w3cRootNode);
+        new GrootStreamDomConfigProcessor(true, config).buildConfig(w3cRootNode);
     }
-    public YamlGrootStreamConfigBuilder setProperties(Properties properties) {
+    public GrootStreamConfigBuilder setProperties(Properties properties) {
         if (properties == null) {
             properties = System.getProperties();
         }

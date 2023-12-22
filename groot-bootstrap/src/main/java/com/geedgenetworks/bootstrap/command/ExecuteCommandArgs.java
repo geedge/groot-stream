@@ -7,12 +7,15 @@ import com.geedgenetworks.bootstrap.enums.TargetType;
 import com.geedgenetworks.bootstrap.execution.StartBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Slf4j
 public class ExecuteCommandArgs extends CommandArgs {
 
     @Parameter(names={"-e", "--deploy-mode"},
@@ -30,8 +33,9 @@ public class ExecuteCommandArgs extends CommandArgs {
     @Override
     public Command<?> buildCommand() {
         StartBuilder.setDeployMode(getDeployMode());
+        userParamsToSysEnv();
         if(checkConfig) {
-            //to do check job config
+            // todo check job config
         }
         return new ExecuteCommand(this);
     }
@@ -54,6 +58,27 @@ public class ExecuteCommandArgs extends CommandArgs {
                 + ", originalParameters="
                 + originalParameters
                 + '}';
+    }
+
+
+
+    private void userParamsToSysEnv() {
+       if (!this.variables.isEmpty()) {
+            variables.stream()
+                    .filter(Objects::nonNull)
+                    .map(variable -> variable.split("=", 2))
+                    .filter(pair -> pair.length == 2)
+                    .forEach(pair -> System.setProperty(pair[0], pair[1]));
+        }
+
+        if (!this.originalParameters.isEmpty()) {
+            this.originalParameters.stream()
+                    .filter(Objects::nonNull)
+                    .map(variable -> variable.split("=", 2))
+                    .filter(pair -> pair.length == 2)
+                    .forEach(pair -> System.setProperty(pair[0].replaceFirst("-D",""), pair[1]));
+        }
+
     }
 
     public static class TargetTypeConverter implements IStringConverter<TargetType> {

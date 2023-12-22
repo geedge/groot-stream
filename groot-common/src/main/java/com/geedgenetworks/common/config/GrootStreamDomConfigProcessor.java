@@ -1,6 +1,5 @@
 package com.geedgenetworks.common.config;
 
-import com.hazelcast.config.InvalidConfigurationException;
 import com.hazelcast.internal.config.AbstractDomConfigProcessor;
 import com.hazelcast.logging.ILogger;
 import com.hazelcast.logging.Logger;
@@ -13,12 +12,12 @@ import java.util.Map;
 
 import static com.hazelcast.internal.config.DomConfigHelper.*;
 
-public class YamlGrootStreamDomConfigProcessor extends AbstractDomConfigProcessor {
-    private static final ILogger LOGGER = Logger.getLogger(YamlGrootStreamDomConfigProcessor.class);
+public class GrootStreamDomConfigProcessor extends AbstractDomConfigProcessor {
+    private static final ILogger LOGGER = Logger.getLogger(GrootStreamDomConfigProcessor.class);
 
     private final GrootStreamConfig config;
 
-    YamlGrootStreamDomConfigProcessor(boolean domLevel3, GrootStreamConfig config) {
+    GrootStreamDomConfigProcessor(boolean domLevel3, GrootStreamConfig config) {
         super(domLevel3);
         this.config = config;
     }

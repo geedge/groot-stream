@@ -12,22 +12,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public class MappingUdfGrootStreamConfigBuilder extends AbstractConfigBuilder {
+public class UDFPluginConfigBuilder extends AbstractConfigBuilder {
     private final InputStream in;
     private Properties properties = System.getProperties();
 
-    public MappingUdfGrootStreamConfigBuilder() {
-        this((MappingUdfGrootStreamConfigLocator) null);
+    public UDFPluginConfigBuilder() {
+        this((UDFPluginConfigLocator) null);
     }
 
-    public MappingUdfGrootStreamConfigBuilder(MappingUdfGrootStreamConfigLocator locator) {
+    public UDFPluginConfigBuilder(UDFPluginConfigLocator locator) {
         if (locator == null) {
-            locator = new MappingUdfGrootStreamConfigLocator();
+            locator = new UDFPluginConfigLocator();
             locator.locateEverywhere();
         }
         this.in = locator.getIn();
     }
-    public MappingUdfGrootStreamConfigBuilder(InputStream inputStream) {
+    public UDFPluginConfigBuilder(InputStream inputStream) {
         Preconditions.checkTrue(inputStream != null, "inputStream can't be null");
         this.in = inputStream;
     }
@@ -53,7 +53,7 @@ public class MappingUdfGrootStreamConfigBuilder extends AbstractConfigBuilder {
         return in;
     }
 
-    public MappingUdfGrootStreamConfigBuilder setProperties(Properties properties) {
+    public UDFPluginConfigBuilder setProperties(Properties properties) {
         this.properties = properties;
         return this;
     }
