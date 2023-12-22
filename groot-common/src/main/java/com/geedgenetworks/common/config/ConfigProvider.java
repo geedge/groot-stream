@@ -26,23 +26,23 @@ public class ConfigProvider {
     }
 
     public static GrootStreamConfig locateAndGetGrootStreamConfig(Properties properties) {
-        YamlGrootStreamConfigLocator yamlConfigLocator = new YamlGrootStreamConfigLocator();
+        GrootStreamConfigLocator yamlConfigLocator = new GrootStreamConfigLocator();
         GrootStreamConfig config;
         validateSuffixInSystemProperty(Constants.SYSPROP_GROOTSTREAM_CONFIG);
        if (yamlConfigLocator.locateFromSystemProperty()) {
             // 1. Try loading YAML config if provided in system property and start job specific properties
-            config = new YamlGrootStreamConfigBuilder(yamlConfigLocator)
+            config = new GrootStreamConfigBuilder(yamlConfigLocator)
                     .setProperties(properties)
                     .build();
         } else if (yamlConfigLocator.locateInWorkDirOrOnClasspath()) {
             // 2. Try loading YAML config from the working directory or from the classpath
-            config = new YamlGrootStreamConfigBuilder(yamlConfigLocator)
+            config = new GrootStreamConfigBuilder(yamlConfigLocator)
                     .setProperties(properties)
                     .build();
         } else {
             // 3. Loading the default YAML configuration file
             yamlConfigLocator.locateDefault();
-            config = new YamlGrootStreamConfigBuilder(yamlConfigLocator)
+            config = new GrootStreamConfigBuilder(yamlConfigLocator)
                     .setProperties(properties)
                     .build();
         }
@@ -58,7 +58,7 @@ public class ConfigProvider {
         if (isNullOrEmptyAfterTrim(source)) {
             throw new IllegalArgumentException("Config string cannot be null or empty");
         }
-        config = new YamlGrootStreamConfigBuilder(new ByteArrayInputStream(source.getBytes()))
+        config = new GrootStreamConfigBuilder(new ByteArrayInputStream(source.getBytes()))
                 .setProperties(properties)
                 .build();
         return config;
@@ -70,7 +70,6 @@ public class ConfigProvider {
 
         ClientConfig config;
         YamlClientConfigLocator yamlConfigLocator = new YamlClientConfigLocator();
-
         if (yamlConfigLocator.locateFromSystemProperty()) {
             // 1. Try loading config if provided in system property, and it is an YAML file
             config = new YamlClientConfigBuilder(yamlConfigLocator.getIn()).build();
@@ -119,30 +118,28 @@ public class ConfigProvider {
         return config;
     }
 
-    public static List<String> locateAndGetMappingConfig(Properties properties) {
+    public static List<String> locateAndGetUDFPluginConfig(Properties properties) {
 
         List<String> config;
 
-        MappingUdfGrootStreamConfigLocator mappingGrootStreamConfigLocator = new MappingUdfGrootStreamConfigLocator();
-        if (mappingGrootStreamConfigLocator.locateFromSystemProperty()) {
-            // 1. Try loading config if provided in system property, and it is an YAML file
-
-
+        UDFPluginConfigLocator udfPluginConfigLocator = new UDFPluginConfigLocator();
+        if (udfPluginConfigLocator.locateFromSystemProperty()) {
+            // 1. Try loading config if provided in system property
             config =
-                    new MappingUdfGrootStreamConfigBuilder(mappingGrootStreamConfigLocator.getIn())
+                    new UDFPluginConfigBuilder(udfPluginConfigLocator.getIn())
                             .setProperties(properties)
                             .build();
-        } else if (mappingGrootStreamConfigLocator.locateInWorkDirOrOnClasspath()) {
-            // 2. Try loading YAML config from the working directory or from the classpath
+        } else if (udfPluginConfigLocator.locateInWorkDirOrOnClasspath()) {
+            // 2. Try loading config from the working directory or from the classpath
             config =
-                    new MappingUdfGrootStreamConfigBuilder(mappingGrootStreamConfigLocator.getIn())
+                    new UDFPluginConfigBuilder(udfPluginConfigLocator.getIn())
                             .setProperties(properties)
                             .build();
         } else {
-            // 3. Loading the default YAML configuration file
-            mappingGrootStreamConfigLocator.locateDefault();
+            // 3. Loading the default configuration file
+            udfPluginConfigLocator.locateDefault();
             config =
-                    new MappingUdfGrootStreamConfigBuilder(mappingGrootStreamConfigLocator.getIn())
+                    new UDFPluginConfigBuilder(udfPluginConfigLocator.getIn())
                             .setProperties(properties)
                             .build();
         }

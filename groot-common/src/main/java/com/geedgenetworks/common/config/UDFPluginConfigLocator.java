@@ -9,39 +9,39 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Slf4j
-public final class MappingUdfGrootStreamConfigLocator extends AbstractConfigLocator {
+public final class UDFPluginConfigLocator extends AbstractConfigLocator {
 
-    public static Collection<String> ALL_ACCEPTED_SUFFIXES =Collections.unmodifiableList(Arrays.asList("plugin"));
+    public static Collection<String> ALL_ACCEPTED_SUFFIXES = Collections.unmodifiableList(Arrays.asList("plugins"));
 
 
-    public MappingUdfGrootStreamConfigLocator() {
+    public UDFPluginConfigLocator() {
     }
     @Override
     public boolean locateFromSystemProperty() {
-        return loadFromSystemProperty(Constants.MAPPING_GROOTSTREAM_UDF, ALL_ACCEPTED_SUFFIXES);
+        return loadFromSystemProperty(Constants.SYSPROP_UDF_PLUGIN_CONFIG, ALL_ACCEPTED_SUFFIXES);
     }
 
     @Override
     protected boolean locateFromSystemPropertyOrFailOnUnacceptedSuffix() {
         return loadFromSystemPropertyOrFailOnUnacceptedSuffix(
-                Constants.MAPPING_GROOTSTREAM_UDF, ALL_ACCEPTED_SUFFIXES);
+                Constants.SYSPROP_UDF_PLUGIN_CONFIG, ALL_ACCEPTED_SUFFIXES);
     }
 
     @Override
     protected boolean locateInWorkDir() {
         return loadFromWorkingDirectory(
-                Constants.MAPPING_GROOTSTREAM_UDF, ALL_ACCEPTED_SUFFIXES);
+                Constants.HAZELCAST_UDF_PLUGIN_CONFIG_FILE_PREFIX, ALL_ACCEPTED_SUFFIXES);
     }
 
     @Override
     protected boolean locateOnClasspath() {
         return loadConfigurationFromClasspath(
-                Constants.MAPPING_GROOTSTREAM_UDF, ALL_ACCEPTED_SUFFIXES);
+                Constants.HAZELCAST_UDF_PLUGIN_CONFIG_FILE_PREFIX, ALL_ACCEPTED_SUFFIXES);
     }
 
     @Override
     public boolean locateDefault() {
-        loadDefaultConfigurationFromClasspath(Constants.MAPPING_GROOTSTREAM_UDF_DEFAULT_PLUGIN);
+        loadDefaultConfigurationFromClasspath(Constants.HAZELCAST_UDF_PLUGIN_CONFIG_DEFAULT);
         return true;
     }
 }

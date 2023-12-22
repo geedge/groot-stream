@@ -28,18 +28,20 @@ public final class Constants {
 
 
     public static final String SYSPROP_GROOTSTREAM_CONFIG = "grootstream.config";
-    public static final String HAZELCAST_GROOTSTREAM_CONF_FILE_PREFIX = "grootstream";
+    public static final String HAZELCAST_GROOTSTREAM_CONFIG_FILE_PREFIX = "grootstream";
+    public static final String HAZELCAST_GROOTSTREAM_CONFIG_DEFAULT = "grootstream.yaml";
+
     /**
      * The default port number for the cluster auto-discovery mechanism's multicast communication.
      */
     public static final int DEFAULT_GROOTSTREAM_MULTICAST_PORT = 53326;
-    public static final String HAZELCAST_GROOTSTREAM_DEFAULT_YAML = "grootstream.yaml";
+
 
     public static final String GROOTSTREAM_CLUSTER_NAME = "gt:impl:grootStreamServer";
 
-    public static final String MAPPING_GROOTSTREAM_UDF = "groot-platform-udf";
-
-    public static final String MAPPING_GROOTSTREAM_UDF_DEFAULT_PLUGIN = "groot-platform-udf.plugin";
+    public static final String SYSPROP_UDF_PLUGIN_CONFIG = "udf.config";
+    public static final String HAZELCAST_UDF_PLUGIN_CONFIG_FILE_PREFIX = "udf";
+    public static final String HAZELCAST_UDF_PLUGIN_CONFIG_DEFAULT = "udf.plugins";
 
 
 

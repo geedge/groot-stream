@@ -15,17 +15,9 @@ import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigUtil;
 import com.typesafe.config.ConfigValueFactory;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Properties;
-
 import static com.geedgenetworks.bootstrap.utils.ConfigFileUtils.checkConfigExist;
-import static com.geedgenetworks.common.Constants.MAPPING_GROOTSTREAM_UDF;
-import static com.geedgenetworks.common.Constants.MAPPING_GROOTSTREAM_UDF_DEFAULT_PLUGIN;
-import static com.hazelcast.internal.config.DeclarativeConfigUtil.SYSPROP_MEMBER_CONFIG;
-
 @Slf4j
 public class ExecuteCommand implements Command<ExecuteCommandArgs> {
     private final ExecuteCommandArgs executeCommandArgs;
@@ -36,14 +28,7 @@ public class ExecuteCommand implements Command<ExecuteCommandArgs> {
 
     @Override
     public void execute() throws CommandExecuteException, ConfigCheckException {
-        // Default System Properties
-        Properties properties = System.getProperties();
-        properties.setProperty(Constants.SYSPROP_GROOTSTREAM_CONFIG, "config" + File.separator + Constants.HAZELCAST_GROOTSTREAM_DEFAULT_YAML);
-        properties.setProperty(SYSPROP_MEMBER_CONFIG, "config" + File.separator + "hazelcast.yaml");
-        properties.setProperty(MAPPING_GROOTSTREAM_UDF, "config" + File.separator + MAPPING_GROOTSTREAM_UDF_DEFAULT_PLUGIN);
-
         GrootStreamConfig grootStreamConfig = ConfigProvider.locateAndGetGrootStreamConfig();
-
         Path configFile = ConfigFileUtils.getConfigPath(executeCommandArgs);
         // check config file exist
         checkConfigExist(configFile);

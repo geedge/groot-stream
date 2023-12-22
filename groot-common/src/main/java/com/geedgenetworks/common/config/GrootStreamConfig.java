@@ -13,7 +13,7 @@ public class GrootStreamConfig {
 
     private Config hazelcastConfig;
 
-    private List<String> udfMappingConfig;
+    private List<String> udfPluginConfig;
 
     static {
         String value = grootStreamHome();
@@ -58,11 +58,11 @@ public class GrootStreamConfig {
     }
 
 
-    public List<String> getUdfMappingConfig() {
-        return udfMappingConfig;
+    public List<String> getUDFPluginConfig() {
+        return udfPluginConfig;
     }
 
-    public void setUdfMappingConfig(List<String> udfMappingConfig) {
-        this.udfMappingConfig = udfMappingConfig;
+    public void setUDFPluginConfig(List<String> udfPluginConfig) {
+        this.udfPluginConfig = udfPluginConfig;
     }
 }

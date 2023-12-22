@@ -20,7 +20,6 @@ public class InlineToConsoleExample {
         executeCommandArgs.setCheckConfig(false);
         executeCommandArgs.setDeployMode(DeployMode.CLIENT);
         executeCommandArgs.setTargetType(TargetType.LOCAL);
-        executeCommandArgs.setVariables(null);
         GrootStreamServer.run(executeCommandArgs.buildCommand());
     }
 
