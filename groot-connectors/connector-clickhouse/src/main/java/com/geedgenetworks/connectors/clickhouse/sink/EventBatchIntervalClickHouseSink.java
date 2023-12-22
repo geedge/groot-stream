@@ -1,5 +1,6 @@
 package com.geedgenetworks.connectors.clickhouse.sink;
 
+import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.core.pojo.Event;
 
 import com.github.housepower.data.Block;
@@ -31,7 +32,7 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
                 try {
                     batch.setObject(i, columnConverters[i].convert(value));
                 } catch (Exception e) {
-                    throw new RuntimeException(columnNames[i] + "列转换值出错:" + value + ", event data:" + map, e);
+                    throw new RuntimeException(columnNames[i] + "列转换值出错:" + value + ", event data:" + JSON.toJSONString(map), e);
                 }
             }
         }
