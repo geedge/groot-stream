@@ -1,10 +1,8 @@
 package com.geedgenetworks.core.udf.test;
 
-import com.geedgenetworks.common.config.KnowledgeConfig;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.AsnLookup;
-import com.geedgenetworks.core.utils.KnowlegdeBase.AsnKnowledgeBase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

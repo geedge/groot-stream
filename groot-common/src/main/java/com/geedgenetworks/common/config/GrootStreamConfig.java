@@ -9,7 +9,7 @@ import java.util.List;
 
 @Slf4j
 public class GrootStreamConfig {
-    private final EngineConfig engineConfig = new EngineConfig();
+    private final CommonConfig commonConfig = new CommonConfig();
 
     private Config hazelcastConfig;
 
@@ -34,7 +34,6 @@ public class GrootStreamConfig {
     }
 
 
-
     /**
      * Returns the absolute path for `groot-stream.home` based from the system property {@link
      * GrootStreamProperties#GROOTSTREAM_HOME}
@@ -53,8 +52,8 @@ public class GrootStreamConfig {
     public void setHazelcastConfig(Config hazelcastConfig) {
         this.hazelcastConfig = hazelcastConfig;
     }
-    public EngineConfig getEngineConfig() {
-        return engineConfig;
+    public CommonConfig getCommonConfig() {
+        return commonConfig;
     }
 
 

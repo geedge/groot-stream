@@ -2,7 +2,7 @@ package com.geedgenetworks.core.udf;
 
 import com.alibaba.fastjson.JSON;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.EngineConfig;
+import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +20,6 @@ public class PathCombine implements UDF {
 
     private Map<String, String> pathParameters = new LinkedHashMap<>();
 
-
-
-
-
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
@@ -31,7 +27,7 @@ public class PathCombine implements UDF {
 
         Configuration configuration = (Configuration) runtimeContext
                 .getExecutionConfig().getGlobalJobParameters();
-        EngineConfig engineConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), EngineConfig.class);
+        CommonConfig engineConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
         Map<String,String>  propertiesConfig =engineConfig.getPropertiesConfig();
         if (udfContext.getParameters() != null
                 && !udfContext.getParameters().isEmpty()) {

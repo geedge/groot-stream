@@ -20,7 +20,7 @@ public final class TypesafeConfigUtils {
      * @param source config source
      * @param prefix config prefix
      * @param keepPrefix true if keep prefix
-     * @deprecated use org.apache.seatunnel.api.configuration.Option interface instead
+     * @deprecated
      */
     @Deprecated
     public static Config extractSubConfig(Config source, String prefix, boolean keepPrefix) {

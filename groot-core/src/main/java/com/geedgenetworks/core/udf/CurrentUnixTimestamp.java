@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 @Slf4j
-public class UnixTimestamp implements UDF {
+public class CurrentUnixTimestamp implements UDF {
 
     private UDFContext udfContext;
 
@@ -50,7 +50,7 @@ public class UnixTimestamp implements UDF {
 
     @Override
     public String functionName() {
-        return "UNIX_TIMESTAMP_FUNCTION";
+        return "CURRENT_UNIX_TIMESTAMP";
     }
 
     @Override

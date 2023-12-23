@@ -54,6 +54,17 @@ processing_pipelines:
         output_fields: [ log_id ]
         parameters:
           data_center_id_num: 1
+      - function: ASN_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: [ server_asn ]
+        parameters:
+          option: IP_TO_ASN
+          vendor_id: tsg_asnlookup
+      - function: CURRENT_UNIX_TIMESTAMP
+        output_fields: [ processing_time ]
+        parameters:
+          precision: milliseconds
+
 
 sinks:
   print_sink:

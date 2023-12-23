@@ -28,12 +28,12 @@ public abstract class CommandArgs {
 
     @Parameter(
             names = {"--check"},
-            description = "check config")
+            description = "Whether check config")
     protected boolean checkConfig = false;
-
     @Parameter(names = {"-i", "--variable"},
     splitter = ParameterSplitter.class,
-    description = "user-defined parameters , such as -i data_center=bj")
+    description = "user-defined parameters , such as -i data_center=bj" +
+            "We use ',' as separator, when inside \"\", ',' are treated as normal characters instead of delimiters.")
     protected List<String> variables = Collections.emptyList();
 
     @Parameter(names = {"-n", "--name"},

@@ -29,7 +29,6 @@ sources:
   inline_source:
     type : inline
     fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
-
     # watermark_timestamp: recv_time
     # watermark_timestamp_unit: s
     # watermark_lag: 60
@@ -85,6 +84,7 @@ preprocessing_pipelines:
         lookup_fields: [ '' ]
         output_fields: [ '' ]
         filter:  event.common_schema_type == 'BASE'
+
 processing_pipelines:
   session_record_processor: # [object] Processing Pipeline
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
@@ -129,7 +129,7 @@ processing_pipelines:
         parameters:
           param: $.tags[?(@.tag=='device_group')][0].value
 
-      - function: UNIX_TIMESTAMP_FUNCTION
+      - function: CURRENT_UNIX_TIMESTAMP
         output_fields: [ processing_time ]
         parameters:
           precision: seconds
@@ -183,7 +183,6 @@ processing_pipelines:
         output_fields: [ mail_eml_file ]
         parameters:
           path: [ props.hos.path, props.hos.bucket.name.traffic_file, mail_eml_file ]
-
 
 sinks:
   kafka_sink_a:
@@ -247,4 +246,3 @@ application: # [object] Application Configuration
     - name: kafka_sink_b
       parallelism: 1
       downstream: []
-

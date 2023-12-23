@@ -1,51 +1,34 @@
 grootstream:
-  engine:
-    tick_tuple_freq_secs: 90
-    gtpc_scan_max_rows: 10000
-    radius_scan_max_rows: 10000
-    radius_table_name: RADIUS-TABLE
-    gtpc_table_name: GTPC-TABLE
-    hbase_rpc_timeout: 60000
-    http_con_pool:
-      max_total: 400
-      max_per_route: 60
-      connection_request_timeout: 60000
-      connect_timeout: 60000
-      socket_timeout: 60000
-    knowledge_base:
-      - name: tsg_asnlookup
-        type: asnlookup
-        properties:
-          fs_type: hos
-          fs_default_path: http://path
-        files:
-          default_mmdb_file: 7ce2f9890950ba90-fcc25696bf11a8a0
-          user_defined_mmdb_file: 7ce2f9890950ba90-71f13b3736863ddb
-      - name: CN_asnlookup
-        type: asnlookup
-        files:
-          default_mmdb_file: 7ce2f9890950ba90-fcc25696bf11a8a0
-          user_defined_mmdb_file: 7ce2f9890950ba90-71f13b3736863ddb
-    snowflake:
-      data_center_id_num: 1
-    nacos:
-      server_addr: 192.168.44.12:8848
-      username: nacos
-      password: nacos
-      namespace: test
-      data_id: knowledge_base.json
-      group: DEFAULT_GROUP
-      read_timeout: 5000
-    consul:
-      server_addr: 192.168.41.30
-      server_port: 8500
-      token: c989b503-1d74-f49c-5698-e90fe461e938
-    hos:
-      token: c21f969b5f03d33d43e04f8f136e7682
-    zookeeper:
-      quorum: 192.168.44.12:2181
-    hdfs:
-      servers: 192.168.44.11:9000,192.168.44.14:9000
+  knowledge_base:
+    - name: tsg_asnlookup
+      type: asnlookup
+      properties:
+        fs_type: hos
+        fs_default_path: http://path
+      files:
+        - http://192.168.44.12:9098/hos/knowledge_base_bucket/757732ce-8214-4c34-aea2-aca6c51a7e82-YXNuX2J1aWx0aW4=.mmdb
+
+    - name: tsg_geoiplookup
+      type: geoiplookup
+      files:
+        - 7ce2f9890950ba90-fcc25696bf11a8a0
+        - 7ce2f9890950ba90-71f13b3736863ddb
+  properties:
+    hos.path: http://192.168.44.12:8089
+    hos.bucket.name.traffic_file: traffic_file_bucket
+    hos.bucket.name.troubleshooting_file: troubleshooting_file_bucket
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

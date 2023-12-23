@@ -1,6 +1,7 @@
 package com.geedgenetworks.core.utils.hbase;
 
 import com.geedgenetworks.common.config.CommonConfig;
+import com.geedgenetworks.common.config.CommonConfigOptions;
 import com.github.rholder.retry.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -43,7 +44,7 @@ public class HbaseConnectBuilder {
      * @return This HbaseConnectBuilder instance.
      */
     public HbaseConnectBuilder loadDefaultConfig() {
-        this.config.set("hbase.zookeeper.quorum", CommonConfig.ZOOKEEPER_QUORUM);
+        this.config.set("hbase.zookeeper.quorum", CommonConfigOptions.ZOOKEEPER_QUORUM.defaultValue());
         return this;
     }
 

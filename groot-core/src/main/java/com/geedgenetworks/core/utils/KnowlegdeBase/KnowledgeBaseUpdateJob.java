@@ -3,8 +3,8 @@ package com.geedgenetworks.core.utils.KnowlegdeBase;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.EngineConfig;
-import com.geedgenetworks.common.config.KnowledgeConfig;
+import com.geedgenetworks.common.config.CommonConfig;
+import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeFileEntity;
 import com.geedgenetworks.core.pojo.KnowledgeBaseEntity;
 import com.geedgenetworks.core.utils.HttpClientPoolUtil;
@@ -33,14 +33,14 @@ public class KnowledgeBaseUpdateJob implements Job {
 
     private static KnowledgeBaseUpdateJob instance;
 
-    private static EngineConfig engineConfig;
+    private static CommonConfig engineConfig;
 
     public static synchronized KnowledgeBaseUpdateJob getInstance(RuntimeContext runtimeContext)  {
         if (instance == null) {
             instance = new KnowledgeBaseUpdateJob();
             Configuration configuration = (Configuration) runtimeContext
                     .getExecutionConfig().getGlobalJobParameters();
-            engineConfig = com.alibaba.fastjson.JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), EngineConfig.class);
+            engineConfig = com.alibaba.fastjson.JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
             startTask();
         }
         return instance;
@@ -70,7 +70,7 @@ public class KnowledgeBaseUpdateJob implements Job {
                 knowledgeBaseEntity.setKnowLedgeFileEntityList(knowLedgeFileEntityList);
 
                 try {
-                    for(KnowledgeConfig knowledgeConfig : engineConfig.getKnowledgeBaseConfig()){
+                    for(KnowledgeBaseConfig knowledgeConfig : engineConfig.getKnowledgeBaseConfig()){
                         if(name.equals(knowledgeConfig.getName())){
                             knowledgeBaseEntity.setKnowledgeConfig(knowledgeConfig);
                             break;

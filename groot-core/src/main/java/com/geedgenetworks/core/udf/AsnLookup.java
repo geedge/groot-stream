@@ -1,25 +1,14 @@
 package com.geedgenetworks.core.udf;
 
-import com.alibaba.fastjson.JSON;
-import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.EngineConfig;
-import com.geedgenetworks.common.config.KnowledgeConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.utils.KnowlegdeBase.AsnKnowledgeBase;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
-import com.geedgenetworks.utils.IpLookupV2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.configuration.Configuration;
-import org.quartz.SchedulerException;
-
-import static com.geedgenetworks.core.utils.SchedulerUtils.shutdownScheduler;
 
 @Slf4j
 public class AsnLookup implements UDF {

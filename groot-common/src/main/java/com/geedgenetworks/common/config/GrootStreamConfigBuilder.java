@@ -19,13 +19,13 @@ public class GrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
     private final InputStream in;
 
     public GrootStreamConfigBuilder() {
-        this((GrootStreamConfigLocator) null);
+        this((CommonConfigLocator) null);
     }
 
-    public GrootStreamConfigBuilder(GrootStreamConfigLocator locator) {
+    public GrootStreamConfigBuilder(CommonConfigLocator locator) {
 
         if (locator == null) {
-            locator = new GrootStreamConfigLocator();
+            locator = new CommonConfigLocator();
             locator.locateEverywhere();
         }
         this.in = locator.getIn();
@@ -46,16 +46,16 @@ public class GrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
 
     public GrootStreamConfig build(GrootStreamConfig config) {
         try {
-            parseAndBuildConfig(config);
+            parseAndBuildCommonConfig(config);
+            parseAndBuildUDFPluginConfig(config);
+            parseAndBuildHazelcastConfig(config);
         } catch (Exception e) {
             throw ExceptionUtil.rethrow(e);
         }
-        config.setHazelcastConfig(ConfigProvider.locateAndGetMemberConfig(getProperties()));
-        config.setUDFPluginConfig(ConfigProvider.locateAndGetUDFPluginConfig(getProperties()));
         return config;
     }
 
-    private void parseAndBuildConfig(GrootStreamConfig config) throws Exception {
+    private void parseAndBuildCommonConfig(GrootStreamConfig config) throws Exception {
         YamlMapping yamlRootNode;
         try {
             yamlRootNode = (YamlMapping) YamlLoader.load(in);
@@ -66,6 +66,7 @@ public class GrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
         }
         YamlNode grootStreamRoot =
                 yamlRootNode.childAsMapping(GrootStreamConfigSections.GROOTSTREAM.name);
+
         if (grootStreamRoot == null) {
             grootStreamRoot = yamlRootNode;
         }
@@ -76,8 +77,19 @@ public class GrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
         replaceVariables(w3cRootNode);
         importDocuments(grootStreamRoot);
 
-        new GrootStreamDomConfigProcessor(true, config).buildConfig(w3cRootNode);
+        new CommonConfigDomProcessor(true, config).buildConfig(w3cRootNode);
     }
+
+    private void parseAndBuildHazelcastConfig(GrootStreamConfig config){
+        config.setHazelcastConfig(ConfigProvider.locateAndGetMemberConfig(getProperties()));
+    }
+    private void parseAndBuildUDFPluginConfig(GrootStreamConfig config){
+        config.setUDFPluginConfig(ConfigProvider.locateAndGetUDFPluginConfig(getProperties()));
+    }
+
+
+
+
     public GrootStreamConfigBuilder setProperties(Properties properties) {
         if (properties == null) {
             properties = System.getProperties();

@@ -1,6 +1,7 @@
 package com.geedgenetworks.common.utils;
 
-import com.geedgenetworks.common.config.CommonConfig;
+import com.geedgenetworks.common.config.Option;
+import com.geedgenetworks.common.config.Options;
 import com.geedgenetworks.utils.StringUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.*;
@@ -11,7 +12,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.ConnectTimeoutException;
@@ -41,7 +41,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.util.Map;
 
 public class HttpClientUtils {
     /** 全局连接池对象 */
@@ -50,7 +49,13 @@ public class HttpClientUtils {
 
     private  final Logger logger = LoggerFactory.getLogger(HttpClientUtils.class);
 
-    public static final String ERROR_MESSAGE = "-1";
+    private static final String ERROR_MESSAGE = "-1";
+
+    private static final int  DEFAULT_MAX_TOTAL = 400;
+    private static final int  DEFAULT_MAX_PER_ROUTE = 10;
+    private static final int DEFAULT_CONNECTION_REQUEST_TIMEOUT = 10000;
+    private static final int DEFAULT_CONNECT_TIMEOUT = 10000;
+    private static final int DEFAULT_SOCKET_TIMEOUT = 60000;
 
     /*
      * 静态代码块配置连接池信息
@@ -58,9 +63,9 @@ public class HttpClientUtils {
     static {
 
         // 设置最大连接数
-        CONN_MANAGER.setMaxTotal(CommonConfig.HTTP_POOL_MAX_CONNECTION);
+        CONN_MANAGER.setMaxTotal(DEFAULT_MAX_TOTAL);
         // 设置每个连接的路由数
-        CONN_MANAGER.setDefaultMaxPerRoute(CommonConfig.HTTP_POOL_MAX_PER_ROUTE);
+        CONN_MANAGER.setDefaultMaxPerRoute(DEFAULT_MAX_PER_ROUTE);
     }
 
     /**
@@ -97,9 +102,9 @@ public class HttpClientUtils {
             PoolingHttpClientConnectionManager connManager =
                     new PoolingHttpClientConnectionManager(socketFactoryRegistry);
             // 设置最大连接数
-            connManager.setMaxTotal(CommonConfig.HTTP_POOL_MAX_CONNECTION);
+            connManager.setMaxTotal(DEFAULT_MAX_TOTAL);
             // 设置每个连接的路由数
-            connManager.setDefaultMaxPerRoute(CommonConfig.HTTP_POOL_MAX_PER_ROUTE);
+            connManager.setDefaultMaxPerRoute(DEFAULT_MAX_PER_ROUTE);
             return connManager;
         } catch (KeyManagementException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e.getMessage());
@@ -116,11 +121,11 @@ public class HttpClientUtils {
         RequestConfig requestConfig =
                 RequestConfig.custom()
                         // 获取连接超时时间
-                        .setConnectionRequestTimeout(CommonConfig.HTTP_POOL_REQUEST_TIMEOUT)
+                        .setConnectionRequestTimeout(DEFAULT_CONNECTION_REQUEST_TIMEOUT)
                         // 请求超时时间
-                        .setConnectTimeout(CommonConfig.HTTP_POOL_CONNECT_TIMEOUT)
+                        .setConnectTimeout(DEFAULT_CONNECT_TIMEOUT)
                         // 响应超时时间
-                        .setSocketTimeout(CommonConfig.HTTP_POOL_RESPONSE_TIMEOUT)
+                        .setSocketTimeout(DEFAULT_SOCKET_TIMEOUT)
                         .build();
 
         /*
@@ -198,7 +203,7 @@ public class HttpClientUtils {
         String msg = ERROR_MESSAGE;
 
         // 获取客户端连接对象
-        CloseableHttpClient httpClient = getHttpClient(CommonConfig.HTTP_POOL_RESPONSE_TIMEOUT);
+        CloseableHttpClient httpClient = getHttpClient(DEFAULT_SOCKET_TIMEOUT);
         CloseableHttpResponse response = null;
 
         try {
@@ -253,7 +258,7 @@ public class HttpClientUtils {
     public String httpPost(URI uri, String requestBody, Header... headers) {
         String msg = ERROR_MESSAGE;
         // 获取客户端连接对象
-        CloseableHttpClient httpClient = getHttpClient(CommonConfig.HTTP_POOL_RESPONSE_TIMEOUT);
+        CloseableHttpClient httpClient = getHttpClient(DEFAULT_SOCKET_TIMEOUT);
 
         // 创建POST请求对象
         CloseableHttpResponse response = null;

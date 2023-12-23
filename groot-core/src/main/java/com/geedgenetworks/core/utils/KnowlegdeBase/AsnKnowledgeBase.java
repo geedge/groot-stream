@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase;
 
 
-import com.geedgenetworks.common.config.KnowledgeConfig;
+import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
@@ -31,7 +31,7 @@ public class AsnKnowledgeBase extends AbstractKnowledgeBase {
 
 
 
-    public Boolean updateKnowledgeBase(KnowledgeConfig knowledgeConfig) {
+    public Boolean updateKnowledgeBase(KnowledgeBaseConfig knowledgeConfig) {
 
         IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
 

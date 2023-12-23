@@ -26,7 +26,7 @@ public class ConfigProvider {
     }
 
     public static GrootStreamConfig locateAndGetGrootStreamConfig(Properties properties) {
-        GrootStreamConfigLocator yamlConfigLocator = new GrootStreamConfigLocator();
+        CommonConfigLocator yamlConfigLocator = new CommonConfigLocator();
         GrootStreamConfig config;
         validateSuffixInSystemProperty(Constants.SYSPROP_GROOTSTREAM_CONFIG);
        if (yamlConfigLocator.locateFromSystemProperty()) {

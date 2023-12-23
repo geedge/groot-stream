@@ -114,7 +114,7 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
             environment = StreamExecutionEnvironment.getExecutionEnvironment(configuration);
         }
         configuration.setString(Constants.SYSPROP_UDF_PLUGIN_CONFIG, JSON.toJSONString(grootStreamConfig.getUDFPluginConfig()));
-        configuration.setString(Constants.SYSPROP_GROOTSTREAM_CONFIG, JSON.toJSONString(grootStreamConfig.getEngineConfig()));
+        configuration.setString(Constants.SYSPROP_GROOTSTREAM_CONFIG, JSON.toJSONString(grootStreamConfig.getCommonConfig()));
         environment.getConfig().enableObjectReuse();
         environment.getConfig().setGlobalJobParameters(configuration);
         setTimeCharacteristic();

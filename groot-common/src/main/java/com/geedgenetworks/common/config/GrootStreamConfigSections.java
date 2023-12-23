@@ -2,8 +2,7 @@ package com.geedgenetworks.common.config;
 
 /** Configuration sections for Hazelcast GrootStream shared by YAML based configurations */
 enum GrootStreamConfigSections {
-    GROOTSTREAM("grootstream", false),
-    ENGINE("engine", false);
+    GROOTSTREAM("grootstream", false);
 
     final String name;
     final boolean multipleOccurrence;

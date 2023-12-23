@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.udf.test;
 
-import com.geedgenetworks.common.config.KnowledgeConfig;
+import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.GeoIpLookup;
@@ -69,7 +69,7 @@ public class GeoIpLookupFunctionTest {
         udfContext.getParameters().put("option","IP_TO_ASN");
         udfContext.getParameters().put("vendor_id","tsg_asnlookup");*/
 
-        KnowledgeConfig knowledgeConfig =new KnowledgeConfig();
+        KnowledgeBaseConfig knowledgeConfig =new KnowledgeBaseConfig();
         knowledgeConfig.setName("tsg_geoiplookup");
         knowledgeConfig.setType("geoiplookup");
         knowledgeConfig.setFiles(Arrays.asList("acf1db8589c5e277-ead1a65e1c3973dc","acf1db8589c5e277-ead1a65e1c3973dc"));

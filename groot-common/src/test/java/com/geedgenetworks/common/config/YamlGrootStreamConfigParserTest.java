@@ -3,23 +3,25 @@ package com.geedgenetworks.common.config;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+
 public class YamlGrootStreamConfigParserTest {
 
     @Test
     public void testGrootStreamConfig() {
-        GrootStreamConfigLocator yamlConfigLocator = new GrootStreamConfigLocator();
+        CommonConfigLocator commonConfigLocator = new CommonConfigLocator();
         GrootStreamConfig config;
-        if (yamlConfigLocator.locateInWorkDirOrOnClasspath()) {
+        if (commonConfigLocator.locateInWorkDirOrOnClasspath()) {
             // 2. Try loading YAML config from the working directory or from the classpath
-            config = new GrootStreamConfigBuilder(yamlConfigLocator).setProperties(null).build();
+            config = new GrootStreamConfigBuilder(commonConfigLocator).build();
         } else {
             throw new RuntimeException("can't find yaml in resources");
         }
         Assertions.assertNotNull(config);
-        Assertions.assertNotNull(config.getEngineConfig().getNacosConfig().getServerAddr());
-        Assertions.assertTrue(config.getEngineConfig().getHttpConPoolConfig().getSocketTimeout() > 0);
-        Assertions.assertNotNull(config.getEngineConfig().getKnowledgeBaseConfig());
-    //    Assertions.assertEquals("hos", config.getEngineConfig().getKnowledgeBaseConfig().get(0).getProperties().get("fs_type"));
+        Assertions.assertNotNull(config.getCommonConfig().getKnowledgeBaseConfig());
+        Assertions.assertTrue(config.getCommonConfig().getKnowledgeBaseConfig().size() > 0);
+        Assertions.assertTrue(Arrays.asList("asnlookup", "geoiplookup").contains(config.getCommonConfig().getKnowledgeBaseConfig().get(0).getType()));
+        Assertions.assertTrue(config.getUDFPluginConfig().size() > 0);
 
     }
 

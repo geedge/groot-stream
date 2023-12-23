@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase;
 
-import com.geedgenetworks.common.config.KnowledgeConfig;
+import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeFileEntity;
 import com.geedgenetworks.core.utils.HttpClientPoolUtil;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ public abstract class AbstractKnowledgeBase {
         // 抽象类的构造函数
     }
 
-    abstract  Boolean updateKnowledgeBase(KnowledgeConfig knowledgeConfig) ;
+    abstract  Boolean updateKnowledgeBase(KnowledgeBaseConfig knowledgeConfig) ;
 
     abstract String functionName();
 

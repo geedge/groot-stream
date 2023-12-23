@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase;
 
 
-import com.geedgenetworks.common.config.KnowledgeConfig;
+import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeFileEntity;
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
@@ -26,7 +26,7 @@ public class GeoIpKnowledgeBase extends AbstractKnowledgeBase {
         return instance;
     }
     @Override
-    public Boolean updateKnowledgeBase(KnowledgeConfig knowledgeConfig) {
+    public Boolean updateKnowledgeBase(KnowledgeBaseConfig knowledgeConfig) {
         IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
 
         for (int i = 0; i < knowledgeConfig.getFiles().size(); i++) {

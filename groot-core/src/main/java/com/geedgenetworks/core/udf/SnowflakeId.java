@@ -1,9 +1,7 @@
 package com.geedgenetworks.core.udf;
 
-import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
-import com.geedgenetworks.core.udf.UDF;
 import com.geedgenetworks.core.utils.SnowflakeIdUtils;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
