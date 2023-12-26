@@ -5,23 +5,24 @@ import com.geedgenetworks.core.pojo.UDFContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 public class Rename implements UDF {
-    private UDFContext udfContext;
-
+    private String lookupFieldName;
+    private String outputFieldName;
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-        this.udfContext = udfContext;
+
+        this.lookupFieldName = udfContext.getLookup_fields().get(0);
+        this.outputFieldName = udfContext.getOutput_fields().get(0);
     }
 
     @Override
     public Event evaluate(Event event) {
-        if (event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))) {
+        if (event.getExtractedFields().containsKey(lookupFieldName)) {
 
             event.getExtractedFields()
-                    .put(
-                            udfContext.getOutput_fields().get(0),
+                    .put(outputFieldName,
                             event.getExtractedFields()
-                                    .get(udfContext.getLookup_fields().get(0)));
-            event.getExtractedFields().remove(udfContext.getLookup_fields().get(0));
+                                    .get(lookupFieldName));
+            event.getExtractedFields().remove(lookupFieldName);
         }
         return event;
     }

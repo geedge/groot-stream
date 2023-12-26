@@ -20,20 +20,19 @@ import java.util.Map;
 @Slf4j
 public class GeoIpLookup implements UDF {
 
-    private UDFContext udfContext;
     private String vender;
     private String option;
-
-    private Map<String,String> geolocation_field_mapping;
+    private String lookupFieldName;
+    private String outputFieldName;
+    private Map<String,String> geoLocationFieldMapping;
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         checkUdfContext(udfContext);
-        this.udfContext = udfContext;
         this.vender = udfContext.getParameters().get("vendor_id").toString();
         this.option = udfContext.getParameters().get("option").toString();
         if(option.equals("IP_TO_OBJECT")){
-            this.geolocation_field_mapping = (Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
+            this.geoLocationFieldMapping = (Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
         }
         KnowledgeBaseUpdateJob.initKnowledgeBase(vender, GeoIpKnowledgeBase.getInstance(),runtimeContext);
         if(GeoIpKnowledgeBase.getVenderWithIpLookup()!=null && GeoIpKnowledgeBase.getVenderWithIpLookup().containsKey(vender)){
@@ -42,99 +41,75 @@ public class GeoIpLookup implements UDF {
         else {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init GeoIpLookup error ");
         }
+        this.lookupFieldName = udfContext.getLookup_fields().get(0);
+        this.outputFieldName = udfContext.getOutput_fields().get(0);
     }
 
 
 
     @Override
     public Event evaluate(Event event) {
-        if (event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))) {
+        if (event.getExtractedFields().containsKey(lookupFieldName)) {
 
             switch (option) {
                 case "IP_TO_COUNTRY":
                     event.getExtractedFields()
-                            .put(
-                                    udfContext.getOutput_fields().get(0),
+                            .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .countryLookup(
                                                     event.getExtractedFields()
-                                                            .get(
-                                                                    udfContext
-                                                                            .getLookup_fields()
-                                                                            .get(0))
+                                                            .get(lookupFieldName)
                                                             .toString()));
                     break;
                 case "IP_TO_PROVINCE":
                     event.getExtractedFields()
-                            .put(
-                                    udfContext.getOutput_fields().get(0),
+                            .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .provinceLookup(
                                                     event.getExtractedFields()
-                                                            .get(
-                                                                    udfContext
-                                                                            .getLookup_fields()
-                                                                            .get(0))
+                                                            .get(lookupFieldName)
                                                             .toString()));
                     break;
                 case "IP_TO_CITY":
                     event.getExtractedFields()
-                            .put(
-                                    udfContext.getOutput_fields().get(0),
+                            .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .cityLookup(
                                                     event.getExtractedFields()
-                                                            .get(
-                                                                    udfContext
-                                                                            .getLookup_fields()
-                                                                            .get(0))
+                                                            .get(lookupFieldName)
                                                             .toString()));
                     break;
                 case "IP_TO_SUBDIVISION_ADDR":
                     event.getExtractedFields()
-                            .put(
-                                    udfContext.getOutput_fields().get(0),
+                            .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .cityLookupDetail(
                                                     event.getExtractedFields()
-                                                            .get(
-                                                                    udfContext
-                                                                            .getLookup_fields()
-                                                                            .get(0))
+                                                            .get(lookupFieldName)
                                                             .toString()));
                     break;
                 case "IP_TO_DETAIL":
                     event.getExtractedFields()
-                            .put(
-                                    udfContext.getOutput_fields().get(0),
+                            .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .locationLookupDetail(
                                                     event.getExtractedFields()
-                                                            .get(
-                                                                    udfContext
-                                                                            .getLookup_fields()
-                                                                            .get(0))
+                                                            .get(lookupFieldName)
                                                             .toString()));
                     break;
                 case "IP_TO_LATLNG":
-                    String geo =
-                            GeoIpKnowledgeBase.getVenderWithIpLookup()
-                                    .get(vender)
-                                    .latLngLookup(
-                                            event.getExtractedFields()
-                                                    .get(
-                                                            udfContext
-                                                                    .getLookup_fields()
-                                                                    .get(0))
-                                                    .toString());
-
                         event.getExtractedFields()
-                                .put(udfContext.getOutput_fields().get(0), geo);
+                                .put(outputFieldName, GeoIpKnowledgeBase.getVenderWithIpLookup()
+                                        .get(vender)
+                                        .latLngLookup(
+                                                event.getExtractedFields()
+                                                        .get(lookupFieldName)
+                                                        .toString()));
 
                     break;
                 case "IP_TO_PROVIDER":
@@ -144,30 +119,22 @@ public class GeoIpLookup implements UDF {
                                             .get(vender)
                                             .ispLookup(
                                                     event.getExtractedFields()
-                                                            .get(
-                                                                    udfContext
-                                                                            .getLookup_fields()
-                                                                            .get(0))
+                                                            .get(lookupFieldName)
                                                             .toString()),
                                     TypeReference.mapType(
                                             HashMap.class, String.class, Object.class));
                     event.getExtractedFields()
-                            .put(
-                                    udfContext.getOutput_fields().get(0),
+                            .put(outputFieldName,
                                     serverIpMap.getOrDefault("isp", StringUtil.EMPTY));
                     break;
                 case "IP_TO_JSON ":
                     event.getExtractedFields()
-                            .put(
-                                    udfContext.getOutput_fields().get(0),
+                            .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
                                             .get(vender)
                                             .infoLookupToJSONString(
                                                     event.getExtractedFields()
-                                                            .get(
-                                                                    udfContext
-                                                                            .getLookup_fields()
-                                                                            .get(0))
+                                                            .get(lookupFieldName)
                                                             .toString()));
                     break;
                 case "IP_TO_OBJECT":
@@ -176,13 +143,10 @@ public class GeoIpLookup implements UDF {
                             .get(vender)
                             .infoLookup(
                                     event.getExtractedFields()
-                                            .get(
-                                                    udfContext
-                                                            .getLookup_fields()
-                                                            .get(0))
+                                            .get(lookupFieldName)
                                             .toString());
 
-                    for (Map.Entry<String, String> entry : geolocation_field_mapping.entrySet()) {
+                    for (Map.Entry<String, String> entry : geoLocationFieldMapping.entrySet()) {
                         switch (entry.getKey()) {
                             case "COUNTRY":
                                 event.getExtractedFields()
@@ -216,16 +180,12 @@ public class GeoIpLookup implements UDF {
                                 break;
                         }
                         event.getExtractedFields()
-                                .put(
-                                        udfContext.getOutput_fields().get(0),
+                                .put(outputFieldName,
                                         GeoIpKnowledgeBase.getVenderWithIpLookup()
                                                 .get(vender)
                                                 .infoLookup(
                                                         event.getExtractedFields()
-                                                                .get(
-                                                                        udfContext
-                                                                                .getLookup_fields()
-                                                                                .get(0))
+                                                                .get(lookupFieldName)
                                                                 .toString()));
                         break;
                     }

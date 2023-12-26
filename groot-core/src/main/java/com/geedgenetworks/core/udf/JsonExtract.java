@@ -10,7 +10,10 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 public class JsonExtract implements UDF {
 
     private UDFContext udfContext;
+    private String lookupFieldName;
+    private String outputFieldName;
 
+    private String param;
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         this.udfContext = udfContext;
@@ -26,7 +29,9 @@ public class JsonExtract implements UDF {
         if(!udfContext.getParameters().containsKey("param")){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey param");
         }
-
+        this.lookupFieldName = udfContext.getLookup_fields().get(0);
+        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.param =udfContext.getParameters().get("param").toString();
     }
 
 
@@ -34,16 +39,15 @@ public class JsonExtract implements UDF {
 
     @Override
     public Event evaluate(Event event) {
-        if (event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))) {
+        if (event.getExtractedFields().containsKey(lookupFieldName)) {
 
             String result =
                     (String)
                             JsonPathUtil.analysis(
                                     event.getExtractedFields()
-                                            .get(udfContext.getLookup_fields().get(0))
-                                            .toString(),
-                                    udfContext.getParameters().get("param").toString());
-            event.getExtractedFields().put(udfContext.getOutput_fields().get(0), result);
+                                            .get(lookupFieldName)
+                                            .toString(),param);
+            event.getExtractedFields().put(outputFieldName, result);
         }
         return event;
     }

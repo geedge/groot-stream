@@ -2,7 +2,6 @@ package com.geedgenetworks.core.udf.test.simple;
 
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
-import com.geedgenetworks.core.udf.FromUnixTimestamp;
 import com.geedgenetworks.core.udf.UnixTimestampConverter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class FromUnixTimestampConverterTest {
+public class UnixTimestampConverterTest {
 
     private static UDFContext udfContext;
 
@@ -24,7 +23,7 @@ public class FromUnixTimestampConverterTest {
         udfContext.setOutput_fields(Arrays.asList("output"));
     }
     @Test
-    public void testFromUnixTimestampFunctionMstoS() throws Exception {
+    public void testUnixTimestampFunctionMstoS() throws Exception {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("precision", "seconds");
@@ -42,7 +41,7 @@ public class FromUnixTimestampConverterTest {
     }
 
     @Test
-    public void testFromUnixTimestampFunctionStoMs() throws Exception {
+    public void testUnixTimestampFunctionStoMs() throws Exception {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("precision", "milliseconds");
@@ -61,7 +60,7 @@ public class FromUnixTimestampConverterTest {
 
 
     @Test
-    public void testFromUnixTimestampFunctionStoS() throws Exception {
+    public void testUnixTimestampFunctionStoS() throws Exception {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("precision", "seconds");
@@ -80,7 +79,7 @@ public class FromUnixTimestampConverterTest {
 
 
     @Test
-    public void testFromUnixTimestampFunctionMstoMs() throws Exception {
+    public void testUnixTimestampFunctionMstoMs() throws Exception {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("precision", "milliseconds");

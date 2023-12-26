@@ -11,11 +11,12 @@ import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 @Slf4j
 public class FromUnixTimestamp implements UDF {
-    private UDFContext udfContext;
-
+    private String precision;
+    private String outputFieldName;
+    private String lookupFieldName;
+    private SimpleDateFormat sdf;
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-        this.udfContext = udfContext;
         if(udfContext.getOutput_fields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
@@ -36,32 +37,35 @@ public class FromUnixTimestamp implements UDF {
                 throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters precision value is not correct");
             }
         }
+        this.precision = udfContext.getParameters().get("precision").toString();
+        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.lookupFieldName = udfContext.getLookup_fields().get(0);
+        this.sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        switch (precision) {
+            case "seconds":
+                sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                break;
+            case "milliseconds":
+                sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+                break;
+            case "microseconds":
+                sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS:000");
+                break;
+            case "nanoseconds":
+                sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS:000:000");
+                break;
+            default:
+                break;
+        }
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
     @Override
     public Event evaluate(Event event) {
 
-               if(event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))){
-                   SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                   switch (udfContext.getParameters().get("precision").toString()) {
-                       case "seconds":
-                           sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                           break;
-                       case "milliseconds":
-                           sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
-                           break;
-                       case "microseconds":
-                           sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS:000");
-                           break;
-                       case "nanoseconds":
-                           sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS:000:000");
-                           break;
-                       default:
-                           break;
-                   }
-                   sdf.setTimeZone(TimeZone.getTimeZone(udfContext.getParameters().get("timezone").toString()));
-                   String timestamp = sdf.format(Long.parseLong(event.getExtractedFields().get(udfContext.getLookup_fields().get(0)).toString()));
-                   event.getExtractedFields().put(udfContext.getOutput_fields().get(0), timestamp);
+               if(event.getExtractedFields().containsKey(lookupFieldName)){
+                   String timestamp = sdf.format(Long.parseLong(event.getExtractedFields().get(lookupFieldName).toString()));
+                   event.getExtractedFields().put(outputFieldName, timestamp);
                }
                return  event;
     }

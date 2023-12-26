@@ -14,16 +14,11 @@ import java.util.*;
 @Slf4j
 public class PathCombine implements UDF {
 
-    private UDFContext udfContext;
-
-    private StringBuilder stringBuilder;
-
-    private Map<String, String> pathParameters = new LinkedHashMap<>();
+    private final Map<String, String> pathParameters = new LinkedHashMap<>();
+    private String outputFieldName;
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-
-        this.udfContext = udfContext;
 
         Configuration configuration = (Configuration) runtimeContext
                 .getExecutionConfig().getGlobalJobParameters();
@@ -52,6 +47,7 @@ public class PathCombine implements UDF {
 
             }
         }
+        this.outputFieldName = udfContext.getOutput_fields().get(0);
     }
 
 
@@ -74,7 +70,7 @@ public class PathCombine implements UDF {
             }
         }
         String path = joinUrlParts(pathBuilder);
-        event.getExtractedFields().put(udfContext.getOutput_fields().get(0), path);
+        event.getExtractedFields().put(outputFieldName, path);
         return event;
     }
 

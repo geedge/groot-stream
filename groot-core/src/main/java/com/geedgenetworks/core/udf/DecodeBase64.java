@@ -17,8 +17,9 @@ import java.util.Base64;
 @Slf4j
 public class DecodeBase64 implements UDF {
 
-    private UDFContext udfContext;
-
+    private String lookupFieldNameFirst;
+    private String lookupFieldNameSecond;
+    private String outputFieldName;
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         if(udfContext.getLookup_fields().size() !=2){
@@ -27,21 +28,22 @@ public class DecodeBase64 implements UDF {
         if(udfContext.getOutput_fields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
-        this.udfContext = udfContext;
-
+        this.lookupFieldNameFirst = udfContext.getLookup_fields().get(0);
+        this.lookupFieldNameSecond = udfContext.getLookup_fields().get(1);
+        this.outputFieldName = udfContext.getOutput_fields().get(0);
     }
 
     @Override
     public Event evaluate(Event event) {
-        if (event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))) {
+        if (event.getExtractedFields().containsKey(lookupFieldNameFirst)) {
 
             String decodeResult = "";
             String message =
                     (String)
                             event.getExtractedFields()
-                                    .get(udfContext.getLookup_fields().get(0));
+                                    .get(lookupFieldNameFirst);
             Object charset =
-                    event.getExtractedFields().getOrDefault(udfContext.getLookup_fields().get(1),"");
+                    event.getExtractedFields().getOrDefault(lookupFieldNameSecond,"");
             try {
                 if (StringUtil.isNotBlank(message)) {
                     byte[] base64decodedBytes = Base64.getDecoder().decode(message);
@@ -61,7 +63,7 @@ public class DecodeBase64 implements UDF {
                                 + e.getMessage());
             }
             event.getExtractedFields()
-                    .put(udfContext.getOutput_fields().get(0), decodeResult);
+                    .put(outputFieldName, decodeResult);
         }
         return event;
     }

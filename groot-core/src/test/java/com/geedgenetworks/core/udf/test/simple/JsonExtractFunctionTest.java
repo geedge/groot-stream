@@ -21,15 +21,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class JsonExtractFunctionTest {
 
     private static UDFContext udfContext;
-    private static Map<String, Object> parameters ;
     @BeforeAll
     public static void setUp() {
         udfContext = new UDFContext();
-        parameters =  new HashMap<>();
-        parameters.put("param","$.tags[?(@.tag=='device_group')][0].value");
-        udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Arrays.asList("device_tag"));
-        udfContext.setOutput_fields(Arrays.asList("device_group"));
     }
 
     @Test
@@ -46,11 +40,6 @@ public class JsonExtractFunctionTest {
         Assertions.assertThrows(GrootStreamRuntimeException.class, () -> {
             jsonExtract.open(null, udfContext);
         });
-
-        udfContext.setLookup_fields(new ArrayList<>());
-        udfContext.getLookup_fields().add("v1");
-        udfContext.setOutput_fields(new ArrayList<>());
-        udfContext.getOutput_fields().add("v2");
         udfContext.setParameters(new HashMap<>());
         udfContext.getParameters().put("other","other");
         Assertions.assertThrows(GrootStreamRuntimeException.class, () -> {
@@ -64,6 +53,11 @@ public class JsonExtractFunctionTest {
 
 
         JsonExtract jsonExtract = new JsonExtract();
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("param","$.tags[?(@.tag=='device_group')][0].value");
+        udfContext.setParameters(parameters);
+        udfContext.setLookup_fields(Arrays.asList("device_tag"));
+        udfContext.setOutput_fields(Arrays.asList("device_group"));
         jsonExtract.open(null, udfContext);
         Event event = new Event();
         String jsonString = "{\"device_tag\":\"{\\\"tags\\\":[{\\\"tag\\\":\\\"data_center\\\",\\\"value\\\":\\\"center-xxg-tsgx\\\"},{\\\"tag\\\":\\\"device_group\\\",\\\"value\\\":\\\"group-xxg-tsgx\\\"}]}\"}";
