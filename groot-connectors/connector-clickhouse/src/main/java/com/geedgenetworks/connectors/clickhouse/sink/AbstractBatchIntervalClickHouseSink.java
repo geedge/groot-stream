@@ -280,6 +280,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
             } catch (SQLException e) {
                 LOG.error("ClickHouseBatchInsertFail url:" + url, e);
                 if (retryCount >= 3) {
+                    LOG.error("ClickHouseBatchInsertFinalFail for rowCnt:" + rowCnt);
                     // throw e;
                     return;
                 }
@@ -290,6 +291,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                     } catch (SQLException e) {
                         LOG.error("ClickHouseBatchInsertFail url:" + url, e);
                         if (retryCount >= 3) {
+                            LOG.error("ClickHouseBatchInsertFinalFail for rowCnt:" + rowCnt);
                             //throw e;
                             if (connection != null) {
                                 connection.close();
