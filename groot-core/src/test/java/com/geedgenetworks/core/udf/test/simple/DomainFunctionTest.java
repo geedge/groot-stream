@@ -78,13 +78,14 @@ public class DomainFunctionTest {
     public void testDomainFunctionFirstSignificantSubdomain() {
 
         parameters.put("option", "FIRST_SIGNIFICANT_SUBDOMAIN");
+        udfContext.setParameters(parameters);
         Domain domain = new Domain();
         domain.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
-        extractedFields.put("domain", "www.baidu.com");
+        extractedFields.put("v1", "www.baidu.com");
         event.setExtractedFields(extractedFields);
         Event result1 = domain.evaluate(event);
-        assertEquals("baidu.com", result1.getExtractedFields().get("domain1"));
+        assertEquals("baidu.com", result1.getExtractedFields().get("v2"));
     }
 }

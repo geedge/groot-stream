@@ -9,21 +9,20 @@ import java.io.Serializable;
 
 public class SnowflakeId implements Serializable, UDF {
 
-    private UDFContext udfContext;
-
+    private String outputFieldName;
     private SnowflakeIdUtils snowflakeIdUtils;
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         String data_center_id_num = udfContext.getParameters().getOrDefault("data_center_id_num","0").toString();//转为数字
         snowflakeIdUtils = new SnowflakeIdUtils(Integer.parseInt(data_center_id_num),runtimeContext.getIndexOfThisSubtask());
-        this.udfContext = udfContext;
+        this.outputFieldName = udfContext.getOutput_fields().get(0);
     }
 
     @Override
     public Event evaluate(Event event) {
 
         event.getExtractedFields()
-                .put(udfContext.getOutput_fields().get(0), snowflakeIdUtils.nextId());
+                .put(outputFieldName, snowflakeIdUtils.nextId());
         return event;
     }
 

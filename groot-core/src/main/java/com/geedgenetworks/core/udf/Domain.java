@@ -10,18 +10,18 @@ import com.geedgenetworks.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
+import java.util.List;
+
 @Slf4j
 public class Domain implements UDF {
 
-    private UDFContext udfContext;
 
     private String option;
-
-
+    private List<String> lookupFields;
+    private String outputFieldName;
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
-        this.udfContext = udfContext;
         if(udfContext.getLookup_fields().isEmpty()){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup field is not empty");
         }
@@ -42,6 +42,8 @@ public class Domain implements UDF {
             }
         }
         this.option = udfContext.getParameters().get("option").toString();
+        this.lookupFields = udfContext.getLookup_fields();
+        this.outputFieldName = udfContext.getOutput_fields().get(0);
 
     }
 
@@ -49,7 +51,7 @@ public class Domain implements UDF {
     @Override
     public Event evaluate(Event event) {
         String domain = "";
-        for (String lookupField : udfContext.getLookup_fields()){
+        for (String lookupField : lookupFields){
 
             if(event.getExtractedFields().containsKey(lookupField)){
 
@@ -78,7 +80,7 @@ public class Domain implements UDF {
                 }
             }
         }
-        event.getExtractedFields().put(udfContext.getOutput_fields().get(0), domain);
+        event.getExtractedFields().put(outputFieldName, domain);
         return event;
     }
 

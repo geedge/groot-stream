@@ -14,8 +14,9 @@ import java.time.Instant;
 public class UnixTimestampConverter implements UDF {
 
     private UDFContext udfContext;
-
     private String precision;
+    private String lookupFieldName;
+    private String outputFieldName;
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
@@ -39,7 +40,8 @@ public class UnixTimestampConverter implements UDF {
                 this.precision =udfContext.getParameters().get("precision").toString();
             }
         }
-
+        this.lookupFieldName = udfContext.getLookup_fields().get(0);
+        this.outputFieldName = udfContext.getOutput_fields().get(0);
 
     }
 
@@ -47,8 +49,8 @@ public class UnixTimestampConverter implements UDF {
     @Override
     public Event evaluate(Event event) {
 
-        if(event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))) {
-            Long timestamp = Long.parseLong(event.getExtractedFields().get(udfContext.getLookup_fields().get(0)).toString());
+        if(event.getExtractedFields().containsKey(lookupFieldName)) {
+            Long timestamp = Long.parseLong(event.getExtractedFields().get(lookupFieldName).toString());
             Instant instant = null;
             if (String.valueOf(timestamp).length() == 13) {
                 // 时间戳长度大于10，表示为毫秒级时间戳
@@ -67,7 +69,7 @@ public class UnixTimestampConverter implements UDF {
                     timestamp = instant.toEpochMilli();
                     break;
             }
-            event.getExtractedFields().put(udfContext.getOutput_fields().get(0), timestamp);
+            event.getExtractedFields().put(outputFieldName, timestamp);
         }
         return event;
     }

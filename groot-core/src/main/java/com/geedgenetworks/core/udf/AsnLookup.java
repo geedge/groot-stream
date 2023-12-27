@@ -13,15 +13,15 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 @Slf4j
 public class AsnLookup implements UDF {
 
-    private UDFContext udfContext;
     private String vender;
     private String option;
+    private String lookupFieldName;
+    private String outputFieldName;
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext)  {
 
         checkUdfContext(udfContext);
-        this.udfContext = udfContext;
         this.vender = udfContext.getParameters().get("vendor_id").toString();
         this.option = udfContext.getParameters().get("option").toString();
         KnowledgeBaseUpdateJob.initKnowledgeBase(vender,AsnKnowledgeBase.getInstance(), runtimeContext);
@@ -32,6 +32,8 @@ public class AsnLookup implements UDF {
         else {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init AsnKnowledgeBase error ");
         }
+        this.lookupFieldName = udfContext.getLookup_fields().get(0);
+        this.outputFieldName = udfContext.getOutput_fields().get(0);
     }
 
 
@@ -40,15 +42,15 @@ public class AsnLookup implements UDF {
 
         if(AsnKnowledgeBase.getVenderWithAsnLookup()!=null && AsnKnowledgeBase.getVenderWithAsnLookup().containsKey(vender)){
 
-            if(event.getExtractedFields().containsKey(udfContext.getLookup_fields().get(0))){
+            if(event.getExtractedFields().containsKey(lookupFieldName)){
                 switch (option) {
                     case "IP_TO_ASN":
                         String asn = AsnKnowledgeBase.getVenderWithAsnLookup()
                                 .get(vender)
-                                    .asnLookup(event.getExtractedFields().get(udfContext.getLookup_fields().get(0)).toString());
+                                    .asnLookup(event.getExtractedFields().get(lookupFieldName).toString());
                         if(!asn.isEmpty()) {
                             event.getExtractedFields()
-                                    .put(udfContext.getOutput_fields().get(0), asn);
+                                    .put(outputFieldName, asn);
                         }
                         break;
                     default:
