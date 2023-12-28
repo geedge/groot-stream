@@ -62,8 +62,9 @@ public class Domain implements UDF {
                                         (String)
                                                 event.getExtractedFields()
                                                         .get(lookupField));
-                        domain = domain.substring(domain.indexOf(".") + 1);
-
+                        if(domain.contains(".")) {
+                            domain = domain.substring(domain.indexOf(".") + 1);
+                        }
                         break;
                     case "FIRST_SIGNIFICANT_SUBDOMAIN":
                         domain =

@@ -9,10 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,8 +25,8 @@ public class DomainFunctionTest {
         udfContext = new UDFContext();
         parameters =  new HashMap<>();
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Arrays.asList("domain"));
-        udfContext.setOutput_fields(Arrays.asList("domain1"));
+        udfContext.setLookup_fields(Collections.singletonList("domain"));
+        udfContext.setOutput_fields(Collections.singletonList("domain1"));
     }
 
 
@@ -63,7 +60,8 @@ public class DomainFunctionTest {
     @Test
     public void testDomainFunctionTopLevelDomain() {
         parameters.put("option", "TOP_LEVEL_DOMAIN");
-
+        udfContext.setLookup_fields(Collections.singletonList("domain"));
+        udfContext.setOutput_fields(Collections.singletonList("domain1"));
         Domain domain = new Domain();
         domain.open(null, udfContext);
         Event event = new Event();
@@ -79,13 +77,15 @@ public class DomainFunctionTest {
 
         parameters.put("option", "FIRST_SIGNIFICANT_SUBDOMAIN");
         udfContext.setParameters(parameters);
+        udfContext.setLookup_fields(Collections.singletonList("domain"));
+        udfContext.setOutput_fields(Collections.singletonList("domain1"));
         Domain domain = new Domain();
         domain.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
-        extractedFields.put("v1", "www.baidu.com");
+        extractedFields.put("domain", "www.baidu.com");
         event.setExtractedFields(extractedFields);
         Event result1 = domain.evaluate(event);
-        assertEquals("baidu.com", result1.getExtractedFields().get("v2"));
+        assertEquals("baidu.com", result1.getExtractedFields().get("domain1"));
     }
 }
