@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class DecodeBase64FunctionTest {
     public static void setUp() {
          udfContext = new UDFContext();
          udfContext.setLookup_fields(Arrays.asList("message", "charset"));
-         udfContext.setOutput_fields(Arrays.asList("decodeResult"));
+         udfContext.setOutput_fields(Collections.singletonList("decodeResult"));
     }
     @Test
     public void testDecodeBase64Function() {
@@ -47,8 +48,8 @@ public class DecodeBase64FunctionTest {
 
 
         DecodeBase64 decodeBase64 = new DecodeBase64();
-        udfContext.setLookup_fields(Arrays.asList("message"));
-        udfContext.setOutput_fields(Arrays.asList("decodeResult"));
+        udfContext.setLookup_fields(Collections.singletonList("message"));
+        udfContext.setOutput_fields(Collections.singletonList("decodeResult"));
         assertThrows(GrootStreamRuntimeException.class,
                 () -> {
                     decodeBase64.open(null, udfContext);

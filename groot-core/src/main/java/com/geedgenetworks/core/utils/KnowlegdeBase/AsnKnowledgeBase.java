@@ -3,6 +3,7 @@ package com.geedgenetworks.core.utils.KnowlegdeBase;
 
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 
+import com.geedgenetworks.core.pojo.KnowLedgeFileEntity;
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -20,8 +21,6 @@ public class AsnKnowledgeBase extends AbstractKnowledgeBase {
     private static final Logger logger = LoggerFactory.getLogger(AsnKnowledgeBase.class);
     private static AsnKnowledgeBase instance;
     // 私有构造函数，防止外部实例化
-
-
     public static synchronized AsnKnowledgeBase getInstance()  {
         if (instance == null) {
             instance = new AsnKnowledgeBase();
@@ -29,17 +28,15 @@ public class AsnKnowledgeBase extends AbstractKnowledgeBase {
         return instance;
     }
 
-
-
-    public Boolean updateKnowledgeBase(KnowledgeBaseConfig knowledgeConfig) {
+    public Boolean updateKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
 
         IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
 
-       /* for (int i = 0; i < knowledgeConfig.getFiles().size(); i++) {
+       for (int i = 0; i < knowledgeBaseConfig.getFiles().size(); i++) {
             try {
-                KnowLedgeEntity knowLedgeEntity = getMetadata(knowledgeConfig.getFiles().get(i));
-                byte[] fileByte = downloadFile(knowLedgeEntity.getPath(), knowLedgeEntity.getIsValid());
-                if (calculateSHA256(fileByte).equals(knowLedgeEntity.getSha256())) {
+                KnowLedgeFileEntity knowLedgeFileEntity = getMetadata(knowledgeBaseConfig.getProperties().get("fs_type"),knowledgeBaseConfig.getProperties().get("fs_default_path"),knowledgeBaseConfig.getFiles().get(i));
+                byte[] fileByte = downloadFile(knowLedgeFileEntity.getPath(), knowLedgeFileEntity.getIsValid());
+                if (calculateSHA256(fileByte).equals(knowLedgeFileEntity.getSha256())) {
                     switch (i) {
                         case 0:
                             asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(fileByte));
@@ -56,26 +53,9 @@ public class AsnKnowledgeBase extends AbstractKnowledgeBase {
                 logger.error("updateKnowledgeBase error " + e.getMessage());
                 return false;
             }
-        }*/
-        //临时写死等网关接口
-        for (int i = 0; i < knowledgeConfig.getFiles().size(); i++) {
-            try {
-                byte[] fileByte = downloadFile(knowledgeConfig.getFiles().get(i), 1);
-                    switch (i) {
-                        case 0:
-                            asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(fileByte));
-                            break;
-                        case 1:
-                            asnLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
-                            break;
-                }
-            } catch (Exception e) {
-                logger.error("updateKnowledgeBase error " + e.getMessage());
-                return false;
-            }
         }
         IpLookupV2 ipLookup = asnLookupBuilder.build();
-        venderWithAsnLookup.put(knowledgeConfig.getName(), ipLookup);
+        venderWithAsnLookup.put(knowledgeBaseConfig.getName(), ipLookup);
         return true;
     }
     @Override

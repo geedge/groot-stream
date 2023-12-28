@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,8 +20,8 @@ public class ReNameFunctionTest {
     @BeforeAll
     public static void setUp() {
         udfContext = new UDFContext();
-        udfContext.setLookup_fields(Arrays.asList("oldName"));
-        udfContext.setOutput_fields(Arrays.asList("newName"));
+        udfContext.setLookup_fields(Collections.singletonList("oldName"));
+        udfContext.setOutput_fields(Collections.singletonList("newName"));
 
     }
 

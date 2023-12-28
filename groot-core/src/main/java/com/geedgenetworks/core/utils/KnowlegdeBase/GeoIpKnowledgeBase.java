@@ -15,7 +15,7 @@ import java.util.*;
 public class GeoIpKnowledgeBase extends AbstractKnowledgeBase {
 
     @Getter
-    private static Map<String, IpLookupV2> venderWithIpLookup = new HashMap<>();
+    private static final Map<String, IpLookupV2> venderWithIpLookup = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(GeoIpKnowledgeBase.class);
     private static GeoIpKnowledgeBase instance;
 
@@ -26,12 +26,12 @@ public class GeoIpKnowledgeBase extends AbstractKnowledgeBase {
         return instance;
     }
     @Override
-    public Boolean updateKnowledgeBase(KnowledgeBaseConfig knowledgeConfig) {
+    public Boolean updateKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
         IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
 
-        for (int i = 0; i < knowledgeConfig.getFiles().size(); i++) {
+        for (int i = 0; i < knowledgeBaseConfig.getFiles().size(); i++) {
             try {
-                KnowLedgeFileEntity knowLedgeFileEntity = getMetadata(knowledgeConfig.getFiles().get(i));
+                KnowLedgeFileEntity knowLedgeFileEntity = getMetadata(knowledgeBaseConfig.getProperties().get("fs_type"),knowledgeBaseConfig.getProperties().get("fs_default_path"),knowledgeBaseConfig.getFiles().get(i));
 
 
                 byte[] fileByte = downloadFile(knowLedgeFileEntity.getPath(), knowLedgeFileEntity.getIsValid());
@@ -54,7 +54,7 @@ public class GeoIpKnowledgeBase extends AbstractKnowledgeBase {
             }
         }
         IpLookupV2 ipLookup = ipLookupBuilder.build();
-        venderWithIpLookup.put(knowledgeConfig.getName(), ipLookup);
+        venderWithIpLookup.put(knowledgeBaseConfig.getName(), ipLookup);
         return true;    }
 
     @Override

@@ -9,14 +9,12 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 
 public class JsonExtract implements UDF {
 
-    private UDFContext udfContext;
     private String lookupFieldName;
     private String outputFieldName;
+    private String expression;
 
-    private String param;
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-        this.udfContext = udfContext;
         if(udfContext.getLookup_fields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
         }
@@ -26,12 +24,12 @@ public class JsonExtract implements UDF {
         if(udfContext.getParameters() == null){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function must contain parameters");
         }
-        if(!udfContext.getParameters().containsKey("param")){
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey param");
+        if(!udfContext.getParameters().containsKey("value_expression")){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey value_expression");
         }
         this.lookupFieldName = udfContext.getLookup_fields().get(0);
         this.outputFieldName = udfContext.getOutput_fields().get(0);
-        this.param =udfContext.getParameters().get("param").toString();
+        this.expression =udfContext.getParameters().get("value_expression").toString();
     }
 
 
@@ -46,7 +44,7 @@ public class JsonExtract implements UDF {
                             JsonPathUtil.analysis(
                                     event.getExtractedFields()
                                             .get(lookupFieldName)
-                                            .toString(),param);
+                                            .toString(),expression);
             event.getExtractedFields().put(outputFieldName, result);
         }
         return event;

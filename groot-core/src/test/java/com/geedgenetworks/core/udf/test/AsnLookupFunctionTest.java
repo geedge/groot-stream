@@ -1,16 +1,19 @@
 package com.geedgenetworks.core.udf.test;
 
+import com.geedgenetworks.common.config.CommonConfig;
+import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
+import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.AsnLookup;
+import com.geedgenetworks.core.udf.FromUnixTimestamp;
+import com.geedgenetworks.core.utils.KnowlegdeBase.AsnKnowledgeBase;
+import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,8 +28,9 @@ public class AsnLookupFunctionTest {
         udfContext = new UDFContext();
         parameters = new HashMap<>();
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Arrays.asList("ip"));
-        udfContext.setOutput_fields(Arrays.asList("asn"));
+        udfContext.setLookup_fields(Collections.singletonList("ip"));
+        udfContext.setOutput_fields(Collections.singletonList("asn"));
+
     }
 
 
@@ -61,20 +65,24 @@ public class AsnLookupFunctionTest {
     @Test
     public void testAsnLookupFunctionIpToAsn() throws Exception {
 
-        udfContext.setParameters(new HashMap<>());
-        udfContext.getParameters().put("option","IP_TO_ASN");
-        udfContext.getParameters().put("vendor_id","tsg_asnlookup");
-   /*     KnowledgeConfig knowledgeConfig = new KnowledgeConfig();
-        knowledgeConfig.setName("tsg_asnlookup");
-        knowledgeConfig.setType("asnlookup");
-        knowledgeConfig.setFiles(Arrays.asList("7ce2f9890950ba90-fcc25696bf11a8a0","7ce2f9890950ba90-71f13b3736863ddb"));
-        AsnKnowledgeBase asnKnowledgeBase = AsnKnowledgeBase.getInstance();
-        asnKnowledgeBase.updateKnowledgeBase(knowledgeConfig);
-        String asn  = AsnKnowledgeBase.getVenderWithAsnLookup()
+
+        CommonConfig commonConfig = new CommonConfig();
+        List<KnowledgeBaseConfig> knowledgeBaseConfigList = new ArrayList<>();
+        KnowledgeBaseConfig knowledgeBaseConfig = new KnowledgeBaseConfig();
+        knowledgeBaseConfig.setName("tsg_asnlookup");
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("fs_type","hos");
+        parameters.put("fs_default_path","http://192.168.44.12:9999/v1/knowledge_base?kb_id=");
+        knowledgeBaseConfig.setProperties(parameters);
+        knowledgeBaseConfig.setType("asnlookup");
+        knowledgeBaseConfig.setFiles(Collections.singletonList("f9f6bc91-2142-4673-8249-e097c00fe1ea"));
+        knowledgeBaseConfigList.add(knowledgeBaseConfig);
+        commonConfig.setKnowledgeBaseConfig(knowledgeBaseConfigList);
+        KnowledgeBaseUpdateJob.initKnowledgeBase("tsg_asnlookup", AsnKnowledgeBase.getInstance(), commonConfig);
+        String asn = AsnKnowledgeBase.getVenderWithAsnLookup()
                 .get("tsg_asnlookup")
                 .asnLookup("2600:1015:b002::");
-
-        assertEquals("6167", asn);*/
+        assertEquals("6167", asn);
 
     }
 

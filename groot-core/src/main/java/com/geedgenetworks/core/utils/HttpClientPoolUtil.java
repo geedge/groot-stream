@@ -4,7 +4,6 @@ import com.geedgenetworks.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.*;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -27,7 +26,6 @@ public class HttpClientPoolUtil {
         connectionManager.setMaxTotal(400);
         // 设置每个路由的最大连接数
         connectionManager.setDefaultMaxPerRoute(60);
-
         // 创建 HttpClient 实例
         httpClient = HttpClientBuilder.create()
                 .setConnectionManager(connectionManager)
