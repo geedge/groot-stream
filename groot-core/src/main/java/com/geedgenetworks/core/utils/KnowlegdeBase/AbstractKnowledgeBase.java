@@ -1,13 +1,18 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeFileEntity;
 import com.geedgenetworks.core.utils.HttpClientPoolUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractKnowledgeBase {
 
@@ -17,7 +22,7 @@ public abstract class AbstractKnowledgeBase {
         // 抽象类的构造函数
     }
 
-    abstract  Boolean updateKnowledgeBase(KnowledgeBaseConfig knowledgeConfig) ;
+    abstract  Boolean updateKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) ;
 
     abstract String functionName();
 
@@ -54,29 +59,27 @@ public abstract class AbstractKnowledgeBase {
         return inputStream;
     }
 
-     static KnowLedgeFileEntity getMetadata(String id) {
+     static KnowLedgeFileEntity getMetadata(String type,String path ,String id) {
 
-        try {
-//                HttpClientUtils httpClientUtils = new HttpClientUtils();
-            // String metadate  = httpClientUtils.httpGet(URI.create("/v1/knowledge_base/"+ id +"/meta")) ;
-//临时写死
-            KnowLedgeFileEntity knowLedgeFileEntity1 =  new KnowLedgeFileEntity();
-            knowLedgeFileEntity1.setIsValid(1);
-            knowLedgeFileEntity1.setSha256("2a2defd9c96ea5434ac628d3dc4fc6790e30d84c218b02fe798dbc6772dbf76c");
-            knowLedgeFileEntity1.setPath("http://192.168.44.12:9098/hos/knowledge_base_bucket/757732ce-8214-4c34-aea2-aca6c51a7e82-YXNuX2J1aWx0aW4=.mmdb");
+         try{
+             if(type.equals("hos")){
+                 HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
+                 String metadate  = httpClientPoolUtil.httpGet(URI.create(path+id)) ;
+                 Map metaObject = JSON.parseObject(metadate, Map.class);
+                 JSONArray jsonArray = (JSONArray) metaObject.get("data");
+                 List<KnowLedgeFileEntity> knowLedgeFileEntityList = jsonArray.toJavaList(KnowLedgeFileEntity.class);
+                 for(KnowLedgeFileEntity knowLedgeFileEntity :knowLedgeFileEntityList){
 
-/*
-             KnowLedgeEntity knowLedgeEntity2 =  new KnowLedgeEntity();
-             knowLedgeEntity2.setIsValid(1);
-             knowLedgeEntity2.setSha256("044228128a1cc7ae0f8d4bae9fdc73eac9dea3e074e7c15796d29167b89cfdee");
-             knowLedgeEntity2.setPath("http://192.168.44.12:9098/hos/knowledge_base_bucket/63220f3e-7792-43a8-9921-d01da16b76b2-aXBfYnVpbHRpbg==.mmdb");
-*/
+                     if("latest".equals(knowLedgeFileEntity.getVersion())){
 
-         /*   knowLedgeEntity.setSha256("2a2defd9c96ea5434ac628d3dc4fc6790e30d84c218b02fe798dbc6772dbf76c");
-            knowLedgeEntity.setPath("http://192.168.44.12:9098/hos/knowledge_base_hos_bucket/1e8aabe7-2170-445c-9124-6051332ca7d6-YXNuX2J1aWx0aW4=.mmdb");
-    /*           List<KnowLedgeEntity> knowLedgeEntityList = JSON.parseObject(metadate, new TypeReference<List<KnowLedgeEntity>>() {});
-              return knowLedgeEntityList.get(0);*/
-            return knowLedgeFileEntity1;
+                         return knowLedgeFileEntity;
+                     }
+
+                 }
+             }
+             else{
+                 logger.error("get file Metadata " + id + " error:  fs_type not suppoort !" );
+             }
         } catch (Exception e) {
             logger.error("get file Metadata " + id + " error: " + e.getMessage());
         }

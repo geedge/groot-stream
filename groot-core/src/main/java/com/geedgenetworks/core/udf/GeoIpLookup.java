@@ -1,5 +1,7 @@
 package com.geedgenetworks.core.udf;
 
+import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.Event;
@@ -13,6 +15,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.configuration.Configuration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,27 +27,28 @@ public class GeoIpLookup implements UDF {
     private String option;
     private String lookupFieldName;
     private String outputFieldName;
-    private Map<String,String> geoLocationFieldMapping;
+    private Map<String, String> geoLocationFieldMapping;
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         checkUdfContext(udfContext);
         this.vender = udfContext.getParameters().get("vendor_id").toString();
         this.option = udfContext.getParameters().get("option").toString();
-        if(option.equals("IP_TO_OBJECT")){
+        if (option.equals("IP_TO_OBJECT")) {
             this.geoLocationFieldMapping = (Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
         }
-        KnowledgeBaseUpdateJob.initKnowledgeBase(vender, GeoIpKnowledgeBase.getInstance(),runtimeContext);
-        if(GeoIpKnowledgeBase.getVenderWithIpLookup()!=null && GeoIpKnowledgeBase.getVenderWithIpLookup().containsKey(vender)){
+        Configuration configuration = (Configuration) runtimeContext
+                .getExecutionConfig().getGlobalJobParameters();
+        CommonConfig commonConfig = com.alibaba.fastjson.JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
+        KnowledgeBaseUpdateJob.initKnowledgeBase(vender, GeoIpKnowledgeBase.getInstance(), commonConfig);
+        if (GeoIpKnowledgeBase.getVenderWithIpLookup() != null && GeoIpKnowledgeBase.getVenderWithIpLookup().containsKey(vender)) {
             log.debug("Init GeoIpLookup success ");
-        }
-        else {
+        } else {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init GeoIpLookup error ");
         }
         this.lookupFieldName = udfContext.getLookup_fields().get(0);
         this.outputFieldName = udfContext.getOutput_fields().get(0);
     }
-
 
 
     @Override
@@ -103,13 +107,13 @@ public class GeoIpLookup implements UDF {
                                                             .toString()));
                     break;
                 case "IP_TO_LATLNG":
-                        event.getExtractedFields()
-                                .put(outputFieldName, GeoIpKnowledgeBase.getVenderWithIpLookup()
-                                        .get(vender)
-                                        .latLngLookup(
-                                                event.getExtractedFields()
-                                                        .get(lookupFieldName)
-                                                        .toString()));
+                    event.getExtractedFields()
+                            .put(outputFieldName, GeoIpKnowledgeBase.getVenderWithIpLookup()
+                                    .get(vender)
+                                    .latLngLookup(
+                                            event.getExtractedFields()
+                                                    .get(lookupFieldName)
+                                                    .toString()));
 
                     break;
                 case "IP_TO_PROVIDER":
@@ -138,56 +142,48 @@ public class GeoIpLookup implements UDF {
                                                             .toString()));
                     break;
                 case "IP_TO_OBJECT":
-
-                    LocationResponse response = (LocationResponse) GeoIpKnowledgeBase.getVenderWithIpLookup()
-                            .get(vender)
-                            .infoLookup(
+                    Object object = GeoIpKnowledgeBase.getVenderWithIpLookup()
+                        .get(vender)
+                        .infoLookup(
+                                event.getExtractedFields()
+                                        .get(lookupFieldName)
+                                        .toString());
+                    if(!"".equals(object) ) {
+                        LocationResponse response = (LocationResponse) object;
+                        for (Map.Entry<String, String> entry : geoLocationFieldMapping.entrySet()) {
+                            switch (entry.getKey()) {
+                                case "COUNTRY":
                                     event.getExtractedFields()
-                                            .get(lookupFieldName)
-                                            .toString());
-
-                    for (Map.Entry<String, String> entry : geoLocationFieldMapping.entrySet()) {
-                        switch (entry.getKey()) {
-                            case "COUNTRY":
-                                event.getExtractedFields()
-                                        .put(entry.getValue(), response.getCountry());
-                                break;
-                            case "PROVINCE":
-                                event.getExtractedFields()
-                                        .put(entry.getValue(), response.getSuperAdministrativeArea());
-                                break;
-                            case "CITY":
-                                event.getExtractedFields()
-                                        .put(entry.getValue(), response.getAdministrativeArea());
-                                break;
-                            case "LONGITUDE":
-                                event.getExtractedFields()
-                                        .put(entry.getValue(), response.getLongitude());
-                                break;
-                            case "LATITUDE":
-                                event.getExtractedFields()
-                                        .put(entry.getValue(), response.getLatitude());
-                                break;
-                            case "ISP":
-                                event.getExtractedFields()
-                                        .put(entry.getValue(), response.getIsp());
-                                break;
-                            case "ORGANIZATION ":
-                                event.getExtractedFields()
-                                        .put(entry.getValue(), response.getOrganization());
-                                break;
-                            default:
-                                break;
+                                            .put(entry.getValue(), response.getCountry());
+                                    break;
+                                case "PROVINCE":
+                                    event.getExtractedFields()
+                                            .put(entry.getValue(), response.getSuperAdministrativeArea());
+                                    break;
+                                case "CITY":
+                                    event.getExtractedFields()
+                                            .put(entry.getValue(), response.getAdministrativeArea());
+                                    break;
+                                case "LONGITUDE":
+                                    event.getExtractedFields()
+                                            .put(entry.getValue(), response.getLongitude());
+                                    break;
+                                case "LATITUDE":
+                                    event.getExtractedFields()
+                                            .put(entry.getValue(), response.getLatitude());
+                                    break;
+                                case "ISP":
+                                    event.getExtractedFields()
+                                            .put(entry.getValue(), response.getIsp());
+                                    break;
+                                case "ORGANIZATION ":
+                                    event.getExtractedFields()
+                                            .put(entry.getValue(), response.getOrganization());
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
-                        event.getExtractedFields()
-                                .put(outputFieldName,
-                                        GeoIpKnowledgeBase.getVenderWithIpLookup()
-                                                .get(vender)
-                                                .infoLookup(
-                                                        event.getExtractedFields()
-                                                                .get(lookupFieldName)
-                                                                .toString()));
-                        break;
                     }
             }
         }
@@ -195,23 +191,22 @@ public class GeoIpLookup implements UDF {
     }
 
     private void checkUdfContext(UDFContext udfContext) {
-        if(udfContext.getLookup_fields().size() != 1){
+        if (udfContext.getLookup_fields().size() != 1) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
         }
-        if(udfContext.getOutput_fields().size() != 1){
+        if (udfContext.getOutput_fields().size() != 1) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
-        if(udfContext.getParameters() == null){
+        if (udfContext.getParameters() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function needs parameters");
         }
-        if(!udfContext.getParameters().containsKey("vendor_id")){
+        if (!udfContext.getParameters().containsKey("vendor_id")) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey vendor_id");
         }
-        if(!udfContext.getParameters().containsKey("option")){
+        if (!udfContext.getParameters().containsKey("option")) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey option");
-        }
-        else{
-            if(!udfContext.getParameters().get("option").toString().equals("IP_TO_COUNTRY") && //IP_TO_COUNTRY
+        } else {
+            if (!udfContext.getParameters().get("option").toString().equals("IP_TO_COUNTRY") && //IP_TO_COUNTRY
                     !udfContext.getParameters().get("option").toString().equals("IP_TO_PROVINCE") && //IP_TO_PROVINCE
                     !udfContext.getParameters().get("option").toString().equals("IP_TO_CITY") && //IP_TO_CITY
                     !udfContext.getParameters().get("option").toString().equals("IP_TO_SUBDIVISION_ADDR") && //IP_TO_SUBDIVISION_ADDR
@@ -219,29 +214,27 @@ public class GeoIpLookup implements UDF {
                     !udfContext.getParameters().get("option").toString().equals("IP_TO_LATLNG") && //IP_TO_LATLNG
                     !udfContext.getParameters().get("option").toString().equals("IP_TO_PROVIDER") && //IP_TO_PROVIDER
                     !udfContext.getParameters().get("option").toString().equals("IP_TO_JSON") && //IP_TO_JSON
-                    !udfContext.getParameters().get("option").toString().equals("IP_TO_OBJECT") ){
+                    !udfContext.getParameters().get("option").toString().equals("IP_TO_OBJECT")) {
                 throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters option value is not correct");
             }
-            if(udfContext.getParameters().get("option").toString().equals("IP_TO_OBJECT")){
+            if (udfContext.getParameters().get("option").toString().equals("IP_TO_OBJECT")) {
 
-                if(!udfContext.getParameters().containsKey("geolocation_field_mapping")){
+                if (!udfContext.getParameters().containsKey("geolocation_field_mapping")) {
 
                     throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey geolocation_field_mapping");
 
-                }
-                else {
-                    Map<String,String> geolocation_field_mapping =(Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
+                } else {
+                    Map<String, String> geolocation_field_mapping = (Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
 
-                    if(!geolocation_field_mapping.isEmpty()){
+                    if (!geolocation_field_mapping.isEmpty()) {
 
                         for (Map.Entry<String, String> entry : geolocation_field_mapping.entrySet()) {
 
-                            if(!entry.getKey().equals("COUNTRY") && !entry.getKey().equals("PROVINCE") && !entry.getKey().equals("CITY") && !entry.getKey().equals("LONGITUDE") && !entry.getKey().equals("LATITUDE") && !entry.getKey().equals("ISP") && !entry.getKey().equals("ORGANIZATION")){
+                            if (!entry.getKey().equals("COUNTRY") && !entry.getKey().equals("PROVINCE") && !entry.getKey().equals("CITY") && !entry.getKey().equals("LONGITUDE") && !entry.getKey().equals("LATITUDE") && !entry.getKey().equals("ISP") && !entry.getKey().equals("ORGANIZATION")) {
                                 throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters geolocation_field_mapping value is not correct");
                             }
                         }
-                    }
-                    else {
+                    } else {
                         throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters geolocation_field_mapping value is not correct");
                     }
                 }
@@ -253,7 +246,7 @@ public class GeoIpLookup implements UDF {
 
     @Override
     public String functionName() {
-        return "IP_LOCATION";
+        return "GEOIP_LOOKUP";
     }
 
     @Override

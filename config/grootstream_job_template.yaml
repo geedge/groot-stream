@@ -93,7 +93,15 @@ processing_pipelines:
     properties:
       key: value
     functions: # [array of object] Function List
-
+      - function: GEOIP_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: [ server_asn ]
+        parameters:
+          vendor_id: tsg_geoiplookup
+          option: IP_TO_OBJECT
+          geolocation_field_mapping:
+              COUNTRY: client_country_region
+              PROVINCE: client_super_admin_area
       - function: ASN_LOOKUP
         lookup_fields: [ server_ip ]
         output_fields: [ server_asn ]
@@ -120,14 +128,14 @@ processing_pipelines:
         output_fields: [ data_center ]
         filter:
         parameters:
-          param: $.tags[?(@.tag=='data_center')][0].value
+          value_expression: $.tags[?(@.tag=='data_center')][0].value
 
       - function: JSON_EXTRACT
         lookup_fields: [ device_tag ]
         output_fields: [ device_group ]
         filter:
         parameters:
-          param: $.tags[?(@.tag=='device_group')][0].value
+          value_expression: $.tags[?(@.tag=='device_group')][0].value
 
       - function: CURRENT_UNIX_TIMESTAMP
         output_fields: [ processing_time ]
@@ -139,6 +147,11 @@ processing_pipelines:
         output_fields: [ recv_time ]
         parameters:
           precision: seconds
+
+      - function: EVAL
+        output_fields: [ ingestion_time ]
+        parameters:
+          value_expression: recv_time
 
       - function: DOMAIN
         lookup_fields: [ http_host,ssl_sni,dtls_sni,quic_sni ]

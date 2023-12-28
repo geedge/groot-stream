@@ -1,5 +1,7 @@
 package com.geedgenetworks.core.udf;
 
+import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.Event;
@@ -9,6 +11,7 @@ import com.geedgenetworks.core.utils.KnowlegdeBase.AsnKnowledgeBase;
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
+import org.apache.flink.configuration.Configuration;
 
 @Slf4j
 public class AsnLookup implements UDF {
@@ -24,7 +27,11 @@ public class AsnLookup implements UDF {
         checkUdfContext(udfContext);
         this.vender = udfContext.getParameters().get("vendor_id").toString();
         this.option = udfContext.getParameters().get("option").toString();
-        KnowledgeBaseUpdateJob.initKnowledgeBase(vender,AsnKnowledgeBase.getInstance(), runtimeContext);
+        Configuration configuration = (Configuration) runtimeContext
+                .getExecutionConfig().getGlobalJobParameters();
+        CommonConfig commonConfig = com.alibaba.fastjson.JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
+
+        KnowledgeBaseUpdateJob.initKnowledgeBase(vender,AsnKnowledgeBase.getInstance(), commonConfig);
 
         if(AsnKnowledgeBase.getVenderWithAsnLookup()!=null && AsnKnowledgeBase.getVenderWithAsnLookup().containsKey(vender)){
             log.debug("Init AsnKnowledgeBase success ");

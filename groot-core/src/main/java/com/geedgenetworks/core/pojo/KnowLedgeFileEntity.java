@@ -2,10 +2,9 @@ package com.geedgenetworks.core.pojo;
 
 public class KnowLedgeFileEntity {
 
-    private String id;
+    private String kb_id;
     private String name;
     private String category;
-
     private String path;
     private String generated_time;
     private String last_update_time;
@@ -15,12 +14,13 @@ public class KnowLedgeFileEntity {
     private int isValid;
     private String version;
 
-    public String getId() {
-        return id;
+
+    public String getKb_id() {
+        return kb_id;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setKb_id(String kb_id) {
+        this.kb_id = kb_id;
     }
 
     public String getName() {

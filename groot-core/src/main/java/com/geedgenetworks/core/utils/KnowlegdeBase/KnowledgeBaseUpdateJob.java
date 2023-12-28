@@ -1,13 +1,12 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.TypeReference;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.KnowLedgeFileEntity;
 import com.geedgenetworks.core.pojo.KnowledgeBaseEntity;
-import com.geedgenetworks.core.utils.HttpClientPoolUtil;
 import lombok.Getter;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -16,10 +15,10 @@ import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.geedgenetworks.core.utils.KnowlegdeBase.AbstractKnowledgeBase.getMetadata;
 import static com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseScheduler.startTask;
 import static com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseScheduler.stopTask;
 
@@ -28,19 +27,15 @@ public class KnowledgeBaseUpdateJob implements Job {
 
 
     @Getter
-    private static  Map<String, KnowledgeBaseEntity> KnowLedgeBaseEntityMap= new ConcurrentHashMap<>() ;
+    private static final Map<String, KnowledgeBaseEntity> KnowLedgeBaseEntityMap= new ConcurrentHashMap<>() ;
     private static final Logger logger = LoggerFactory.getLogger(KnowledgeBaseUpdateJob.class);
 
     private static KnowledgeBaseUpdateJob instance;
 
-    private static CommonConfig engineConfig;
 
-    public static synchronized KnowledgeBaseUpdateJob getInstance(RuntimeContext runtimeContext)  {
+    public static synchronized KnowledgeBaseUpdateJob getInstance()  {
         if (instance == null) {
             instance = new KnowledgeBaseUpdateJob();
-            Configuration configuration = (Configuration) runtimeContext
-                    .getExecutionConfig().getGlobalJobParameters();
-            engineConfig = com.alibaba.fastjson.JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
             startTask();
         }
         return instance;
@@ -57,10 +52,11 @@ public class KnowledgeBaseUpdateJob implements Job {
 
 
 
-    public static synchronized  void initKnowledgeBase(String name,AbstractKnowledgeBase abstractKnowledgeBase,RuntimeContext runtimeContext)   {
+    public static synchronized  void initKnowledgeBase(String name,AbstractKnowledgeBase abstractKnowledgeBase,CommonConfig commonConfig)   {
 
-      if (instance == null) {
-            getInstance(runtimeContext);
+
+        if (instance == null) {
+            getInstance();
         }
 
             if (!KnowLedgeBaseEntityMap.containsKey(name)) {
@@ -70,32 +66,27 @@ public class KnowledgeBaseUpdateJob implements Job {
                 knowledgeBaseEntity.setKnowLedgeFileEntityList(knowLedgeFileEntityList);
 
                 try {
-                    for(KnowledgeBaseConfig knowledgeConfig : engineConfig.getKnowledgeBaseConfig()){
-                        if(name.equals(knowledgeConfig.getName())){
-                            knowledgeBaseEntity.setKnowledgeConfig(knowledgeConfig);
+                    for(KnowledgeBaseConfig knowledgeBaseConfig : commonConfig.getKnowledgeBaseConfig()){
+                        if(!knowledgeBaseConfig.getProperties().containsKey("fs_type") || !knowledgeBaseConfig.getProperties().containsKey("fs_default_path")){
+                            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "initKnowledgeBase error! the knowledge_base properties should contain fs_type and fs_default_path .");
+                        }
+                        if(name.equals(knowledgeBaseConfig.getName())){
+                            knowledgeBaseEntity.setKnowledgeConfig(knowledgeBaseConfig);
                             break;
                         }
                     }
                     KnowLedgeBaseEntityMap.put(name, knowledgeBaseEntity);
                     for (String id : knowledgeBaseEntity.getKnowledgeConfig().getFiles()) {
-                      //  KnowLedgeEntity knowLedgeEntity = getMetadata(id);
-                        KnowLedgeFileEntity knowLedgeFileEntity1 =  new KnowLedgeFileEntity();
-                        knowLedgeFileEntity1.setIsValid(1);
-                        knowLedgeFileEntity1.setSha256("2a2defd9c96ea5434ac628d3dc4fc6790e30d84c218b02fe798dbc6772dbf76c");
-                        knowLedgeFileEntity1.setPath(id);
 
-/*
-                        KnowLedgeEntity knowLedgeEntity2 =  new KnowLedgeEntity();
-                        knowLedgeEntity2.setIsValid(1);
-                        knowLedgeEntity2.setSha256("044228128a1cc7ae0f8d4bae9fdc73eac9dea3e074e7c15796d29167b89cfdee");
-                        knowLedgeEntity2.setPath("http://192.168.44.12:9098/hos/knowledge_base_bucket/63220f3e-7792-43a8-9921-d01da16b76b2-aXBfYnVpbHRpbg==.mmdb");
-*/
-
-                        knowLedgeFileEntityList.add(knowLedgeFileEntity1);
+                        KnowLedgeFileEntity knowLedgeEntity = getMetadata(knowledgeBaseEntity.getKnowledgeConfig().getProperties().get("fs_type"), knowledgeBaseEntity.getKnowledgeConfig().getProperties().get("fs_default_path"),id);
+                        if(knowLedgeEntity!=null){
+                            knowLedgeFileEntityList.add(knowLedgeEntity);
+                        }
                     }
 
-
-                    updateKnowledgeBase(knowledgeBaseEntity);
+                    if(!knowLedgeFileEntityList.isEmpty()) {
+                        updateKnowledgeBase(knowledgeBaseEntity);
+                    }
                 } catch (Exception e) {
                     logger.error("initKnowledgeBase  " + e.getMessage());
                 }
@@ -103,45 +94,25 @@ public class KnowledgeBaseUpdateJob implements Job {
 
 
     }
-    private static KnowLedgeFileEntity getMetadata(String id) {
-
-        try{
-            HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
-            String metadate  = httpClientPoolUtil.httpGet(URI.create("/v1/knowledge_base/"+ id +"/meta")) ;
-            List<KnowLedgeFileEntity> knowLedgeFileEntityList = JSON.parseObject(metadate, new TypeReference<List<KnowLedgeFileEntity>>() {});
-            return knowLedgeFileEntityList.get(0);
-
-        /*    KnowLedgeEntity knowLedgeEntity = new KnowLedgeEntity();
-            knowLedgeEntity.setIsValid(1);
-            knowLedgeEntity.setSha256("2a2defd9c96ea5434ac628d3dc4fc6790e30d84c218b02fe798dbc6772dbf76c");
-            knowLedgeEntity.setPath("http://192.168.44.12:9098/hos/knowledge_base_hos_bucket/1e8aabe7-2170-445c-9124-6051332ca7d6-YXNuX2J1aWx0aW4=.mmdb");
-            return knowLedgeEntity;*/
-        } catch (Exception e) {
-            logger.error("get file Metadata " + id + " error: " + e.getMessage());
-        }
-
-        return null;
-    }
 
 
-    public static synchronized  Boolean  checkUpdateMesssage (KnowledgeBaseEntity knowledgeBaseEntity)  {
+    public static synchronized  Boolean ifNeedUpdate(KnowledgeBaseEntity knowledgeBaseEntity)  {
 
-       /* if(knowledgeBaseEntity.getKnowLedgeEntityList()!=null) {
-            for (KnowLedgeEntity knowLedgeEntity : knowledgeBaseEntity.getKnowLedgeEntityList()) {
+        if(knowledgeBaseEntity.getKnowLedgeFileEntityList()!=null) {
+            for (KnowLedgeFileEntity knowLedgeEntity : knowledgeBaseEntity.getKnowLedgeFileEntityList()) {
 
-                KnowLedgeEntity metadata = getMetadata(knowLedgeEntity.getId());
+                KnowLedgeFileEntity metadata = getMetadata(knowledgeBaseEntity.getKnowledgeConfig().getProperties().get("fs_type"),knowledgeBaseEntity.getKnowledgeConfig().getProperties().get("fs_default_path"),knowLedgeEntity.getKb_id());
                 if (metadata != null) {
                     if (!knowLedgeEntity.getSha256().equals(metadata.getSha256())) {
                         return true;
                     }
                 } else {
-                    logger.error("get file Metadata " + knowLedgeEntity.getId() + " error ");
+                    logger.error("get file Metadata " + knowLedgeEntity.getKb_id()+ " error ");
                 }
             }
         }
-        return false;*/
+        return false;
 
-        return true;
     }
 
     public static void destroyKnowledgeBase() {
@@ -155,7 +126,7 @@ public class KnowledgeBaseUpdateJob implements Job {
             for (Map.Entry<String, KnowledgeBaseEntity> entry : KnowLedgeBaseEntityMap.entrySet()) {
                 Boolean flag = null;
                 try {
-                    flag = checkUpdateMesssage(entry.getValue());
+                    flag = ifNeedUpdate(entry.getValue());
                     if (flag) {
                         updateKnowledgeBase(entry.getValue());
                     }
