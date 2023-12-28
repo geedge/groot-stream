@@ -16,6 +16,8 @@ public class Types {
     public static final StringType STRING = new StringType();
     public static final FloatType FLOAT = new FloatType();
     public static final DoubleType DOUBLE = new DoubleType();
+    public static final BooleanType BOOLEAN = new BooleanType();
+    public static final BinaryType BINARY = new BinaryType();
 
     public static final Pattern ARRAY_RE = Pattern.compile("array\\s*<(.+)>", Pattern.CASE_INSENSITIVE);
     public static final Pattern STRUCT_RE = Pattern.compile("struct\\s*<(.+)>", Pattern.CASE_INSENSITIVE);
@@ -35,10 +37,10 @@ public class Types {
         return new StructType(fields);
     }
 
-    static DataType parseDataType(String type){
+    public static DataType parseDataType(String type){
         type = type.trim();
         if("int".equalsIgnoreCase(type)){
-           return INT;
+            return INT;
         } else if ("bigint".equalsIgnoreCase(type)){
             return BIGINT;
         } else if ("string".equalsIgnoreCase(type)){
@@ -47,6 +49,10 @@ public class Types {
             return FLOAT;
         } else if ("double".equalsIgnoreCase(type)){
             return DOUBLE;
+        } else if ("boolean".equalsIgnoreCase(type)){
+            return BOOLEAN;
+        } else if ("binary".equalsIgnoreCase(type)){
+            return BINARY;
         }
 
         // array类型
