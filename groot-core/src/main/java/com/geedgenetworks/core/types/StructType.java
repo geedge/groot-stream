@@ -18,6 +18,15 @@ public class StructType extends DataType {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (!super.equals(o)) {
+            return false;
+        }
+        StructField[] otherFields = ((StructType) o).fields;
+        return java.util.Arrays.equals(fields, otherFields);
+    }
+
+    @Override
     public String simpleString() {
         return String.format("struct<%s>", Arrays.stream(fields).map(f -> f.name + ":" + f.dataType.simpleString()).collect(Collectors.joining(", ")));
     }
@@ -68,11 +77,32 @@ public class StructType extends DataType {
             this.dataType = dataType;
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            StructField structField = (StructField) o;
+            return name.equals(structField.name)
+                    && dataType.equals(structField.dataType);
+        }
+
         void buildFormattedString(String prefix, StringBuilder sb, int maxDepth){
             if(maxDepth > 0){
                 sb.append(String.format("%s-- %s: %s\n", prefix, name, dataType.typeName()));
                 Types.buildFormattedString(dataType, prefix + "    |", sb, maxDepth);
             }
+        }
+
+        @Override
+        public String toString() {
+            return "StructField{" +
+                    "name='" + name + '\'' +
+                    ", dataType=" + dataType +
+                    '}';
         }
     }
 

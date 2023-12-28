@@ -8,6 +8,15 @@ public class ArrayType extends DataType {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (!super.equals(o)) {
+            return false;
+        }
+        ArrayType arrayType = (ArrayType) o;
+        return elementType.equals(arrayType.elementType);
+    }
+
+    @Override
     public String simpleString() {
         return String.format("array<%s>", elementType.simpleString());
     }
