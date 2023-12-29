@@ -62,7 +62,6 @@ public class GeoIpLookupFunctionTest {
     @Test
     public void testAsnLookupFunctionIpToAsn() throws Exception {
 
-        GeoIpLookup geoIpLookup = new GeoIpLookup();
 
         CommonConfig commonConfig = new CommonConfig();
         List<KnowledgeBaseConfig> knowledgeBaseConfigList = new ArrayList<>();
@@ -70,7 +69,7 @@ public class GeoIpLookupFunctionTest {
         knowledgeBaseConfig.setName("tsg_geoiplookup");
         Map<String, String> parameters = new HashMap<>();
         parameters.put("fs_type","hos");
-        parameters.put("fs_default_path","http://192.168.44.12:9999/v1/knowledge_base?kb_id=");
+        parameters.put("fs_default_path","http://192.168.44.67:9999/v1/knowledge_base?kb_id=");
         knowledgeBaseConfig.setProperties(parameters);
         knowledgeBaseConfig.setType("geoiplookup");
         knowledgeBaseConfig.setFiles(Arrays.asList("64af7077-eb9b-4b8f-80cf-2ceebc89bea9","004390bc-3135-4a6f-a492-3662ecb9e289"));

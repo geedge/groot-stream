@@ -11,16 +11,17 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 
+import static com.geedgenetworks.core.connector.print.PrintMode.*;
 public class PrintSinkFunction extends RichSinkFunction<Event> {
     private static final Logger LOG = LoggerFactory.getLogger(PrintSinkFunction.class);
     private final StructType dataType;
     private final SerializationSchema<Event> serialization;
-    private final int type;
+    private final PrintMode printMode;
 
-    public PrintSinkFunction(StructType dataType, EncodingFormat encodingFormat, int type) {
+    public PrintSinkFunction(StructType dataType, EncodingFormat encodingFormat, PrintMode printMode) {
         this.dataType = dataType;
         this.serialization = encodingFormat.createRuntimeEncoder(dataType);
-        this.type = type;
+        this.printMode = printMode;
     }
 
     @Override
@@ -32,9 +33,9 @@ public class PrintSinkFunction extends RichSinkFunction<Event> {
     public void invoke(Event value, Context context) throws Exception {
         byte[] bytes = serialization.serialize(value);
         String msg = new String(bytes, StandardCharsets.UTF_8);
-        if(type == 1){
+        if(printMode == STDOUT){
             System.out.println(msg);
-        } else if (type == 2) {
+        } else if (printMode == LOG_INFO) {
             LOG.info(msg);
         }else{
             LOG.warn(msg);

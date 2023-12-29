@@ -40,9 +40,6 @@ public class KafkaSourceProvider implements SourceProvider {
                 properties
         );
 
-        kafkaConsumer.setCommitOffsetsOnCheckpoints(true);
-        kafkaConsumer.setStartFromGroupOffsets();
-
         return env.addSource(kafkaConsumer);
     }
 
