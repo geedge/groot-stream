@@ -6,30 +6,86 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.*;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.util.EntityUtils;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.net.URI;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
+
 @Slf4j
 public class HttpClientPoolUtil {
 
     private static HttpClientPoolUtil instance;
-    private CloseableHttpClient httpClient;
+    private final CloseableHttpClient httpClient;
 
+    private static final int  DEFAULT_MAX_TOTAL = 400;
+    private static final int  DEFAULT_MAX_PER_ROUTE = 10;
+    private static final int DEFAULT_CONNECTION_REQUEST_TIMEOUT = 10000;
+    private static final int DEFAULT_CONNECT_TIMEOUT = 10000;
+    private static final int DEFAULT_SOCKET_TIMEOUT = 60000;
     private HttpClientPoolUtil() {
         // 创建连接池管理器
-        PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+        PoolingHttpClientConnectionManager connectionManager = getSslClientManager();
         // 设置最大连接数
-        connectionManager.setMaxTotal(400);
+        connectionManager.setMaxTotal(DEFAULT_MAX_TOTAL);
         // 设置每个路由的最大连接数
-        connectionManager.setDefaultMaxPerRoute(60);
+        connectionManager.setDefaultMaxPerRoute(DEFAULT_MAX_PER_ROUTE);
         // 创建 HttpClient 实例
         httpClient = HttpClientBuilder.create()
                 .setConnectionManager(connectionManager)
                 .build();
+    }
+
+    private PoolingHttpClientConnectionManager getSslClientManager() {
+        try {
+            // 在调用SSL之前需要重写验证方法，取消检测SSL
+            X509TrustManager trustManager =
+                    new X509TrustManager() {
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] xcs, String str) {}
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] xcs, String str) {}
+                    };
+            SSLContext ctx = SSLContext.getInstance(SSLConnectionSocketFactory.TLS);
+            ctx.init(null, new TrustManager[] {trustManager}, null);
+            SSLConnectionSocketFactory socketFactory =
+                    new SSLConnectionSocketFactory(ctx, NoopHostnameVerifier.INSTANCE);
+            Registry<ConnectionSocketFactory> socketFactoryRegistry =
+                    RegistryBuilder.<ConnectionSocketFactory>create()
+                            .register("http", PlainConnectionSocketFactory.INSTANCE)
+                            .register("https", socketFactory)
+                            .build();
+            // 创建ConnectionManager，添加Connection配置信息
+            PoolingHttpClientConnectionManager connManager =
+                    new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+            // 设置最大连接数
+            connManager.setMaxTotal(DEFAULT_MAX_TOTAL);
+            // 设置每个连接的路由数
+            connManager.setDefaultMaxPerRoute(DEFAULT_MAX_PER_ROUTE);
+            return connManager;
+        } catch (KeyManagementException | NoSuchAlgorithmException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
 
     public static synchronized HttpClientPoolUtil getInstance() {
