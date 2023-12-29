@@ -68,10 +68,6 @@ public class JsonToMapDataConverter implements Serializable {
             return this::convertToLong;
         }
 
-        if (dataType instanceof LongType) {
-            return this::convertToLong;
-        }
-
         if (dataType instanceof FloatType) {
             return this::convertToFloat;
         }
