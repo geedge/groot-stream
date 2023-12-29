@@ -42,7 +42,7 @@ public abstract class CommandArgs {
 
     protected List<String> originalParameters = Collections.emptyList();
 
-    public  abstract Command<?> buildCommand();
+    public  abstract Command buildCommand();
 
     public abstract DeployMode getDeployMode();
 

@@ -6,19 +6,27 @@ sources:
         type: bigint
       - name: recv_time
         type: bigint
-      - name: fqdn_string
+      - name: server_fqdn
+        type: string
+      - name: server_domain
         type: string
       - name: client_ip
         type: string
       - name: server_ip
         type: string
+      - name: server_asn
+        type: string
       - name: decoded_as
+        type: string
+      - name: device_group
+        type: string
+      - name: device_tag
         type: string
     # watermark_timestamp: recv_time # [string] Watermark Field Name
     # watermark_timestamp_unit: s # [string] Watermark Field Unit
     # watermark_lag: 60 # [number] Watermark Lag
     properties:
-      data: '{"log_id": 1, "recv_time":"111","fqdn_string":"baidu.com", "client_ip":"192.168.0.1","server_ip":"120.233.20.242","decoded_as":"BASE"}'
+      data: '{"tcp_rtt_ms":128,"http_version":"http1","http_request_line":"GET / HTTP/1.1","http_host":"www.ct.cn","http_url":"www.ct.cn/","http_user_agent":"curl/8.0.1","http_status_code":200,"http_response_line":"HTTP/1.1 200 OK","http_response_content_type":"text/html; charset=UTF-8","http_response_latency_ms":31,"http_session_duration_ms":5451,"in_src_mac":"ba:bb:a7:3c:67:1c","in_dest_mac":"86:dd:7a:8f:ae:e2","out_src_mac":"86:dd:7a:8f:ae:e2","out_dest_mac":"ba:bb:a7:3c:67:1c","tcp_client_isn":678677906,"tcp_server_isn":1006700307,"address_type":4,"client_ip":"10.64.106.31","server_ip":"10.64.93.1","client_port":42751,"server_port":80,"in_link_id":65535,"out_link_id":65535,"start_timestamp_ms":1703646546127,"end_timestamp_ms":1703646551702,"duration_ms":5575,"sent_pkts":97,"sent_bytes":5892,"received_pkts":250,"received_bytes":333931,"tcp_c2s_ip_fragments":0,"tcp_s2c_ip_fragments":0,"tcp_c2s_rtx_pkts":0,"tcp_c2s_rtx_bytes":0,"tcp_s2c_rtx_pkts":0,"tcp_s2c_rtx_bytes":0,"tcp_c2s_o3_pkts":0,"tcp_s2c_o3_pkts":0,"tcp_c2s_lost_bytes":0,"tcp_s2c_lost_bytes":0,"flags":26418,"flags_identify_info":[100,1,100,60,150,100,1,2],"app_transition":"http.1111.test_1_1","decoded_as":"HTTP","server_fqdn":"www.ct.cn","app":"test_1_1","decoded_path":"ETHERNET.IPv4.TCP.http","fqdn_category_list":[1767],"t_vsys_id":1,"vsys_id":1,"session_id":290538039798223400,"tcp_handshake_latency_ms":41,"client_os_desc":"Windows","server_os_desc":"Linux","data_center":"center-xxg-tsgx","device_group":"group-xxg-tsgx","device_tag":"{\"tags\":[{\"tag\":\"data_center\",\"value\":\"center-xxg-tsgx\"},{\"tag\":\"device_group\",\"value\":\"group-xxg-tsgx\"}]}","device_id":"9800165603247024","sled_ip":"192.168.40.39","dup_traffic_flag":0}'
       format: json
       json.ignore.parse.errors: false
 
@@ -26,32 +34,33 @@ filters:
   filter:
     type: com.geedgenetworks.core.filter.AviatorFilter
     properties:
-      expression: event.decoded_as == 'BASE'
+      expression: event.decoded_as == 'HTTP'
 
 preprocessing_pipelines:
   transform_processor:
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     functions:
-      - function: EVAL
-        output_fields: ['additional_field_subdomain']
+      - function: DOMAIN
+        lookup_fields: [server_fqdn]
+        output_fields: [server_domain]
         parameters:
-          value_expression: fqdn_string
+          option: FIRST_SIGNIFICANT_SUBDOMAIN
 
 processing_pipelines:
   session_record_processor: # [object] Processing Pipeline
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
-    remove_fields: [log_id]
+    remove_fields: [device_tag]
     output_fields:
     properties:
       key: value
     functions: # [array of object] Function List
       - function: DROP
-        lookup_fields: [ '' ]
-        output_fields: [ '' ]
+        lookup_fields: []
+        output_fields: []
         filter:  event.client_ip == '192.168.10.100'
       - function: SNOWFLAKE_ID
-        lookup_fields: [ '' ]
-        output_fields: [ log_id ]
+        lookup_fields: []
+        output_fields: [log_id]
         parameters:
           data_center_id_num: 1
       - function: ASN_LOOKUP
@@ -60,18 +69,27 @@ processing_pipelines:
         parameters:
           option: IP_TO_ASN
           vendor_id: tsg_asnlookup
+      - function: GEOIP_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: [ server_geolocation ]
+        parameters:
+          option: IP_TO_DETAIL
+          vendor_id: tsg_geoiplookup
+      - function: JSON_EXTRACT
+        lookup_fields: [ device_tag ]
+        output_fields: [ device_group ]
+        parameters:
+          value_expression: $.tags[?(@.tag=='device_group')][0].value
       - function: CURRENT_UNIX_TIMESTAMP
         output_fields: [ processing_time ]
         parameters:
           precision: milliseconds
-
 
 sinks:
   print_sink:
     type: print
     properties:
       format: json
-
 
 application: # [object] Application Configuration
   name: inline-to-console-job # [string] Application Name

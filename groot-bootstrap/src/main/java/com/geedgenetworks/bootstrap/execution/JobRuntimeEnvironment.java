@@ -14,7 +14,6 @@ import org.apache.flink.configuration.PipelineOptions;
 import org.apache.flink.configuration.RestOptions;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class JobRuntimeEnvironment implements RuntimeEnvironment{
-    private static volatile JobRuntimeEnvironment INSTANCE = null;
+    private static JobRuntimeEnvironment INSTANCE = null;
     private Config appConfig;
 
     private GrootStreamConfig grootStreamConfig;

@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -16,7 +17,7 @@ import java.util.List;
 public class Node implements Serializable {
     private String name;
     private ProcessorType type;
-    private List<String> downstream;
+    private List<String> downstream = Collections.emptyList();
     private int parallelism;
 
 }

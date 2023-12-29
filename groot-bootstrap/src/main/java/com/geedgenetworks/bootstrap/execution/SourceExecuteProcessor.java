@@ -58,9 +58,9 @@ public class SourceExecuteProcessor extends AbstractExecuteProcessor<String, Sou
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
+    public SingleOutputStreamOperator execute(SingleOutputStreamOperator outputStreamOperator, Node node) throws JobExecuteException {
         SourceConfig sourceConfig = operatorMap.get(node.getName());
-
+        SingleOutputStreamOperator sourceSingleOutputStreamOperator;
         try {
             SourceTableFactory tableFactory = FactoryUtil.discoverTableFactory(SourceTableFactory.class, sourceConfig.getType());
             Map<String, String> options = sourceConfig.getProperties();
@@ -73,12 +73,12 @@ public class SourceExecuteProcessor extends AbstractExecuteProcessor<String, Sou
                 System.out.println(String.format("source(%s) schema:\n%s", sourceConfig.getName(), dataType.treeString()));
             }
 
-            dataStream = sourceProvider.produceDataStream(jobRuntimeEnvironment.getStreamExecutionEnvironment());
+            sourceSingleOutputStreamOperator = sourceProvider.produceDataStream(jobRuntimeEnvironment.getStreamExecutionEnvironment());
             if (node.getParallelism() > 0) {
-                dataStream.setParallelism(node.getParallelism());
+                sourceSingleOutputStreamOperator.setParallelism(node.getParallelism());
             }
-            dataStream = setWatermarkIfNecessary(dataStream, sourceConfig, node);
-            return dataStream.name(sourceConfig.getName());
+            sourceSingleOutputStreamOperator = setWatermarkIfNecessary(sourceSingleOutputStreamOperator, sourceConfig, node);
+            return sourceSingleOutputStreamOperator.name(sourceConfig.getName());
         } catch (Exception e) {
             throw new JobExecuteException("create source operator error", e);
         }

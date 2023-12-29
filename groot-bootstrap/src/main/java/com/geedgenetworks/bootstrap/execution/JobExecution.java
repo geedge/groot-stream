@@ -239,7 +239,9 @@ public class JobExecution {
     }
 
     private void buildJobGraph(SingleOutputStreamOperator<Event> singleOutputStreamOperator, String downstreamNodeName) {
-        Node node = getNode(downstreamNodeName);
+        Node node = getNode(downstreamNodeName).orElseGet(() -> {
+            throw new JobExecuteException("can't find downstream node " + downstreamNodeName);
+        });
         if (node.getType().name().equals(ProcessorType.FILTER.name())) {
             singleOutputStreamOperator = filterExecuteProcessor.execute(singleOutputStreamOperator, node);
         } else if (node.getType().name().equals(ProcessorType.PREPROCESSING.name())) {
@@ -254,16 +256,16 @@ public class JobExecution {
             throw new JobExecuteException("unsupported process type " + node.getType().name());
         }
 
-        if (StringUtil.isNotEmpty(node.getDownstream())) {
-            for (String nodeName : node.getDownstream()) {
-                buildJobGraph(singleOutputStreamOperator, nodeName);
-            }
+
+        for (String nodeName : node.getDownstream()) {
+            buildJobGraph(singleOutputStreamOperator, nodeName);
         }
+
 
     }
 
-    private Node getNode(String name) {
-        return nodes.stream().filter(v-> v.getName().equals(name)).findFirst().orElse(null);
+    private Optional<Node> getNode(String name) {
+        return nodes.stream().filter(v-> v.getName().equals(name)).findFirst();
     }
 
 

@@ -71,16 +71,16 @@ public class FileUtils {
         File parentFile = file.getParentFile();
         if (null != parentFile && !parentFile.exists()) {
             parentFile.mkdirs();
-            createParentFile(parentFile);
         }
     }
+
 
     /**
      * create a new file, delete the old one if it is exists.
      *
      * @param filePath filePath
      */
-    public static void createNewFile(String filePath) {
+    public static void createNewFile(String filePath) throws IOException {
         File file = new File(filePath);
         if (file.exists()) {
             file.delete();
@@ -89,6 +89,7 @@ public class FileUtils {
         if (!file.getParentFile().exists()) {
             createParentFile(file);
         }
+        file.createNewFile();
     }
 
     /**
