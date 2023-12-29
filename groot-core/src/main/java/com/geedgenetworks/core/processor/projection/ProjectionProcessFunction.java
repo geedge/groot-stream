@@ -133,9 +133,8 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                 Object object = cls.newInstance();
                 String result = (String) method.invoke(object);
                 classReflect.put(result, classPath);
-                System.out.println("Returned Value: " + result);
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
         }
         return classReflect;
