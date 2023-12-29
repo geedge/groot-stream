@@ -14,7 +14,10 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+
+import static com.geedgenetworks.core.connector.print.PrintMode.STDOUT;
 
 /**
  * 用于测试的sink：把元素输出到标准输出或输出日志，输出类型：1(stdout),2(logInfo),3(logWarn)
@@ -37,8 +40,8 @@ public class PrintTableFactory implements SinkTableFactory {
         StructType dataType = context.getSchema();
         ReadableConfig config = context.getConfiguration();
 
-        int type = config.get(TYPE);
-        final PrintSinkFunction sinkFunction = new PrintSinkFunction(dataType, encodingFormat, type);
+        PrintMode printMode = Optional.ofNullable(PrintMode.fromName(config.get(MODE))).orElse(STDOUT);
+        final PrintSinkFunction sinkFunction = new PrintSinkFunction(dataType, encodingFormat, printMode);
         return new SinkProvider(){
             @Override
             public DataStreamSink<?> consumeDataStream(DataStream<Event> dataStream) {
@@ -57,13 +60,13 @@ public class PrintTableFactory implements SinkTableFactory {
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(TYPE);
+        options.add(MODE);
         return options;
     }
 
-    public static final ConfigOption<Integer> TYPE =
-            ConfigOptions.key("type")
-                    .intType()
-                    .defaultValue(1)
-                    .withDescription("输出类型:1(stdout),2(logInfo),3(logWarn)");
+    public static final ConfigOption<String> MODE =
+            ConfigOptions.key("mode")
+                    .stringType()
+                    .defaultValue(STDOUT.name().toLowerCase())
+                    .withDescription("输出模式:stdout,log_info,log_warn");
 }
