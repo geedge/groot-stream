@@ -53,11 +53,11 @@ processing_pipelines:
       key: value
     functions: # [array of object] Function List
       - function: DROP
-        lookup_fields: [ '' ]
-        output_fields: [ '' ]
+        lookup_fields: []
+        output_fields: []
         filter:  event.client_ip == '192.168.10.100'
       - function: SNOWFLAKE_ID
-        lookup_fields: [ '' ]
+        lookup_fields: []
         output_fields: [ log_id ]
 
 sinks:
@@ -66,14 +66,13 @@ sinks:
     properties:
       format: json
 
-
 application: # [object] Application Configuration
-  name: inline-to-console-job # [string] Application Name
   env: # [object] Environment Variables
-    execution.parallelism: 1 # [number] Job-Level Parallelism
+    name: inline-to-console-job # [string] Job Name
+    parallelism: 1 # [number] Job-Level Parallelism
   topology: # [array of object] Node List. It will be used build data flow for job dag graph.
     - name: inline_source # [string] Node Name, must be unique. It will be used as the name of the corresponding Flink operator. eg. kafka_source the processor type as SOURCE.
-      parallelism: 1 # [number] Operator-Level Parallelism.
+      #parallelism: 1 # [number] Operator-Level Parallelism.
       downstream: [filter]
     - name: filter
       downstream: [transform_processor]
@@ -82,7 +81,6 @@ application: # [object] Application Configuration
     - name: session_record_processor
       downstream: [print_sink]
     - name: print_sink
-      parallelism: 1
       downstream: []
 ```
 
@@ -128,10 +126,28 @@ Source is used to define where GrootStream needs to ingest data. Multiple source
 ## Sinks
 
 ## Application
-
+Used to define some common parameters of the job and the topology of the job. such as the name of the job, the parallelism of the job, etc. The following configuration parameters are supported.
 ### ENV
+Used to define job environment configuration information. For more details, you can refer to the documentation [JobEnvConfig](./env-config.md).
 
 
+# Command
+## Run a job by CLI
+```bash
+Usage: start.sh [options]
+Options:
+  --check                           Whether check config (default: false)
+  -c, --config <config file>        Config file path, must be specified
+  -e, --deploy-mode <deploy mode>   Deploy mode, only support [run] (default: run)
+  --target <target>                 Submitted target type, support [local, remote, yarn-session, yarn-per-job]
+  -n, --name <name>                 Job name (default: groot-stream-job)
+  -i, --variable <variable>         User-defined parameters, eg. -i key=value (default: [])
+  -h, --help                        Show help message
+  -v, --version                     Show version message
+  
+```
+
+```
 
 
 

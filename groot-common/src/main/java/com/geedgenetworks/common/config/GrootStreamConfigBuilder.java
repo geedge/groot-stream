@@ -87,9 +87,6 @@ public class GrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
         config.setUDFPluginConfig(ConfigProvider.locateAndGetUDFPluginConfig(getProperties()));
     }
 
-
-
-
     public GrootStreamConfigBuilder setProperties(Properties properties) {
         if (properties == null) {
             properties = System.getProperties();

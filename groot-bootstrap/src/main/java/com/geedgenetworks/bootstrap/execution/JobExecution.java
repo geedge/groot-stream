@@ -1,14 +1,12 @@
 package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.geedgenetworks.bootstrap.enums.DeployMode;
 import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.main.GrootStreamRunner;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.GrootStreamConfig;
 import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
@@ -71,9 +69,9 @@ public class JobExecution {
     private void registerPlugin(Config appConfig) {
         List<Path> thirdPartyJars = new ArrayList<>();
         Config envConfig = appConfig.getConfig(Constants.APPLICATION_ENV);
-        if(envConfig.hasPath(ExecutionConfigKey.JARS)) {
+        if(envConfig.hasPath(ExecutionConfigKeyName.JARS)) {
             thirdPartyJars = new ArrayList<>(StartBuilder
-                    .getThirdPartyJars(envConfig.getString(ExecutionConfigKey.JARS)));
+                    .getThirdPartyJars(envConfig.getString(ExecutionConfigKeyName.JARS)));
         }
         thirdPartyJars.addAll(StartBuilder.getConnectorJars());
         thirdPartyJars.addAll(StartBuilder.getPluginsJarDependencies());
@@ -98,9 +96,9 @@ public class JobExecution {
 
     private Config registerPlugin(Config config , List<URL> jars) {
        config = this.injectJarsToConfig(
-               config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKey.PIPELINE_JARS), jars);
+               config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKeyName.PIPELINE_JARS), jars);
        return  this.injectJarsToConfig(
-                config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKey.PIPELINE_CLASSPATHS), jars);
+                config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKeyName.PIPELINE_CLASSPATHS), jars);
     }
 
 
@@ -178,7 +176,7 @@ public class JobExecution {
             postprocessingPipelines = config.getConfig(Constants.POSTPROCESSING_PIPELINES).root().unwrapped();
         }
 
-        List<? extends Config> topology = jobRuntimeEnvironment.getConfig().getConfigList(Constants.APPLICATION_TOPOLOGY);
+        List<? extends Config> topology = config.getConfig(Constants.APPLICATION).getConfigList(Constants.APPLICATION_TOPOLOGY);
 
         List<Node> nodes = Lists.newArrayList();
 
@@ -211,8 +209,7 @@ public class JobExecution {
 
 
     public void execute() throws JobExecuteException {
-
-        if (!StartBuilder.getDeployMode().name().equals(DeployMode.CLIENT.name())) {
+        if (!jobRuntimeEnvironment.isLocalMode()) {
             jobRuntimeEnvironment.registerPlugin(jarPaths);
         }
         List<Node> sourceNodes = nodes
@@ -228,10 +225,14 @@ public class JobExecution {
         }
 
         try {
-            log.info("Execution Plan: {}", jobRuntimeEnvironment.getStreamExecutionEnvironment().getExecutionPlan());
+            final long jobStartTime = System.currentTimeMillis();
             log.info('\n' + Constants.GROOT_LOGO);
-            jobRuntimeEnvironment.getStreamExecutionEnvironment()
-                    .execute(jobRuntimeEnvironment.getConfig().getString(Constants.APPLICATION_NAME));
+            log.info("Execution Plan: {}", jobRuntimeEnvironment.getStreamExecutionEnvironment().getExecutionPlan());
+            log.info("Execution Job: {}", jobRuntimeEnvironment.getJobName());
+            jobRuntimeEnvironment.getStreamExecutionEnvironment().execute(jobRuntimeEnvironment.getJobName());
+            final long jobEndTime = System.currentTimeMillis();
+            log.info("Job finished, execution duration: {} ms", jobEndTime-jobStartTime);
+
         } catch (Exception e) {
             throw new JobExecuteException("Execute job error", e);
         }

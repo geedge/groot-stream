@@ -92,12 +92,12 @@ sinks:
       format: json
 
 application: # [object] Application Configuration
-  name: inline-to-console-job # [string] Application Name
   env: # [object] Environment Variables
-    execution.parallelism: 1 # [number] Job-Level Parallelism
+    name: inline-to-console-job # [string] Job Name
+    parallelism: 3 # [number] Job-Level Parallelism
   topology: # [array of object] Node List. It will be used build data flow for job dag graph.
     - name: inline_source # [string] Node Name, must be unique. It will be used as the name of the corresponding Flink operator. eg. kafka_source the processor type as SOURCE.
-      parallelism: 1 # [number] Operator-Level Parallelism.
+      #parallelism: 1 # [number] Operator-Level Parallelism.
       downstream: [filter]
     - name: filter
       downstream: [transform_processor]
@@ -106,5 +106,5 @@ application: # [object] Application Configuration
     - name: session_record_processor
       downstream: [print_sink]
     - name: print_sink
-      parallelism: 1
+      #parallelism: 1
       downstream: []

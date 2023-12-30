@@ -28,8 +28,7 @@ public class ConfigFileUtils {
 
     public static void checkConfigExist(Path configFile) {
         if (!configFile.toFile().exists()) {
-            String message = "Can't find config file: " + configFile;
-            throw new GrootStreamRuntimeException(CommonErrorCode.FILE_OPERATION_ERROR, message);
+            throw new GrootStreamRuntimeException(CommonErrorCode.FILE_OPERATION_ERROR, "Can't find config file: " + configFile);
         }
     }
 

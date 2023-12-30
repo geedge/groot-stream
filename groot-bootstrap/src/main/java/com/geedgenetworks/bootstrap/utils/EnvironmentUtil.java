@@ -1,6 +1,6 @@
 package com.geedgenetworks.bootstrap.utils;
 
-import com.geedgenetworks.bootstrap.execution.ExecutionConfigKey;
+import com.geedgenetworks.bootstrap.execution.ExecutionConfigKeyName;
 import com.geedgenetworks.common.config.CheckResult;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValue;
@@ -20,9 +20,9 @@ public final class EnvironmentUtil {
         throw new UnsupportedOperationException("EnvironmentUtil is a utility class and cannot be instantiated");
     }
 
-    public static void initConfiguration(Config appConfig, Configuration configuration) {
-        if (appConfig.hasPath("pipeline")) {
-            Config pipeline = appConfig.getConfig("pipeline");
+    public static void initConfiguration(Config envConfig, Configuration configuration) {
+        if (envConfig.hasPath("pipeline")) {
+            Config pipeline = envConfig.getConfig("pipeline");
             if (pipeline.hasPath("jars")) {
                 configuration.setString(PipelineOptions.JARS.key(), pipeline.getString("jars"));
             }
@@ -30,39 +30,42 @@ public final class EnvironmentUtil {
                 configuration.setString(
                         PipelineOptions.CLASSPATHS.key(), pipeline.getString("classpaths"));
             }
+            if(pipeline.hasPath("object-reuse")) {
+                configuration.setBoolean(PipelineOptions.OBJECT_REUSE.key(), pipeline.getBoolean("object-reuse"));
+            }
         }
         String prefixConf = "flink.";
-        if (!appConfig.isEmpty()) {
-            for (Map.Entry<String, ConfigValue> entryConfKey : appConfig.entrySet()) {
+        if (!envConfig.isEmpty()) {
+            for (Map.Entry<String, ConfigValue> entryConfKey : envConfig.entrySet()) {
                 String confKey = entryConfKey.getKey().trim();
 
                 if (confKey.startsWith(prefixConf)) {
                     configuration.setString(
-                            confKey.replaceFirst(prefixConf, ""), entryConfKey.getValue().render());
+                            confKey.replaceFirst(prefixConf, ""), entryConfKey.getValue().unwrapped().toString());
                 }
             }
         }
     }
 
-    public static void setRestartStrategy(Config config, ExecutionConfig executionConfig) {
+    public static void setRestartStrategy(Config envConfig, ExecutionConfig executionConfig) {
         try {
-            if (config.hasPath(ExecutionConfigKey.RESTART_STRATEGY)) {
-                String restartStrategy = config.getString(ExecutionConfigKey.RESTART_STRATEGY);
+            if (envConfig.hasPath(ExecutionConfigKeyName.RESTART_STRATEGY)) {
+                String restartStrategy = envConfig.getString(ExecutionConfigKeyName.RESTART_STRATEGY);
                 switch (restartStrategy.toLowerCase()) {
                     case "no":
                         executionConfig.setRestartStrategy(RestartStrategies.noRestart());
                         break;
                     case "fixed-delay":
-                        int attempts = config.getInt(ExecutionConfigKey.RESTART_ATTEMPTS);
-                        long delay = config.getLong(ExecutionConfigKey.RESTART_DELAY_BETWEEN_ATTEMPTS);
+                        int attempts = envConfig.getInt(ExecutionConfigKeyName.RESTART_ATTEMPTS);
+                        long delay = envConfig.getLong(ExecutionConfigKeyName.RESTART_DELAY_BETWEEN_ATTEMPTS);
                         executionConfig.setRestartStrategy(
                                 RestartStrategies.fixedDelayRestart(attempts, delay));
                         break;
                     case "failure-rate":
                         long failureInterval =
-                                config.getLong(ExecutionConfigKey.RESTART_FAILURE_INTERVAL);
-                        int rate = config.getInt(ExecutionConfigKey.RESTART_FAILURE_RATE);
-                        long delayInterval = config.getLong(ExecutionConfigKey.RESTART_DELAY_INTERVAL);
+                                envConfig.getLong(ExecutionConfigKeyName.RESTART_FAILURE_INTERVAL);
+                        int rate = envConfig.getInt(ExecutionConfigKeyName.RESTART_FAILURE_RATE);
+                        long delayInterval = envConfig.getLong(ExecutionConfigKeyName.RESTART_DELAY_INTERVAL);
                         executionConfig.setRestartStrategy(
                                 RestartStrategies.failureRateRestart(
                                         rate,
@@ -76,34 +79,34 @@ public final class EnvironmentUtil {
                 }
             }
         } catch (Exception e) {
-            log.warn("set restart.strategy in config '{}' exception", config, e);
+            log.warn("set restart.strategy in config '{}' exception", envConfig, e);
         }
     }
 
-    public static CheckResult checkRestartStrategy(Config config) {
-        if (config.hasPath(ExecutionConfigKey.RESTART_STRATEGY)) {
-            String restartStrategy = config.getString(ExecutionConfigKey.RESTART_STRATEGY);
+    public static CheckResult checkRestartStrategy(Config envConfig) {
+        if (envConfig.hasPath(ExecutionConfigKeyName.RESTART_STRATEGY)) {
+            String restartStrategy = envConfig.getString(ExecutionConfigKeyName.RESTART_STRATEGY);
             switch (restartStrategy.toLowerCase()) {
                 case "fixed-delay":
-                    if (!(config.hasPath(ExecutionConfigKey.RESTART_ATTEMPTS)
-                            && config.hasPath(ExecutionConfigKey.RESTART_DELAY_BETWEEN_ATTEMPTS))) {
+                    if (!(envConfig.hasPath(ExecutionConfigKeyName.RESTART_ATTEMPTS)
+                            && envConfig.hasPath(ExecutionConfigKeyName.RESTART_DELAY_BETWEEN_ATTEMPTS))) {
                         return CheckResult.error(
                                 String.format(
                                         "fixed-delay restart strategy must set [%s],[%s]",
-                                        ExecutionConfigKey.RESTART_ATTEMPTS,
-                                        ExecutionConfigKey.RESTART_DELAY_BETWEEN_ATTEMPTS));
+                                        ExecutionConfigKeyName.RESTART_ATTEMPTS,
+                                        ExecutionConfigKeyName.RESTART_DELAY_BETWEEN_ATTEMPTS));
                     }
                     break;
                 case "failure-rate":
-                    if (!(config.hasPath(ExecutionConfigKey.RESTART_FAILURE_INTERVAL)
-                            && config.hasPath(ExecutionConfigKey.RESTART_FAILURE_RATE)
-                            && config.hasPath(ExecutionConfigKey.RESTART_DELAY_INTERVAL))) {
+                    if (!(envConfig.hasPath(ExecutionConfigKeyName.RESTART_FAILURE_INTERVAL)
+                            && envConfig.hasPath(ExecutionConfigKeyName.RESTART_FAILURE_RATE)
+                            && envConfig.hasPath(ExecutionConfigKeyName.RESTART_DELAY_INTERVAL))) {
                         return CheckResult.error(
                                 String.format(
                                         "failure-rate restart strategy must set [%s],[%s],[%s]",
-                                        ExecutionConfigKey.RESTART_FAILURE_INTERVAL,
-                                        ExecutionConfigKey.RESTART_FAILURE_RATE,
-                                        ExecutionConfigKey.RESTART_DELAY_INTERVAL));
+                                        ExecutionConfigKeyName.RESTART_FAILURE_INTERVAL,
+                                        ExecutionConfigKeyName.RESTART_FAILURE_RATE,
+                                        ExecutionConfigKeyName.RESTART_DELAY_INTERVAL));
                     }
                     break;
                 default:

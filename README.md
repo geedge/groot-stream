@@ -39,8 +39,8 @@ Configure a job, you'll set up Sources, Filters, Processing Pipeline, and Sinks,
 - [Functions](docs/UDF)
 
 ## Minimum Requirements
-
-- Java 8
+- Git installed
+- Java (JDK8/JDK11 are supported) installed and `JAVA_HOME` set
 - Maven 3.5.4
 - Scala 2.12
 - Flink 1.13.1
@@ -71,7 +71,7 @@ ls -lh groot-stream-${version}
 2. Open the `Run/Debug Configurations` window.
 3. Choose -cp `groot-bootstrap`
 4. Choose Main Class `com.geedgenetworks.bootstrap.main.GrootStreamServer`.
-5. Add VM options `-e client --target local -c /...../groot-stream/config/grootstream_job_template.yaml`.
+5. Add VM options `--target local -c /...../groot-stream/config/grootstream_job_template.yaml`.
 6. Click the `Run` button.
 
 #### Running the CLI

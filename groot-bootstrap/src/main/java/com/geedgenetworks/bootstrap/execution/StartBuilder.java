@@ -67,7 +67,7 @@ public class StartBuilder {
 
 
     public static Path appRootDir() {
-        if (DeployMode.CLIENT == MODE || DeployMode.RUN == MODE || STARTER) {
+        if (DeployMode.RUN == MODE || STARTER) {
             try {
                 String path =
                         StartBuilder.class

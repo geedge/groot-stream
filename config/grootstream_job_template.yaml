@@ -7,7 +7,7 @@ sources:
     # watermark_lag: 60 # [number] Watermark Lag, default is 60
     properties: # [object] Source Properties
       topic:  SESSION-RECORD
-      kafka.bootstrap.servers: 192.168.44.12:9092
+      kafka.bootstrap.servers: 192.168.44.11:9092
       kafka.session.timeout.ms: 60000
       kafka.max.poll.records: 3000
       kafka.max.partition.fetch.bytes: 31457280
@@ -66,7 +66,7 @@ filters:
     type: com.geedgenetworks.core.filter.AviatorFilter
     output_fields:
     properties:
-      expression: event.common_schema_type == 'SSL' || event.common_schema_type == 'HTTP' || event.common_schema_type == 'BASE'
+      expression: event.decoded_as == 'SSL' || event.decoded_as == 'HTTP' || event.decoded_as == 'BASE'
 
 
 preprocessing_pipelines:
@@ -240,22 +240,21 @@ sinks:
       format: json
 
 application: # [object] Application Configuration
-  name: groot-stream-test # [string] Application Name
   env: # [object] Environment Variables
-    execution.parallelism: 1 # [number] Job-Level Parallelism
+    name: groot-stream-job # [string] Job Name
+    parallelism: 3 # [number] Job-Level Parallelism
+    pipeline:
+      object-reuse: true # [boolean] Object Reuse, default is false
   topology: # [array of object] Node List. It will be used build data flow for job dag graph.
     - name: kafka_source # [string] Node Name, must be unique. It will be used as the name of the corresponding Flink operator. eg. kafka_source the processor type as SOURCE.
-      parallelism: 1 # [number] Operator-Level Parallelism.
-    #  downstream: [schema_type_filter] # [array of string] Downstream Node Name List.
-    #- name: schema_type_filter
+      #parallelism: 1 # [number] Operator-Level Parallelism.
+      downstream: [schema_type_filter] # [array of string] Downstream Node Name List.
+    - name: schema_type_filter
     #  parallelism: 1
       downstream: [session_record_processor]
     - name: session_record_processor
-      parallelism: 1
       downstream: [kafka_sink_a, kafka_sink_b]
     - name: kafka_sink_a
-      parallelism: 1
       downstream: []
     - name: kafka_sink_b
-      parallelism: 1
       downstream: []

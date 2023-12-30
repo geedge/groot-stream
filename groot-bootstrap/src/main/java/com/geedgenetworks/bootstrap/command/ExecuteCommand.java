@@ -4,7 +4,7 @@ import cn.hutool.setting.yaml.YamlUtil;
 import com.geedgenetworks.bootstrap.exception.CommandExecuteException;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
-import com.geedgenetworks.bootstrap.execution.ExecutionConfigKey;
+import com.geedgenetworks.bootstrap.execution.ExecutionConfigKeyName;
 import com.geedgenetworks.bootstrap.execution.JobExecution;
 import com.geedgenetworks.bootstrap.utils.ConfigFileUtils;
 import com.geedgenetworks.common.Constants;
@@ -38,11 +38,11 @@ public class ExecuteCommand implements Command<ExecuteCommandArgs> {
         // if user specified job name using command line arguments, override config option
         if (!executeCommandArgs.getJobName().equals(Constants.DEFAULT_JOB_NAME)) {
           config = config.withValue(
-                  ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_NAME), ConfigValueFactory.fromAnyRef(executeCommandArgs.getJobName()));
+                  ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV , Constants.JOB_NAME), ConfigValueFactory.fromAnyRef(executeCommandArgs.getJobName()));
         }
 
         if(executeCommandArgs.getTargetType() != null) {
-            config = config.withValue(ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKey.ENV_TARGET_TYPE),
+            config = config.withValue(ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKeyName.ENV_TARGET_TYPE),
                     ConfigValueFactory.fromAnyRef(executeCommandArgs.getTargetType().getTarget()));
         }
 

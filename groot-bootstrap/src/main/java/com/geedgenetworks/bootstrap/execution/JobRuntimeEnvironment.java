@@ -22,11 +22,11 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class JobRuntimeEnvironment implements RuntimeEnvironment{
-    private static JobRuntimeEnvironment INSTANCE = null;
-    private Config appConfig;
-
+    private static volatile JobRuntimeEnvironment INSTANCE = null;
+    private Config envConfig;
     private GrootStreamConfig grootStreamConfig;
     private StreamExecutionEnvironment environment;
+    private String jobName = Constants.DEFAULT_JOB_NAME;
 
     private JobRuntimeEnvironment(Config config, GrootStreamConfig grootStreamConfig) {
         this.grootStreamConfig = grootStreamConfig;
@@ -45,25 +45,40 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
     }
 
     @Override
-    public RuntimeEnvironment setConfig(Config appConfig) {
-        this.appConfig = appConfig;
+    public RuntimeEnvironment setEnvConfig(Config envConfig) {
+        this.envConfig = envConfig;
         return this;
     }
 
     @Override
-    public Config getConfig() {
-        return appConfig;
+    public Config getEnvConfig() {
+        return envConfig;
     }
 
     @Override
     public CheckResult checkConfig() {
-        return EnvironmentUtil.checkRestartStrategy(appConfig);
+        return EnvironmentUtil.checkRestartStrategy(envConfig);
     }
+
 
     @Override
     public RuntimeEnvironment prepare() {
         createStreamEnvironment();
+        if (envConfig.hasPath(Constants.JOB_NAME)) {
+            jobName = envConfig.getString(Constants.JOB_NAME);
+        }
         return this;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+
+
+    public boolean isLocalMode() {
+        return envConfig.hasPath(ExecutionConfigKeyName.ENV_TARGET_TYPE)
+                && envConfig.getString(ExecutionConfigKeyName.ENV_TARGET_TYPE).equals(TargetType.LOCAL.getTarget());
     }
 
     @Override
@@ -103,10 +118,8 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
     private void createStreamEnvironment() {
 
         Configuration configuration = new Configuration();
-        EnvironmentUtil.initConfiguration(appConfig, configuration);
-        Config envConfig = appConfig.getConfig(Constants.APPLICATION_ENV);
-        if (envConfig.hasPath(ExecutionConfigKey.ENV_TARGET_TYPE)
-                && envConfig.getString(ExecutionConfigKey.ENV_TARGET_TYPE).equals(TargetType.LOCAL.getTarget())) {
+        EnvironmentUtil.initConfiguration(envConfig, configuration);
+        if (isLocalMode()) {
             configuration.setInteger(RestOptions.PORT, 8082);
             environment  = StreamExecutionEnvironment.createLocalEnvironmentWithWebUI(configuration);
         } else {
@@ -114,26 +127,25 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         }
         configuration.setString(Constants.SYSPROP_UDF_PLUGIN_CONFIG, JSON.toJSONString(grootStreamConfig.getUDFPluginConfig()));
         configuration.setString(Constants.SYSPROP_GROOTSTREAM_CONFIG, JSON.toJSONString(grootStreamConfig.getCommonConfig()));
-        environment.getConfig().enableObjectReuse();
         environment.getConfig().setGlobalJobParameters(configuration);
         setTimeCharacteristic();
         // setCheckpoint();
-        EnvironmentUtil.setRestartStrategy(appConfig, environment.getConfig());
-        if (envConfig.hasPath(ExecutionConfigKey.BUFFER_TIMEOUT_MILLIS)) {
-            long timeout = envConfig.getLong(ExecutionConfigKey.BUFFER_TIMEOUT_MILLIS);
+        EnvironmentUtil.setRestartStrategy(envConfig, environment.getConfig());
+        if (envConfig.hasPath(ExecutionConfigKeyName.BUFFER_TIMEOUT_MILLIS)) {
+            long timeout = envConfig.getLong(ExecutionConfigKeyName.BUFFER_TIMEOUT_MILLIS);
             environment.setBufferTimeout(timeout);
         }
 
-        if (envConfig.hasPath(ExecutionConfigKey.PARALLELISM)) {
-            int parallelism = envConfig.getInt(ExecutionConfigKey.PARALLELISM);
+        if (envConfig.hasPath(ExecutionConfigKeyName.PARALLELISM)) {
+            int parallelism = envConfig.getInt(ExecutionConfigKeyName.PARALLELISM);
             environment.setParallelism(parallelism);
         }
 
     }
 
     private void setTimeCharacteristic() {
-        if (appConfig.hasPath(ExecutionConfigKey.TIME_CHARACTERISTIC)) {
-            String timeType = appConfig.getString(ExecutionConfigKey.TIME_CHARACTERISTIC);
+        if (envConfig.hasPath(ExecutionConfigKeyName.TIME_CHARACTERISTIC)) {
+            String timeType = envConfig.getString(ExecutionConfigKeyName.TIME_CHARACTERISTIC);
             switch (timeType.toLowerCase()) {
                 case "event-time":
                     environment.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);

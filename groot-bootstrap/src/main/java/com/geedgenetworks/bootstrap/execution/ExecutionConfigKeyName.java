@@ -1,13 +1,13 @@
 package com.geedgenetworks.bootstrap.execution;
 
-public class ExecutionConfigKey {
-    private ExecutionConfigKey() {
-        throw new UnsupportedOperationException("ExecutionConfigKey is a utility class and cannot be instantiated");
+public class ExecutionConfigKeyName {
+    private ExecutionConfigKeyName() {
+        throw new UnsupportedOperationException("Utility class should not be instantiated");
     }
 
     public static final String TIME_CHARACTERISTIC = "execution.time-characteristic";
     public static final String BUFFER_TIMEOUT_MILLIS = "execution.buffer.timeout";
-    public static final String PARALLELISM = "execution.parallelism";
+    public static final String PARALLELISM = "parallelism";
     public static final String MAX_PARALLELISM = "execution.max-parallelism";
     public static final String CHECKPOINT_MODE = "execution.checkpoint.mode";
     public static final String CHECKPOINT_TIMEOUT = "execution.checkpoint.timeout";
