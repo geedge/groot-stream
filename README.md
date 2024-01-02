@@ -75,6 +75,7 @@ ls -lh groot-stream-${version}
 6. Click the `Run` button.
 
 #### Running the CLI
+relate to [User Guide](docs/user-guide.md)
 - Run the following command to start the groot-stream server for Standalone Mode:
 ```shell
 cd "groot-stream-${version}"

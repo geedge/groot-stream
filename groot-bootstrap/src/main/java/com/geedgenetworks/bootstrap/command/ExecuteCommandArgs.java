@@ -26,6 +26,7 @@ public class ExecuteCommandArgs extends CommandArgs {
     @Parameter(
             names = {"--target"},
             converter = TargetTypeConverter.class,
+            required = true,
             description =
                     "job submitted target type, support [local, remote, yarn-session, yarn-per-job]")
     private TargetType targetType;
