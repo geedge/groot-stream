@@ -14,9 +14,7 @@ import com.ecwid.consul.v1.agent.model.NewService;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.StandardSocketOptions;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
@@ -28,101 +26,64 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class UDPSource extends RichParallelSourceFunction<byte[]> {
-    private static final Log logger = LogFactory.get();
+    private static final Log LOG = LogFactory.get();
 
-    private static ScheduledExecutorService executorService;
     private final int initialPort;
-    private final int maxAttempts;
     private final int bufferSize;
     private final int receiveBuffer;
-    private final String serviceName;
+    private final Properties serviceDiscoveryProperties;
     private int currentPort;
     private String serverIp;
-    private final int registryMode;
-    private final Integer healthCheckInterval;
-    private final String nacosServerAddr;
-    private final String nacosUsername;
-    private final String nacosPassword;
-    private final String nacosNamespace;
-    private final String nacosGroup;
-    private final String consulServerAddr;
-    private final Integer consulServerPort;
-    private final String consulToken;
-    private transient DatagramChannel channel;
-    private transient NamingService namingService;
-    private transient ConsulClient consulClient;
-    private transient boolean stop;
+    private DatagramChannel channel;
+    private NamingService namingService;
+    private ConsulClient consulClient;
+    private volatile boolean stop;
+    private ScheduledExecutorService executorService;
 
-    public UDPSource(int initialPort, int maxAttempts, int bufferSize, int receiveBuffer, Properties serviceDiscoveryProperties) {
+    public UDPSource(int initialPort, int bufferSize, int receiveBuffer, Properties serviceDiscoveryProperties) {
         this.initialPort = initialPort;
         this.bufferSize = bufferSize;
-        this.maxAttempts = maxAttempts;
         this.receiveBuffer = receiveBuffer;
-        this.registryMode = Integer.parseInt(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_REGISTRY_MODE.key())));
-        this.serviceName = registryMode == 0 || registryMode == 1 ? String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_SERVICE_NAME.key())) : null;
-        this.healthCheckInterval = registryMode == 0 || registryMode == 1 ? Integer.parseInt(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_HEALTH_CHECK_INTERVAL.key()))) : null;
-        this.nacosServerAddr = registryMode == 0 ? String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_NACOS_SERVER_ADDR.key())) : null;
-        this.nacosUsername = registryMode == 0 ? String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_NACOS_USERNAME.key())) : null;
-        this.nacosPassword = registryMode == 0 ? String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_NACOS_PASSWORD.key())) : null;
-        this.nacosNamespace = registryMode == 0 ? String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_NACOS_NAMESPACE.key())) : null;
-        this.nacosGroup = registryMode == 0 ? String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_NACOS_GROUP.key())) : null;
-        this.consulServerAddr = registryMode == 1 ? String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_SERVER_ADDR.key())) : null;
-        this.consulServerPort = registryMode == 1 ? Integer.parseInt(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_SERVER_PORT.key()))) : null;
-        this.consulToken = registryMode == 1 ? String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_TOKEN.key())) : null;
+        this.serviceDiscoveryProperties = serviceDiscoveryProperties;
     }
 
     @Override
-    public void run(SourceContext<byte[]> ctx) {
-        try {
-            executorService = Executors.newScheduledThreadPool(maxAttempts);
-            channel = DatagramChannel.open();
-            channel.setOption(StandardSocketOptions.SO_RCVBUF, receiveBuffer);
-            channel.configureBlocking(false);
-            Selector selector = Selector.open();
-            currentPort = initialPort;
-            int attempt = 1;
-            while (attempt <= maxAttempts) {
-                try {
-                    channel.bind(new InetSocketAddress(currentPort));
-                    channel.register(selector, SelectionKey.OP_READ);
-                    serverIp = InetAddress.getLocalHost().getHostAddress();
-                    registerInstance(serverIp, currentPort);
-                    break;
-                } catch (IOException e) {
-                    if (e.getMessage().contains("Address already in use")) {
-                        logger.info("端口 " + currentPort + " 已被占用");
-                        currentPort++;
-                        attempt++;
-                    } else {
-                        logger.error(e.toString(), e);
-                        channel = null;
-                        break;
-                    }
-                } catch (NacosException e) {
-                    logger.error(e.toString(), e);
-                    channel = null;
-                }
+    public void run(SourceContext<byte[]> ctx) throws IOException, NacosException {
+        executorService = Executors.newScheduledThreadPool(1);
+        channel = DatagramChannel.open();
+        channel.setOption(StandardSocketOptions.SO_RCVBUF, receiveBuffer);
+        channel.configureBlocking(false);
+        Selector selector = Selector.open();
+        currentPort = initialPort;
+        boolean portAvailable = false;
+        while (!portAvailable) {
+            try {
+                channel.bind(new InetSocketAddress(currentPort));
+                portAvailable = true;
+            } catch (BindException e) {
+                currentPort++;
             }
-            ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
-            while (!stop) {
-                selector.select();
-                Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
-                while (keyIterator.hasNext()) {
-                    SelectionKey selectionKey = keyIterator.next();
-                    if (selectionKey.isReadable()) {
-                        DatagramChannel currentDatagramChannel = (DatagramChannel) selectionKey.channel();
-                        currentDatagramChannel.receive(buffer);
-                        buffer.flip();
-                        byte[] data = new byte[buffer.remaining()];
-                        buffer.get(data);
-                        ctx.collect(data);
-                        buffer.clear();
-                    }
-                    keyIterator.remove();
+        }
+        channel.register(selector, SelectionKey.OP_READ);
+        serverIp = InetAddress.getLocalHost().getHostAddress();
+        registerInstance(serverIp, currentPort);
+        ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+        while (!stop) {
+            selector.select();
+            Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
+            while (keyIterator.hasNext()) {
+                SelectionKey selectionKey = keyIterator.next();
+                if (selectionKey.isReadable()) {
+                    DatagramChannel currentDatagramChannel = (DatagramChannel) selectionKey.channel();
+                    currentDatagramChannel.receive(buffer);
+                    buffer.flip();
+                    byte[] data = new byte[buffer.remaining()];
+                    buffer.get(data);
+                    ctx.collect(data);
+                    buffer.clear();
                 }
+                keyIterator.remove();
             }
-        } catch (Exception e) {
-            logger.error(e.toString(), e);
         }
     }
 
@@ -135,12 +96,16 @@ public class UDPSource extends RichParallelSourceFunction<byte[]> {
     }
 
     private void registerInstance(String ip, int port) throws NacosException {
+        int registryMode = Integer.parseInt(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_REGISTRY_MODE.key())));
+        String serviceName = String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_SERVICE_NAME.key()));
+        int healthCheckInterval = Integer.parseInt(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_HEALTH_CHECK_INTERVAL.key())));
         if (registryMode == 0) {
+            String nacosGroup = String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_NACOS_GROUP.key()));
             Properties properties = new Properties();
-            properties.put(PropertyKeyConst.SERVER_ADDR, nacosServerAddr);
-            properties.put(PropertyKeyConst.USERNAME, nacosUsername);
-            properties.put(PropertyKeyConst.PASSWORD, nacosPassword);
-            properties.put(PropertyKeyConst.NAMESPACE, nacosNamespace);
+            properties.put(PropertyKeyConst.SERVER_ADDR, String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_NACOS_SERVER_ADDR.key())));
+            properties.put(PropertyKeyConst.USERNAME, String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_NACOS_USERNAME.key())));
+            properties.put(PropertyKeyConst.PASSWORD, String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_NACOS_PASSWORD.key())));
+            properties.put(PropertyKeyConst.NAMESPACE, String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_NACOS_NAMESPACE.key())));
             namingService = NamingFactory.createNamingService(properties);
             Instance instance = new Instance();
             instance.setIp(ip);
@@ -151,11 +116,12 @@ public class UDPSource extends RichParallelSourceFunction<byte[]> {
                 try {
                     namingService.registerInstance(serviceName, nacosGroup, instance);
                 } catch (NacosException e) {
-                    logger.error("nacos check instance healthy error.", e);
+                    LOG.error("nacos check instance healthy error.", e);
                 }
             }, 0, healthCheckInterval, TimeUnit.SECONDS);
         } else if (registryMode == 1) {
-            consulClient = new ConsulClient(consulServerAddr, consulServerPort);
+            String consulToken = String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_TOKEN.key()));
+            consulClient = new ConsulClient(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_SERVER_ADDR.key())), Integer.parseInt(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_SERVER_PORT.key()))));
             NewService newService = new NewService();
             newService.setName(serviceName);
             newService.setId(ip + ":" + port);
@@ -176,17 +142,19 @@ public class UDPSource extends RichParallelSourceFunction<byte[]> {
 
     private void deregisterInstance(String ip, int port) {
         try {
+            int registryMode = Integer.parseInt(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_REGISTRY_MODE.key())));
             if (registryMode == 0) {
                 Instance instance = new Instance();
                 instance.setIp(ip);
                 instance.setPort(port);
                 instance.setEphemeral(true);
-                namingService.deregisterInstance(serviceName, nacosGroup, instance);
+                namingService.deregisterInstance(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_SERVICE_NAME.key())), String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_NACOS_GROUP.key())), instance);
             } else if (registryMode == 1) {
-                consulClient.agentServiceDeregister(ip + ":" + port, consulToken);
+                consulClient.agentServiceDeregister(ip + ":" + port, String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_TOKEN.key())));
             }
-        } catch (Exception e) {
-            logger.error(e.toString(), e);
+        } catch (NacosException e) {
+            LOG.error(e.toString(), e);
         }
     }
+
 }

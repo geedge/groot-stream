@@ -17,11 +17,6 @@ public class IPFixConnectorOptions {
                     .defaultValue(1)
                     .withDescription("Number of ports of the IPFix server.");
 
-    public static final ConfigOption<Integer> MAX_ATTEMPTS =
-            ConfigOptions.key("max.attempts")
-                    .intType()
-                    .defaultValue(1);
-
     public static final ConfigOption<Integer> BUFFER_SIZE =
             ConfigOptions.key("buffer.size")
                     .intType()
@@ -53,17 +48,17 @@ public class IPFixConnectorOptions {
     public static final ConfigOption<String> SERVICE_DISCOVERY_NACOS_SERVER_ADDR =
             ConfigOptions.key("service.discovery.nacos.server.addr")
                     .stringType()
-                    .noDefaultValue();
+                    .defaultValue("127.0.0.1:8848");
 
     public static final ConfigOption<String> SERVICE_DISCOVERY_NACOS_USERNAME =
             ConfigOptions.key("service.discovery.nacos.username")
                     .stringType()
-                    .defaultValue("");
+                    .defaultValue("nacos");
 
     public static final ConfigOption<String> SERVICE_DISCOVERY_NACOS_PASSWORD =
             ConfigOptions.key("service.discovery.nacos.password")
                     .stringType()
-                    .defaultValue("");
+                    .defaultValue("nacos");
 
     public static final ConfigOption<String> SERVICE_DISCOVERY_NACOS_NAMESPACE =
             ConfigOptions.key("service.discovery.nacos.namespace")
@@ -78,12 +73,12 @@ public class IPFixConnectorOptions {
     public static final ConfigOption<String> SERVICE_DISCOVERY_CONSUL_SERVER_ADDR =
             ConfigOptions.key("service.discovery.consul.server.addr")
                     .stringType()
-                    .noDefaultValue();
+                    .defaultValue("127.0.0.1");
 
     public static final ConfigOption<Integer> SERVICE_DISCOVERY_CONSUL_SERVER_PORT =
             ConfigOptions.key("service.discovery.consul.server.port")
                     .intType()
-                    .noDefaultValue();
+                    .defaultValue(8500);
 
     public static final ConfigOption<String> SERVICE_DISCOVERY_CONSUL_TOKEN =
             ConfigOptions.key("service.discovery.consul.token")

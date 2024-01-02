@@ -1,18 +1,17 @@
-package com.geedgenetworks.core.pojo.ipfix;
+package com.geedgenetworks.connectors.ipfix.collector.pojo;
 
-public class Record {
+import com.alibaba.fastjson2.annotation.JSONField;
+
+public class Element {
     private int enterpriseId;
+    @JSONField(name = "element_name")
     private String name;
+    @JSONField(name = "element_type")
     private String dataType;
+    @JSONField(name = "element_id")
     private int elementId;
 
-    public Record() {}
-
-    public Record(int enterpriseId, String name, String dataType, int elementId) {
-        this.enterpriseId = enterpriseId;
-        this.name = name;
-        this.dataType = dataType;
-        this.elementId = elementId;
+    public Element() {
     }
 
     public int getEnterpriseId() {
@@ -62,4 +61,5 @@ public class Record {
                 + elementId
                 + '}';
     }
+
 }

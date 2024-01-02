@@ -45,7 +45,6 @@ sources:
     properties:
       initial.port: 12345
       port.number: 3
-      max.attempts: 3
       buffer.size: 65535
       receive.buffer: 104857600
       service.discovery.registry.mode: 0 # 0为nacos，1为consul，其他值为不使用服务发现，默认为0
