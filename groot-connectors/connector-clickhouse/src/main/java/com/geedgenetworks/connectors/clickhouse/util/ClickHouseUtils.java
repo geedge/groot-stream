@@ -13,6 +13,7 @@ import com.github.housepower.misc.BytesCharSeq;
 import com.github.housepower.misc.DateTimeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +27,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class ClickHouseUtils {
     static final Logger LOG = LoggerFactory.getLogger(ClickHouseUtils.class);
+    static final Pattern VALUES_REGEX = Pattern.compile("[Vv][Aa][Ll][Uu][Ee][Ss]\\s*\\(");
     static final byte[] EMPTY_BYTES = new byte[0];
     public static final BytesCharSeq EMPTY_BYTES_CHAR_SEQ = new BytesCharSeq(EMPTY_BYTES);
     private static Field blockColumnsField;
@@ -74,13 +78,11 @@ public class ClickHouseUtils {
     public static String genePreparedInsertSql(String table, String[] columnNames) {
         StringBuilder sb = new StringBuilder("insert into ");
         sb.append(table).append("(");
+        //sb.append(String.join(",", Arrays.stream(columnNames).map(x -> "`" + x +"`").collect(Collectors.toList())));
         sb.append(String.join(",", columnNames));
         sb.append(")");
         sb.append(" values(");
-        sb.append(
-                String.join(
-                        ",",
-                        Arrays.stream(columnNames).map(x -> "?").collect(Collectors.toList())));
+        sb.append(String.join(",", Arrays.stream(columnNames).map(x -> "?").collect(Collectors.toList())));
         sb.append(")");
         return sb.toString();
     }
@@ -96,9 +98,7 @@ public class ClickHouseUtils {
             Statement stmt = null;
             ResultSet rst = null;
             try {
-                connection =
-                        (ClickHouseConnection)
-                                DriverManager.getConnection(urls[urlIndex], connInfo);
+                connection = (ClickHouseConnection) DriverManager.getConnection(urls[urlIndex], connInfo);
                 stmt = connection.createStatement();
                 rst = stmt.executeQuery("desc " + table);
 
@@ -119,10 +119,7 @@ public class ClickHouseUtils {
                     Object defaultValue = parseDefaultValue(type, defaultExpression); // 只解析数字和字符串
                     if (defaultValue == null && !type.nullable()) {
                         if (type instanceof DataTypeArray) {
-                            defaultValue =
-                                    new ClickHouseArray(
-                                            ((DataTypeArray) type).getElemDataType(),
-                                            new Object[0]);
+                            defaultValue = new ClickHouseArray(((DataTypeArray) type).getElemDataType(), new Object[0]);
                         } else {
                             defaultValue = type.defaultValue();
                         }
@@ -131,9 +128,7 @@ public class ClickHouseUtils {
                     columnDefaultValues.add(defaultValue);
                 }
 
-                return new Tuple2<>(
-                        columnNames.toArray(new String[columnNames.size()]),
-                        columnDefaultValues.toArray(new Object[columnDefaultValues.size()]));
+                return new Tuple2<>(columnNames.toArray(new String[columnNames.size()]), columnDefaultValues.toArray(new Object[columnDefaultValues.size()]));
             } catch (SQLException e) {
                 LOG.error("ClickHouse Connection Exception url:" + urls[urlIndex], e);
                 if (retryCount >= 3) {
@@ -157,8 +152,7 @@ public class ClickHouseUtils {
         }
     }
 
-    public static ZoneId chooseTimeZone(String[] urls, int urlIndex, Properties connInfo)
-            throws Exception {
+    public static ZoneId chooseTimeZone(String[] urls, int urlIndex, Properties connInfo) throws Exception {
         Class.forName("com.github.housepower.jdbc.ClickHouseDriver");
 
         int retryCount = 0;
@@ -167,9 +161,7 @@ public class ClickHouseUtils {
             Connection connection = null;
             try {
                 connection = DriverManager.getConnection(urls[urlIndex], connInfo);
-                ZoneId tz =
-                        DateTimeUtil.chooseTimeZone(
-                                ((ClickHouseConnection) connection).serverContext());
+                ZoneId tz = DateTimeUtil.chooseTimeZone(((ClickHouseConnection) connection).serverContext());
                 return tz;
             } catch (SQLException e) {
                 LOG.error("ClickHouse Connection Exception url:" + urls[urlIndex], e);
@@ -188,15 +180,23 @@ public class ClickHouseUtils {
         }
     }
 
-    public static Block getInsertBlockForTable(
-            String[] urls, int urlIndex, Properties connInfo, String table) throws Exception {
+    public static Block getInsertBlockForTable(String[] urls, int urlIndex, Properties connInfo, String table) throws Exception {
         String sql = "insert into " + table + " values";
         return getInsertBlockForSql(urls, urlIndex, connInfo, sql);
     }
 
-    public static Block getInsertBlockForSql(
-            String[] urls, int urlIndex, Properties connInfo, String sql) throws Exception {
+    public static Block getInsertBlockForSql(String[] urls, int urlIndex, Properties connInfo, String sql) throws Exception {
         Class.forName("com.github.housepower.jdbc.ClickHouseDriver");
+
+        String insertQuery;
+        if (sql.trim().toLowerCase().endsWith("values")) {
+            insertQuery = sql;
+        } else {
+            Matcher matcher = VALUES_REGEX.matcher(sql);
+            Preconditions.checkArgument(matcher.find(), "insert sql syntax error:%s", sql);
+            insertQuery = sql.substring(0,  matcher.end() - 1);
+        }
+        LOG.warn("getInsertBlock insertQuery:{}.", insertQuery);
 
         int retryCount = 0;
         while (true) {
@@ -204,7 +204,7 @@ public class ClickHouseUtils {
             Connection connection = null;
             try {
                 connection = DriverManager.getConnection(urls[urlIndex], connInfo);
-                Block block = ((ClickHouseConnection) connection).getSampleBlock(sql);
+                Block block = ((ClickHouseConnection) connection).getSampleBlock(insertQuery);
                 return block;
             } catch (SQLException e) {
                 LOG.error("ClickHouse getInsertBlock Exception url:" + urls[urlIndex], e);

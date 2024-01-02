@@ -48,12 +48,10 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     public static long UINT32_MAX = (1L << 32) - 1;
     // 标准日期时间格式，精确到秒：yyyy-MM-dd HH:mm:ss
     public static final String NORM_DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
-    public static final DateTimeFormatter NORM_DATETIME_FORMATTER =
-            DateTimeFormatter.ofPattern(NORM_DATETIME_PATTERN);
+    public static final DateTimeFormatter NORM_DATETIME_FORMATTER = DateTimeFormatter.ofPattern(NORM_DATETIME_PATTERN);
     // 标准日期时间格式，精确到毫秒：yyyy-MM-dd HH:mm:ss.SSS
     public static final String NORM_DATETIME_MS_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
-    public static final DateTimeFormatter NORM_DATETIME_MS_FORMATTER =
-            DateTimeFormatter.ofPattern(NORM_DATETIME_MS_PATTERN);
+    public static final DateTimeFormatter NORM_DATETIME_MS_FORMATTER = DateTimeFormatter.ofPattern(NORM_DATETIME_MS_PATTERN);
     private int batchSize;
     private long batchIntervalMs;
     private transient boolean closed;
@@ -133,20 +131,14 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         urlIndex = getRuntimeContext().getIndexOfThisSubtask() % urls.length;
 
         // 获取要插入的列信息
-        Tuple2<String[], Object[]> columnsAndDefaultValues =
-                ClickHouseUtils.getInsertColumnsAndDefaultValuesForTable(
-                        urls, urlIndex, connInfo, table);
+        Tuple2<String[], Object[]> columnsAndDefaultValues = ClickHouseUtils.getInsertColumnsAndDefaultValuesForTable( urls, urlIndex, connInfo, table);
         columnNames = columnsAndDefaultValues.f0;
         columnDefaultValues = columnsAndDefaultValues.f1;
         insertSql = ClickHouseUtils.genePreparedInsertSql(this.table, this.columnNames);
 
         LOG.warn("insertColumnsCount:" + columnNames.length);
         LOG.warn("insertColumns:" + String.join(",", columnNames));
-        LOG.warn(
-                "insertColumnDefaultValues:"
-                        + IntStream.range(0, columnNames.length)
-                                .mapToObj(i -> columnNames[i] + ":" + columnDefaultValues[i])
-                                .collect(Collectors.joining(",")));
+        LOG.warn("insertColumnDefaultValues:" + IntStream.range(0, columnNames.length).mapToObj(i -> columnNames[i] + ":" + columnDefaultValues[i]).collect(Collectors.joining(",")));
         LOG.warn("insertSql:" + insertSql);
 
         // 获取时区用于解析DateTime类型
@@ -164,7 +156,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         for (int i = 0; i < columnNames.length; i++) {
             IColumn column = block.getColumn(i);
             columnTypes[i] = column.type();
-            assert columnNames[i] == column.name();
+            assert columnNames[i].equals(column.name());
 
             if (column.type() instanceof DataTypeString
                     || column.type() instanceof DataTypeFixedString) {
@@ -172,10 +164,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                     columnDefaultValues[i] = ClickHouseUtils.EMPTY_BYTES_CHAR_SEQ;
                 } else {
                     columnDefaultValues[i] =
-                            new BytesCharSeq(
-                                    (columnDefaultValues[i]
-                                            .toString()
-                                            .getBytes(StandardCharsets.UTF_8)));
+                            new BytesCharSeq((columnDefaultValues[i].toString().getBytes(StandardCharsets.UTF_8)));
                 }
             }
 
@@ -186,8 +175,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
             }
         }
 
-        columnConverters =
-                Arrays.stream(columnTypes).map(this::makeConverter).toArray(ValueConverter[]::new);
+        columnConverters = Arrays.stream(columnTypes).map(this::makeConverter).toArray(ValueConverter[]::new);
 
         // 从block复制block
         block = ClickHouseUtils.newInsertBlockFrom(block);
@@ -274,7 +262,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 ClickHouseUtils.copyInsertBlockColumns(block, stmt.getBlock());
                 stmt.executeBatch();
 
-                LOG.warn("flush " + rowCnt + " end:" + new java.sql.Timestamp(System.currentTimeMillis()) + "," + (System.currentTimeMillis() - start));
+                LOG.warn("flush " + rowCnt + " end:" + new Timestamp(System.currentTimeMillis()) + "," + (System.currentTimeMillis() - start));
 
                 return;
             } catch (Exception e) {
@@ -333,9 +321,12 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
             if (lock != null) {
                 lock.lock();
                 try {
-                    if (batch.rowCnt() > 0) {
+                    // batch init中可能抛出异常
+                    if (batch != null && batch.rowCnt() > 0) {
                         doFlushAndResetBlock(batch, false);
                     }
+                    // 缓存的Block不用归还释放列IColumn申请的ColumnWriterBuffer，会被gc。
+                    // ConcurrentLinkedDeque<ColumnWriterBuffer> stack 缓存池没有记录列表总大小，使用大小等信息，没限制列表大小。不归还ColumnWriterBuffer没问题。
                 } catch (Exception e) {
                     flushException = e;
                 } finally {
