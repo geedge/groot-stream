@@ -21,11 +21,13 @@ Note: The parallelism of a job can be overridden by explicitly configuring the p
 This parameter is used to enable/disable object reuse for the execution of the job. If it is not specified, the default value is `false`.
 
 ### jars
+Third-party jars can be loaded via `jars`, by using `jars="file://local/jar1.jar;file://local/jar2.jar"`.
 
 ### pipeline.jars
+Specify a list of jar URLs via `pipeline.jars`, The jars are separated by `;` and will be uploaded to the flink cluster.
 
 ### pipeline.classpaths
-
+Specify a list of classpath URLs via `pipeline.classpaths`, The classpaths are separated by `;` and will be added to the classpath of the flink cluster.
 
 ## Engine Parameter
 
