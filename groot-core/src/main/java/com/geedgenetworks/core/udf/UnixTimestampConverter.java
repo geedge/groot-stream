@@ -21,8 +21,13 @@ public class UnixTimestampConverter implements UDF {
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
         this.udfContext = udfContext;
-
+        if(udfContext.getLookup_fields()==null || udfContext.getOutput_fields()==null || udfContext.getParameters() == null){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
+        }
         if(udfContext.getOutput_fields().size() != 1){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
+        }
+        if(udfContext.getLookup_fields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
         if(udfContext.getParameters() == null){

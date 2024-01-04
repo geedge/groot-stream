@@ -15,14 +15,15 @@ public class JsonExtract implements UDF {
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
+
+        if(udfContext.getLookup_fields()==null || udfContext.getOutput_fields()==null || udfContext.getParameters() == null){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
+        }
         if(udfContext.getLookup_fields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
         }
         if(udfContext.getOutput_fields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
-        }
-        if(udfContext.getParameters() == null){
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function must contain parameters");
         }
         if(!udfContext.getParameters().containsKey("value_expression")){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey value_expression");

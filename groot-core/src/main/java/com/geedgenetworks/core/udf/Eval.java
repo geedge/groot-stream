@@ -1,5 +1,7 @@
 package com.geedgenetworks.core.udf;
 
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.expressions.Calc;
 import com.geedgenetworks.core.expressions.codegen.CalcCodeConvertor;
 import com.geedgenetworks.core.pojo.Event;
@@ -17,6 +19,13 @@ public class Eval implements UDF {
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
+
+        if(udfContext.getOutput_fields()==null || udfContext.getParameters() == null){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
+        }
+        if(!udfContext.getParameters().containsKey("value_expression")){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey value_expression");
+        }
         String expr = (String) udfContext.getParameters().get("value_expression");
         List<String> outputField = udfContext.getOutput_fields();
         output = outputField.get(0);
