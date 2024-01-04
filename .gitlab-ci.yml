@@ -1,0 +1,43 @@
+image: 192.168.40.153:9080/common/maven:3.8.2-jdk-8-slim
+
+variables:
+  MAVEN_CLI_OPTS: --batch-mode --errors --show-version
+  SONAR_HOST_URL: http://192.168.40.153:9900
+  SONAR_PROJECT_KEY: groot-stream
+
+stages:
+  - test
+  - build
+  - deploy
+
+# 代码测试
+test:
+  stage: test
+  script:
+    - echo "$MAVEN_SETTINGS_XML" > /usr/share/maven/conf/settings.xml
+    - mvn $MAVEN_CLI_OPTS clean test
+  only:
+    - merge_requests
+
+# 构建。一般用于构建 develop 分支上的 snapshot 版本。
+build:
+  stage: build
+  script:
+    - echo "$MAVEN_SETTINGS_XML" > /usr/share/maven/conf/settings.xml
+    - mvn $MAVEN_CLI_OPTS enforcer:enforce@snapshot-version-check
+    - mvn $MAVEN_CLI_OPTS clean site deploy -DskipTests
+  only:
+    - develop
+
+# 发布。用于发布候选版本，正式版本以及修订版等 release 版本。
+deploy:
+  stage: deploy
+  script:
+    - echo "$MAVEN_SETTINGS_XML" > /usr/share/maven/conf/settings.xml
+    - mvn $MAVEN_CLI_OPTS enforcer:enforce@release-version-check
+    - |-
+      mvn $MAVEN_CLI_OPTS clean verify sonar:sonar sonar-quality-gate:check -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+      -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN_TOKEN
+    - mvn $MAVEN_CLI_OPTS clean site deploy -DskipTests
+  only:
+    - tags
