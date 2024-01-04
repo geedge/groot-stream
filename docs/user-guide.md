@@ -21,9 +21,6 @@ sources:
         type: string
       - name: decoded_as
         type: string
-    # watermark_timestamp: recv_time # [string] Watermark Field Name
-    # watermark_timestamp_unit: s # [string] Watermark Field Unit
-    # watermark_lag: 60 # [number] Watermark Lag
     properties:
       data: '{"log_id": 1, "recv_time":"111","fqdn_string":"baidu.com", "client_ip":"192.168.0.1","server_ip":"120.233.20.242","decoded_as":"BASE"}'
       format: json

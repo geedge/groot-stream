@@ -77,52 +77,10 @@ public class SourceExecuteProcessor extends AbstractExecuteProcessor<String, Sou
             if (node.getParallelism() > 0) {
                 sourceSingleOutputStreamOperator.setParallelism(node.getParallelism());
             }
-            sourceSingleOutputStreamOperator = setWatermarkIfNecessary(sourceSingleOutputStreamOperator, sourceConfig, node);
             return sourceSingleOutputStreamOperator.name(sourceConfig.getName());
         } catch (Exception e) {
             throw new JobExecuteException("create source operator error", e);
         }
-    }
-
-    private SingleOutputStreamOperator<Event> setWatermarkIfNecessary(SingleOutputStreamOperator<Event> dataStream, SourceConfig sourceConfig, Node node){
-        final String watermarkTimestamp = sourceConfig.getWatermark_timestamp();
-        if(StringUtils.isNotBlank(watermarkTimestamp)){
-            String timestampUnit = sourceConfig.getWatermark_timestamp_unit();
-            Long watermarkLag = sourceConfig.getWatermark_lag();
-            if(watermarkLag == null || watermarkLag < 0){
-                throw new ConfigCheckException("非法的watermarkLag:" + watermarkLag);
-            }
-            SerializableTimestampAssigner<Event> timestampAssigner;
-            if("ms".equals(timestampUnit)){
-                timestampAssigner = (event, timestamp) -> {
-                    Object ms = event.getExtractedFields().get(watermarkTimestamp);
-                    if(ms instanceof Number){
-                        return ((Number) ms).longValue();
-                    }else{
-                        return Long.parseLong(ms.toString());
-                    }
-                };
-            } else if ("s".equals(timestampUnit)) {
-                timestampAssigner = (event, timestamp) -> {
-                    Object s = event.getExtractedFields().get(watermarkTimestamp);
-                    if(s instanceof Number){
-                        return ((Number) s).longValue() * 1000;
-                    }else{
-                        return Long.parseLong(s.toString()) * 1000;
-                    }
-                };
-            }else{
-                throw new ConfigCheckException("不支持的timestamp_unit:" + timestampUnit);
-            }
-
-            dataStream = dataStream.assignTimestampsAndWatermarks(
-                    WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ofMillis(watermarkLag))
-                            .withTimestampAssigner(timestampAssigner));
-            if (node.getParallelism() > 0) {
-                dataStream.setParallelism(node.getParallelism());
-            }
-        }
-        return dataStream;
     }
 
     private void checkSourceConfig(SourceConfig sourceConfig) {

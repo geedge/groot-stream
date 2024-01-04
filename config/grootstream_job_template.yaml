@@ -2,9 +2,6 @@ sources:
   kafka_source:
     type : kafka
     # fields: # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
-    # watermark_timestamp: common_recv_time # [string] Watermark Field Name
-    # watermark_timestamp_unit: ms # [string] Watermark Unit, default is ms
-    # watermark_lag: 60 # [number] Watermark Lag, default is 60
     properties: # [object] Source Properties
       topic:  SESSION-RECORD
       kafka.bootstrap.servers: 192.168.44.11:9092
@@ -29,9 +26,6 @@ sources:
   inline_source:
     type : inline
     fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
-    # watermark_timestamp: recv_time
-    # watermark_timestamp_unit: s
-    # watermark_lag: 60
     properties:
       data:  '{"log_id": 1, "recv_time":"111", "client_ip":"192.168.0.1","server_ip":"120.233.20.242","common_schema_type":"BASE"}'
       format: json

@@ -9,8 +9,10 @@ import com.geedgenetworks.core.types.StructType;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
+import org.apache.flink.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,8 +38,9 @@ public class InlineTableFactory implements SourceTableFactory {
         ReadableConfig config = context.getConfiguration();
 
         String data = config.get(DATA);
+        String type = config.get(TYPE);
 
-        return new InlineSourceProvider(physicalDataType, decodingFormat, data.getBytes(StandardCharsets.UTF_8));
+        return new InlineSourceProvider(physicalDataType, decodingFormat, getDataBytes(data, type));
     }
 
     @Override
@@ -51,12 +54,33 @@ public class InlineTableFactory implements SourceTableFactory {
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
+        options.add(TYPE);
         return options;
     }
 
+    byte[] getDataBytes(String data, String type){
+        if(DATA_TYPE_STRING.equalsIgnoreCase(type)){
+            return data.getBytes(StandardCharsets.UTF_8);
+        } else if (DATA_TYPE_HEX.equalsIgnoreCase(type)){
+            return StringUtils.hexStringToByte(data);
+        } else if (DATA_TYPE_BASE64.equalsIgnoreCase(type)) {
+            return Base64.getDecoder().decode(data.getBytes(StandardCharsets.UTF_8));
+        }else{
+            throw new IllegalArgumentException("Unsupported type:" + type);
+        }
+    }
+
+    final static String DATA_TYPE_STRING = "string";
+    final static String DATA_TYPE_HEX = "hex";
+    final static String DATA_TYPE_BASE64 = "base64";
     public static final ConfigOption<String> DATA =
             ConfigOptions.key("data")
                     .stringType()
                     .noDefaultValue()
                     .withDescription("inline source的输入数据");
+    public static final ConfigOption<String> TYPE =
+            ConfigOptions.key("type")
+                    .stringType()
+                    .defaultValue(DATA_TYPE_STRING)
+                    .withDescription("数据类型:string(UTF8字符串),hex(十六进制编码),base64(base64编码)");
 }

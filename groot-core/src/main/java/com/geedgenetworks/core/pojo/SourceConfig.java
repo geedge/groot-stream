@@ -10,9 +10,6 @@ public class SourceConfig implements Serializable {
     private String type;
     private List<Object> fields;
     private StructType dataType;
-    private String watermark_timestamp;
-    private String watermark_timestamp_unit;
-    private Long watermark_lag;
     private Map<String, String> properties;
     private String name;
     public String getType() {
@@ -37,30 +34,6 @@ public class SourceConfig implements Serializable {
 
     public void setDataType(StructType dataType) {
         this.dataType = dataType;
-    }
-
-    public String getWatermark_timestamp() {
-        return watermark_timestamp;
-    }
-
-    public void setWatermark_timestamp(String watermark_timestamp) {
-        this.watermark_timestamp = watermark_timestamp;
-    }
-
-    public String getWatermark_timestamp_unit() {
-        return watermark_timestamp_unit;
-    }
-
-    public void setWatermark_timestamp_unit(String watermark_timestamp_unit) {
-        this.watermark_timestamp_unit = watermark_timestamp_unit;
-    }
-
-    public Long getWatermark_lag() {
-        return watermark_lag;
-    }
-
-    public void setWatermark_lag(Long watermark_lag) {
-        this.watermark_lag = watermark_lag;
     }
 
     public Map<String, String> getProperties() {
