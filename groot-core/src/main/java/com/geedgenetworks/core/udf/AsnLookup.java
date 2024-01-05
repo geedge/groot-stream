@@ -79,15 +79,18 @@ public class AsnLookup implements UDF {
     }
 
     private void checkUdfContext(UDFContext udfContext) {
+
+        if(udfContext.getLookup_fields()==null || udfContext.getOutput_fields()==null || udfContext.getParameters() == null){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
+        }
+
         if(udfContext.getLookup_fields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
         }
         if(udfContext.getOutput_fields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
-        if(udfContext.getParameters() == null){
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function needs parameters");
-        }
+
         if(!udfContext.getParameters().containsKey("vendor_id")){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey vendor_id");
         }

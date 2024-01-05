@@ -22,6 +22,10 @@ public class DecodeBase64 implements UDF {
     private String outputFieldName;
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
+
+        if(udfContext.getLookup_fields()==null || udfContext.getOutput_fields()==null){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
+        }
         if(udfContext.getLookup_fields().size() !=2){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
         }
