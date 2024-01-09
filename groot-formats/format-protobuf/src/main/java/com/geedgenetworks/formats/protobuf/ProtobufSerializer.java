@@ -1,10 +1,10 @@
 package com.geedgenetworks.formats.protobuf;
 
-import com.google.protobuf.CodedOutputStream;
-import com.google.protobuf.Descriptors.Descriptor;
-import com.google.protobuf.Descriptors.EnumValueDescriptor;
-import com.google.protobuf.Descriptors.FieldDescriptor;
-import com.google.protobuf.WireFormat;
+import com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream;
+import com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor;
+import com.geedgenetworks.shaded.com.google.protobuf.Descriptors.EnumValueDescriptor;
+import com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FieldDescriptor;
+import com.geedgenetworks.shaded.com.google.protobuf.WireFormat;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -298,7 +298,7 @@ public class ProtobufSerializer {
 
         @Override
         void writeTo(CodedOutputStream output) throws Exception {
-            // com.google.protobuf.FieldSet.writeElement
+            // com.geedgenetworks.shaded.com.google.protobuf.FieldSet.writeElement
             output.writeUInt32NoTag(tag);
             if (message) {
                 output.writeUInt32NoTag(data.getSerializedSize());
@@ -331,7 +331,7 @@ public class ProtobufSerializer {
 
         @Override
         int getSerializedSize() {
-            // com.google.protobuf.FieldSet.computeFieldSize
+            // com.geedgenetworks.shaded.com.google.protobuf.FieldSet.computeFieldSize
             if (packed) {
                 int size = 0;
                 for (int i = 0; i < pos; i++) {
@@ -369,7 +369,7 @@ public class ProtobufSerializer {
 
         @Override
         void writeTo(CodedOutputStream output) throws Exception {
-            //com.google.protobuf.FieldSet.writeField
+            //com.geedgenetworks.shaded.com.google.protobuf.FieldSet.writeField
             if (packed) {
                 output.writeUInt32NoTag(tag);
                 output.writeUInt32NoTag(dataSize);

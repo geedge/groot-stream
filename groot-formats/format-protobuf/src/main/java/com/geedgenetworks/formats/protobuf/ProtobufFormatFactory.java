@@ -7,7 +7,7 @@ import com.geedgenetworks.core.factories.EncodingFormatFactory;
 import com.geedgenetworks.core.factories.TableFactory;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.types.StructType;
-import com.google.protobuf.Descriptors;
+import com.geedgenetworks.shaded.com.google.protobuf.Descriptors;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;

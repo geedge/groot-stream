@@ -2,7 +2,7 @@ package com.geedgenetworks.formats.protobuf;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.core.pojo.Event;
-import com.google.protobuf.Descriptors;
+import com.geedgenetworks.shaded.com.google.protobuf.Descriptors;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

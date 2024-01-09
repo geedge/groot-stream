@@ -17,15 +17,27 @@
     </properties>
 
     <dependencies>
-        <dependency>
+        <!--<dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
+        </dependency>-->
+        <!--<dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>protobuf-shaded</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>-->
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>protobuf-shade</artifactId>
+            <version>${protobuf.version}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../../lib/protobuf-shaded-3.23.4.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java-util</artifactId>
-            <version>${protobuf.version}</version>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kafka_${scala.version}</artifactId>
+            <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

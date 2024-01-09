@@ -37,7 +37,7 @@ public class PrintSinkFunction extends RichSinkFunction<Event> {
             System.out.println(msg);
         } else if (printMode == LOG_INFO) {
             LOG.info(msg);
-        }else{
+        } else if (printMode == LOG_WARN) {
             LOG.warn(msg);
         }
     }

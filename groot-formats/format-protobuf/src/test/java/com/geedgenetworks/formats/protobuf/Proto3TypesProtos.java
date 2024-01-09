@@ -6,17 +6,17 @@ package com.geedgenetworks.formats.protobuf;
 public final class Proto3TypesProtos {
   private Proto3TypesProtos() {}
   public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistryLite registry) {
+      com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite registry) {
   }
 
   public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistry registry) {
+      com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistry registry) {
     registerAllExtensions(
-        (com.google.protobuf.ExtensionRegistryLite) registry);
+        (com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite) registry);
   }
   public interface StructMessageOrBuilder extends
       // @@protoc_insertion_point(interface_extends:StructMessage)
-      com.google.protobuf.MessageOrBuilder {
+      com.geedgenetworks.shaded.com.google.protobuf.MessageOrBuilder {
 
     /**
      * <code>int64 id = 1;</code>
@@ -33,7 +33,7 @@ public final class Proto3TypesProtos {
      * <code>string name = 2;</code>
      * @return The bytes for name.
      */
-    com.google.protobuf.ByteString
+    com.geedgenetworks.shaded.com.google.protobuf.ByteString
         getNameBytes();
 
     /**
@@ -74,12 +74,12 @@ public final class Proto3TypesProtos {
    * Protobuf type {@code StructMessage}
    */
   public static final class StructMessage extends
-      com.google.protobuf.GeneratedMessageV3 implements
+      com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:StructMessage)
       StructMessageOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use StructMessage.newBuilder() to construct.
-    private StructMessage(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+    private StructMessage(com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
     private StructMessage() {
@@ -93,13 +93,13 @@ public final class Proto3TypesProtos {
       return new StructMessage();
     }
 
-    public static final com.google.protobuf.Descriptors.Descriptor
+    public static final com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
       return com.geedgenetworks.formats.protobuf.Proto3TypesProtos.internal_static_StructMessage_descriptor;
     }
 
     @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+    protected com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return com.geedgenetworks.formats.protobuf.Proto3TypesProtos.internal_static_StructMessage_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
@@ -131,8 +131,8 @@ public final class Proto3TypesProtos {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
+        com.geedgenetworks.shaded.com.google.protobuf.ByteString bs = 
+            (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         name_ = s;
         return s;
@@ -143,17 +143,17 @@ public final class Proto3TypesProtos {
      * @return The bytes for name.
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString
+    public com.geedgenetworks.shaded.com.google.protobuf.ByteString
         getNameBytes() {
       java.lang.Object ref = name_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
+        com.geedgenetworks.shaded.com.google.protobuf.ByteString b = 
+            com.geedgenetworks.shaded.com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         name_ = b;
         return b;
       } else {
-        return (com.google.protobuf.ByteString) ref;
+        return (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
       }
     }
 
@@ -229,13 +229,13 @@ public final class Proto3TypesProtos {
     }
 
     @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
+    public void writeTo(com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       if (id_ != 0L) {
         output.writeInt64(1, id_);
       }
-      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(name_)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 2, name_);
+      if (!com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.isStringEmpty(name_)) {
+        com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.writeString(output, 2, name_);
       }
       if (age_ != 0) {
         output.writeInt32(3, age_);
@@ -259,26 +259,26 @@ public final class Proto3TypesProtos {
 
       size = 0;
       if (id_ != 0L) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeInt64Size(1, id_);
       }
-      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(name_)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(2, name_);
+      if (!com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.isStringEmpty(name_)) {
+        size += com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.computeStringSize(2, name_);
       }
       if (age_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeInt32Size(3, age_);
       }
       if (java.lang.Double.doubleToRawLongBits(score_) != 0) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeDoubleSize(4, score_);
       }
       if (((bitField0_ & 0x00000001) != 0)) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeInt64Size(5, optionalId_);
       }
       if (((bitField0_ & 0x00000002) != 0)) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeInt32Size(6, optionalAge_);
       }
       size += getUnknownFields().getSerializedSize();
@@ -327,18 +327,18 @@ public final class Proto3TypesProtos {
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
       hash = (37 * hash) + ID_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+      hash = (53 * hash) + com.geedgenetworks.shaded.com.google.protobuf.Internal.hashLong(
           getId());
       hash = (37 * hash) + NAME_FIELD_NUMBER;
       hash = (53 * hash) + getName().hashCode();
       hash = (37 * hash) + AGE_FIELD_NUMBER;
       hash = (53 * hash) + getAge();
       hash = (37 * hash) + SCORE_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+      hash = (53 * hash) + com.geedgenetworks.shaded.com.google.protobuf.Internal.hashLong(
           java.lang.Double.doubleToLongBits(getScore()));
       if (hasOptionalId()) {
         hash = (37 * hash) + OPTIONAL_ID_FIELD_NUMBER;
-        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+        hash = (53 * hash) + com.geedgenetworks.shaded.com.google.protobuf.Internal.hashLong(
             getOptionalId());
       }
       if (hasOptionalAge()) {
@@ -352,73 +352,73 @@ public final class Proto3TypesProtos {
 
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseFrom(
         java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseFrom(
         java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        com.geedgenetworks.shaded.com.google.protobuf.ByteString data)
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        com.geedgenetworks.shaded.com.google.protobuf.ByteString data,
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseFrom(
         byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseFrom(
         java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
 
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseDelimitedFrom(
         java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseFrom(
-        com.google.protobuf.CodedInputStream input)
+        com.geedgenetworks.shaded.com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        com.geedgenetworks.shaded.com.google.protobuf.CodedInputStream input,
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
@@ -438,7 +438,7 @@ public final class Proto3TypesProtos {
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -446,16 +446,16 @@ public final class Proto3TypesProtos {
      * Protobuf type {@code StructMessage}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:StructMessage)
         com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessageOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
+      public static final com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.geedgenetworks.formats.protobuf.Proto3TypesProtos.internal_static_StructMessage_descriptor;
       }
 
       @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      protected com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return com.geedgenetworks.formats.protobuf.Proto3TypesProtos.internal_static_StructMessage_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -468,7 +468,7 @@ public final class Proto3TypesProtos {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+          com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
 
       }
@@ -486,7 +486,7 @@ public final class Proto3TypesProtos {
       }
 
       @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor
+      public com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return com.geedgenetworks.formats.protobuf.Proto3TypesProtos.internal_static_StructMessage_descriptor;
       }
@@ -545,34 +545,34 @@ public final class Proto3TypesProtos {
       }
       @java.lang.Override
       public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
+          com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
         return super.setField(field, value);
       }
       @java.lang.Override
       public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
+          com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
       @java.lang.Override
       public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+          com.geedgenetworks.shaded.com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
       @java.lang.Override
       public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
+          com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FieldDescriptor field,
           int index, java.lang.Object value) {
         return super.setRepeatedField(field, index, value);
       }
       @java.lang.Override
       public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
+          com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
         return super.addRepeatedField(field, value);
       }
       @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.Message other) {
+      public Builder mergeFrom(com.geedgenetworks.shaded.com.google.protobuf.Message other) {
         if (other instanceof com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage) {
           return mergeFrom((com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage)other);
         } else {
@@ -615,8 +615,8 @@ public final class Proto3TypesProtos {
 
       @java.lang.Override
       public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          com.geedgenetworks.shaded.com.google.protobuf.CodedInputStream input,
+          com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
         if (extensionRegistry == null) {
           throw new java.lang.NullPointerException();
@@ -667,7 +667,7 @@ public final class Proto3TypesProtos {
               } // default:
             } // switch (tag)
           } // while (!done)
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        } catch (com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException e) {
           throw e.unwrapIOException();
         } finally {
           onChanged();
@@ -716,8 +716,8 @@ public final class Proto3TypesProtos {
       public java.lang.String getName() {
         java.lang.Object ref = name_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
+          com.geedgenetworks.shaded.com.google.protobuf.ByteString bs =
+              (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           name_ = s;
           return s;
@@ -729,17 +729,17 @@ public final class Proto3TypesProtos {
        * <code>string name = 2;</code>
        * @return The bytes for name.
        */
-      public com.google.protobuf.ByteString
+      public com.geedgenetworks.shaded.com.google.protobuf.ByteString
           getNameBytes() {
         java.lang.Object ref = name_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
+          com.geedgenetworks.shaded.com.google.protobuf.ByteString b = 
+              com.geedgenetworks.shaded.com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           name_ = b;
           return b;
         } else {
-          return (com.google.protobuf.ByteString) ref;
+          return (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
         }
       }
       /**
@@ -771,7 +771,7 @@ public final class Proto3TypesProtos {
        * @return This builder for chaining.
        */
       public Builder setNameBytes(
-          com.google.protobuf.ByteString value) {
+          com.geedgenetworks.shaded.com.google.protobuf.ByteString value) {
         if (value == null) { throw new NullPointerException(); }
         checkByteStringIsUtf8(value);
         name_ = value;
@@ -925,13 +925,13 @@ public final class Proto3TypesProtos {
       }
       @java.lang.Override
       public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
+          final com.geedgenetworks.shaded.com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
       @java.lang.Override
       public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
+          final com.geedgenetworks.shaded.com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
       }
 
@@ -949,34 +949,34 @@ public final class Proto3TypesProtos {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<StructMessage>
-        PARSER = new com.google.protobuf.AbstractParser<StructMessage>() {
+    private static final com.geedgenetworks.shaded.com.google.protobuf.Parser<StructMessage>
+        PARSER = new com.geedgenetworks.shaded.com.google.protobuf.AbstractParser<StructMessage>() {
       @java.lang.Override
       public StructMessage parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
+          com.geedgenetworks.shaded.com.google.protobuf.CodedInputStream input,
+          com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
         Builder builder = newBuilder();
         try {
           builder.mergeFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        } catch (com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException e) {
           throw e.setUnfinishedMessage(builder.buildPartial());
-        } catch (com.google.protobuf.UninitializedMessageException e) {
+        } catch (com.geedgenetworks.shaded.com.google.protobuf.UninitializedMessageException e) {
           throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
         } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+          throw new com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException(e)
               .setUnfinishedMessage(builder.buildPartial());
         }
         return builder.buildPartial();
       }
     };
 
-    public static com.google.protobuf.Parser<StructMessage> parser() {
+    public static com.geedgenetworks.shaded.com.google.protobuf.Parser<StructMessage> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<StructMessage> getParserForType() {
+    public com.geedgenetworks.shaded.com.google.protobuf.Parser<StructMessage> getParserForType() {
       return PARSER;
     }
 
@@ -989,7 +989,7 @@ public final class Proto3TypesProtos {
 
   public interface Proto3TypesOrBuilder extends
       // @@protoc_insertion_point(interface_extends:Proto3Types)
-      com.google.protobuf.MessageOrBuilder {
+      com.geedgenetworks.shaded.com.google.protobuf.MessageOrBuilder {
 
     /**
      * <code>int64 int64 = 1;</code>
@@ -1012,14 +1012,14 @@ public final class Proto3TypesProtos {
      * <code>string text = 3;</code>
      * @return The bytes for text.
      */
-    com.google.protobuf.ByteString
+    com.geedgenetworks.shaded.com.google.protobuf.ByteString
         getTextBytes();
 
     /**
      * <code>bytes bytes = 4;</code>
      * @return The bytes.
      */
-    com.google.protobuf.ByteString getBytes();
+    com.geedgenetworks.shaded.com.google.protobuf.ByteString getBytes();
 
     /**
      * <code>.Proto3Types.NestedEnum enum_val = 5;</code>
@@ -1083,7 +1083,7 @@ public final class Proto3TypesProtos {
      * <code>optional string optional_text = 9;</code>
      * @return The bytes for optionalText.
      */
-    com.google.protobuf.ByteString
+    com.geedgenetworks.shaded.com.google.protobuf.ByteString
         getOptionalTextBytes();
 
     /**
@@ -1095,7 +1095,7 @@ public final class Proto3TypesProtos {
      * <code>optional bytes optional_bytes = 10;</code>
      * @return The optionalBytes.
      */
-    com.google.protobuf.ByteString getOptionalBytes();
+    com.geedgenetworks.shaded.com.google.protobuf.ByteString getOptionalBytes();
 
     /**
      * <code>optional .Proto3Types.NestedEnum optional_enum_val = 11;</code>
@@ -1190,20 +1190,20 @@ public final class Proto3TypesProtos {
    * Protobuf type {@code Proto3Types}
    */
   public static final class Proto3Types extends
-      com.google.protobuf.GeneratedMessageV3 implements
+      com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3 implements
       // @@protoc_insertion_point(message_implements:Proto3Types)
       Proto3TypesOrBuilder {
   private static final long serialVersionUID = 0L;
     // Use Proto3Types.newBuilder() to construct.
-    private Proto3Types(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+    private Proto3Types(com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
     }
     private Proto3Types() {
       text_ = "";
-      bytes_ = com.google.protobuf.ByteString.EMPTY;
+      bytes_ = com.geedgenetworks.shaded.com.google.protobuf.ByteString.EMPTY;
       enumVal_ = 0;
       optionalText_ = "";
-      optionalBytes_ = com.google.protobuf.ByteString.EMPTY;
+      optionalBytes_ = com.geedgenetworks.shaded.com.google.protobuf.ByteString.EMPTY;
       optionalEnumVal_ = 0;
       repeatedInt64_ = emptyLongList();
       repeatedInt32_ = emptyIntList();
@@ -1217,13 +1217,13 @@ public final class Proto3TypesProtos {
       return new Proto3Types();
     }
 
-    public static final com.google.protobuf.Descriptors.Descriptor
+    public static final com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor
         getDescriptor() {
       return com.geedgenetworks.formats.protobuf.Proto3TypesProtos.internal_static_Proto3Types_descriptor;
     }
 
     @java.lang.Override
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+    protected com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return com.geedgenetworks.formats.protobuf.Proto3TypesProtos.internal_static_Proto3Types_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
@@ -1234,7 +1234,7 @@ public final class Proto3TypesProtos {
      * Protobuf enum {@code Proto3Types.NestedEnum}
      */
     public enum NestedEnum
-        implements com.google.protobuf.ProtocolMessageEnum {
+        implements com.geedgenetworks.shaded.com.google.protobuf.ProtocolMessageEnum {
       /**
        * <code>NOTHING = 0;</code>
        */
@@ -1295,19 +1295,19 @@ public final class Proto3TypesProtos {
         }
       }
 
-      public static com.google.protobuf.Internal.EnumLiteMap<NestedEnum>
+      public static com.geedgenetworks.shaded.com.google.protobuf.Internal.EnumLiteMap<NestedEnum>
           internalGetValueMap() {
         return internalValueMap;
       }
-      private static final com.google.protobuf.Internal.EnumLiteMap<
+      private static final com.geedgenetworks.shaded.com.google.protobuf.Internal.EnumLiteMap<
           NestedEnum> internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<NestedEnum>() {
+            new com.geedgenetworks.shaded.com.google.protobuf.Internal.EnumLiteMap<NestedEnum>() {
               public NestedEnum findValueByNumber(int number) {
                 return NestedEnum.forNumber(number);
               }
             };
 
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+      public final com.geedgenetworks.shaded.com.google.protobuf.Descriptors.EnumValueDescriptor
           getValueDescriptor() {
         if (this == UNRECOGNIZED) {
           throw new java.lang.IllegalStateException(
@@ -1315,11 +1315,11 @@ public final class Proto3TypesProtos {
         }
         return getDescriptor().getValues().get(ordinal());
       }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
+      public final com.geedgenetworks.shaded.com.google.protobuf.Descriptors.EnumDescriptor
           getDescriptorForType() {
         return getDescriptor();
       }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
+      public static final com.geedgenetworks.shaded.com.google.protobuf.Descriptors.EnumDescriptor
           getDescriptor() {
         return com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types.getDescriptor().getEnumTypes().get(0);
       }
@@ -1327,7 +1327,7 @@ public final class Proto3TypesProtos {
       private static final NestedEnum[] VALUES = values();
 
       public static NestedEnum valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+          com.geedgenetworks.shaded.com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
         if (desc.getType() != getDescriptor()) {
           throw new java.lang.IllegalArgumentException(
             "EnumValueDescriptor is not for this type.");
@@ -1383,8 +1383,8 @@ public final class Proto3TypesProtos {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
+        com.geedgenetworks.shaded.com.google.protobuf.ByteString bs = 
+            (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         text_ = s;
         return s;
@@ -1395,28 +1395,28 @@ public final class Proto3TypesProtos {
      * @return The bytes for text.
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString
+    public com.geedgenetworks.shaded.com.google.protobuf.ByteString
         getTextBytes() {
       java.lang.Object ref = text_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
+        com.geedgenetworks.shaded.com.google.protobuf.ByteString b = 
+            com.geedgenetworks.shaded.com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         text_ = b;
         return b;
       } else {
-        return (com.google.protobuf.ByteString) ref;
+        return (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
       }
     }
 
     public static final int BYTES_FIELD_NUMBER = 4;
-    private com.google.protobuf.ByteString bytes_ = com.google.protobuf.ByteString.EMPTY;
+    private com.geedgenetworks.shaded.com.google.protobuf.ByteString bytes_ = com.geedgenetworks.shaded.com.google.protobuf.ByteString.EMPTY;
     /**
      * <code>bytes bytes = 4;</code>
      * @return The bytes.
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString getBytes() {
+    public com.geedgenetworks.shaded.com.google.protobuf.ByteString getBytes() {
       return bytes_;
     }
 
@@ -1523,8 +1523,8 @@ public final class Proto3TypesProtos {
       if (ref instanceof java.lang.String) {
         return (java.lang.String) ref;
       } else {
-        com.google.protobuf.ByteString bs = 
-            (com.google.protobuf.ByteString) ref;
+        com.geedgenetworks.shaded.com.google.protobuf.ByteString bs = 
+            (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         optionalText_ = s;
         return s;
@@ -1535,22 +1535,22 @@ public final class Proto3TypesProtos {
      * @return The bytes for optionalText.
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString
+    public com.geedgenetworks.shaded.com.google.protobuf.ByteString
         getOptionalTextBytes() {
       java.lang.Object ref = optionalText_;
       if (ref instanceof java.lang.String) {
-        com.google.protobuf.ByteString b = 
-            com.google.protobuf.ByteString.copyFromUtf8(
+        com.geedgenetworks.shaded.com.google.protobuf.ByteString b = 
+            com.geedgenetworks.shaded.com.google.protobuf.ByteString.copyFromUtf8(
                 (java.lang.String) ref);
         optionalText_ = b;
         return b;
       } else {
-        return (com.google.protobuf.ByteString) ref;
+        return (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
       }
     }
 
     public static final int OPTIONAL_BYTES_FIELD_NUMBER = 10;
-    private com.google.protobuf.ByteString optionalBytes_ = com.google.protobuf.ByteString.EMPTY;
+    private com.geedgenetworks.shaded.com.google.protobuf.ByteString optionalBytes_ = com.geedgenetworks.shaded.com.google.protobuf.ByteString.EMPTY;
     /**
      * <code>optional bytes optional_bytes = 10;</code>
      * @return Whether the optionalBytes field is set.
@@ -1564,7 +1564,7 @@ public final class Proto3TypesProtos {
      * @return The optionalBytes.
      */
     @java.lang.Override
-    public com.google.protobuf.ByteString getOptionalBytes() {
+    public com.geedgenetworks.shaded.com.google.protobuf.ByteString getOptionalBytes() {
       return optionalBytes_;
     }
 
@@ -1621,7 +1621,7 @@ public final class Proto3TypesProtos {
 
     public static final int REPEATED_INT64_FIELD_NUMBER = 13;
     @SuppressWarnings("serial")
-    private com.google.protobuf.Internal.LongList repeatedInt64_;
+    private com.geedgenetworks.shaded.com.google.protobuf.Internal.LongList repeatedInt64_;
     /**
      * <code>repeated int64 repeated_int64 = 13;</code>
      * @return A list containing the repeatedInt64.
@@ -1650,7 +1650,7 @@ public final class Proto3TypesProtos {
 
     public static final int REPEATED_INT32_FIELD_NUMBER = 14;
     @SuppressWarnings("serial")
-    private com.google.protobuf.Internal.IntList repeatedInt32_;
+    private com.geedgenetworks.shaded.com.google.protobuf.Internal.IntList repeatedInt32_;
     /**
      * <code>repeated int32 repeated_int32 = 14;</code>
      * @return A list containing the repeatedInt32.
@@ -1730,7 +1730,7 @@ public final class Proto3TypesProtos {
     }
 
     @java.lang.Override
-    public void writeTo(com.google.protobuf.CodedOutputStream output)
+    public void writeTo(com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       getSerializedSize();
       if (int64_ != 0L) {
@@ -1739,8 +1739,8 @@ public final class Proto3TypesProtos {
       if (int32_ != 0) {
         output.writeInt32(2, int32_);
       }
-      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(text_)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 3, text_);
+      if (!com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.isStringEmpty(text_)) {
+        com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.writeString(output, 3, text_);
       }
       if (!bytes_.isEmpty()) {
         output.writeBytes(4, bytes_);
@@ -1758,7 +1758,7 @@ public final class Proto3TypesProtos {
         output.writeInt32(8, optionalInt32_);
       }
       if (((bitField0_ & 0x00000004) != 0)) {
-        com.google.protobuf.GeneratedMessageV3.writeString(output, 9, optionalText_);
+        com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.writeString(output, 9, optionalText_);
       }
       if (((bitField0_ & 0x00000008) != 0)) {
         output.writeBytes(10, optionalBytes_);
@@ -1796,61 +1796,61 @@ public final class Proto3TypesProtos {
 
       size = 0;
       if (int64_ != 0L) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeInt64Size(1, int64_);
       }
       if (int32_ != 0) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeInt32Size(2, int32_);
       }
-      if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(text_)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(3, text_);
+      if (!com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.isStringEmpty(text_)) {
+        size += com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.computeStringSize(3, text_);
       }
       if (!bytes_.isEmpty()) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeBytesSize(4, bytes_);
       }
       if (enumVal_ != com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types.NestedEnum.NOTHING.getNumber()) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeEnumSize(5, enumVal_);
       }
       if (message_ != null) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeMessageSize(6, getMessage());
       }
       if (((bitField0_ & 0x00000001) != 0)) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeInt64Size(7, optionalInt64_);
       }
       if (((bitField0_ & 0x00000002) != 0)) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeInt32Size(8, optionalInt32_);
       }
       if (((bitField0_ & 0x00000004) != 0)) {
-        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, optionalText_);
+        size += com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.computeStringSize(9, optionalText_);
       }
       if (((bitField0_ & 0x00000008) != 0)) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeBytesSize(10, optionalBytes_);
       }
       if (((bitField0_ & 0x00000010) != 0)) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeEnumSize(11, optionalEnumVal_);
       }
       if (((bitField0_ & 0x00000020) != 0)) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeMessageSize(12, getOptionalMessage());
       }
       {
         int dataSize = 0;
         for (int i = 0; i < repeatedInt64_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
+          dataSize += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
             .computeInt64SizeNoTag(repeatedInt64_.getLong(i));
         }
         size += dataSize;
         if (!getRepeatedInt64List().isEmpty()) {
           size += 1;
-          size += com.google.protobuf.CodedOutputStream
+          size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
               .computeInt32SizeNoTag(dataSize);
         }
         repeatedInt64MemoizedSerializedSize = dataSize;
@@ -1858,19 +1858,19 @@ public final class Proto3TypesProtos {
       {
         int dataSize = 0;
         for (int i = 0; i < repeatedInt32_.size(); i++) {
-          dataSize += com.google.protobuf.CodedOutputStream
+          dataSize += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
             .computeInt32SizeNoTag(repeatedInt32_.getInt(i));
         }
         size += dataSize;
         if (!getRepeatedInt32List().isEmpty()) {
           size += 1;
-          size += com.google.protobuf.CodedOutputStream
+          size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
               .computeInt32SizeNoTag(dataSize);
         }
         repeatedInt32MemoizedSerializedSize = dataSize;
       }
       for (int i = 0; i < repeatedMessage_.size(); i++) {
-        size += com.google.protobuf.CodedOutputStream
+        size += com.geedgenetworks.shaded.com.google.protobuf.CodedOutputStream
           .computeMessageSize(15, repeatedMessage_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
@@ -1949,7 +1949,7 @@ public final class Proto3TypesProtos {
       int hash = 41;
       hash = (19 * hash) + getDescriptor().hashCode();
       hash = (37 * hash) + INT64_FIELD_NUMBER;
-      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+      hash = (53 * hash) + com.geedgenetworks.shaded.com.google.protobuf.Internal.hashLong(
           getInt64());
       hash = (37 * hash) + INT32_FIELD_NUMBER;
       hash = (53 * hash) + getInt32();
@@ -1965,7 +1965,7 @@ public final class Proto3TypesProtos {
       }
       if (hasOptionalInt64()) {
         hash = (37 * hash) + OPTIONAL_INT64_FIELD_NUMBER;
-        hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+        hash = (53 * hash) + com.geedgenetworks.shaded.com.google.protobuf.Internal.hashLong(
             getOptionalInt64());
       }
       if (hasOptionalInt32()) {
@@ -2007,73 +2007,73 @@ public final class Proto3TypesProtos {
 
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseFrom(
         java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseFrom(
         java.nio.ByteBuffer data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseFrom(
-        com.google.protobuf.ByteString data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        com.geedgenetworks.shaded.com.google.protobuf.ByteString data)
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseFrom(
-        com.google.protobuf.ByteString data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        com.geedgenetworks.shaded.com.google.protobuf.ByteString data,
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseFrom(
         byte[] data,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseFrom(
         java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input);
     }
 
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseDelimitedFrom(
         java.io.InputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseFrom(
-        com.google.protobuf.CodedInputStream input)
+        com.geedgenetworks.shaded.com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input);
     }
     public static com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types parseFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        com.geedgenetworks.shaded.com.google.protobuf.CodedInputStream input,
+        com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
+      return com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
           .parseWithIOException(PARSER, input, extensionRegistry);
     }
 
@@ -2093,7 +2093,7 @@ public final class Proto3TypesProtos {
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -2101,16 +2101,16 @@ public final class Proto3TypesProtos {
      * Protobuf type {@code Proto3Types}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
+        com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
         // @@protoc_insertion_point(builder_implements:Proto3Types)
         com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3TypesOrBuilder {
-      public static final com.google.protobuf.Descriptors.Descriptor
+      public static final com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.geedgenetworks.formats.protobuf.Proto3TypesProtos.internal_static_Proto3Types_descriptor;
       }
 
       @java.lang.Override
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      protected com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return com.geedgenetworks.formats.protobuf.Proto3TypesProtos.internal_static_Proto3Types_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -2123,12 +2123,12 @@ public final class Proto3TypesProtos {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+          com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
+        if (com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3
                 .alwaysUseFieldBuilders) {
           getMessageFieldBuilder();
           getOptionalMessageFieldBuilder();
@@ -2142,7 +2142,7 @@ public final class Proto3TypesProtos {
         int64_ = 0L;
         int32_ = 0;
         text_ = "";
-        bytes_ = com.google.protobuf.ByteString.EMPTY;
+        bytes_ = com.geedgenetworks.shaded.com.google.protobuf.ByteString.EMPTY;
         enumVal_ = 0;
         message_ = null;
         if (messageBuilder_ != null) {
@@ -2152,7 +2152,7 @@ public final class Proto3TypesProtos {
         optionalInt64_ = 0L;
         optionalInt32_ = 0;
         optionalText_ = "";
-        optionalBytes_ = com.google.protobuf.ByteString.EMPTY;
+        optionalBytes_ = com.geedgenetworks.shaded.com.google.protobuf.ByteString.EMPTY;
         optionalEnumVal_ = 0;
         optionalMessage_ = null;
         if (optionalMessageBuilder_ != null) {
@@ -2172,7 +2172,7 @@ public final class Proto3TypesProtos {
       }
 
       @java.lang.Override
-      public com.google.protobuf.Descriptors.Descriptor
+      public com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor
           getDescriptorForType() {
         return com.geedgenetworks.formats.protobuf.Proto3TypesProtos.internal_static_Proto3Types_descriptor;
       }
@@ -2280,34 +2280,34 @@ public final class Proto3TypesProtos {
       }
       @java.lang.Override
       public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
+          com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
         return super.setField(field, value);
       }
       @java.lang.Override
       public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
+          com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
       @java.lang.Override
       public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+          com.geedgenetworks.shaded.com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
       @java.lang.Override
       public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
+          com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FieldDescriptor field,
           int index, java.lang.Object value) {
         return super.setRepeatedField(field, index, value);
       }
       @java.lang.Override
       public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
+          com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FieldDescriptor field,
           java.lang.Object value) {
         return super.addRepeatedField(field, value);
       }
       @java.lang.Override
-      public Builder mergeFrom(com.google.protobuf.Message other) {
+      public Builder mergeFrom(com.geedgenetworks.shaded.com.google.protobuf.Message other) {
         if (other instanceof com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types) {
           return mergeFrom((com.geedgenetworks.formats.protobuf.Proto3TypesProtos.Proto3Types)other);
         } else {
@@ -2329,7 +2329,7 @@ public final class Proto3TypesProtos {
           bitField0_ |= 0x00000004;
           onChanged();
         }
-        if (other.getBytes() != com.google.protobuf.ByteString.EMPTY) {
+        if (other.getBytes() != com.geedgenetworks.shaded.com.google.protobuf.ByteString.EMPTY) {
           setBytes(other.getBytes());
         }
         if (other.enumVal_ != 0) {
@@ -2397,7 +2397,7 @@ public final class Proto3TypesProtos {
               repeatedMessage_ = other.repeatedMessage_;
               bitField0_ = (bitField0_ & ~0x00004000);
               repeatedMessageBuilder_ = 
-                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
                    getRepeatedMessageFieldBuilder() : null;
             } else {
               repeatedMessageBuilder_.addAllMessages(other.repeatedMessage_);
@@ -2416,8 +2416,8 @@ public final class Proto3TypesProtos {
 
       @java.lang.Override
       public Builder mergeFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          com.geedgenetworks.shaded.com.google.protobuf.CodedInputStream input,
+          com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
         if (extensionRegistry == null) {
           throw new java.lang.NullPointerException();
@@ -2547,7 +2547,7 @@ public final class Proto3TypesProtos {
               } // default:
             } // switch (tag)
           } // while (!done)
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        } catch (com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException e) {
           throw e.unwrapIOException();
         } finally {
           onChanged();
@@ -2628,8 +2628,8 @@ public final class Proto3TypesProtos {
       public java.lang.String getText() {
         java.lang.Object ref = text_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
+          com.geedgenetworks.shaded.com.google.protobuf.ByteString bs =
+              (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           text_ = s;
           return s;
@@ -2641,17 +2641,17 @@ public final class Proto3TypesProtos {
        * <code>string text = 3;</code>
        * @return The bytes for text.
        */
-      public com.google.protobuf.ByteString
+      public com.geedgenetworks.shaded.com.google.protobuf.ByteString
           getTextBytes() {
         java.lang.Object ref = text_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
+          com.geedgenetworks.shaded.com.google.protobuf.ByteString b = 
+              com.geedgenetworks.shaded.com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           text_ = b;
           return b;
         } else {
-          return (com.google.protobuf.ByteString) ref;
+          return (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
         }
       }
       /**
@@ -2683,7 +2683,7 @@ public final class Proto3TypesProtos {
        * @return This builder for chaining.
        */
       public Builder setTextBytes(
-          com.google.protobuf.ByteString value) {
+          com.geedgenetworks.shaded.com.google.protobuf.ByteString value) {
         if (value == null) { throw new NullPointerException(); }
         checkByteStringIsUtf8(value);
         text_ = value;
@@ -2692,13 +2692,13 @@ public final class Proto3TypesProtos {
         return this;
       }
 
-      private com.google.protobuf.ByteString bytes_ = com.google.protobuf.ByteString.EMPTY;
+      private com.geedgenetworks.shaded.com.google.protobuf.ByteString bytes_ = com.geedgenetworks.shaded.com.google.protobuf.ByteString.EMPTY;
       /**
        * <code>bytes bytes = 4;</code>
        * @return The bytes.
        */
       @java.lang.Override
-      public com.google.protobuf.ByteString getBytes() {
+      public com.geedgenetworks.shaded.com.google.protobuf.ByteString getBytes() {
         return bytes_;
       }
       /**
@@ -2706,7 +2706,7 @@ public final class Proto3TypesProtos {
        * @param value The bytes to set.
        * @return This builder for chaining.
        */
-      public Builder setBytes(com.google.protobuf.ByteString value) {
+      public Builder setBytes(com.geedgenetworks.shaded.com.google.protobuf.ByteString value) {
         if (value == null) { throw new NullPointerException(); }
         bytes_ = value;
         bitField0_ |= 0x00000008;
@@ -2778,7 +2778,7 @@ public final class Proto3TypesProtos {
       }
 
       private com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage message_;
-      private com.google.protobuf.SingleFieldBuilderV3<
+      private com.geedgenetworks.shaded.com.google.protobuf.SingleFieldBuilderV3<
           com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage.Builder, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessageOrBuilder> messageBuilder_;
       /**
        * <code>.StructMessage message = 6;</code>
@@ -2882,11 +2882,11 @@ public final class Proto3TypesProtos {
       /**
        * <code>.StructMessage message = 6;</code>
        */
-      private com.google.protobuf.SingleFieldBuilderV3<
+      private com.geedgenetworks.shaded.com.google.protobuf.SingleFieldBuilderV3<
           com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage.Builder, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessageOrBuilder> 
           getMessageFieldBuilder() {
         if (messageBuilder_ == null) {
-          messageBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+          messageBuilder_ = new com.geedgenetworks.shaded.com.google.protobuf.SingleFieldBuilderV3<
               com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage.Builder, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessageOrBuilder>(
                   getMessage(),
                   getParentForChildren(),
@@ -2991,8 +2991,8 @@ public final class Proto3TypesProtos {
       public java.lang.String getOptionalText() {
         java.lang.Object ref = optionalText_;
         if (!(ref instanceof java.lang.String)) {
-          com.google.protobuf.ByteString bs =
-              (com.google.protobuf.ByteString) ref;
+          com.geedgenetworks.shaded.com.google.protobuf.ByteString bs =
+              (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
           optionalText_ = s;
           return s;
@@ -3004,17 +3004,17 @@ public final class Proto3TypesProtos {
        * <code>optional string optional_text = 9;</code>
        * @return The bytes for optionalText.
        */
-      public com.google.protobuf.ByteString
+      public com.geedgenetworks.shaded.com.google.protobuf.ByteString
           getOptionalTextBytes() {
         java.lang.Object ref = optionalText_;
         if (ref instanceof String) {
-          com.google.protobuf.ByteString b = 
-              com.google.protobuf.ByteString.copyFromUtf8(
+          com.geedgenetworks.shaded.com.google.protobuf.ByteString b = 
+              com.geedgenetworks.shaded.com.google.protobuf.ByteString.copyFromUtf8(
                   (java.lang.String) ref);
           optionalText_ = b;
           return b;
         } else {
-          return (com.google.protobuf.ByteString) ref;
+          return (com.geedgenetworks.shaded.com.google.protobuf.ByteString) ref;
         }
       }
       /**
@@ -3046,7 +3046,7 @@ public final class Proto3TypesProtos {
        * @return This builder for chaining.
        */
       public Builder setOptionalTextBytes(
-          com.google.protobuf.ByteString value) {
+          com.geedgenetworks.shaded.com.google.protobuf.ByteString value) {
         if (value == null) { throw new NullPointerException(); }
         checkByteStringIsUtf8(value);
         optionalText_ = value;
@@ -3055,7 +3055,7 @@ public final class Proto3TypesProtos {
         return this;
       }
 
-      private com.google.protobuf.ByteString optionalBytes_ = com.google.protobuf.ByteString.EMPTY;
+      private com.geedgenetworks.shaded.com.google.protobuf.ByteString optionalBytes_ = com.geedgenetworks.shaded.com.google.protobuf.ByteString.EMPTY;
       /**
        * <code>optional bytes optional_bytes = 10;</code>
        * @return Whether the optionalBytes field is set.
@@ -3069,7 +3069,7 @@ public final class Proto3TypesProtos {
        * @return The optionalBytes.
        */
       @java.lang.Override
-      public com.google.protobuf.ByteString getOptionalBytes() {
+      public com.geedgenetworks.shaded.com.google.protobuf.ByteString getOptionalBytes() {
         return optionalBytes_;
       }
       /**
@@ -3077,7 +3077,7 @@ public final class Proto3TypesProtos {
        * @param value The optionalBytes to set.
        * @return This builder for chaining.
        */
-      public Builder setOptionalBytes(com.google.protobuf.ByteString value) {
+      public Builder setOptionalBytes(com.geedgenetworks.shaded.com.google.protobuf.ByteString value) {
         if (value == null) { throw new NullPointerException(); }
         optionalBytes_ = value;
         bitField0_ |= 0x00000200;
@@ -3156,7 +3156,7 @@ public final class Proto3TypesProtos {
       }
 
       private com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage optionalMessage_;
-      private com.google.protobuf.SingleFieldBuilderV3<
+      private com.geedgenetworks.shaded.com.google.protobuf.SingleFieldBuilderV3<
           com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage.Builder, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessageOrBuilder> optionalMessageBuilder_;
       /**
        * <code>optional .StructMessage optional_message = 12;</code>
@@ -3260,11 +3260,11 @@ public final class Proto3TypesProtos {
       /**
        * <code>optional .StructMessage optional_message = 12;</code>
        */
-      private com.google.protobuf.SingleFieldBuilderV3<
+      private com.geedgenetworks.shaded.com.google.protobuf.SingleFieldBuilderV3<
           com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage.Builder, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessageOrBuilder> 
           getOptionalMessageFieldBuilder() {
         if (optionalMessageBuilder_ == null) {
-          optionalMessageBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+          optionalMessageBuilder_ = new com.geedgenetworks.shaded.com.google.protobuf.SingleFieldBuilderV3<
               com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage.Builder, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessageOrBuilder>(
                   getOptionalMessage(),
                   getParentForChildren(),
@@ -3274,7 +3274,7 @@ public final class Proto3TypesProtos {
         return optionalMessageBuilder_;
       }
 
-      private com.google.protobuf.Internal.LongList repeatedInt64_ = emptyLongList();
+      private com.geedgenetworks.shaded.com.google.protobuf.Internal.LongList repeatedInt64_ = emptyLongList();
       private void ensureRepeatedInt64IsMutable() {
         if (!((bitField0_ & 0x00001000) != 0)) {
           repeatedInt64_ = mutableCopy(repeatedInt64_);
@@ -3339,7 +3339,7 @@ public final class Proto3TypesProtos {
       public Builder addAllRepeatedInt64(
           java.lang.Iterable<? extends java.lang.Long> values) {
         ensureRepeatedInt64IsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+        com.geedgenetworks.shaded.com.google.protobuf.AbstractMessageLite.Builder.addAll(
             values, repeatedInt64_);
         onChanged();
         return this;
@@ -3355,7 +3355,7 @@ public final class Proto3TypesProtos {
         return this;
       }
 
-      private com.google.protobuf.Internal.IntList repeatedInt32_ = emptyIntList();
+      private com.geedgenetworks.shaded.com.google.protobuf.Internal.IntList repeatedInt32_ = emptyIntList();
       private void ensureRepeatedInt32IsMutable() {
         if (!((bitField0_ & 0x00002000) != 0)) {
           repeatedInt32_ = mutableCopy(repeatedInt32_);
@@ -3420,7 +3420,7 @@ public final class Proto3TypesProtos {
       public Builder addAllRepeatedInt32(
           java.lang.Iterable<? extends java.lang.Integer> values) {
         ensureRepeatedInt32IsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+        com.geedgenetworks.shaded.com.google.protobuf.AbstractMessageLite.Builder.addAll(
             values, repeatedInt32_);
         onChanged();
         return this;
@@ -3445,7 +3445,7 @@ public final class Proto3TypesProtos {
          }
       }
 
-      private com.google.protobuf.RepeatedFieldBuilderV3<
+      private com.geedgenetworks.shaded.com.google.protobuf.RepeatedFieldBuilderV3<
           com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage.Builder, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessageOrBuilder> repeatedMessageBuilder_;
 
       /**
@@ -3577,7 +3577,7 @@ public final class Proto3TypesProtos {
           java.lang.Iterable<? extends com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage> values) {
         if (repeatedMessageBuilder_ == null) {
           ensureRepeatedMessageIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
+          com.geedgenetworks.shaded.com.google.protobuf.AbstractMessageLite.Builder.addAll(
               values, repeatedMessage_);
           onChanged();
         } else {
@@ -3661,11 +3661,11 @@ public final class Proto3TypesProtos {
            getRepeatedMessageBuilderList() {
         return getRepeatedMessageFieldBuilder().getBuilderList();
       }
-      private com.google.protobuf.RepeatedFieldBuilderV3<
+      private com.geedgenetworks.shaded.com.google.protobuf.RepeatedFieldBuilderV3<
           com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage.Builder, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessageOrBuilder> 
           getRepeatedMessageFieldBuilder() {
         if (repeatedMessageBuilder_ == null) {
-          repeatedMessageBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+          repeatedMessageBuilder_ = new com.geedgenetworks.shaded.com.google.protobuf.RepeatedFieldBuilderV3<
               com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessage.Builder, com.geedgenetworks.formats.protobuf.Proto3TypesProtos.StructMessageOrBuilder>(
                   repeatedMessage_,
                   ((bitField0_ & 0x00004000) != 0),
@@ -3677,13 +3677,13 @@ public final class Proto3TypesProtos {
       }
       @java.lang.Override
       public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
+          final com.geedgenetworks.shaded.com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
       @java.lang.Override
       public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
+          final com.geedgenetworks.shaded.com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
       }
 
@@ -3701,34 +3701,34 @@ public final class Proto3TypesProtos {
       return DEFAULT_INSTANCE;
     }
 
-    private static final com.google.protobuf.Parser<Proto3Types>
-        PARSER = new com.google.protobuf.AbstractParser<Proto3Types>() {
+    private static final com.geedgenetworks.shaded.com.google.protobuf.Parser<Proto3Types>
+        PARSER = new com.geedgenetworks.shaded.com.google.protobuf.AbstractParser<Proto3Types>() {
       @java.lang.Override
       public Proto3Types parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
+          com.geedgenetworks.shaded.com.google.protobuf.CodedInputStream input,
+          com.geedgenetworks.shaded.com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException {
         Builder builder = newBuilder();
         try {
           builder.mergeFrom(input, extensionRegistry);
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        } catch (com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException e) {
           throw e.setUnfinishedMessage(builder.buildPartial());
-        } catch (com.google.protobuf.UninitializedMessageException e) {
+        } catch (com.geedgenetworks.shaded.com.google.protobuf.UninitializedMessageException e) {
           throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
         } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(e)
+          throw new com.geedgenetworks.shaded.com.google.protobuf.InvalidProtocolBufferException(e)
               .setUnfinishedMessage(builder.buildPartial());
         }
         return builder.buildPartial();
       }
     };
 
-    public static com.google.protobuf.Parser<Proto3Types> parser() {
+    public static com.geedgenetworks.shaded.com.google.protobuf.Parser<Proto3Types> parser() {
       return PARSER;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Parser<Proto3Types> getParserForType() {
+    public com.geedgenetworks.shaded.com.google.protobuf.Parser<Proto3Types> getParserForType() {
       return PARSER;
     }
 
@@ -3739,22 +3739,22 @@ public final class Proto3TypesProtos {
 
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static final com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor
     internal_static_StructMessage_descriptor;
   private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+    com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_StructMessage_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static final com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor
     internal_static_Proto3Types_descriptor;
   private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+    com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_Proto3Types_fieldAccessorTable;
 
-  public static com.google.protobuf.Descriptors.FileDescriptor
+  public static com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
     return descriptor;
   }
-  private static  com.google.protobuf.Descriptors.FileDescriptor
+  private static  com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FileDescriptor
       descriptor;
   static {
     java.lang.String[] descriptorData = {
@@ -3781,20 +3781,20 @@ public final class Proto3TypesProtos {
       "essageB8\n#com.geedgenetworks.formats.pro" +
       "tobufB\021Proto3TypesProtosb\006proto3"
     };
-    descriptor = com.google.protobuf.Descriptors.FileDescriptor
+    descriptor = com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
-        new com.google.protobuf.Descriptors.FileDescriptor[] {
+        new com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FileDescriptor[] {
         });
     internal_static_StructMessage_descriptor =
       getDescriptor().getMessageTypes().get(0);
     internal_static_StructMessage_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+      com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_StructMessage_descriptor,
         new java.lang.String[] { "Id", "Name", "Age", "Score", "OptionalId", "OptionalAge", "OptionalId", "OptionalAge", });
     internal_static_Proto3Types_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_Proto3Types_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+      com.geedgenetworks.shaded.com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Proto3Types_descriptor,
         new java.lang.String[] { "Int64", "Int32", "Text", "Bytes", "EnumVal", "Message", "OptionalInt64", "OptionalInt32", "OptionalText", "OptionalBytes", "OptionalEnumVal", "OptionalMessage", "RepeatedInt64", "RepeatedInt32", "RepeatedMessage", "OptionalInt64", "OptionalInt32", "OptionalText", "OptionalBytes", "OptionalEnumVal", "OptionalMessage", });
   }

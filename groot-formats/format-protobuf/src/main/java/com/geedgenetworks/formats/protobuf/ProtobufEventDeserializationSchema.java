@@ -2,7 +2,7 @@ package com.geedgenetworks.formats.protobuf;
 
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.types.StructType;
-import com.google.protobuf.Descriptors.Descriptor;
+import com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.slf4j.Logger;

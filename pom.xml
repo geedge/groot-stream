@@ -16,7 +16,7 @@
         <module>groot-connectors</module>
         <module>groot-bootstrap</module>
         <module>groot-release</module>
-        <module>groot-shade</module>
+        <module>groot-shaded</module>
         <module>groot-example</module>
         <module>groot-formats</module>
         <module>groot-tests</module>
@@ -36,7 +36,7 @@
         <flatten-maven-plugin.version>1.3.0</flatten-maven-plugin.version>
         <spotless.version>2.29.0</spotless.version>
         <skip.spotless>true</skip.spotless>
-        <grootstream.shade.package>com.geedgenetworks.groot.shade</grootstream.shade.package>
+        <grootstream.shaded.package>com.geedgenetworks.shaded</grootstream.shaded.package>
         <slf4j.version>1.7.25</slf4j.version>
         <log4j2.version>2.17.1</log4j2.version>
         <log4j2-disruptor.version>3.4.4</log4j2-disruptor.version>
@@ -478,6 +478,7 @@
                             <exclude>org.slf4j:slf4j-reload4j</exclude>
                             <exclude>org.slf4j:slf4j-log4j12</exclude>
                             <exclude>org.slf4j:log4j-over-slf4j</exclude>
+                            <exclude>org.slf4j:jcl-over-slf4j</exclude>
                             <exclude>log4j:*</exclude>
                             <exclude>commons-logging:*</exclude>
                             <exclude>ch.qos.logback:*</exclude>
@@ -755,6 +756,7 @@
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>3.1.2</version>
                     <configuration>
+                        <!--<skip>true</skip>-->
                         <configLocation>${rootDir}/develop/checkstyle.xml</configLocation>
                         <suppressionsLocation>${rootDir}/develop/suppressions.xml</suppressionsLocation>
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -774,6 +776,7 @@
                     <artifactId>spotbugs-maven-plugin</artifactId>
                     <version>4.4.2.2</version>
                     <configuration>
+                        <!--<skip>true</skip>-->
                         <threshold>Low</threshold>
                         <effort>default</effort>
                         <failOnError>true</failOnError>

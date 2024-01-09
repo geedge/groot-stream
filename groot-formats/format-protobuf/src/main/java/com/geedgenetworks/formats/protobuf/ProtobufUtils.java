@@ -1,10 +1,10 @@
 package com.geedgenetworks.formats.protobuf;
 
-import com.google.protobuf.AnyProto;
-import com.google.protobuf.DescriptorProtos;
-import com.google.protobuf.Descriptors.Descriptor;
-import com.google.protobuf.Descriptors.FileDescriptor;
-import com.google.protobuf.ProtocolStringList;
+import com.geedgenetworks.shaded.com.google.protobuf.AnyProto;
+import com.geedgenetworks.shaded.com.google.protobuf.DescriptorProtos;
+import com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor;
+import com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FileDescriptor;
+import com.geedgenetworks.shaded.com.google.protobuf.ProtocolStringList;
 import org.apache.commons.io.FileUtils;
 import org.apache.flink.util.Preconditions;
 

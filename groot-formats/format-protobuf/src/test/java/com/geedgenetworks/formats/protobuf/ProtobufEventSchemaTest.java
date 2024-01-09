@@ -1,11 +1,19 @@
 package com.geedgenetworks.formats.protobuf;
 
 import com.alibaba.fastjson2.JSON;
-import com.google.protobuf.ByteString;
-import com.google.protobuf.Descriptors;
+import com.geedgenetworks.shaded.com.google.protobuf.ByteString;
+import com.geedgenetworks.shaded.com.google.protobuf.Descriptors;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.LineIterator;
+import org.apache.flink.util.Preconditions;
+import org.apache.kafka.common.record.CompressionType;
+import org.apache.kafka.common.utils.ByteBufferOutputStream;
 import org.junit.jupiter.api.Test;
 import com.geedgenetworks.formats.protobuf.SchemaConverters.MessageConverter;
 
+import java.io.FileInputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -520,6 +528,92 @@ public class ProtobufEventSchemaTest {
         System.out.println(JSON.toJSONString(new TreeMap<>(rstMap)));
 
         System.out.println(JSON.toJSONString(new TreeMap<>(map)).equals(JSON.toJSONString(new TreeMap<>(rstMap))));
+    }
+
+
+    public static void main(String[] args) throws Exception{
+        ProtobufEventSchemaTest test = new ProtobufEventSchemaTest();
+        String path = test.getClass().getResource("/session_record_test.desc").getPath();
+        Descriptors.Descriptor descriptor = ProtobufUtils.buildDescriptor(ProtobufUtils.readDescriptorFileContent(path),"SessionRecord");
+        MessageConverter messageConverter = new MessageConverter(descriptor, SchemaConverters.toStructType(descriptor), false);
+        ProtobufSerializer serializer = new ProtobufSerializer(descriptor);
+
+        FileInputStream inputStream = new FileInputStream("D:\\doc\\groot\\SESSION-RECORD-24-0104.json");
+        LineIterator lines = IOUtils.lineIterator(inputStream, "utf-8");
+        int count = 0;
+        long jsonBytesTotalSize = 0;
+        long protoBytesTotalSize = 0;
+        long jsonBytesMinSize = Long.MAX_VALUE;
+        long protoBytesMinSize = Long.MAX_VALUE;
+        long jsonBytesMaxSize = 0;
+        long protoBytesMaxSize = 0;
+
+        CompressionType[] compressionTypes = new CompressionType[]{
+                CompressionType.NONE,  CompressionType.SNAPPY,   CompressionType.LZ4, CompressionType.GZIP, CompressionType.ZSTD
+        };
+        long[][] compressionBytesSize = new long[compressionTypes.length][6];
+        for (int i = 0; i < compressionBytesSize.length; i++) {
+            compressionBytesSize[i][0] = 0;
+            compressionBytesSize[i][1] = 0;
+            compressionBytesSize[i][2] = Long.MAX_VALUE;
+            compressionBytesSize[i][3] = Long.MAX_VALUE;
+            compressionBytesSize[i][4] = 0;
+            compressionBytesSize[i][5] = 0;
+        }
+
+        while (lines.hasNext()){
+            String line = lines.next().trim();
+            if(line.isEmpty()){
+                continue;
+            }
+
+            Map<String, Object> map = JSON.parseObject(line);
+            byte[] bytesProto = serializer.serialize(map);
+            byte[] bytesJson = JSON.toJSONString(map).getBytes(StandardCharsets.UTF_8);
+            jsonBytesTotalSize += bytesJson.length;
+            protoBytesTotalSize += bytesProto.length;
+            jsonBytesMinSize = Math.min(jsonBytesMinSize, bytesJson.length);
+            protoBytesMinSize = Math.min(protoBytesMinSize, bytesProto.length);
+            jsonBytesMaxSize = Math.max(jsonBytesMaxSize, bytesJson.length);
+            protoBytesMaxSize = Math.max(protoBytesMaxSize, bytesProto.length);
+
+            Map<String, Object> rstMap = messageConverter.converter(bytesProto);
+            Preconditions.checkArgument(test.objEquals(map, rstMap, true), "\n" + JSON.toJSONString(new TreeMap<>(map)) + "\n" + JSON.toJSONString(new TreeMap<>(rstMap)));
+            Preconditions.checkArgument(JSON.toJSONString(new TreeMap<>(map)).equals(JSON.toJSONString(new TreeMap<>(rstMap))), "\n" + JSON.toJSONString(new TreeMap<>(map)) + "\n" + JSON.toJSONString(new TreeMap<>(rstMap)));
+            count++;
+
+            for (int i = 0; i < compressionTypes.length; i++) {
+                CompressionType compressionType = compressionTypes[i];
+                ByteBufferOutputStream bufferStream = new ByteBufferOutputStream(1024 * 16);
+                OutputStream outputStream = compressionType.wrapForOutput(bufferStream, (byte) 2);
+                outputStream.write(bytesJson);
+                outputStream.close();
+                int jsonCompressSize = bufferStream.position();
+
+                bufferStream = new ByteBufferOutputStream(1024 * 16);
+                outputStream = compressionType.wrapForOutput(bufferStream, (byte) 2);
+                outputStream.write(bytesProto);
+                outputStream.close();
+                int protoCompressSize = bufferStream.position();
+
+                compressionBytesSize[i][0] += jsonCompressSize;
+                compressionBytesSize[i][1] += protoCompressSize;
+                compressionBytesSize[i][2] = Math.min(compressionBytesSize[i][2], jsonCompressSize);
+                compressionBytesSize[i][3] = Math.min(compressionBytesSize[i][3], protoCompressSize);
+                compressionBytesSize[i][4] = Math.max(compressionBytesSize[i][4], jsonCompressSize);
+                compressionBytesSize[i][5] = Math.max(compressionBytesSize[i][5], protoCompressSize);
+            }
+
+        }
+        System.out.println(String.format("count:%d, jsonBytesAvgSize:%d, protoBytesAvgSize:%d, jsonBytesMinSize:%d, protoBytesMinSize:%d, jsonBytesMaxSize:%d, protoBytesMaxSize:%d", count, jsonBytesTotalSize/count, protoBytesTotalSize/count,
+                jsonBytesMinSize, protoBytesMinSize, jsonBytesMaxSize, protoBytesMaxSize));
+        for (int i = 0; i < compressionTypes.length; i++) {
+            CompressionType compressionType = compressionTypes[i];
+            System.out.println(String.format("compression(%s): count:%d, jsonBytesAvgSize:%d, protoBytesAvgSize:%d, avgRatio:%.2f, jsonBytesMinSize:%d, protoBytesMinSize:%d, minRatio:%.2f, jsonBytesMaxSize:%d, protoBytesMaxSize:%d, maxRatio:%.2f",
+                    compressionType, count, compressionBytesSize[i][0]/count, compressionBytesSize[i][1]/count, (((double)compressionBytesSize[i][1])/count)/(compressionBytesSize[i][0]/count),
+                    compressionBytesSize[i][2], compressionBytesSize[i][3], ((double)compressionBytesSize[i][3])/(compressionBytesSize[i][2]),
+                    compressionBytesSize[i][4], compressionBytesSize[i][5], ((double)compressionBytesSize[i][5])/(compressionBytesSize[i][4])));
+        }
     }
 
     @Test

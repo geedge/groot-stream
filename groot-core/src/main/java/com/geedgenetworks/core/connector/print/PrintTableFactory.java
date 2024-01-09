@@ -68,5 +68,5 @@ public class PrintTableFactory implements SinkTableFactory {
             ConfigOptions.key("mode")
                     .stringType()
                     .defaultValue(STDOUT.name().toLowerCase())
-                    .withDescription("输出模式:stdout,log_info,log_warn");
+                    .withDescription("输出模式:stdout,log_info,log_warn,null");
 }
