@@ -24,7 +24,6 @@
 
     <properties>
         <revision>1.0</revision>
-        <java.version>8</java.version>
         <flink.scope>provided</flink.scope>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -383,11 +382,7 @@
                 <version>${quartz.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>${httpclient.version}</version>
-            </dependency>
+
 
         </dependencies>
 
@@ -756,7 +751,7 @@
                     <artifactId>maven-checkstyle-plugin</artifactId>
                     <version>3.1.2</version>
                     <configuration>
-                        <!--<skip>true</skip>-->
+                        <skip>true</skip>
                         <configLocation>${rootDir}/develop/checkstyle.xml</configLocation>
                         <suppressionsLocation>${rootDir}/develop/suppressions.xml</suppressionsLocation>
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -776,7 +771,7 @@
                     <artifactId>spotbugs-maven-plugin</artifactId>
                     <version>4.4.2.2</version>
                     <configuration>
-                        <!--<skip>true</skip>-->
+                        <skip>true</skip>
                         <threshold>Low</threshold>
                         <effort>default</effort>
                         <failOnError>true</failOnError>

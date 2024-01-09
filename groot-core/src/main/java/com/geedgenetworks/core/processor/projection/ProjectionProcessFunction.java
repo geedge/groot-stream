@@ -8,6 +8,7 @@ import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.utils.ColumnUtil;
+import com.geedgenetworks.common.utils.CustomException;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.core.pojo.UDFContext;
@@ -16,6 +17,7 @@ import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
+import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -93,14 +95,15 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                 if (event.isDropped()) {
                     break;
                 } else {
-                    boolean executionUDF = udfEntity.getFilterExpression() != null
-                            ? (Boolean) udfEntity.getFilterExpression().execute(udfEntity.getFilterExpression().newEnv("event", event.getExtractedFields())) : true;
-                    if (executionUDF) {
+                    boolean result = udfEntity.getFilterExpression() != null ? filterExecute(udfEntity.getFilterExpression(),udfEntity.getFilterExpression().newEnv("event", event.getExtractedFields())) : true;
+                    if (result) {
                         udfEntity.getUdfFunction().evaluate(event);
                     }
                 }
-            } catch (Exception e) {
-                log.error("Function "+udfEntity.getName()+" execution exception !", e);
+            } catch (ExpressionRuntimeException ignore) {
+                log.error("Function "+udfEntity.getName()+" Invalid filter !  ");
+            }  catch (Exception e){
+                log.error("Function "+udfEntity.getName()+" execute exception !", e);
             }
 
         }
@@ -138,6 +141,19 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
             }
         }
         return classReflect;
+    }
+
+    public static Boolean filterExecute(Expression expression,Map<String, Object> map)  {
+
+        boolean result ;
+        Object object = expression.execute(map);
+        if(object != null){
+            result = (Boolean) object;
+        }
+        else {
+            throw new ExpressionRuntimeException();
+        }
+        return result;
     }
 
     @Override

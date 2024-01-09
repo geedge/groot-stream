@@ -7,11 +7,13 @@ import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
+import com.googlecode.aviator.exception.ExpressionRuntimeException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.configuration.Configuration;
 
 import java.util.Map;
-
+@Slf4j
 public class FilterFunction extends RichFilterFunction<Event> {
     private final com.geedgenetworks.core.pojo.FilterConfig FilterConfig;
 
@@ -34,7 +36,7 @@ public class FilterFunction extends RichFilterFunction<Event> {
     }
 
     @Override
-    public boolean filter(Event value) throws Exception {
+    public boolean filter(Event value)  {
         boolean isFilter ;
         try {
 
@@ -46,16 +48,26 @@ public class FilterFunction extends RichFilterFunction<Event> {
             }
             isFilter = aviatorExcute(value.getExtractedFields());
 
-        } catch (RuntimeException ignored) {
+        } catch (ExpressionRuntimeException e){
+            isFilter = false;
+            log.error("Invalid filter ! expression=" +expression);
+        }
+        catch (RuntimeException ignored) {
             isFilter = false;
         }
         return isFilter;
     }
-    public static Boolean aviatorExcute(Map<String, Object> map) {
+    public static boolean aviatorExcute(Map<String, Object> map) {
 
-        Boolean bool = true;
+        boolean bool = true;
         if (!"".equals(expression)) {
-            bool = (Boolean) compiledExp.execute(compiledExp.newEnv("event", map));
+            Object object = compiledExp.execute(compiledExp.newEnv("event", map));
+            if(object != null){
+                bool = (boolean) object;
+            }
+            else {
+                throw new ExpressionRuntimeException();
+            }
         }
         return bool;
 
