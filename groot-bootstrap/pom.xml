@@ -12,33 +12,10 @@
     <name>Groot : Bootstrap </name>
 
     <properties>
-        <!--<scope>compile</scope>
-        <scope>provided</scope>-->
         <scope>provided</scope>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <scope>${scope}</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <scope>${scope}</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <scope>${scope}</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <scope>${scope}</scope>
-        </dependency>
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
