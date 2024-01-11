@@ -1,5 +1,7 @@
 package com.geedgenetworks.core.connector.inline;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.geedgenetworks.core.connector.format.DecodingFormat;
 import com.geedgenetworks.core.connector.source.SourceProvider;
 import com.geedgenetworks.core.factories.DecodingFormatFactory;
@@ -12,9 +14,10 @@ import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.Duration;
+import java.util.*;
+
+import static org.apache.flink.configuration.ConfigOptions.key;
 
 /**
  * 用于测试的source，用于简单测试format、function等
@@ -39,8 +42,10 @@ public class InlineTableFactory implements SourceTableFactory {
 
         String data = config.get(DATA);
         String type = config.get(TYPE);
+        long intervalPerRow = config.get(INTERVAL_PER_ROW).toMillis();
+        int repeatCount = config.get(REPEAT_COUNT);
 
-        return new InlineSourceProvider(physicalDataType, decodingFormat, getDataBytes(data, type));
+        return new InlineSourceProvider(physicalDataType, decodingFormat, parseData(data, type), intervalPerRow, repeatCount);
     }
 
     @Override
@@ -55,7 +60,24 @@ public class InlineTableFactory implements SourceTableFactory {
     public Set<ConfigOption<?>> optionalOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
         options.add(TYPE);
+        options.add(INTERVAL_PER_ROW);
+        options.add(REPEAT_COUNT);
         return options;
+    }
+
+    List<byte[]> parseData(String data, String type){
+        List<byte[]> datas;
+        if(JSON.isValidArray(data)){
+            List<String> dataArray = JSON.parseArray(data, String.class);
+            datas = new ArrayList<>(dataArray.size());
+            for (int i = 0; i < dataArray.size(); i++) {
+                datas.add(getDataBytes(dataArray.get(i), type));
+            }
+        }else{
+            datas = new ArrayList<>(1);
+            datas.add(getDataBytes(data, type));
+        }
+        return datas;
     }
 
     byte[] getDataBytes(String data, String type){
@@ -83,4 +105,14 @@ public class InlineTableFactory implements SourceTableFactory {
                     .stringType()
                     .defaultValue(DATA_TYPE_STRING)
                     .withDescription("数据类型:string(UTF8字符串),hex(十六进制编码),base64(base64编码)");
+    public static final ConfigOption<Duration> INTERVAL_PER_ROW =
+            ConfigOptions.key("interval.per.row")
+                    .durationType()
+                    .defaultValue(Duration.ofSeconds(1))
+                    .withDescription("sleep interval per row to control the emit rate.");
+    public static final ConfigOption<Integer> REPEAT_COUNT =
+            key("repeat.count")
+                    .intType()
+                    .defaultValue(-1)
+                    .withDescription("repeat emit data count. By default, the source is unbounded.");
 }

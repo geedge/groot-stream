@@ -547,6 +547,9 @@ public class ProtobufEventSchemaTest {
         long protoBytesMinSize = Long.MAX_VALUE;
         long jsonBytesMaxSize = 0;
         long protoBytesMaxSize = 0;
+        long totalFieldCount = 0;
+        long minFieldCount = Long.MAX_VALUE;
+        long maxFieldCount = 0;
 
         CompressionType[] compressionTypes = new CompressionType[]{
                 CompressionType.NONE,  CompressionType.SNAPPY,   CompressionType.LZ4, CompressionType.GZIP, CompressionType.ZSTD
@@ -568,6 +571,7 @@ public class ProtobufEventSchemaTest {
             }
 
             Map<String, Object> map = JSON.parseObject(line);
+            int fieldCount = map.size();
             byte[] bytesProto = serializer.serialize(map);
             byte[] bytesJson = JSON.toJSONString(map).getBytes(StandardCharsets.UTF_8);
             jsonBytesTotalSize += bytesJson.length;
@@ -576,6 +580,9 @@ public class ProtobufEventSchemaTest {
             protoBytesMinSize = Math.min(protoBytesMinSize, bytesProto.length);
             jsonBytesMaxSize = Math.max(jsonBytesMaxSize, bytesJson.length);
             protoBytesMaxSize = Math.max(protoBytesMaxSize, bytesProto.length);
+            totalFieldCount += fieldCount;
+            minFieldCount = Math.min(minFieldCount, fieldCount);
+            maxFieldCount = Math.max(maxFieldCount, fieldCount);
 
             Map<String, Object> rstMap = messageConverter.converter(bytesProto);
             Preconditions.checkArgument(test.objEquals(map, rstMap, true), "\n" + JSON.toJSONString(new TreeMap<>(map)) + "\n" + JSON.toJSONString(new TreeMap<>(rstMap)));
@@ -605,7 +612,8 @@ public class ProtobufEventSchemaTest {
             }
 
         }
-        System.out.println(String.format("count:%d, jsonBytesAvgSize:%d, protoBytesAvgSize:%d, jsonBytesMinSize:%d, protoBytesMinSize:%d, jsonBytesMaxSize:%d, protoBytesMaxSize:%d", count, jsonBytesTotalSize/count, protoBytesTotalSize/count,
+        System.out.println(String.format("count:%d, avgFieldCount:%d, minFieldCount:%d, maxFieldCount:%d, jsonBytesAvgSize:%d, protoBytesAvgSize:%d, jsonBytesMinSize:%d, protoBytesMinSize:%d, jsonBytesMaxSize:%d, protoBytesMaxSize:%d",
+                count, totalFieldCount/count, minFieldCount, maxFieldCount, jsonBytesTotalSize/count, protoBytesTotalSize/count,
                 jsonBytesMinSize, protoBytesMinSize, jsonBytesMaxSize, protoBytesMaxSize));
         for (int i = 0; i < compressionTypes.length; i++) {
             CompressionType compressionType = compressionTypes[i];
