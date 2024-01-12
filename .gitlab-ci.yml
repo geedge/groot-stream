@@ -25,7 +25,7 @@ build:
   script:
     - echo "$MAVEN_SETTINGS_XML" > /usr/share/maven/conf/settings.xml
     - mvn $MAVEN_CLI_OPTS enforcer:enforce@snapshot-version-check
-    - mvn $MAVEN_CLI_OPTS clean site deploy -DskipTests
+    - mvn $MAVEN_CLI_OPTS clean deploy -DskipTests
   only:
     - develop
 
@@ -39,6 +39,6 @@ deploy:
       mvn $MAVEN_CLI_OPTS clean verify sonar:sonar -Dsonar.projectKey=$SONAR_PROJECT_KEY \
       -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN_TOKEN \
       -Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=300
-    - mvn $MAVEN_CLI_OPTS clean site deploy -DskipTests
+    - mvn $MAVEN_CLI_OPTS clean deploy -DskipTests
   only:
     - tags
