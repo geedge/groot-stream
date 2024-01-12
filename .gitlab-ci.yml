@@ -6,7 +6,7 @@ variables:
   SONAR_PROJECT_KEY: groot-stream
 
 stages:
-  #- test
+  - test
   - build
   - deploy
 
