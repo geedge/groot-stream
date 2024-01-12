@@ -14,7 +14,7 @@
     <name>Groot : Shaded :</name>
 
     <modules>
-        <module>groot-hbase-client</module>
+        <module>hbase-client-shaded</module>
         <module>protobuf-shaded</module>
     </modules>
 

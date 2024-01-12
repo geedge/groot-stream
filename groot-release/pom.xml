@@ -114,7 +114,7 @@
                 <!--Hbase Jars -->
                 <dependency>
                     <groupId>com.geedgenetworks</groupId>
-                    <artifactId>groot-hbase-client</artifactId>
+                    <artifactId>hbase-client-shaded</artifactId>
                     <version>${project.version}</version>
                     <scope>provided</scope>
                 </dependency>

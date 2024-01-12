@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>groot-hbase-client</artifactId>
+    <artifactId>hbase-client-shaded</artifactId>
     <name>Groot : Shaded : Hbase-client</name>
 
     <properties>
@@ -67,7 +67,7 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                            <finalName>groot-hbase-client-${project.version}</finalName>
+                            <finalName>hbase-client-shaded-${project.version}</finalName>
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <shadedArtifactAttached>false</shadedArtifactAttached>

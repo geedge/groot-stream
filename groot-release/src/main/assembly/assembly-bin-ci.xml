@@ -143,7 +143,7 @@
             <useTransitiveDependencies>true</useTransitiveDependencies>
             <unpack>false</unpack>
             <includes>
-                <include>com.geedgenetworks:groot-hbase-client:jar</include>
+                <include>com.geedgenetworks:hbase-client-shaded:jar</include>
                 <include>com.geedgenetworks:format-json:jar</include>
                 <include>com.geedgenetworks:format-protobuf:jar</include>
             </includes>
