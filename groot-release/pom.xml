@@ -13,10 +13,6 @@
     <packaging>pom</packaging>
     <name> Groot : Release</name>
 
-    <properties>
-        <!-- disable mvn deploy to central maven repo by default -->
-        <maven.deploy.skip>true</maven.deploy.skip>
-    </properties>
     <build>
         <finalName>groot-stream-${project.version}</finalName>
         <plugins>
