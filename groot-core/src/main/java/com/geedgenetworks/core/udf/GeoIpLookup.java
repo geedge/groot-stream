@@ -23,7 +23,7 @@ import java.util.Map;
 @Slf4j
 public class GeoIpLookup implements UDF {
 
-    private String vender;
+    private String kbName;
     private String option;
     private String lookupFieldName;
     private String outputFieldName;
@@ -32,7 +32,7 @@ public class GeoIpLookup implements UDF {
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         checkUdfContext(udfContext);
-        this.vender = udfContext.getParameters().get("vendor_id").toString();
+        this.kbName = udfContext.getParameters().get("kb_name").toString();
         this.option = udfContext.getParameters().get("option").toString();
         if (option.equals("IP_TO_OBJECT")) {
             this.geoLocationFieldMapping = (Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
@@ -40,8 +40,8 @@ public class GeoIpLookup implements UDF {
         Configuration configuration = (Configuration) runtimeContext
                 .getExecutionConfig().getGlobalJobParameters();
         CommonConfig commonConfig = com.alibaba.fastjson.JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
-        KnowledgeBaseUpdateJob.initKnowledgeBase(vender, GeoIpKnowledgeBase.getInstance(), commonConfig);
-        if (GeoIpKnowledgeBase.getVenderWithIpLookup() != null && GeoIpKnowledgeBase.getVenderWithIpLookup().containsKey(vender)) {
+        KnowledgeBaseUpdateJob.initKnowledgeBase(kbName, GeoIpKnowledgeBase.getInstance(), commonConfig);
+        if (GeoIpKnowledgeBase.getVenderWithIpLookup() != null && GeoIpKnowledgeBase.getVenderWithIpLookup().containsKey(kbName)) {
             log.debug("Init GeoIpLookup success ");
         } else {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init GeoIpLookup error ");
@@ -60,7 +60,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
-                                            .get(vender)
+                                            .get(kbName)
                                             .countryLookup(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -70,7 +70,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
-                                            .get(vender)
+                                            .get(kbName)
                                             .provinceLookup(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -80,7 +80,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
-                                            .get(vender)
+                                            .get(kbName)
                                             .cityLookup(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -90,7 +90,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
-                                            .get(vender)
+                                            .get(kbName)
                                             .cityLookupDetail(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -100,7 +100,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
-                                            .get(vender)
+                                            .get(kbName)
                                             .locationLookupDetail(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -109,7 +109,7 @@ public class GeoIpLookup implements UDF {
                 case "IP_TO_LATLNG":
                     event.getExtractedFields()
                             .put(outputFieldName, GeoIpKnowledgeBase.getVenderWithIpLookup()
-                                    .get(vender)
+                                    .get(kbName)
                                     .latLngLookup(
                                             event.getExtractedFields()
                                                     .get(lookupFieldName)
@@ -120,7 +120,7 @@ public class GeoIpLookup implements UDF {
                     HashMap<String, Object> serverIpMap =
                             JSON.parseObject(
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
-                                            .get(vender)
+                                            .get(kbName)
                                             .ispLookup(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -135,7 +135,7 @@ public class GeoIpLookup implements UDF {
                     event.getExtractedFields()
                             .put(outputFieldName,
                                     GeoIpKnowledgeBase.getVenderWithIpLookup()
-                                            .get(vender)
+                                            .get(kbName)
                                             .infoLookupToJSONString(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -143,7 +143,7 @@ public class GeoIpLookup implements UDF {
                     break;
                 case "IP_TO_OBJECT":
                     Object object = GeoIpKnowledgeBase.getVenderWithIpLookup()
-                        .get(vender)
+                        .get(kbName)
                         .infoLookup(
                                 event.getExtractedFields()
                                         .get(lookupFieldName)
@@ -201,8 +201,8 @@ public class GeoIpLookup implements UDF {
         if (udfContext.getOutput_fields().size() != 1) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
-        if (!udfContext.getParameters().containsKey("vendor_id")) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey vendor_id");
+        if (!udfContext.getParameters().containsKey("kb_name")) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey kb_name");
         }
         if (!udfContext.getParameters().containsKey("option")) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey option");

@@ -16,7 +16,7 @@ import org.apache.flink.configuration.Configuration;
 @Slf4j
 public class AsnLookup implements UDF {
 
-    private String vender;
+    private String kbName;
     private String option;
     private String lookupFieldName;
     private String outputFieldName;
@@ -25,15 +25,15 @@ public class AsnLookup implements UDF {
     public void open(RuntimeContext runtimeContext, UDFContext udfContext)  {
 
         checkUdfContext(udfContext);
-        this.vender = udfContext.getParameters().get("vendor_id").toString();
+        this.kbName = udfContext.getParameters().get("kb_name").toString();
         this.option = udfContext.getParameters().get("option").toString();
         Configuration configuration = (Configuration) runtimeContext
                 .getExecutionConfig().getGlobalJobParameters();
         CommonConfig commonConfig = com.alibaba.fastjson.JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
 
-        KnowledgeBaseUpdateJob.initKnowledgeBase(vender,AsnKnowledgeBase.getInstance(), commonConfig);
+        KnowledgeBaseUpdateJob.initKnowledgeBase(kbName,AsnKnowledgeBase.getInstance(), commonConfig);
 
-        if(AsnKnowledgeBase.getVenderWithAsnLookup()!=null && AsnKnowledgeBase.getVenderWithAsnLookup().containsKey(vender)){
+        if(AsnKnowledgeBase.getVenderWithAsnLookup()!=null && AsnKnowledgeBase.getVenderWithAsnLookup().containsKey(kbName)){
             log.debug("Init AsnKnowledgeBase success ");
         }
         else {
@@ -47,13 +47,13 @@ public class AsnLookup implements UDF {
     @Override
     public Event evaluate(Event event) {
 
-        if(AsnKnowledgeBase.getVenderWithAsnLookup()!=null && AsnKnowledgeBase.getVenderWithAsnLookup().containsKey(vender)){
+        if(AsnKnowledgeBase.getVenderWithAsnLookup()!=null && AsnKnowledgeBase.getVenderWithAsnLookup().containsKey(kbName)){
 
             if(event.getExtractedFields().containsKey(lookupFieldName)){
                 switch (option) {
                     case "IP_TO_ASN":
                         String asn = AsnKnowledgeBase.getVenderWithAsnLookup()
-                                .get(vender)
+                                .get(kbName)
                                     .asnLookup(event.getExtractedFields().get(lookupFieldName).toString());
                         if(!asn.isEmpty()) {
                             event.getExtractedFields()
@@ -91,8 +91,8 @@ public class AsnLookup implements UDF {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
 
-        if(!udfContext.getParameters().containsKey("vendor_id")){
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey vendor_id");
+        if(!udfContext.getParameters().containsKey("kb_name")){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey kb_name");
         }
         if(!udfContext.getParameters().containsKey("option")){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey option");
