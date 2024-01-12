@@ -64,8 +64,10 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
 
             if (CommonConfigOptions.KNOWLEDGE_BASE_NAME.key().equals(name)) {
                 knowledgeBaseConfig.setName(getTextContent(node));
-            } else if (CommonConfigOptions.KNOWLEDGE_BASE_TYPE.key().equals(name)) {
-                knowledgeBaseConfig.setType(getTextContent(node));
+            } else if (CommonConfigOptions.KNOWLEDGE_BASE_FS_TYPE.key().equals(name)) {
+                knowledgeBaseConfig.setFsType(getTextContent(node));
+            } else if (CommonConfigOptions.KNOWLEDGE_BASE_FS_PATH.key().equals(name)) {
+                knowledgeBaseConfig.setFsPath(getTextContent(node));
             } else if (CommonConfigOptions.KNOWLEDGE_BASE_FILES.key().equals(name)) {
                 knowledgeBaseConfig.setFiles(parseKnowledgeBaseFilesConfig(node));
             } else if (CommonConfigOptions.KNOWLEDGE_BASE_PROPERTIES.key().equals(name)) {

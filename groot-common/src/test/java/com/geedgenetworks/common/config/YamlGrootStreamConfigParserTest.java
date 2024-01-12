@@ -20,7 +20,7 @@ public class YamlGrootStreamConfigParserTest {
         Assertions.assertNotNull(config);
         Assertions.assertNotNull(config.getCommonConfig().getKnowledgeBaseConfig());
         Assertions.assertTrue(config.getCommonConfig().getKnowledgeBaseConfig().size() > 0);
-        Assertions.assertTrue(Arrays.asList("asnlookup", "geoiplookup").contains(config.getCommonConfig().getKnowledgeBaseConfig().get(0).getType()));
+        Assertions.assertTrue(Arrays.asList("http", "hdfs","local").contains(config.getCommonConfig().getKnowledgeBaseConfig().get(0).getFsType()));
         Assertions.assertTrue(config.getUDFPluginConfig().size() > 0);
 
     }

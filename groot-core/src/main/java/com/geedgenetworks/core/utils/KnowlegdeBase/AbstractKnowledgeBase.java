@@ -62,7 +62,7 @@ public abstract class AbstractKnowledgeBase {
      static KnowLedgeFileEntity getMetadata(String type,String path ,String id) {
 
          try{
-             if(type.equals("hos")){
+             if(type.equals("http")){
                  HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
                  String metadate  = httpClientPoolUtil.httpGet(URI.create(path+id)) ;
                  Map metaObject = JSON.parseObject(metadate, Map.class);

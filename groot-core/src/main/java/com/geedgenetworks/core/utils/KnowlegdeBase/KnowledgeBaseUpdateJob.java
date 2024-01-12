@@ -67,20 +67,22 @@ public class KnowledgeBaseUpdateJob implements Job {
 
                 try {
                     for(KnowledgeBaseConfig knowledgeBaseConfig : commonConfig.getKnowledgeBaseConfig()){
-                        if(!knowledgeBaseConfig.getProperties().containsKey("fs_type") || !knowledgeBaseConfig.getProperties().containsKey("fs_default_path")){
-                            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "initKnowledgeBase error! the knowledge_base properties should contain fs_type and fs_default_path .");
-                        }
+
                         if(name.equals(knowledgeBaseConfig.getName())){
                             knowledgeBaseEntity.setKnowledgeConfig(knowledgeBaseConfig);
                             break;
                         }
                     }
                     KnowLedgeBaseEntityMap.put(name, knowledgeBaseEntity);
-                    for (String id : knowledgeBaseEntity.getKnowledgeConfig().getFiles()) {
 
-                        KnowLedgeFileEntity knowLedgeEntity = getMetadata(knowledgeBaseEntity.getKnowledgeConfig().getProperties().get("fs_type"), knowledgeBaseEntity.getKnowledgeConfig().getProperties().get("fs_default_path"),id);
-                        if(knowLedgeEntity!=null){
-                            knowLedgeFileEntityList.add(knowLedgeEntity);
+                    if(knowledgeBaseEntity.getKnowledgeConfig().getFiles()!=null && !knowledgeBaseEntity.getKnowledgeConfig().getFiles().isEmpty()) {
+
+                        for (String id : knowledgeBaseEntity.getKnowledgeConfig().getFiles()) {
+
+                            KnowLedgeFileEntity knowLedgeEntity = getMetadata(knowledgeBaseEntity.getKnowledgeConfig().getFsType(), knowledgeBaseEntity.getKnowledgeConfig().getFsPath(), "?kb_id="+id);
+                            if (knowLedgeEntity != null) {
+                                knowLedgeFileEntityList.add(knowLedgeEntity);
+                            }
                         }
                     }
 
@@ -101,7 +103,7 @@ public class KnowledgeBaseUpdateJob implements Job {
         if(knowledgeBaseEntity.getKnowLedgeFileEntityList()!=null) {
             for (KnowLedgeFileEntity knowLedgeEntity : knowledgeBaseEntity.getKnowLedgeFileEntityList()) {
 
-                KnowLedgeFileEntity metadata = getMetadata(knowledgeBaseEntity.getKnowledgeConfig().getProperties().get("fs_type"),knowledgeBaseEntity.getKnowledgeConfig().getProperties().get("fs_default_path"),knowLedgeEntity.getKb_id());
+                KnowLedgeFileEntity metadata = getMetadata(knowledgeBaseEntity.getKnowledgeConfig().getFsType(),knowledgeBaseEntity.getKnowledgeConfig().getFsPath(),"?kb_id="+knowLedgeEntity.getKb_id());
                 if (metadata != null) {
                     if (!knowLedgeEntity.getSha256().equals(metadata.getSha256())) {
                         return true;

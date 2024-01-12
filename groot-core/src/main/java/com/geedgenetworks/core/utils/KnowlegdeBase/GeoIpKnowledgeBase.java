@@ -31,7 +31,7 @@ public class GeoIpKnowledgeBase extends AbstractKnowledgeBase {
 
         for (int i = 0; i < knowledgeBaseConfig.getFiles().size(); i++) {
             try {
-                KnowLedgeFileEntity knowLedgeFileEntity = getMetadata(knowledgeBaseConfig.getProperties().get("fs_type"),knowledgeBaseConfig.getProperties().get("fs_default_path"),knowledgeBaseConfig.getFiles().get(i));
+                KnowLedgeFileEntity knowLedgeFileEntity = getMetadata(knowledgeBaseConfig.getFsType(),knowledgeBaseConfig.getFsPath(),"?kb_id="+knowledgeBaseConfig.getFiles().get(i));
 
 
                 byte[] fileByte = downloadFile(knowLedgeFileEntity.getPath(), knowLedgeFileEntity.getIsValid());

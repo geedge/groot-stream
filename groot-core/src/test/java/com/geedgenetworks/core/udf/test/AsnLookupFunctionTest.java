@@ -63,7 +63,7 @@ public class AsnLookupFunctionTest {
     }
 
     @Test
-    public void testAsnLookupFunctionIpToAsn() throws Exception {
+    public void testAsnLookupFunction() throws Exception {
 
 
         CommonConfig commonConfig = new CommonConfig();
@@ -71,10 +71,9 @@ public class AsnLookupFunctionTest {
         KnowledgeBaseConfig knowledgeBaseConfig = new KnowledgeBaseConfig();
         knowledgeBaseConfig.setName("tsg_asnlookup");
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("fs_type","hos");
-        parameters.put("fs_default_path","http://192.168.44.67:9999/v1/knowledge_base?kb_id=");
         knowledgeBaseConfig.setProperties(parameters);
-        knowledgeBaseConfig.setType("asnlookup");
+        knowledgeBaseConfig.setFsType("http");
+        knowledgeBaseConfig.setFsPath("http://192.168.44.67:9999/v1/knowledge_base");
         knowledgeBaseConfig.setFiles(Collections.singletonList("f9f6bc91-2142-4673-8249-e097c00fe1ea"));
         knowledgeBaseConfigList.add(knowledgeBaseConfig);
         commonConfig.setKnowledgeBaseConfig(knowledgeBaseConfigList);

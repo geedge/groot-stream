@@ -19,12 +19,16 @@ public class CommonConfigOptions {
                     .stringType()
                     .defaultValue("")
                     .withDescription("The name of knowledgebase.");
-    public static final Option<String> KNOWLEDGE_BASE_TYPE =
-            Options.key("type")
+    public static final Option<String> KNOWLEDGE_BASE_FS_TYPE =
+            Options.key("fs_type")
                     .stringType()
                     .defaultValue("")
-                    .withDescription("The type of knowledgebase.");
-
+                    .withDescription("The filesystem type of knowledgebase.");
+    public static final Option<String> KNOWLEDGE_BASE_FS_PATH =
+            Options.key("fs_path")
+                    .stringType()
+                    .defaultValue("")
+                    .withDescription("The filesystem path of knowledgebase.");
     public static final Option<List<String>> KNOWLEDGE_BASE_FILES =
             Options.key("files")
                     .listType()
