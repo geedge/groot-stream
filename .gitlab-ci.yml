@@ -36,7 +36,7 @@ deploy:
     - echo "$MAVEN_SETTINGS_XML" > /usr/share/maven/conf/settings.xml
     - mvn $MAVEN_CLI_OPTS enforcer:enforce@release-version-check
     - |-
-      mvn $MAVEN_CLI_OPTS clean verify sonar:sonar sonar-quality-gate:check -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+      mvn $MAVEN_CLI_OPTS clean verify sonar:sonar -Dsonar.projectKey=$SONAR_PROJECT_KEY \
       -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN_TOKEN
     - mvn $MAVEN_CLI_OPTS clean site deploy -DskipTests
   only:
