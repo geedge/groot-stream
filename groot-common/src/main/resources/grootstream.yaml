@@ -1,18 +1,13 @@
 grootstream:
   knowledge_base:
     - name: tsg_asnlookup
-      type: asnlookup
-      properties:
-        fs_type: hos
-        fs_default_path: http://192.168.44.12:9999/v1/knowledge_base?kb_id=
+      fs_type: http
+      fs_path: http://192.168.44.12:9999/v1/knowledge_base
       files:
-        # - http://192.168.44.12:9098/hos/knowledge_base_bucket/757732ce-8214-4c34-aea2-aca6c51a7e82-YXNuX2J1aWx0aW4=.mmdb
         - f9f6bc91-2142-4673-8249-e097c00fe1ea
     - name: tsg_geoiplookup
-      type: geoiplookup
-      properties:
-        fs_type: hos
-        fs_default_path: http://192.168.44.12:9999/v1/knowledge_base?kb_id=
+      fs_type: http
+      fs_path: http://192.168.44.12:9999/v1/knowledge_base
       files:
         - 64af7077-eb9b-4b8f-80cf-2ceebc89bea9
         - 004390bc-3135-4a6f-a492-3662ecb9e289
@@ -20,19 +15,3 @@ grootstream:
     hos.path: http://192.168.44.12:8089
     hos.bucket.name.traffic_file: traffic_file_bucket
     hos.bucket.name.troubleshooting_file: troubleshooting_file_bucket
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
