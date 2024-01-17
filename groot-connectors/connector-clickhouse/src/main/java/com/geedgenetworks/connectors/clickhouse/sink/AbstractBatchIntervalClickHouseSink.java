@@ -15,6 +15,8 @@ import com.github.housepower.misc.DateTimeUtil;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;
+import org.apache.flink.metrics.Meter;
+import org.apache.flink.metrics.MeterView;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
@@ -53,8 +55,10 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     private int batchSize;
     private long batchIntervalMs;
     private transient volatile boolean closed;
-    private transient Counter numRecordsOutCounter;
-    private transient Counter numRecordsOutFailedCounter;
+    private transient Counter numRecordsOut;
+    private transient Counter numRecordsOutFailed;
+    private transient Meter numRecordsOutPerSecond;
+    private transient Meter numRecordsOutFailedPerSecond;
     private transient Thread outThread;
     private transient ReentrantLock lock;
     private transient Block batch;
@@ -128,8 +132,10 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     }
 
     private void initMetric() throws Exception {
-        numRecordsOutCounter = getRuntimeContext().getMetricGroup().counter("ckNumRecordsOut");
-        numRecordsOutFailedCounter = getRuntimeContext().getMetricGroup().counter("ckNumRecordsOutFailed");
+        numRecordsOut = getRuntimeContext().getMetricGroup().counter("ckNumRecordsOut");
+        numRecordsOutFailed = getRuntimeContext().getMetricGroup().counter("ckNumRecordsOutFailed");
+        numRecordsOutPerSecond = getRuntimeContext().getMetricGroup().meter("ckNumRecordsOutPerSecond", new MeterView(numRecordsOut));
+        numRecordsOutFailedPerSecond = getRuntimeContext().getMetricGroup().meter("ckNumRecordsOutFailedPerSecond", new MeterView(numRecordsOutFailed));
     }
 
     private void initClickHouseParams() throws Exception {
@@ -211,7 +217,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 flush();
             }
         } catch (Exception e) {
-            numRecordsOutFailedCounter.inc();
+            numRecordsOutFailed.inc();
             LOG.error("转换ck类型异常", e);
         } finally{
             lock.unlock();
@@ -269,14 +275,14 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 ClickHouseUtils.copyInsertBlockColumns(block, stmt.getBlock());
                 stmt.executeBatch();
 
-                numRecordsOutCounter.inc(rowCnt);
+                numRecordsOut.inc(rowCnt);
                 LOG.warn("flush " + rowCnt + " end:" + new Timestamp(System.currentTimeMillis()) + "," + (System.currentTimeMillis() - start));
 
                 return;
             } catch (Exception e) {
                 LOG.error("ClickHouseBatchInsertFail url:" + url, e);
                 if (retryCount >= 3) {
-                    numRecordsOutFailedCounter.inc(rowCnt);
+                    numRecordsOutFailed.inc(rowCnt);
                     LOG.error("ClickHouseBatchInsertFinalFail for rowCnt:" + rowCnt);
                     // throw e;
                     return;
