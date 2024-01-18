@@ -1,12 +1,14 @@
 package com.geedgenetworks.core.udf;
 
+import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CommonConfig;
+import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
-import com.geedgenetworks.core.utils.KnowlegdeBase.AsnKnowledgeBase;
+import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AsnKnowledgeBaseHandler;
 
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +18,7 @@ import org.apache.flink.configuration.Configuration;
 @Slf4j
 public class AsnLookup implements UDF {
 
-    private String kbName;
+    private String ipAsnKbName;
     private String option;
     private String lookupFieldName;
     private String outputFieldName;
@@ -25,19 +27,24 @@ public class AsnLookup implements UDF {
     public void open(RuntimeContext runtimeContext, UDFContext udfContext)  {
 
         checkUdfContext(udfContext);
-        this.kbName = udfContext.getParameters().get("kb_name").toString();
+        this.ipAsnKbName = udfContext.getParameters().get("kb_name").toString();
         this.option = udfContext.getParameters().get("option").toString();
         Configuration configuration = (Configuration) runtimeContext
                 .getExecutionConfig().getGlobalJobParameters();
-        CommonConfig commonConfig = com.alibaba.fastjson.JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
-
-        KnowledgeBaseUpdateJob.initKnowledgeBase(kbName,AsnKnowledgeBase.getInstance(), commonConfig);
-
-        if(AsnKnowledgeBase.getVenderWithAsnLookup()!=null && AsnKnowledgeBase.getVenderWithAsnLookup().containsKey(kbName)){
+        CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
+        for(KnowledgeBaseConfig knowledgeBaseConfig : commonConfig.getKnowledgeBaseConfig()){
+            if(ipAsnKbName.equals(knowledgeBaseConfig.getName())) {
+                if(!KnowledgeBaseUpdateJob.registerKnowledgeBase(AsnKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig)){
+                    throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Register AsnKnowledgeBase error ");
+                }
+                break;
+            }
+        }
+        if(AsnKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().containsKey(ipAsnKbName)  &&  AsnKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipAsnKbName).getIpLookupV2()!=null){
             log.debug("Init AsnKnowledgeBase success ");
         }
         else {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init AsnKnowledgeBase error ");
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init Function AsnLookUp error ");
         }
         this.lookupFieldName = udfContext.getLookup_fields().get(0);
         this.outputFieldName = udfContext.getOutput_fields().get(0);
@@ -47,13 +54,10 @@ public class AsnLookup implements UDF {
     @Override
     public Event evaluate(Event event) {
 
-        if(AsnKnowledgeBase.getVenderWithAsnLookup()!=null && AsnKnowledgeBase.getVenderWithAsnLookup().containsKey(kbName)){
-
             if(event.getExtractedFields().containsKey(lookupFieldName)){
                 switch (option) {
                     case "IP_TO_ASN":
-                        String asn = AsnKnowledgeBase.getVenderWithAsnLookup()
-                                .get(kbName)
+                        String asn = AsnKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipAsnKbName).getIpLookupV2()
                                     .asnLookup(event.getExtractedFields().get(lookupFieldName).toString());
                         if(!asn.isEmpty()) {
                             event.getExtractedFields()
@@ -64,7 +68,7 @@ public class AsnLookup implements UDF {
                         break;
                 }
             }
-        }
+
         return event;
     }
     @Override
@@ -75,7 +79,7 @@ public class AsnLookup implements UDF {
     @Override
     public void close() {
 
-        KnowledgeBaseUpdateJob.destroyKnowledgeBase();
+        KnowledgeBaseUpdateJob.removeKnowledgeBase(ipAsnKbName);
     }
 
     private void checkUdfContext(UDFContext udfContext) {

@@ -1,15 +1,9 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase;
 
-import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
-import com.geedgenetworks.common.exception.CommonErrorCode;
-import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.core.pojo.KnowLedgeFileEntity;
-import com.geedgenetworks.core.pojo.KnowledgeBaseEntity;
+import com.geedgenetworks.core.pojo.KnowledgeBaseConfigWithHandler;
+import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AbstractKnowledgeBaseHandler;
 import lombok.Getter;
-import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.configuration.Configuration;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
@@ -18,33 +12,19 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.geedgenetworks.core.utils.KnowlegdeBase.AbstractKnowledgeBase.getMetadata;
-import static com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseScheduler.startTask;
-import static com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseScheduler.stopTask;
-
 
 public class KnowledgeBaseUpdateJob implements Job {
 
 
     @Getter
-    private static final Map<String, KnowledgeBaseEntity> KnowLedgeBaseEntityMap= new ConcurrentHashMap<>() ;
+    private static final Map<String, KnowledgeBaseConfigWithHandler> KnowLedgeBaseEntityMap= new ConcurrentHashMap<>() ;
     private static final Logger logger = LoggerFactory.getLogger(KnowledgeBaseUpdateJob.class);
 
-    private static KnowledgeBaseUpdateJob instance;
 
-
-    public static synchronized KnowledgeBaseUpdateJob getInstance()  {
-        if (instance == null) {
-            instance = new KnowledgeBaseUpdateJob();
-            startTask();
-        }
-        return instance;
-    }
-
-    public static void  updateKnowledgeBase(KnowledgeBaseEntity knowledgeBaseEntity)  {
+    public static void  updateKnowledgeBase(KnowledgeBaseConfigWithHandler knowledgeBaseConfigWithHandler)  {
 
         try {
-            knowledgeBaseEntity.getAbstractKnowledgeBase().updateKnowledgeBase(knowledgeBaseEntity.getKnowledgeConfig());
+            knowledgeBaseConfigWithHandler.getAbstractKnowledgeBaseHandler().updateKnowledgeBase();
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -52,86 +32,38 @@ public class KnowledgeBaseUpdateJob implements Job {
 
 
 
-    public static synchronized  void initKnowledgeBase(String name,AbstractKnowledgeBase abstractKnowledgeBase,CommonConfig commonConfig)   {
+    public static synchronized  boolean registerKnowledgeBase(AbstractKnowledgeBaseHandler abstractKnowledgeBaseHandler, KnowledgeBaseConfig knowledgeBaseConfig)   {
 
 
-        if (instance == null) {
-            getInstance();
-        }
-
-            if (!KnowLedgeBaseEntityMap.containsKey(name)) {
-                List<KnowLedgeFileEntity> knowLedgeFileEntityList = new ArrayList<>();
-                KnowledgeBaseEntity knowledgeBaseEntity = new KnowledgeBaseEntity();
-                knowledgeBaseEntity.setAbstractKnowledgeBase(abstractKnowledgeBase);
-                knowledgeBaseEntity.setKnowLedgeFileEntityList(knowLedgeFileEntityList);
-
+            boolean isSuccess = false;
+            if (!KnowLedgeBaseEntityMap.containsKey(knowledgeBaseConfig.getName())) {
+                KnowledgeBaseConfigWithHandler knowledgeBaseConfigWithHandler = new KnowledgeBaseConfigWithHandler();
+                knowledgeBaseConfigWithHandler.setAbstractKnowledgeBaseHandler(abstractKnowledgeBaseHandler);
+                knowledgeBaseConfigWithHandler.setKnowledgeConfig(knowledgeBaseConfig);
                 try {
-                    for(KnowledgeBaseConfig knowledgeBaseConfig : commonConfig.getKnowledgeBaseConfig()){
-
-                        if(name.equals(knowledgeBaseConfig.getName())){
-                            knowledgeBaseEntity.setKnowledgeConfig(knowledgeBaseConfig);
-                            break;
-                        }
-                    }
-                    KnowLedgeBaseEntityMap.put(name, knowledgeBaseEntity);
-
-                    if(knowledgeBaseEntity.getKnowledgeConfig().getFiles()!=null && !knowledgeBaseEntity.getKnowledgeConfig().getFiles().isEmpty()) {
-
-                        for (String id : knowledgeBaseEntity.getKnowledgeConfig().getFiles()) {
-
-                            KnowLedgeFileEntity knowLedgeEntity = getMetadata(knowledgeBaseEntity.getKnowledgeConfig().getFsType(), knowledgeBaseEntity.getKnowledgeConfig().getFsPath(), "?kb_id="+id);
-                            if (knowLedgeEntity != null) {
-                                knowLedgeFileEntityList.add(knowLedgeEntity);
-                            }
-                        }
-                    }
-
-                    if(!knowLedgeFileEntityList.isEmpty()) {
-                        updateKnowledgeBase(knowledgeBaseEntity);
-                    }
+                    isSuccess = abstractKnowledgeBaseHandler.initKnowledgeBase(knowledgeBaseConfig);
+                    KnowLedgeBaseEntityMap.put(knowledgeBaseConfig.getName(), knowledgeBaseConfigWithHandler);
                 } catch (Exception e) {
-                    logger.error("initKnowledgeBase  " + e.getMessage());
+                    logger.error("initKnowledgeBase "+knowledgeBaseConfig.getName() + "Error" + e.getMessage());
                 }
+            } else {
+                isSuccess = true;
             }
-
-
-    }
-
-
-    public static synchronized  Boolean ifNeedUpdate(KnowledgeBaseEntity knowledgeBaseEntity)  {
-
-        if(knowledgeBaseEntity.getKnowLedgeFileEntityList()!=null) {
-            for (KnowLedgeFileEntity knowLedgeEntity : knowledgeBaseEntity.getKnowLedgeFileEntityList()) {
-
-                KnowLedgeFileEntity metadata = getMetadata(knowledgeBaseEntity.getKnowledgeConfig().getFsType(),knowledgeBaseEntity.getKnowledgeConfig().getFsPath(),"?kb_id="+knowLedgeEntity.getKb_id());
-                if (metadata != null) {
-                    if (!knowLedgeEntity.getSha256().equals(metadata.getSha256())) {
-                        return true;
-                    }
-                } else {
-                    logger.error("get file Metadata " + knowLedgeEntity.getKb_id()+ " error ");
-                }
-            }
-        }
-        return false;
+            return isSuccess;
 
     }
 
-    public static void destroyKnowledgeBase() {
-        stopTask();
-    }
+    public static synchronized  void removeKnowledgeBase(String kbName)   {
 
+        KnowLedgeBaseEntityMap.remove(kbName);
+    }
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
 
         if (!KnowLedgeBaseEntityMap.isEmpty()) {
-            for (Map.Entry<String, KnowledgeBaseEntity> entry : KnowLedgeBaseEntityMap.entrySet()) {
-                Boolean flag = null;
+            for (Map.Entry<String, KnowledgeBaseConfigWithHandler> entry : KnowLedgeBaseEntityMap.entrySet()) {
                 try {
-                    flag = ifNeedUpdate(entry.getValue());
-                    if (flag) {
-                        updateKnowledgeBase(entry.getValue());
-                    }
+                    updateKnowledgeBase(entry.getValue());
                 } catch (Exception e) {
                     logger.error(e.getMessage());
                 }

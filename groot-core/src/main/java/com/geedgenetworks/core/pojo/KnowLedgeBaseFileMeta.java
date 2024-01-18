@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.pojo;
 
-public class KnowLedgeFileEntity {
+public class KnowLedgeBaseFileMeta {
 
     private String kb_id;
     private String name;

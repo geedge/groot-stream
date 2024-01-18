@@ -1,0 +1,133 @@
+package com.geedgenetworks.core.utils.KnowlegdeBase.Handler;
+
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.geedgenetworks.common.config.KnowledgeBaseConfig;
+import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
+import com.geedgenetworks.core.utils.HttpClientPoolUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public abstract class AbstractKnowledgeBaseHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(AbstractKnowledgeBaseHandler.class);
+
+    public AbstractKnowledgeBaseHandler() {
+        // 抽象类的构造函数
+    }
+
+    public abstract Boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig);
+
+    public abstract void updateKnowledgeBase();
+
+
+    public static String calculateSHA256(byte[] data) {
+        MessageDigest digest = null;
+        StringBuilder result = new StringBuilder();
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+            for (byte b : digest.digest(data)) {
+                result.append(String.format("%02x", b));
+            }
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("calculateSHA256  error: " + e.getMessage());
+        }
+        return result.toString();
+    }
+
+
+    public static byte[] downloadFile(String fileUrl, int isValid) {
+        byte[] inputStream = null;
+        if (isValid == 1) {
+            try {
+                long start = System.currentTimeMillis();
+                HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
+                inputStream = httpClientPoolUtil.httpGetByte(fileUrl);
+                long end = System.currentTimeMillis();
+                logger.info(
+                        "download file " + fileUrl + " finished, speed " + (end - start) + " ms");
+            } catch (Exception e) {
+                logger.error("download file " + fileUrl + " error: " + e.getMessage());
+            }
+        }
+        return inputStream;
+    }
+
+    public static List<KnowLedgeBaseFileMeta> getMetadata(String type, String path) {
+
+        List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetaList = new ArrayList<>();
+
+        try {
+            switch (type) {
+                case "http":
+
+                    HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
+                    String metadate = httpClientPoolUtil.httpGet(URI.create(path));
+                    Map metaObject = JSON.parseObject(metadate, Map.class);
+                    JSONArray jsonArray = (JSONArray) metaObject.get("data");
+                    List<KnowLedgeBaseFileMeta> resultList = jsonArray.toJavaList(KnowLedgeBaseFileMeta.class);
+                    knowLedgeBaseFileMetaList.addAll(resultList);
+                    knowLedgeBaseFileMetaList.removeIf(knowLedgeBaseFileMeta -> !"latest".equals(knowLedgeBaseFileMeta.getVersion()));
+                    break;
+                case "local":
+                    break;
+                case "hdfs":
+                    break;
+                default:
+                    logger.error("get file Metadata  error:  fs_type not suppoort !");
+                    break;
+            }
+        } catch (Exception e) {
+            logger.error("get file Metadata error! path = " + path + " " + e.getMessage());
+        }
+
+        return knowLedgeBaseFileMetaList;
+    }
+
+
+    public static KnowLedgeBaseFileMeta getMetadata(String type, String path, String kbId) {
+
+        List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetaList = new ArrayList<>();
+
+        try {
+            switch (type) {
+                case "http":
+
+                    HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
+                    String metadate = httpClientPoolUtil.httpGet(URI.create(path + "?kb_id=" + kbId));
+                    Map metaObject = JSON.parseObject(metadate, Map.class);
+                    JSONArray jsonArray = (JSONArray) metaObject.get("data");
+                    knowLedgeBaseFileMetaList = jsonArray.toJavaList(KnowLedgeBaseFileMeta.class);
+                    knowLedgeBaseFileMetaList.removeIf(knowLedgeBaseFileMeta -> !"latest".equals(knowLedgeBaseFileMeta.getVersion()));
+                    break;
+                case "local":
+                    logger.error("get file Metadata  error:  fs_type local not suppoort !");
+                    break;
+                case "hdfs":
+                    logger.error("get file Metadata  error:  fs_type hdfs not suppoort !");
+                    break;
+                default:
+                    logger.error("get file Metadata  error:  fs_type not suppoort !");
+                    break;
+            }
+        } catch (Exception e) {
+            logger.error("get file Metadata error! path = " + path + " " + e.getMessage());
+            return null;
+        }
+
+        if (!knowLedgeBaseFileMetaList.isEmpty()) {
+
+            return knowLedgeBaseFileMetaList.get(0);
+        } else {
+            logger.error("file Metadata is null ! path = " + path + "?kb_id=" + kbId);
+            return null;
+        }
+    }
+}
