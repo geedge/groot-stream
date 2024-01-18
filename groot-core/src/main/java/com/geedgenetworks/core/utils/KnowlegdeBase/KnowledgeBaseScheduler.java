@@ -53,7 +53,6 @@ public class KnowledgeBaseScheduler {
 
             if(scheduler.getCurrentlyExecutingJobs().isEmpty()){
                 scheduler.shutdown();
-                System.out.println("stop =============================================================");
             }
             // 启动调度器
     }
