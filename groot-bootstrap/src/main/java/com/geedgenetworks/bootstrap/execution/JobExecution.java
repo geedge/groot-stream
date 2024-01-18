@@ -84,8 +84,7 @@ public class JobExecution {
                     }catch (MalformedURLException e){
                         throw new RuntimeException("the uri of jar illegal: " + uri, e);
                     }
-                })
-                .collect(Collectors.toList());
+                }).collect(Collectors.toList());
         jarDependencies.forEach(url -> {
             AbstractExecuteProcessor.ADD_URL_TO_CLASSLOADER.accept(Thread.currentThread().getContextClassLoader(), url);
         });

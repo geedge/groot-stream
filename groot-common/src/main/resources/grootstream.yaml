@@ -1,11 +1,11 @@
 grootstream:
   knowledge_base:
-    - name: tsg_asnlookup
+    - name: tsg_ip_asn
       fs_type: http
       fs_path: http://192.168.44.12:9999/v1/knowledge_base
       files:
         - f9f6bc91-2142-4673-8249-e097c00fe1ea
-    - name: tsg_geoiplookup
+    - name: tsg_ip_location
       fs_type: http
       fs_path: http://192.168.44.12:9999/v1/knowledge_base
       files:

@@ -1,0 +1,188 @@
+#############################################
+# kafka source to print sink job template #
+#############################################
+
+#
+# This section is used to define [object] Source List. eg. kafka source, inline source, etc.
+#
+sources:
+  kafka_source: # [object] Source name, must be unique. It used to define the source node of the job topology.
+    type : kafka  # [string] Source Type
+    properties:
+      topic:  SESSION-RECORD  # [string] Topic Name, consumer will subscribe this topic.
+      kafka.bootstrap.servers: 192.168.44.11:9092  # [string] Kafka Bootstrap Servers, if you have multiple servers, use comma to separate them.
+      kafka.session.timeout.ms: 60000 # [number] Kafka Session Timeout, default is 60000
+      kafka.max.poll.records: 3000
+      kafka.max.partition.fetch.bytes: 31457280
+      kafka.group.id: SESSION-RECORD-GROUP-GROOT-STREAM-TEST-KAFKA-TO-PRINT  # [string] Kafka Group ID for Consumer
+      kafka.auto.offset.reset: latest   # [string] Kafka Auto Offset Reset, default is latest
+      format: json  # [string] Data Format for Source. eg. json, protobuf, etc.
+
+#
+# This section is used to define [object] Filter List. It used to row level filter.
+# Based on the filter expression, the event will be passed to downstream if the expression is true, otherwise it will be dropped.
+#
+filters:
+  schema_type_filter:  # [object] Filter name, must be unique. It used to define the filter node of the job topology.
+    type: com.geedgenetworks.core.filter.AviatorFilter
+    properties:
+      expression: event.decoded_as == 'SSL' || event.decoded_as == 'HTTP' || event.decoded_as == 'BASE'  # [string] Filter Expression.
+
+#
+# This section is used to define [object] Preprocessing Pipeline List. It used to preprocess the event before processing pipeline.
+# The pipeline includes multiple functions, the function will be executed in order.
+#
+preprocessing_pipelines:
+  preprocessor:  # [object] Preprocessing name, must be unique.
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    functions:  # [array of object] Function List.
+      - function: DROP
+        lookup_fields: []
+        output_fields: []
+        filter:  event.decoded_as == 'BASE'
+
+#
+# This section is used to define [object] Processing Pipeline List.
+# It will be accomplished the common processing for the event by the user-defined functions.
+#
+processing_pipelines:
+  session_record_processor:   # [object] Processing name, must be unique.
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    functions:
+      - function: GEOIP_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: [ server_asn ]
+        parameters:
+          kb_name: tsg_ip_location
+          option: IP_TO_OBJECT
+          geolocation_field_mapping:
+              COUNTRY: client_country_region
+              PROVINCE: client_super_admin_area
+      - function: ASN_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: [ server_asn ]
+        parameters:
+          option: IP_TO_ASN
+          kb_name: tsg_ip_asn
+
+      - function: ASN_LOOKUP
+        lookup_fields: [ client_ip ]
+        output_fields: [ client_asn ]
+        parameters:
+          option: IP_TO_ASN
+          kb_name: tsg_ip_asn
+
+      - function: SNOWFLAKE_ID
+        lookup_fields: [ '' ]
+        output_fields: [ log_id ]
+        filter:
+        parameters:
+          data_center_id_num: 1
+
+      - function: JSON_EXTRACT
+        lookup_fields: [ device_tag ]
+        output_fields: [ data_center ]
+        filter:
+        parameters:
+          value_expression: $.tags[?(@.tag=='data_center')][0].value
+
+      - function: JSON_EXTRACT
+        lookup_fields: [ device_tag ]
+        output_fields: [ device_group ]
+        filter:
+        parameters:
+          value_expression: $.tags[?(@.tag=='device_group')][0].value
+
+      - function: CURRENT_UNIX_TIMESTAMP
+        output_fields: [ processing_time ]
+        parameters:
+          precision: seconds
+
+      - function: UNIX_TIMESTAMP_CONVERTER
+        lookup_fields: [ __timestamp ]
+        output_fields: [ recv_time ]
+        parameters:
+          precision: seconds
+
+      - function: EVAL
+        output_fields: [ ingestion_time ]
+        parameters:
+          value_expression: recv_time
+
+      - function: DOMAIN
+        lookup_fields: [ http_host,ssl_sni,dtls_sni,quic_sni ]
+        output_fields: [ server_domain ]
+        parameters:
+          option: FIRST_SIGNIFICANT_SUBDOMAIN
+
+      - function: BASE64_DECODE_TO_STRING
+        lookup_fields: [ mail_subject,mail_subject_charset ]
+        output_fields: [ mail_subject ]
+
+      - function: BASE64_DECODE_TO_STRING
+        lookup_fields: [ mail_attachment_name,mail_attachment_name_charset ]
+        output_fields: [ mail_attachment_name ]
+
+      - function: PATH_COMBINE
+        lookup_fields: [ packet_capture_file ]
+        output_fields: [ packet_capture_file ]
+        parameters:
+          path: [ props.hos.path, props.hos.bucket.name.traffic_file, packet_capture_file]
+
+      - function: PATH_COMBINE
+        lookup_fields: [ rtp_pcap_path ]
+        output_fields: [ rtp_pcap_path ]
+        parameters:
+          path: [ props.hos.path, props.hos.bucket.name.troubleshooting_file, rtp_pcap_path ]
+
+      - function: PATH_COMBINE
+        lookup_fields: [ http_request_body ]
+        output_fields: [ http_request_body ]
+        parameters:
+          path: [ props.hos.path, props.hos.bucket.name.traffic_file, http_request_body ]
+
+      - function: PATH_COMBINE
+        lookup_fields: [ http_response_body ]
+        output_fields: [ http_response_body ]
+        parameters:
+          path: [ props.hos.path, props.hos.bucket.name.traffic_file, http_response_body ]
+
+      - function: PATH_COMBINE
+        lookup_fields: [ mail_eml_file ]
+        output_fields: [ mail_eml_file ]
+        parameters:
+          path: [ props.hos.path, props.hos.bucket.name.traffic_file, mail_eml_file ]
+
+#
+# This section is used to define [object] Sink List. eg. print sink, kafka sink, clickhouse sink, etc.
+#
+sinks:
+  print_sink:  # [object] Sink name, must be unique. It used to define the sink node of the job topology.
+      type: print
+      properties:
+        mode: log_info
+        format: json
+
+#
+# This section is used to define [object] Job Configuration. Includes environment variables, topology, etc.
+# The [object] environment variables will be used to build the job environment.
+# The [array of object] topology will be used to build data stream for job dag graph.
+#
+application:
+  env:  # [object] Environment Variables
+    name: groot-stream-job-kafka-to-print  # [string] Job Name
+    parallelism: 1  # [number] Job-Level Parallelism
+    pipeline:
+      object-reuse: true  # [boolean] Object Reuse, default is false.
+  topology:   # [array of object] Node List.
+    - name: kafka_source  # [string] Source Name, must be unique.
+      #parallelism: 1   # [number] Operator-Level Parallelism.
+      downstream: [schema_type_filter]   # [array of string] Downstream Node List. such as [filter, processing processor, sink]
+    - name: schema_type_filter
+      downstream: [preprocessor]
+    - name: preprocessor
+      downstream: [ session_record_processor ]
+    - name: session_record_processor
+      downstream: [print_sink]
+    - name: print_sink
+      downstream: []

@@ -1,11 +1,12 @@
 package com.geedgenetworks.bootstrap.main;
 
 import com.geedgenetworks.common.Constants;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class LogoTest {
     @Test
     public void testOutputLogo() {
-        System.out.println(Constants.GROOT_LOGO);
+        Assert.assertTrue(Constants.GROOT_LOGO.length() > 0);
     }
 }
