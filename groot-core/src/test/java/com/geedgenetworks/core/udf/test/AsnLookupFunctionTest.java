@@ -3,11 +3,9 @@ package com.geedgenetworks.core.udf.test;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.AsnLookup;
-import com.geedgenetworks.core.udf.FromUnixTimestamp;
-import com.geedgenetworks.core.utils.KnowlegdeBase.AsnKnowledgeBase;
+import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AsnKnowledgeBaseHandler;
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -69,7 +67,7 @@ public class AsnLookupFunctionTest {
         CommonConfig commonConfig = new CommonConfig();
         List<KnowledgeBaseConfig> knowledgeBaseConfigList = new ArrayList<>();
         KnowledgeBaseConfig knowledgeBaseConfig = new KnowledgeBaseConfig();
-        knowledgeBaseConfig.setName("tsg_asnlookup");
+        knowledgeBaseConfig.setName("tsg_ip_asn");
         Map<String, String> parameters = new HashMap<>();
         knowledgeBaseConfig.setProperties(parameters);
         knowledgeBaseConfig.setFsType("http");
@@ -77,9 +75,11 @@ public class AsnLookupFunctionTest {
         knowledgeBaseConfig.setFiles(Collections.singletonList("f9f6bc91-2142-4673-8249-e097c00fe1ea"));
         knowledgeBaseConfigList.add(knowledgeBaseConfig);
         commonConfig.setKnowledgeBaseConfig(knowledgeBaseConfigList);
-        KnowledgeBaseUpdateJob.initKnowledgeBase("tsg_asnlookup", AsnKnowledgeBase.getInstance(), commonConfig);
-        String asn = AsnKnowledgeBase.getVenderWithAsnLookup()
-                .get("tsg_asnlookup")
+
+
+        KnowledgeBaseUpdateJob.registerKnowledgeBase(AsnKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig);
+        String asn = AsnKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas()
+                .get("tsg_ip_asn").getIpLookupV2()
                 .asnLookup("2600:1015:b002::");
         assertEquals("6167", asn);
 

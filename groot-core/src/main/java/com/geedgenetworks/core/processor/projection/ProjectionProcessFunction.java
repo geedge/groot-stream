@@ -13,6 +13,7 @@ import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.core.pojo.UDFContext;
 import com.geedgenetworks.core.udf.UDF;
+import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseScheduler;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
@@ -52,8 +53,8 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     .getExecutionConfig().getGlobalJobParameters();
             List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
             Map<String,String>  udfClassReflect =getClassReflect(udfClassNameLists);
-
-            //  KnowledgeBaseUpdateJob.getInstance();
+            CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
+            KnowledgeBaseScheduler.startSchedulerForKnowledgeBase(Integer.parseInt(commonConfig.getPropertiesConfig().getOrDefault("scheduler.knowledge_base.update.interval.minutes","5")));
             for (UDFContext udfContext : projectionConfig.getFunctions()) {
                 Expression filterExpression = null;
                 UdfEntity udfEntity = new UdfEntity();
@@ -163,11 +164,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
             udfEntity.getUdfFunction().close();
         }
-        try {
-            shutdownScheduler();
-        } catch (SchedulerException e) {
-            throw new RuntimeException(e);
-        }
+        KnowledgeBaseScheduler.stopSchedulerForKnowledgeBase();
         super.close();
     }
 

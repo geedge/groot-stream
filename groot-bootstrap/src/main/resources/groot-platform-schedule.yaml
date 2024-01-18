@@ -66,12 +66,14 @@ processing_pipelines:
         lookup_fields: ['common_client_ip']
         output_fields: ['common_client_asn']
         parameters:
-          kb_vender : TSG
+          option: IP_TO_ASN
+          ip_asn_kb_name: tsg_ip_asn
       - function: ASN_LOOKUP
         lookup_fields: ['common_server_ip']
         output_fields: ['common_server_asn']
         parameters:
-          kb_vender : TSG
+          option: IP_TO_ASN
+          ip_asn_kb_name: tsg_ip_asn
       - function: EVAL
         output_fields: ['common_internal_ip']
         parameters:

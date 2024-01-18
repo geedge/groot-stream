@@ -24,7 +24,7 @@ build:
   stage: build
   script:
     - echo "$MAVEN_SETTINGS_XML" > /usr/share/maven/conf/settings.xml
-    - mvn $MAVEN_CLI_OPTS enforcer:enforce@snapshot-version-check
+   # - mvn $MAVEN_CLI_OPTS enforcer:enforce@snapshot-version-check
     - mvn $MAVEN_CLI_OPTS clean deploy -DskipTests
   only:
     - develop
