@@ -99,7 +99,7 @@ processing_pipelines:
         lookup_fields: [ server_ip ]
         output_fields: [ server_asn ]
         parameters:
-          ip_location_kb_name: tsg_ip_location
+          kb_name: tsg_ip_location
           option: IP_TO_OBJECT
           geolocation_field_mapping:
               COUNTRY: client_country_region
@@ -109,14 +109,14 @@ processing_pipelines:
         output_fields: [ server_asn ]
         parameters:
           option: IP_TO_ASN
-          ip_asn_kb_name: tsg_ip_asn
+          kb_name: tsg_ip_asn
 
       - function: ASN_LOOKUP
         lookup_fields: [ client_ip ]
         output_fields: [ client_asn ]
         parameters:
           option: IP_TO_ASN
-          ip_asn_kb_name: tsg_ip_asn
+          kb_name: tsg_ip_asn
 
       - function: SNOWFLAKE_ID
         lookup_fields: [ '' ]

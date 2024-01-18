@@ -25,7 +25,7 @@ import java.util.Map;
 @Slf4j
 public class GeoIpLookup implements UDF {
 
-    private String ipLocationKbName;
+    private String kbName;
     private String option;
     private String lookupFieldName;
     private String outputFieldName;
@@ -34,7 +34,7 @@ public class GeoIpLookup implements UDF {
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         checkUdfContext(udfContext);
-        this.ipLocationKbName = udfContext.getParameters().get("kb_name").toString();
+        this.kbName = udfContext.getParameters().get("kb_name").toString();
         this.option = udfContext.getParameters().get("option").toString();
         if (option.equals("IP_TO_OBJECT")) {
             this.geoLocationFieldMapping = (Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
@@ -43,14 +43,14 @@ public class GeoIpLookup implements UDF {
                 .getExecutionConfig().getGlobalJobParameters();
         CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
         for(KnowledgeBaseConfig knowledgeBaseConfig : commonConfig.getKnowledgeBaseConfig()){
-            if(ipLocationKbName.equals(knowledgeBaseConfig.getName())) {
+            if(kbName.equals(knowledgeBaseConfig.getName())) {
                 if(!KnowledgeBaseUpdateJob.registerKnowledgeBase(AsnKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig)){
                     throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Register GeoIpKnowledgeBase error ");
                 }
                 break;
             }
         }
-        if (GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().containsKey(ipLocationKbName) && GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipLocationKbName).getIpLookupV2() != null ) {
+        if (GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().containsKey(kbName) && GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2() != null ) {
             log.debug("Init function GeoIpLookup success ");
         } else {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init function GeoIpLookup error ");
@@ -68,7 +68,7 @@ public class GeoIpLookup implements UDF {
                 case "IP_TO_COUNTRY":
                     event.getExtractedFields()
                             .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipLocationKbName).getIpLookupV2()
+                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
                                             .countryLookup(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -77,7 +77,7 @@ public class GeoIpLookup implements UDF {
                 case "IP_TO_PROVINCE":
                     event.getExtractedFields()
                             .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipLocationKbName).getIpLookupV2()
+                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
                                             .provinceLookup(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -86,7 +86,7 @@ public class GeoIpLookup implements UDF {
                 case "IP_TO_CITY":
                     event.getExtractedFields()
                             .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipLocationKbName).getIpLookupV2()
+                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
                                             .cityLookup(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -95,7 +95,7 @@ public class GeoIpLookup implements UDF {
                 case "IP_TO_SUBDIVISION_ADDR":
                     event.getExtractedFields()
                             .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipLocationKbName).getIpLookupV2()
+                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
                                             .cityLookupDetail(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -104,7 +104,7 @@ public class GeoIpLookup implements UDF {
                 case "IP_TO_DETAIL":
                     event.getExtractedFields()
                             .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipLocationKbName).getIpLookupV2()
+                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
                                             .locationLookupDetail(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -112,7 +112,7 @@ public class GeoIpLookup implements UDF {
                     break;
                 case "IP_TO_LATLNG":
                     event.getExtractedFields()
-                            .put(outputFieldName, GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipLocationKbName).getIpLookupV2()
+                            .put(outputFieldName, GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
                                     .latLngLookup(
                                             event.getExtractedFields()
                                                     .get(lookupFieldName)
@@ -122,7 +122,7 @@ public class GeoIpLookup implements UDF {
                 case "IP_TO_PROVIDER":
                     HashMap<String, Object> serverIpMap =
                             JSON.parseObject(
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipLocationKbName).getIpLookupV2()
+                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
                                             .ispLookup(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
@@ -136,14 +136,14 @@ public class GeoIpLookup implements UDF {
                 case "IP_TO_JSON ":
                     event.getExtractedFields()
                             .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipLocationKbName).getIpLookupV2()
+                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
                                             .infoLookupToJSONString(
                                                     event.getExtractedFields()
                                                             .get(lookupFieldName)
                                                             .toString()));
                     break;
                 case "IP_TO_OBJECT":
-                    Object object = GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(ipLocationKbName).getIpLookupV2()
+                    Object object = GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
                         .infoLookup(
                                 event.getExtractedFields()
                                         .get(lookupFieldName)
@@ -251,6 +251,6 @@ public class GeoIpLookup implements UDF {
 
     @Override
     public void close() {
-        KnowledgeBaseUpdateJob.removeKnowledgeBase(ipLocationKbName);
+        KnowledgeBaseUpdateJob.removeKnowledgeBase(kbName);
     }
 }
