@@ -54,6 +54,17 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
     }
 
+    public static String lookUp(String kbName,String option, String ip) {
+        String result = "";
+        try {
+            if("IP_TO_ASN".equals(option)) {
+                result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().asnLookup(ip);
+            }
+        } catch (Exception e) {
+            logger.error("AsnKnowledgeBaseHandler lookUp Error kbName =" + kbName + " error " + e.getMessage());
+        }
+        return result;
+    }
 
     private static Boolean ifNeedUpdate(KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp) {
 

@@ -24,7 +24,7 @@ public class AsnLookup implements UDF {
     private String outputFieldName;
 
     @Override
-    public void open(RuntimeContext runtimeContext, UDFContext udfContext)  {
+    public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
         checkUdfContext(udfContext);
         this.kbName = udfContext.getParameters().get("kb_name").toString();
@@ -32,18 +32,17 @@ public class AsnLookup implements UDF {
         Configuration configuration = (Configuration) runtimeContext
                 .getExecutionConfig().getGlobalJobParameters();
         CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
-        for(KnowledgeBaseConfig knowledgeBaseConfig : commonConfig.getKnowledgeBaseConfig()){
-            if(kbName.equals(knowledgeBaseConfig.getName())) {
-                if(!KnowledgeBaseUpdateJob.registerKnowledgeBase(AsnKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig)){
+        for (KnowledgeBaseConfig knowledgeBaseConfig : commonConfig.getKnowledgeBaseConfig()) {
+            if (kbName.equals(knowledgeBaseConfig.getName())) {
+                if (!KnowledgeBaseUpdateJob.registerKnowledgeBase(AsnKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig)) {
                     throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Register AsnKnowledgeBase error ");
                 }
                 break;
             }
         }
-        if(AsnKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().containsKey(kbName)  &&  AsnKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()!=null){
+        if (AsnKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().containsKey(kbName) && AsnKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2() != null) {
             log.debug("Init AsnKnowledgeBase success ");
-        }
-        else {
+        } else {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init Function AsnLookUp error ");
         }
         this.lookupFieldName = udfContext.getLookup_fields().get(0);
@@ -54,23 +53,16 @@ public class AsnLookup implements UDF {
     @Override
     public Event evaluate(Event event) {
 
-            if(event.getExtractedFields().containsKey(lookupFieldName)){
-                switch (option) {
-                    case "IP_TO_ASN":
-                        String asn = AsnKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
-                                    .asnLookup(event.getExtractedFields().get(lookupFieldName).toString());
-                        if(!asn.isEmpty()) {
-                            event.getExtractedFields()
-                                    .put(outputFieldName, asn);
-                        }
-                        break;
-                    default:
-                        break;
-                }
+        if (event.getExtractedFields().containsKey(lookupFieldName)) {
+            String asn = AsnKnowledgeBaseHandler.lookUp(kbName, option, event.getExtractedFields().get(lookupFieldName).toString());
+            if (!asn.isEmpty()) {
+                event.getExtractedFields().put(outputFieldName, asn);
             }
+        }
 
         return event;
     }
+
     @Override
     public String functionName() {
         return "ASN_LOOKUP";
@@ -84,25 +76,24 @@ public class AsnLookup implements UDF {
 
     private void checkUdfContext(UDFContext udfContext) {
 
-        if(udfContext.getLookup_fields()==null || udfContext.getOutput_fields()==null || udfContext.getParameters() == null){
+        if (udfContext.getLookup_fields() == null || udfContext.getOutput_fields() == null || udfContext.getParameters() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
 
-        if(udfContext.getLookup_fields().size() != 1){
+        if (udfContext.getLookup_fields().size() != 1) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
         }
-        if(udfContext.getOutput_fields().size() != 1){
+        if (udfContext.getOutput_fields().size() != 1) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
 
-        if(!udfContext.getParameters().containsKey("kb_name")){
+        if (!udfContext.getParameters().containsKey("kb_name")) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey kb_name");
         }
-        if(!udfContext.getParameters().containsKey("option")){
+        if (!udfContext.getParameters().containsKey("option")) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey option");
-        }
-        else{
-            if(!udfContext.getParameters().get("option").toString().equals("IP_TO_ASN")){
+        } else {
+            if (!udfContext.getParameters().get("option").toString().equals("IP_TO_ASN")) {
                 throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters option value is not correct");
             }
         }

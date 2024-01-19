@@ -75,12 +75,8 @@ public class AsnLookupFunctionTest {
         knowledgeBaseConfig.setFiles(Collections.singletonList("f9f6bc91-2142-4673-8249-e097c00fe1ea"));
         knowledgeBaseConfigList.add(knowledgeBaseConfig);
         commonConfig.setKnowledgeBaseConfig(knowledgeBaseConfigList);
-
-
         KnowledgeBaseUpdateJob.registerKnowledgeBase(AsnKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig);
-        String asn = AsnKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas()
-                .get("tsg_ip_asn").getIpLookupV2()
-                .asnLookup("2600:1015:b002::");
+        String asn = AsnKnowledgeBaseHandler.lookUp("tsg_ip_asn","IP_TO_ASN","2600:1015:b002::");
         assertEquals("6167", asn);
 
     }

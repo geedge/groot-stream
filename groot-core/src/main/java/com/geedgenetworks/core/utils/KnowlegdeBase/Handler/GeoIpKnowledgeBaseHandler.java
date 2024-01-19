@@ -1,10 +1,14 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase.Handler;
 
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.pojo.KnowledgeBaseInfoForIpLookUp;
+import com.geedgenetworks.domain.LocationResponse;
 import com.geedgenetworks.utils.IpLookupV2;
+import com.geedgenetworks.utils.StringUtil;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +54,6 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
             }
         }
     }
-
 
     private static Boolean ifNeedUpdate(KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp) {
 
@@ -105,4 +108,80 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         kbNameWithKbConfigAndFileMetas.put(knowledgeBaseConfig.getName(), kbInfoForIpLookUp);
         return true;
     }
+
+    public static String lookUp(String kbName, String option, String ip) {
+        String result = "";
+        try {
+            result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().asnLookup(ip);
+            switch (option) {
+                case "IP_TO_COUNTRY":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().countryLookup(ip);
+                    break;
+                case "IP_TO_PROVINCE":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().provinceLookup(ip);
+                    break;
+                case "IP_TO_CITY":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().cityLookup(ip);
+                    break;
+                case "IP_TO_SUBDIVISION_ADDR":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().cityLookupDetail(ip);
+                    break;
+                case "IP_TO_DETAIL":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().administrativeAreaLookupDetail(ip);
+                    break;
+                case "IP_TO_LATLNG":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().latLngLookup(ip);
+                    break;
+                case "IP_TO_PROVIDER":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().ispLookup(ip);
+                    break;
+                case "IP_TO_JSON":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().infoLookupToJSONString(ip);
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            logger.error("GeoIpKnowledgeBaseHandler lookUp Error kbName =" + kbName + " error " + e.getMessage());
+        }
+        return result;
+    }
+
+
+    public static String lookUpObject(String kbName, String option, String ip) {
+        String result = "";
+        Object object = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().infoLookup(ip);
+        if (!"".equals(object)) {
+            LocationResponse response = (LocationResponse) object;
+
+            switch (option) {
+                case "COUNTRY":
+                    result = response.getCountry();
+                    break;
+                case "PROVINCE":
+                    result = response.getSuperAdministrativeArea();
+                    break;
+                case "CITY":
+                    result = response.getAdministrativeArea();
+                    break;
+                case "LONGITUDE":
+                    result = response.getLongitude();
+                    break;
+                case "LATITUDE":
+                    result = response.getLatitude();
+                    break;
+                case "ISP":
+                    result = response.getIsp();
+                    break;
+                case "ORGANIZATION":
+                    result = response.getOrganization();
+                    break;
+                default:
+                    break;
+            }
+
+        }
+        return result;
+    }
+
 }

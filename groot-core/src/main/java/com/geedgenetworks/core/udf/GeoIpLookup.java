@@ -42,21 +42,23 @@ public class GeoIpLookup implements UDF {
         Configuration configuration = (Configuration) runtimeContext
                 .getExecutionConfig().getGlobalJobParameters();
         CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
-        for(KnowledgeBaseConfig knowledgeBaseConfig : commonConfig.getKnowledgeBaseConfig()){
-            if(kbName.equals(knowledgeBaseConfig.getName())) {
-                if(!KnowledgeBaseUpdateJob.registerKnowledgeBase(GeoIpKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig)){
+        for (KnowledgeBaseConfig knowledgeBaseConfig : commonConfig.getKnowledgeBaseConfig()) {
+            if (kbName.equals(knowledgeBaseConfig.getName())) {
+                if (!KnowledgeBaseUpdateJob.registerKnowledgeBase(GeoIpKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig)) {
                     throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Register GeoIpKnowledgeBase error ");
                 }
                 break;
             }
         }
-        if (GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().containsKey(kbName) && GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2() != null ) {
+        if (GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().containsKey(kbName) && GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2() != null) {
             log.debug("Init function GeoIpLookup success ");
         } else {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init function GeoIpLookup error ");
         }
         this.lookupFieldName = udfContext.getLookup_fields().get(0);
-        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        if(udfContext.getOutput_fields()!=null && !udfContext.getOutput_fields().isEmpty()){
+            this.outputFieldName = udfContext.getOutput_fields().get(0);
+        }
     }
 
 
@@ -64,126 +66,15 @@ public class GeoIpLookup implements UDF {
     public Event evaluate(Event event) {
         if (event.getExtractedFields().containsKey(lookupFieldName)) {
 
-            switch (option) {
-                case "IP_TO_COUNTRY":
-                    event.getExtractedFields()
-                            .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
-                                            .countryLookup(
-                                                    event.getExtractedFields()
-                                                            .get(lookupFieldName)
-                                                            .toString()));
-                    break;
-                case "IP_TO_PROVINCE":
-                    event.getExtractedFields()
-                            .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
-                                            .provinceLookup(
-                                                    event.getExtractedFields()
-                                                            .get(lookupFieldName)
-                                                            .toString()));
-                    break;
-                case "IP_TO_CITY":
-                    event.getExtractedFields()
-                            .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
-                                            .cityLookup(
-                                                    event.getExtractedFields()
-                                                            .get(lookupFieldName)
-                                                            .toString()));
-                    break;
-                case "IP_TO_SUBDIVISION_ADDR":
-                    event.getExtractedFields()
-                            .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
-                                            .cityLookupDetail(
-                                                    event.getExtractedFields()
-                                                            .get(lookupFieldName)
-                                                            .toString()));
-                    break;
-                case "IP_TO_DETAIL":
-                    event.getExtractedFields()
-                            .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
-                                            .locationLookupDetail(
-                                                    event.getExtractedFields()
-                                                            .get(lookupFieldName)
-                                                            .toString()));
-                    break;
-                case "IP_TO_LATLNG":
-                    event.getExtractedFields()
-                            .put(outputFieldName, GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
-                                    .latLngLookup(
-                                            event.getExtractedFields()
-                                                    .get(lookupFieldName)
-                                                    .toString()));
+            if ("IP_TO_OBJECT".equals(option)) {
 
-                    break;
-                case "IP_TO_PROVIDER":
-                    HashMap<String, Object> serverIpMap =
-                            JSON.parseObject(
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
-                                            .ispLookup(
-                                                    event.getExtractedFields()
-                                                            .get(lookupFieldName)
-                                                            .toString()),
-                                    TypeReference.mapType(
-                                            HashMap.class, String.class, Object.class));
-                    event.getExtractedFields()
-                            .put(outputFieldName,
-                                    serverIpMap.getOrDefault("isp", StringUtil.EMPTY));
-                    break;
-                case "IP_TO_JSON ":
-                    event.getExtractedFields()
-                            .put(outputFieldName,
-                                    GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
-                                            .infoLookupToJSONString(
-                                                    event.getExtractedFields()
-                                                            .get(lookupFieldName)
-                                                            .toString()));
-                    break;
-                case "IP_TO_OBJECT":
-                    Object object = GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2()
-                        .infoLookup(
-                                event.getExtractedFields()
-                                        .get(lookupFieldName)
-                                        .toString());
-                    if(!"".equals(object) ) {
-                        LocationResponse response = (LocationResponse) object;
-                        for (Map.Entry<String, String> entry : geoLocationFieldMapping.entrySet()) {
-                            switch (entry.getKey()) {
-                                case "COUNTRY": event.getExtractedFields()
-                                            .put(entry.getValue(), response.getCountry());
-                                    break;
-                                case "PROVINCE":
-                                    event.getExtractedFields()
-                                            .put(entry.getValue(), response.getSuperAdministrativeArea());
-                                    break;
-                                case "CITY":
-                                    event.getExtractedFields()
-                                            .put(entry.getValue(), response.getAdministrativeArea());
-                                    break;
-                                case "LONGITUDE":
-                                    event.getExtractedFields()
-                                            .put(entry.getValue(), response.getLongitude());
-                                    break;
-                                case "LATITUDE":
-                                    event.getExtractedFields()
-                                            .put(entry.getValue(), response.getLatitude());
-                                    break;
-                                case "ISP":
-                                    event.getExtractedFields()
-                                            .put(entry.getValue(), response.getIsp());
-                                    break;
-                                case "ORGANIZATION ":
-                                    event.getExtractedFields()
-                                            .put(entry.getValue(), response.getOrganization());
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
+                for (Map.Entry<String, String> entry : geoLocationFieldMapping.entrySet()) {
+                    event.getExtractedFields().put(entry.getValue(), GeoIpKnowledgeBaseHandler
+                            .lookUpObject(kbName, entry.getKey(), event.getExtractedFields().get(lookupFieldName).toString()));
+                }
+            } else {
+                event.getExtractedFields().put(outputFieldName, GeoIpKnowledgeBaseHandler
+                        .lookUp(kbName, option, event.getExtractedFields().get(lookupFieldName).toString()));
             }
         }
         return event;
@@ -191,14 +82,11 @@ public class GeoIpLookup implements UDF {
 
     private void checkUdfContext(UDFContext udfContext) {
 
-        if(udfContext.getLookup_fields()==null || udfContext.getOutput_fields()==null || udfContext.getParameters() == null){
+        if (udfContext.getLookup_fields() == null || udfContext.getOutput_fields() == null || udfContext.getParameters() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
         if (udfContext.getLookup_fields().size() != 1) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
-        }
-        if (udfContext.getOutput_fields().size() != 1) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
         if (!udfContext.getParameters().containsKey("kb_name")) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey kb_name");
