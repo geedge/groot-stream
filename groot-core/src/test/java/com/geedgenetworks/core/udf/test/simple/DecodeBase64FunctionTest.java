@@ -1,11 +1,10 @@
 package com.geedgenetworks.core.udf.test.simple;
 
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.UDFContext;
+import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.udf.DecodeBase64;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

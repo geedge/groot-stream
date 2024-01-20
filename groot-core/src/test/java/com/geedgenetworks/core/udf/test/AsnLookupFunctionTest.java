@@ -3,7 +3,7 @@ package com.geedgenetworks.core.udf.test;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.core.pojo.UDFContext;
+import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.udf.AsnLookup;
 import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AsnKnowledgeBaseHandler;
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;

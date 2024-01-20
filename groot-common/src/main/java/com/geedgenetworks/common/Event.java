@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.pojo;
+package com.geedgenetworks.common;
 
 import lombok.Data;
 

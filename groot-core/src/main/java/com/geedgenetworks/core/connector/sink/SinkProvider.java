@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.connector.sink;
 
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 

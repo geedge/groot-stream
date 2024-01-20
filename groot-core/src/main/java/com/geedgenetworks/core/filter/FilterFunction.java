@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.filter;
 
 import com.geedgenetworks.common.utils.ColumnUtil;
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.pojo.FilterConfig;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;

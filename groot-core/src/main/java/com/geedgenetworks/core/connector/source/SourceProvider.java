@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.connector.source;
 
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.types.StructType;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;

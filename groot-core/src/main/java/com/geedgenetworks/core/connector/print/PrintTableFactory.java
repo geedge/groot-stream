@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.connector.print;
 
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.connector.format.EncodingFormat;
 import com.geedgenetworks.core.connector.sink.SinkProvider;
 import com.geedgenetworks.core.factories.EncodingFormatFactory;

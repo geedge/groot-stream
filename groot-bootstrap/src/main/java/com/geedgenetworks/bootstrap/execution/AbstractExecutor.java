@@ -10,15 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public abstract  class AbstractExecuteProcessor<K, V>
-        implements ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> {
+public abstract  class AbstractExecutor<K, V>
+        implements Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> {
     protected  JobRuntimeEnvironment jobRuntimeEnvironment;
 
     protected final Config operatorConfig;
 
     protected final Map<K,V> operatorMap;
 
-    protected AbstractExecuteProcessor(List<URL> jarPaths, Config  operatorConfig) {
+    protected AbstractExecutor(List<URL> jarPaths, Config operatorConfig) {
         this.operatorConfig = operatorConfig;
         this.operatorMap = initialize(jarPaths, operatorConfig);
     }
@@ -29,7 +29,7 @@ public abstract  class AbstractExecuteProcessor<K, V>
 
     }
 
-    protected abstract Map<K, V> initialize(List<URL> jarPaths, Config  operatorConfig);
+    protected abstract Map<K, V> initialize(List<URL> jarPaths, Config operatorConfig);
 
     protected  static final BiConsumer<ClassLoader, URL> ADD_URL_TO_CLASSLOADER =
             (classLoader, url) -> {

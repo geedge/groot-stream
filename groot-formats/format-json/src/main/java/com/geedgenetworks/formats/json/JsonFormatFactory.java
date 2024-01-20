@@ -1,6 +1,6 @@
 package com.geedgenetworks.formats.json;
 
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.connector.format.DecodingFormat;
 import com.geedgenetworks.core.connector.format.EncodingFormat;
 import com.geedgenetworks.core.factories.DecodingFormatFactory;

@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.udf.test.simple;
 
-import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.UDFContext;
+import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.udf.UnixTimestampConverter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

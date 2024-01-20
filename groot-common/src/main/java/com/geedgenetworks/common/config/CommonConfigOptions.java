@@ -35,7 +35,6 @@ public class CommonConfigOptions {
                     .defaultValue(new ArrayList<String>())
                     .withDescription("The files of knowledgebase.");
 
-
     public static final Option<String> KNOWLEDGE_BASE_STORAGE_FS_TYPE = Options.key("fs_type")
             .stringType()
             .defaultValue("localfile")

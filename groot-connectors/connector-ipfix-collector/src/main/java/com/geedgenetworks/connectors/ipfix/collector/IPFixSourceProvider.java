@@ -4,7 +4,7 @@ import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.geedgenetworks.connectors.ipfix.collector.utils.IPFixUtil;
 import com.geedgenetworks.core.connector.source.SourceProvider;
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.types.*;
 import com.geedgenetworks.core.types.DataType;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;

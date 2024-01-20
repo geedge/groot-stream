@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.filter;
 
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.pojo.FilterConfig;
 
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;

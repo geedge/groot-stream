@@ -2,11 +2,10 @@ package com.geedgenetworks.core.connector.collect;
 
 import com.geedgenetworks.core.connector.sink.SinkProvider;
 import com.geedgenetworks.core.factories.SinkTableFactory;
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 
 import java.util.*;
 

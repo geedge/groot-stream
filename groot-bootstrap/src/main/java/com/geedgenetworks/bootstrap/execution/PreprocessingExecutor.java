@@ -2,12 +2,15 @@ package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.bootstrap.enums.ProcessorType;
-import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.CheckConfigUtil;
+import com.geedgenetworks.common.config.CheckResult;
+import com.geedgenetworks.common.config.ProjectionConfigOptions;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.core.processor.projection.ProjectionProcessor;
-import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
@@ -17,21 +20,43 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Initialize config and execute preprocessor
+ */
 @Slf4j
-public class PreprocessingExecuteProcessor extends AbstractExecuteProcessor<String, ProjectionConfig> {
+public class PreprocessingExecutor extends AbstractExecutor<String, ProjectionConfig> {
     private static final String PROCESSOR_TYPE = ProcessorType.PREPROCESSING.getType();
-
-    public PreprocessingExecuteProcessor(List<URL> jarPaths, Config config) {
+    public PreprocessingExecutor(List<URL> jarPaths, Config config) {
         super(jarPaths, config);
     }
     @Override
     protected Map<String, ProjectionConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, ProjectionConfig> preprocessingConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.PREPROCESSING_PIPELINES)) {
-            Map<String, Object>  operatorConfigMap = operatorConfig.getConfig(Constants.PREPROCESSING_PIPELINES).root().unwrapped();
-            operatorConfigMap.forEach((key,value) -> {
+            Config preprocessors = operatorConfig.getConfig(Constants.PREPROCESSING_PIPELINES);
+            preprocessors.root().unwrapped().forEach((key,value) -> {
+                CheckResult result = CheckConfigUtil.checkAllExists(preprocessors.getConfig(key),
+                        ProjectionConfigOptions.TYPE.key());
+                if (!result.isSuccess()) {
+                    throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
+                            "Preprocessor: %s, Message: %s",
+                            key, result.getMsg()));
+                }
+
+                result = CheckConfigUtil.checkAtLeastOneExists(preprocessors.getConfig(key),
+                        ProjectionConfigOptions.OUTPUT_FIELDS.key(),
+                        ProjectionConfigOptions.REMOVE_FIELDS.key(),
+                        ProjectionConfigOptions.FUNCTIONS.key());
+                if (!result.isSuccess()) {
+                    throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
+                            "Preprocessor: %s, At least one of [%s] should be specified.",
+                            key, String.join(",",
+                                    ProjectionConfigOptions.OUTPUT_FIELDS.key(),
+                                    ProjectionConfigOptions.REMOVE_FIELDS.key(),
+                                    ProjectionConfigOptions.FUNCTIONS.key())));
+                }
+
                 ProjectionConfig projectionConfig = new JSONObject((Map<String, Object>) value).toJavaObject(ProjectionConfig.class);
-                checkProjectionConfig(projectionConfig);
                 projectionConfig.setName(key);
                 preprocessingConfigMap.put(key, projectionConfig);
             });
@@ -56,14 +81,8 @@ public class PreprocessingExecuteProcessor extends AbstractExecuteProcessor<Stri
                     projectionProcessor.projectionProcessorFunction(
                             dataStream, projectionConfig);
         } catch (Exception e) {
-            throw new JobExecuteException("create preprocessing operator error", e);
+            throw new JobExecuteException("Create preprocessor pipeline instance failed!", e);
         }
         return dataStream;
-    }
-    private static void checkProjectionConfig(ProjectionConfig projectionConfig) {
-
-        if (!StringUtil.isNotBlank(projectionConfig.getType())) {
-            throw new ConfigCheckException("校验未通过 projection " + projectionConfig.getName() + " type 为空！");
-        }
     }
 }

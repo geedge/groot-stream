@@ -6,7 +6,7 @@ import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.main.GrootStreamRunner;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.GrootStreamConfig;
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
@@ -27,12 +27,12 @@ import java.util.stream.Stream;
 public class JobExecution {
 
     private final JobRuntimeEnvironment jobRuntimeEnvironment;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> sourceExecuteProcessor;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> sinkExecuteProcessor;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> filterExecuteProcessor;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> preprocessingExecuteProcessor;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> processingExecuteProcessor;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> postprocessingExecuteProcessor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> sourceExecutor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> sinkExecutor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> filterExecutor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> preprocessingExecutor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> processingExecutor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> postprocessingExecutor;
     private final List<Node> nodes;
 
     private final List<URL> jarPaths;
@@ -47,21 +47,21 @@ public class JobExecution {
 
         registerPlugin(config.getConfig(Constants.APPLICATION));
 
-        this.sourceExecuteProcessor = new SourceExecuteProcessor(jarPaths, config);
-        this.sinkExecuteProcessor = new SinkExecuteProcessor(jarPaths, config);
-        this.filterExecuteProcessor = new FilterExecuteProcessor(jarPaths, config);
-        this.preprocessingExecuteProcessor = new PreprocessingExecuteProcessor(jarPaths, config);
-        this.processingExecuteProcessor = new ProcessingExecuteProcessor(jarPaths, config);
-        this.postprocessingExecuteProcessor = new PostprocessingExecuteProcessor(jarPaths, config);
+        this.sourceExecutor = new SourceExecutor(jarPaths, config);
+        this.sinkExecutor = new SinkExecutor(jarPaths, config);
+        this.filterExecutor = new FilterExecutor(jarPaths, config);
+        this.preprocessingExecutor = new PreprocessingExecutor(jarPaths, config);
+        this.processingExecutor = new ProcessingExecutor(jarPaths, config);
+        this.postprocessingExecutor = new PostprocessingExecutor(jarPaths, config);
         this.jobRuntimeEnvironment =
                 JobRuntimeEnvironment.getInstance(this.registerPlugin(config, jarPaths), grootStreamConfig);
 
-        this.sourceExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.sinkExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.filterExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.preprocessingExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.processingExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.postprocessingExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.sourceExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.sinkExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.filterExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.preprocessingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.processingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.postprocessingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.nodes = buildJobNode(config);
 
     }
@@ -86,7 +86,7 @@ public class JobExecution {
                     }
                 }).collect(Collectors.toList());
         jarDependencies.forEach(url -> {
-            AbstractExecuteProcessor.ADD_URL_TO_CLASSLOADER.accept(Thread.currentThread().getContextClassLoader(), url);
+            AbstractExecutor.ADD_URL_TO_CLASSLOADER.accept(Thread.currentThread().getContextClassLoader(), url);
         });
         jarPaths.addAll(jarDependencies);
 
@@ -217,7 +217,7 @@ public class JobExecution {
         SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
 
         for(Node sourceNode : sourceNodes) {
-            singleOutputStreamOperator = sourceExecuteProcessor.execute(singleOutputStreamOperator, sourceNode);
+            singleOutputStreamOperator = sourceExecutor.execute(singleOutputStreamOperator, sourceNode);
             for (String nodeName : sourceNode.getDownstream()) {
                 buildJobGraph(singleOutputStreamOperator, nodeName);
             }
@@ -243,15 +243,15 @@ public class JobExecution {
             throw new JobExecuteException("can't find downstream node " + downstreamNodeName);
         });
         if (node.getType().name().equals(ProcessorType.FILTER.name())) {
-            singleOutputStreamOperator = filterExecuteProcessor.execute(singleOutputStreamOperator, node);
+            singleOutputStreamOperator = filterExecutor.execute(singleOutputStreamOperator, node);
         } else if (node.getType().name().equals(ProcessorType.PREPROCESSING.name())) {
-            singleOutputStreamOperator = preprocessingExecuteProcessor.execute(singleOutputStreamOperator, node);
+            singleOutputStreamOperator = preprocessingExecutor.execute(singleOutputStreamOperator, node);
         } else if (node.getType().name().equals(ProcessorType.PROCESSING.name())) {
-            singleOutputStreamOperator = processingExecuteProcessor.execute(singleOutputStreamOperator, node);
+            singleOutputStreamOperator = processingExecutor.execute(singleOutputStreamOperator, node);
         } else if (node.getType().name().equals(ProcessorType.POSTPROCESSING.name())) {
-            singleOutputStreamOperator = postprocessingExecuteProcessor.execute(singleOutputStreamOperator, node);
+            singleOutputStreamOperator = postprocessingExecutor.execute(singleOutputStreamOperator, node);
         } else if (node.getType().name().equals(ProcessorType.SINK.name())) {
-            singleOutputStreamOperator = sinkExecuteProcessor.execute(singleOutputStreamOperator, node);
+            singleOutputStreamOperator = sinkExecutor.execute(singleOutputStreamOperator, node);
         } else {
             throw new JobExecuteException("unsupported process type " + node.getType().name());
         }

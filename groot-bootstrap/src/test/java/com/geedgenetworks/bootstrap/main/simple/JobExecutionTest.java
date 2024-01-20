@@ -8,7 +8,7 @@ import com.geedgenetworks.bootstrap.main.GrootStreamRunner;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.GrootStreamConfig;
 import com.geedgenetworks.common.utils.ReflectionUtils;
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
@@ -33,12 +33,12 @@ import java.util.stream.Stream;
 public class JobExecutionTest {
 
     protected final JobRuntimeEnvironment jobRuntimeEnvironment;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> sourceExecuteProcessor;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> filterExecuteProcessor;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> preprocessingExecuteProcessor;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> processingExecuteProcessor;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> postprocessingExecuteProcessor;
-    private final ExecuteProcessor<SingleOutputStreamOperator, JobRuntimeEnvironment> sinkExecuteProcessor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> sourceExecuteProcessor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> filterExecuteProcessor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> preprocessingExecuteProcessor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> processingExecuteProcessor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> postprocessingExecuteProcessor;
+    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> sinkExecuteProcessor;
 
     private final List<Node> nodes;
 
@@ -66,12 +66,12 @@ public class JobExecutionTest {
         }
         registerPlugin(config.getConfig(Constants.APPLICATION));
 
-        this.sourceExecuteProcessor = new SourceExecuteProcessor(jarPaths, config);
-        this.sinkExecuteProcessor = new SinkExecuteProcessor(jarPaths, config);
-        this.filterExecuteProcessor = new FilterExecuteProcessor(jarPaths, config);
-        this.preprocessingExecuteProcessor = new PreprocessingExecuteProcessor(jarPaths, config);
-        this.processingExecuteProcessor = new ProcessingExecuteProcessor(jarPaths, config);
-        this.postprocessingExecuteProcessor = new PostprocessingExecuteProcessor(jarPaths, config);
+        this.sourceExecuteProcessor = new SourceExecutor(jarPaths, config);
+        this.sinkExecuteProcessor = new SinkExecutor(jarPaths, config);
+        this.filterExecuteProcessor = new FilterExecutor(jarPaths, config);
+        this.preprocessingExecuteProcessor = new PreprocessingExecutor(jarPaths, config);
+        this.processingExecuteProcessor = new ProcessingExecutor(jarPaths, config);
+        this.postprocessingExecuteProcessor = new PostprocessingExecutor(jarPaths, config);
         this.jobRuntimeEnvironment =
                 JobRuntimeEnvironment.getInstance(this.registerPlugin(config, jarPaths), grootStreamConfig);
 

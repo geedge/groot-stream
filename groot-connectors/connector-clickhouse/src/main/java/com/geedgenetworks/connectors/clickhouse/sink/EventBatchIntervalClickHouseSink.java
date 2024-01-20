@@ -1,7 +1,7 @@
 package com.geedgenetworks.connectors.clickhouse.sink;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 
 import com.github.housepower.data.Block;
 

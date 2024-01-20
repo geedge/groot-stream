@@ -5,12 +5,13 @@ import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
+import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.common.utils.ColumnUtil;
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
-import com.geedgenetworks.core.pojo.UDFContext;
-import com.geedgenetworks.core.udf.UDF;
+import com.geedgenetworks.common.udf.UDF;
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseScheduler;
+import com.google.common.collect.Lists;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
@@ -30,27 +31,28 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     private final ProjectionConfig projectionConfig;
     private LinkedList<UdfEntity> functions ;
 
-    public ProjectionProcessFunction(ProjectionConfig projectionConfig) throws Exception {
-
+    public ProjectionProcessFunction(ProjectionConfig projectionConfig) {
         this.projectionConfig = projectionConfig;
     }
 
     @Override
     public void open(Configuration parameters) throws Exception {
-
-        this.functions = new LinkedList<>();
+        functions = Lists.newLinkedList();
         try {
+            List<UDFContext> udfContexts = projectionConfig.getFunctions();
+            if (udfContexts == null || udfContexts.isEmpty()) {
+                return;
+            }
             Configuration configuration = (Configuration) getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
             List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
-            Map<String,String>  udfClassReflect =getClassReflect(udfClassNameLists);
+            Map<String,String> udfClassReflect =getClassReflect(udfClassNameLists);
             CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
             KnowledgeBaseScheduler.startSchedulerForKnowledgeBase(Integer.parseInt(commonConfig.getPropertiesConfig().getOrDefault("scheduler.knowledge_base.update.interval.minutes","5")));
-            for (UDFContext udfContext : projectionConfig.getFunctions()) {
+            for (UDFContext udfContext : udfContexts) {
                 Expression filterExpression = null;
                 UdfEntity udfEntity = new UdfEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
-
                     Class<?> cls = Class.forName(udfClassReflect.get(udfContext.getFunction()));
                     UDF udf = (UDF) cls.getConstructor().newInstance();
                     udf.open(getRuntimeContext(), udfContext);
@@ -68,13 +70,12 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     udfEntity.setClassName(udfClassReflect.get(udfContext.getFunction()));
                     functions.add(udfEntity);
                 } else {
-                    throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "No such udf function "+udfContext.getFunction());
+                    throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION,
+                            "Unsupported UDF: " + udfContext.getFunction());
                 }
             }
-        }catch (Exception e){
-
-            throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Function initialization exception !",e);
-
+        } catch (Exception e) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Initialization UDF failed!",e);
         }
     }
 
@@ -112,7 +113,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     ColumnUtil.columnRemover(
                             event.getExtractedFields(), projectionConfig.getRemove_fields()));
         }
-        if(!event.isDropped()){out.collect(event);}
+        if (!event.isDropped()) {out.collect(event);}
     }
     public static Map<String, String> getClassReflect(List<String> plugins) {
 

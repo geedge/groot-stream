@@ -2,7 +2,7 @@ package com.geedgenetworks.formats.json;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.filter.PropertyFilter;
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.types.StructType;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 

@@ -55,12 +55,8 @@ filters:
 preprocessing_pipelines:
   transform_processor: # [object] Preprocessing name, must be unique.
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
-    functions:  # [array of object] Function List.
-      - function: DOMAIN
-        lookup_fields: [server_fqdn]
-        output_fields: [server_domain]
-        parameters:
-          option: FIRST_SIGNIFICANT_SUBDOMAIN
+    remove_fields: [client_ip]
+
 
 #
 # This section is used to define [object] Processing Pipeline List.
