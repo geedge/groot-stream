@@ -1,0 +1,163 @@
+#############################################
+# Inline Source to Print Sink Job Template #
+#############################################
+
+#
+# This section is used to define [object] Source List. eg. kafka source, inline source, etc.
+#
+sources:
+  inline_source:  # [object] Source name, must be unique. It used to define the source node of the job topology.
+    type: inline
+    fields:  # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
+      - name: log_id
+        type: bigint
+      - name: recv_time
+        type: bigint
+      - name: server_fqdn
+        type: string
+      - name: server_domain
+        type: string
+      - name: client_ip
+        type: string
+      - name: server_ip
+        type: string
+      - name: server_asn
+        type: string
+      - name: decoded_as
+        type: string
+      - name: device_group
+        type: string
+      - name: device_tag
+        type: string
+    properties:
+      #
+      # [string] Event Data, it will be parsed to Map<String, Object> by the specified format.
+      #
+      data: '{"tcp_rtt_ms":128,"decoded_as":"HTTP", "http_version":"http1","http_request_line":"GET / HTTP/1.1","http_host":"www.ct.cn","http_url":"www.ct.cn/","http_user_agent":"curl/8.0.1","http_status_code":200,"http_response_line":"HTTP/1.1 200 OK","http_response_content_type":"text/html; charset=UTF-8","http_response_latency_ms":31,"http_session_duration_ms":5451,"in_src_mac":"ba:bb:a7:3c:67:1c","in_dest_mac":"86:dd:7a:8f:ae:e2","out_src_mac":"86:dd:7a:8f:ae:e2","out_dest_mac":"ba:bb:a7:3c:67:1c","tcp_client_isn":678677906,"tcp_server_isn":1006700307,"address_type":4,"client_ip":"192.11.22.22","server_ip":"8.8.8.8","client_port":42751,"server_port":80,"in_link_id":65535,"out_link_id":65535,"start_timestamp_ms":1703646546127,"end_timestamp_ms":1703646551702,"duration_ms":5575,"sent_pkts":97,"sent_bytes":5892,"received_pkts":250,"received_bytes":333931,"tcp_c2s_ip_fragments":0,"tcp_s2c_ip_fragments":0,"tcp_c2s_rtx_pkts":0,"tcp_c2s_rtx_bytes":0,"tcp_s2c_rtx_pkts":0,"tcp_s2c_rtx_bytes":0,"tcp_c2s_o3_pkts":0,"tcp_s2c_o3_pkts":0,"tcp_c2s_lost_bytes":0,"tcp_s2c_lost_bytes":0,"flags":26418,"flags_identify_info":[100,1,100,60,150,100,1,2],"app_transition":"http.1111.test_1_1","decoded_as":"HTTP","server_fqdn":"www.ct.cn","app":"test_1_1","decoded_path":"ETHERNET.IPv4.TCP.http","fqdn_category_list":[1767],"t_vsys_id":1,"vsys_id":1,"session_id":290538039798223400,"tcp_handshake_latency_ms":41,"client_os_desc":"Windows","server_os_desc":"Linux","data_center":"center-xxg-tsgx","device_group":"group-xxg-tsgx","device_tag":"{\"tags\":[{\"tag\":\"data_center\",\"value\":\"center-xxg-tsgx\"},{\"tag\":\"device_group\",\"value\":\"group-xxg-tsgx\"}]}","device_id":"9800165603247024","sled_ip":"192.168.40.39","dup_traffic_flag":0}'
+      format: json
+      json.ignore.parse.errors: false
+
+#
+# This section is used to define [object] Filter List. It used to row level filter.
+# Based on the filter expression, the event will be passed to downstream if the expression is true, otherwise it will be dropped.
+#
+filters:
+  # [object] Filter name, must be unique.
+  filter:
+    type: com.geedgenetworks.core.filter.AviatorFilter
+    properties:
+      expression: event.decoded_as == 'HTTP'  # [string] Filter Expression.
+
+#
+# This section is used to define [object] Preprocessing Pipeline List. It used to preprocess the event before processing pipeline.
+# The pipeline includes multiple functions, the function will be executed in order.
+#
+preprocessing_pipelines:
+  transform_processor: # [object] Preprocessing name, must be unique.
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    functions:  # [array of object] Function List.
+      - function: DOMAIN
+        lookup_fields: [server_fqdn]
+        output_fields: [server_domain]
+        parameters:
+          option: FIRST_SIGNIFICANT_SUBDOMAIN
+
+#
+# This section is used to define [object] Processing Pipeline List.
+# It will be accomplished the common processing for the event by the user-defined functions.
+#
+processing_pipelines:
+  session_record_processor:  # [object] Processing name, must be unique.
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    remove_fields: [device_tag]
+    output_fields: [log_id, client_ip, client_geolocation, client_asn, server_domain, server_ip, server_geolocation, server_asn]
+    functions:
+      - function: DROP
+        lookup_fields: []
+        output_fields: []
+        filter:  event.client_ip == '192.168.10.100'
+      - function: SNOWFLAKE_ID
+        lookup_fields: []
+        output_fields: [log_id]
+        parameters:
+          data_center_id_num: 1
+
+      - function: ASN_LOOKUP
+        lookup_fields: [ client_ip ]
+        output_fields: [ client_asn ]
+        parameters:
+          kb_name: tsg_ip_asn
+          option: IP_TO_ASN
+
+      - function: ASN_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: [ server_asn ]
+        parameters:
+          kb_name: tsg_ip_asn
+          option: IP_TO_ASN
+
+      - function: GEOIP_LOOKUP
+        lookup_fields: [ client_ip ]
+        output_fields: [ client_geolocation ]
+        parameters:
+          kb_name: tsg_ip_location
+          option: IP_TO_DETAIL
+
+      - function: GEOIP_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: [ server_geolocation ]
+        parameters:
+          kb_name: tsg_ip_location
+          option: IP_TO_DETAIL
+
+      - function: JSON_EXTRACT
+        lookup_fields: [ device_tag ]
+        output_fields: [ device_group ]
+        parameters:
+          value_expression: $.tags[?(@.tag=='device_group')][0].value
+      - function: CURRENT_UNIX_TIMESTAMP
+        output_fields: [ processing_time ]
+        parameters:
+          precision: milliseconds
+      - function: FROM_UNIX_TIMESTAMP
+        lookup_fields: [ processing_time ]
+        output_fields: [ processing_time_str ]
+        parameters:
+          precision: milliseconds
+      - function: RENAME
+        lookup_fields: [ device_tag ]
+        output_fields: [ renamed_device_tag ]
+
+#
+# This section is used to define [object] Sink List. eg. print sink, kafka sink, clickhouse sink, etc.
+#
+sinks:
+  print_sink:  # [object] Sink name, must be unique.
+    type: print
+    properties:
+      format: json
+
+#
+# This section is used to define [object] Job Configuration. Includes environment variables, topology, etc.
+# The [object] environment variables will be used to build the job environment.
+# The [array of object] topology will be used to build data stream for job dag graph.
+#
+application:
+  env: # [object] Environment Variables
+    name: inline-to-print-job  # [string] Job Name
+    parallelism: 3   # [number] Job-Level Parallelism
+    pipeline:
+      object-reuse: true  # [boolean] Object Reuse, default is false.
+  topology:  # [array of object] Node List.
+    - name: inline_source # [string] Source Name, must be unique.
+      #parallelism: 1 # [number] Operator-Level Parallelism.
+      downstream: [filter]  # [array of string] Downstream Node List. such as [filter, processing processor, sink]
+    - name: filter
+      downstream: [transform_processor]
+    - name: transform_processor
+      downstream: [session_record_processor]
+    - name: session_record_processor
+      downstream: [print_sink]
+    - name: print_sink
+      #parallelism: 1
+      downstream: []

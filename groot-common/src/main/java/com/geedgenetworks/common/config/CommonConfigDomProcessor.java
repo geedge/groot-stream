@@ -26,7 +26,7 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
         final CommonConfig commonConfig = config.getCommonConfig();
         for (Node node : childElements(rootNode)) {
             String name = cleanNodeName(node);
-             if (CommonConfigOptions. KNOWLEDGE_BASE.key().equals(name)) {
+             if (CommonConfigOptions.KNOWLEDGE_BASE.key().equals(name)) {
                  commonConfig.setKnowledgeBaseConfig(parseKnowledgeBaseConfig(node));
             } else if (CommonConfigOptions.PROPERTIES.key().equals(name)) {
                  commonConfig.setPropertiesConfig(parsePropertiesConfig(node));

@@ -11,9 +11,9 @@ import java.net.URL;
 import java.nio.file.Paths;
 
 
-public class InlineToConsoleExample {
+public class InlineToPrintExample {
     public static void main(String[] args) throws FileNotFoundException, URISyntaxException {
-        String configPath = args.length > 0 ? args[0] : "/examples/inline-to-console-job.yaml";
+        String configPath = args.length > 0 ? args[0] : "/examples/inline_to_print_job.yaml";
         String configFile = getTestConfigFile(configPath);
         ExecuteCommandArgs executeCommandArgs = new ExecuteCommandArgs();
         executeCommandArgs.setConfigFile(configFile);
@@ -25,7 +25,7 @@ public class InlineToConsoleExample {
 
     public static String getTestConfigFile(String configFile)
             throws FileNotFoundException, URISyntaxException {
-        URL resource = InlineToConsoleExample.class.getResource(configFile);
+        URL resource = InlineToPrintExample.class.getResource(configFile);
         if (resource == null) {
             throw new FileNotFoundException("Can't find config file: " + configFile);
         }

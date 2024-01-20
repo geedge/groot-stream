@@ -1,14 +1,11 @@
 package com.geedgenetworks.core.processor.projection;
 
-import cn.hutool.log.Log;
-import cn.hutool.log.LogFactory;
 import com.alibaba.fastjson.JSON;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.utils.ColumnUtil;
-import com.geedgenetworks.common.utils.CustomException;
 import com.geedgenetworks.core.pojo.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.core.pojo.UDFContext;
@@ -20,20 +17,14 @@ import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
-import org.quartz.SchedulerException;
-
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import static com.geedgenetworks.core.utils.SchedulerUtils.shutdownScheduler;
-
 @Slf4j
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     private final ProjectionConfig projectionConfig;
@@ -49,8 +40,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
         this.functions = new LinkedList<>();
         try {
-            Configuration configuration = (Configuration) getRuntimeContext()
-                    .getExecutionConfig().getGlobalJobParameters();
+            Configuration configuration = (Configuration) getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
             List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
             Map<String,String>  udfClassReflect =getClassReflect(udfClassNameLists);
             CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
