@@ -11,6 +11,7 @@
 
     <artifactId>groot-example</artifactId>
     <name>Groot : Example </name>
+    <packaging>pom</packaging>
 
     <properties>
         <scope>compile</scope>
