@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.pojo;
+package com.geedgenetworks.common.udf;
 
 import java.io.Serializable;
 import java.util.List;

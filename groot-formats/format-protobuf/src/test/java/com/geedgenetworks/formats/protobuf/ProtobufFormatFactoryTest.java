@@ -7,12 +7,11 @@ import com.geedgenetworks.core.factories.FactoryUtil;
 import com.geedgenetworks.core.factories.SinkTableFactory;
 import com.geedgenetworks.core.factories.SourceTableFactory;
 import com.geedgenetworks.core.factories.TableFactory;
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.junit.jupiter.api.Test;
 
 import java.util.Base64;
 import java.util.HashMap;

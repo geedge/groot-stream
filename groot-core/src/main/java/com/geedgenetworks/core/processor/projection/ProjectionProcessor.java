@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.processor.projection;
 
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;

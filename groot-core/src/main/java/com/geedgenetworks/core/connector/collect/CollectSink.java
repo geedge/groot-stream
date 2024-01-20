@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.connector.collect;
 
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 
 import java.util.ArrayList;

@@ -5,6 +5,12 @@ import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.CheckConfigUtil;
+import com.geedgenetworks.common.config.CheckResult;
+import com.geedgenetworks.common.config.SinkConfigOptions;
+import com.geedgenetworks.common.config.SourceConfigOptions;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.core.connector.sink.SinkProvider;
 import com.geedgenetworks.core.factories.FactoryUtil;
 import com.geedgenetworks.core.factories.SinkTableFactory;
@@ -22,24 +28,36 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Initialize config and execute sink connector
+ */
 @Slf4j
-public class SinkExecuteProcessor extends AbstractExecuteProcessor<String, SinkConfig>{
+public class SinkExecutor extends AbstractExecutor<String, SinkConfig> {
     private static final String PROCESSOR_TYPE = ProcessorType.SINK.getType();
 
-    public SinkExecuteProcessor(List<URL> jarPaths, Config config) {
+    public SinkExecutor(List<URL> jarPaths, Config config) {
         super(jarPaths, config);
     }
     @Override
     protected Map<String, SinkConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, SinkConfig> sinkConfigMap = Maps.newHashMap();
+
         if (operatorConfig.hasPath(Constants.SINKS)) {
-            Map<String, Object>  operatorConfigMap = operatorConfig.getConfig(Constants.SINKS).root().unwrapped();
-            operatorConfigMap.forEach((key,value) -> {
+            Config sinks = operatorConfig.getConfig(Constants.SINKS);
+            sinks.root().unwrapped().forEach((key,value) -> {
+                CheckResult result = CheckConfigUtil.checkAllExists(sinks.getConfig(key),
+                        SinkConfigOptions.TYPE.key(), SinkConfigOptions.PROPERTIES.key());
+                if (!result.isSuccess()) {
+                    throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
+                            "Sink: %s, Message: %s",
+                            key, result.getMsg()));
+                }
+
                 SinkConfig sinkConfig = new JSONObject((Map<String, Object>) value).toJavaObject(SinkConfig.class);
-                checkSinkConfig(sinkConfig);
                 sinkConfig.setName(key);
                 sinkConfigMap.put(key, sinkConfig);
             });
+
         }
 
         return sinkConfigMap;
@@ -60,17 +78,10 @@ public class SinkExecuteProcessor extends AbstractExecuteProcessor<String, SinkC
             }
             dataStreamSink.name(sinkConfig.getName());
         } catch (Exception e) {
-            throw new JobExecuteException("create sink operator error", e);
+            throw new JobExecuteException("Create sink instance failed!", e);
         }
 
         return null;
-    }
-
-    private void checkSinkConfig(SinkConfig sinkConfig) {
-
-        if (!StringUtil.isNotBlank(sinkConfig.getType())) {
-            throw new ConfigCheckException("校验未通过 sink " + sinkConfig.getName() + " type 为空！");
-        }
     }
 
 }

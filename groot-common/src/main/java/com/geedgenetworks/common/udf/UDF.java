@@ -1,9 +1,6 @@
-package com.geedgenetworks.core.udf;
-
-import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.UDFContext;
+package com.geedgenetworks.common.udf;
+import com.geedgenetworks.common.Event;
 import org.apache.flink.api.common.functions.RuntimeContext;
-
 import java.io.Serializable;
 
 public interface UDF extends Serializable {

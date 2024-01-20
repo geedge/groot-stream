@@ -1,47 +1,29 @@
 package com.geedgenetworks.bootstrap.main.simple;
 
 import cn.hutool.setting.yaml.YamlUtil;
-import com.geedgenetworks.bootstrap.command.Command;
-import com.geedgenetworks.bootstrap.command.CommandArgs;
 import com.geedgenetworks.bootstrap.command.ExecuteCommandArgs;
 import com.geedgenetworks.bootstrap.enums.EngineType;
-import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.execution.ExecutionConfigKeyName;
-import com.geedgenetworks.bootstrap.execution.JobExecution;
 import com.geedgenetworks.bootstrap.utils.CommandLineUtils;
 import com.geedgenetworks.bootstrap.utils.ConfigFileUtils;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.ConfigProvider;
 import com.geedgenetworks.common.config.GrootStreamConfig;
-import com.geedgenetworks.common.utils.FileUtils;
 import com.geedgenetworks.core.connector.collect.CollectSink;
-import com.geedgenetworks.core.pojo.Event;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigUtil;
 import com.typesafe.config.ConfigValueFactory;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.flink.runtime.testutils.MiniClusterResourceConfiguration;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.test.util.MiniClusterWithClientResource;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.io.File;
-import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
-import static cn.hutool.core.util.ClassLoaderUtil.getClassLoader;
-import static com.geedgenetworks.bootstrap.utils.ConfigFileUtils.checkConfigExist;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

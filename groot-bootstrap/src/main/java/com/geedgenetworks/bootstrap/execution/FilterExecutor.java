@@ -2,12 +2,15 @@ package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.bootstrap.enums.ProcessorType;
-import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.CheckConfigUtil;
+import com.geedgenetworks.common.config.CheckResult;
+import com.geedgenetworks.common.config.FilterConfigOptions;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.core.filter.AviatorFilter;
 import com.geedgenetworks.core.pojo.FilterConfig;
-import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
@@ -17,22 +20,29 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+/**
+ *  Initialize config and execute filter operator
+ */
 @Slf4j
-public class FilterExecuteProcessor extends AbstractExecuteProcessor<String, FilterConfig> {
-
+public class FilterExecutor extends AbstractExecutor<String, FilterConfig> {
     private static final String PROCESSOR_TYPE = ProcessorType.FILTER.getType();
-
-    public FilterExecuteProcessor(List<URL> jarPaths, Config config) {
+    public FilterExecutor(List<URL> jarPaths, Config config) {
         super(jarPaths, config);
     }
     @Override
     protected Map<String, FilterConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, FilterConfig> filterConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.FILTERS)) {
-            Map<String, Object>  operatorConfigMap = operatorConfig.getConfig(Constants.FILTERS).root().unwrapped();
-            operatorConfigMap.forEach((key,value) -> {
+            Config filters = operatorConfig.getConfig(Constants.FILTERS);
+            filters.root().unwrapped().forEach((key,value) -> {
+                CheckResult result = CheckConfigUtil.checkAllExists(filters.getConfig(key),
+                        FilterConfigOptions.TYPE.key(), FilterConfigOptions.PROPERTIES.key());
+                if (!result.isSuccess()) {
+                    throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
+                            "Filter: %s, Message: %s",
+                            key, result.getMsg()));
+                }
                 FilterConfig filterConfig = new JSONObject((Map<String, Object>) value).toJavaObject(FilterConfig.class);
-                checkFilterConfig(filterConfig);
                 filterConfig.setName(key);
                 filterConfigMap.put(key, filterConfig);
             });
@@ -58,16 +68,9 @@ public class FilterExecuteProcessor extends AbstractExecuteProcessor<String, Fil
                     aviatorFilter.filterFunction(
                             dataStream, filterConfig);
         } catch (Exception e) {
-            throw new JobExecuteException("create filter operator error", e);
+            throw new JobExecuteException("Create filter instance failed!", e);
         }
 
         return dataStream;
-    }
-
-    private void checkFilterConfig(FilterConfig filterConfig) {
-
-        if (!StringUtil.isNotBlank(filterConfig.getType())) {
-            throw new ConfigCheckException("校验未通过 filter " + filterConfig.getName() + " type 为空！");
-        }
     }
 }

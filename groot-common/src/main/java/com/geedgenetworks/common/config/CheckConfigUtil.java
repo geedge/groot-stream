@@ -20,7 +20,7 @@ public final class CheckConfigUtil {
         if (!missingParams.isEmpty()) {
             String errorMsg =
                     String.format(
-                            "please specify [%s] as non-empty", String.join(",", missingParams));
+                            "please specify [%s] as non-empty.", String.join(",", missingParams));
             return CheckResult.error(errorMsg);
         } else {
             return CheckResult.success();
@@ -43,7 +43,7 @@ public final class CheckConfigUtil {
         if (missingParams.size() == params.length) {
             String errorMsg =
                     String.format(
-                            "please specify at least one config of [%s] as non-empty",
+                            "please specify at least one config of [%s] as non-empty.",
                             String.join(",", missingParams));
             return CheckResult.error(errorMsg);
         } else {
@@ -51,7 +51,7 @@ public final class CheckConfigUtil {
         }
     }
 
-    public static boolean isValidParam(Config config, String param) {
+    public static boolean  isValidParam(Config config, String param) {
         boolean isValidParam = true;
         if (!config.hasPath(param)) {
             isValidParam = false;

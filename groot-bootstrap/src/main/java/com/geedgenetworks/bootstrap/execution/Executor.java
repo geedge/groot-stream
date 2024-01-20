@@ -2,7 +2,7 @@ package com.geedgenetworks.bootstrap.execution;
 
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 
-public interface ExecuteProcessor<T, ENV extends RuntimeEnvironment> {
+public interface Executor<T, ENV extends RuntimeEnvironment> {
 
     T execute(T dataStream, Node edge) throws JobExecuteException;
 

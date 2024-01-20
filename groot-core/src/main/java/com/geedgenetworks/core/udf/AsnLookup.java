@@ -6,8 +6,9 @@ import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.UDFContext;
+import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AsnKnowledgeBaseHandler;
 
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;

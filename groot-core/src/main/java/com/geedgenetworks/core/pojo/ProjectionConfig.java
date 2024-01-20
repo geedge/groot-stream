@@ -1,5 +1,7 @@
 package com.geedgenetworks.core.pojo;
 
+import com.geedgenetworks.common.udf.UDFContext;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;

@@ -1,9 +1,10 @@
 package com.geedgenetworks.core.udf;
 
+import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.UDFContext;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.utils.SnowflakeIdUtils;
 import org.apache.flink.api.common.functions.RuntimeContext;
 

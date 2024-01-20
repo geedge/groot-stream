@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.processor.projection;
 
-import com.geedgenetworks.core.udf.UDF;
+import com.geedgenetworks.common.udf.UDF;
 
 import com.googlecode.aviator.Expression;
 import java.io.Serializable;

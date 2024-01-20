@@ -1,6 +1,6 @@
 package com.geedgenetworks.connectors.kafka;
 
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.connector.format.DecodingFormat;
 import com.geedgenetworks.core.connector.source.SourceProvider;
 import com.geedgenetworks.core.types.StructType;

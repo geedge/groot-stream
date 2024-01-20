@@ -5,21 +5,17 @@ import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.core.pojo.Event;
-import com.geedgenetworks.core.pojo.UDFContext;
-import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AsnKnowledgeBaseHandler;
+import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.GeoIpKnowledgeBaseHandler;
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
-import com.geedgenetworks.domain.LocationResponse;
-import com.geedgenetworks.utils.StringUtil;
 
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j

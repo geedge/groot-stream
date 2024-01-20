@@ -1,6 +1,6 @@
 package com.geedgenetworks.connectors.kafka;
 
-import com.geedgenetworks.core.pojo.Event;
+import com.geedgenetworks.common.Event;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
