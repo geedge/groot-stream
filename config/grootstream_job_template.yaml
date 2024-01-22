@@ -92,8 +92,6 @@ processing_pipelines:
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     remove_fields:
     output_fields:
-    properties:
-      key: value
     functions: # [array of object] Function List
       - function: GEOIP_LOOKUP
         lookup_fields: [ server_ip ]
