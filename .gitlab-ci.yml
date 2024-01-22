@@ -26,10 +26,9 @@ build:
   script:
     - echo "$MAVEN_SETTINGS_XML" > /usr/share/maven/conf/settings.xml
    # - mvn $MAVEN_CLI_OPTS enforcer:enforce@snapshot-version-check
-    - mvn $MAVEN_CLI_OPTS clean deploy -DskipTests
+    - mvn $MAVEN_CLI_OPTS clean package -DskipTests
   only:
     - develop
-  when: manual
 
 # 发布。用于发布候选版本，正式版本以及修订版等 release 版本。
 deploy:
