@@ -63,15 +63,6 @@
             <fileMode>0755</fileMode>
         </fileSet>
 
-        <fileSet>
-            <directory>../lib</directory>
-            <outputDirectory>/lib</outputDirectory>
-            <includes>
-                <include>*.jar</include>
-            </includes>
-            <fileMode>0755</fileMode>
-        </fileSet>
-
         <!--Licenses And NOTICE-->
         <fileSet>
             <directory>release-docs</directory>

@@ -22,17 +22,19 @@
             <artifactId>protobuf-java</artifactId>
             <version>${protobuf.version}</version>
         </dependency>-->
-        <!--<dependency>
-            <groupId>com.geedgenetworks</groupId>
-            <artifactId>protobuf-shaded</artifactId>
-            <version>${protobuf.version}</version>
-        </dependency>-->
+        <!--
+        -->
         <dependency>
             <groupId>com.geedgenetworks</groupId>
-            <artifactId>protobuf-shade</artifactId>
-            <version>${protobuf.version}</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../../lib/protobuf-shaded-3.23.4.jar</systemPath>
+            <artifactId>protobuf-shaded</artifactId>
+            <version>${version}</version>
+            <classifier>optional</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.protobuf</groupId>
+                    <artifactId>protobuf-java</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
