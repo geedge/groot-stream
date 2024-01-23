@@ -40,7 +40,6 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
     @Override
     public void updateKnowledgeBase() {
-        System.out.println("start update ip ..........");
 
         for (Map.Entry<String, KnowledgeBaseInfoForIpLookUp> entry : kbNameWithKbConfigAndFileMetas.entrySet()) {
             try {
