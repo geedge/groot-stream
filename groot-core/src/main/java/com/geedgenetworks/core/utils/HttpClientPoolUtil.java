@@ -1,21 +1,21 @@
 package com.geedgenetworks.core.utils;
 
+import com.geedgenetworks.shaded.org.apache.http.*;
+import com.geedgenetworks.shaded.org.apache.http.client.methods.CloseableHttpResponse;
+import com.geedgenetworks.shaded.org.apache.http.client.methods.HttpGet;
+import com.geedgenetworks.shaded.org.apache.http.config.Registry;
+import com.geedgenetworks.shaded.org.apache.http.config.RegistryBuilder;
+import com.geedgenetworks.shaded.org.apache.http.conn.socket.ConnectionSocketFactory;
+import com.geedgenetworks.shaded.org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import com.geedgenetworks.shaded.org.apache.http.conn.ssl.NoopHostnameVerifier;
+import com.geedgenetworks.shaded.org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import com.geedgenetworks.shaded.org.apache.http.impl.client.CloseableHttpClient;
+import com.geedgenetworks.shaded.org.apache.http.impl.client.HttpClientBuilder;
+import com.geedgenetworks.shaded.org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import com.geedgenetworks.shaded.org.apache.http.util.EntityUtils;
 import com.geedgenetworks.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.*;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.util.EntityUtils;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;

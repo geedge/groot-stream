@@ -12,6 +12,19 @@
     <name>Groot : Core </name>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>http-client-shaded</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+            </exclusions>
+            <classifier>optional</classifier>
+        </dependency>
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>groot-common</artifactId>
@@ -22,6 +35,12 @@
         <dependency>
             <groupId>com.alibaba.nacos</groupId>
             <artifactId>nacos-client</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -42,11 +61,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>${httpclient.version}</version>
-        </dependency>
+
 
     </dependencies>
 
