@@ -23,7 +23,7 @@ public abstract class AbstractKnowledgeBaseHandler {
         // 抽象类的构造函数
     }
 
-    public abstract Boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig);
+    public abstract boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig);
 
     public abstract void updateKnowledgeBase();
 

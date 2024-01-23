@@ -1,14 +1,11 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase.Handler;
 
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.TypeReference;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.pojo.KnowledgeBaseInfoForIpLookUp;
 import com.geedgenetworks.domain.LocationResponse;
 import com.geedgenetworks.utils.IpLookupV2;
-import com.geedgenetworks.utils.StringUtil;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +34,7 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
     }
 
     @Override
-    public Boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
+    public boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
         return buildKnowledgeBase(knowledgeBaseConfig);
     }
 
@@ -55,7 +52,7 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         }
     }
 
-    private static Boolean ifNeedUpdate(KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp) {
+    private static boolean ifNeedUpdate(KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp) {
 
         for (KnowLedgeBaseFileMeta knowLedgeEntity : kbInfoForIpLookUp.getKnowLedgeBaseFilesMetas()) {
             KnowLedgeBaseFileMeta metadata = getMetadata(kbInfoForIpLookUp.getKnowledgeConfig().getFsType(), kbInfoForIpLookUp.getKnowledgeConfig().getFsPath(), knowLedgeEntity.getKb_id());
@@ -66,7 +63,7 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         return false;
     }
 
-    private static Boolean buildKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
+    private static boolean buildKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
 
         IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
         List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetas = new ArrayList<>();

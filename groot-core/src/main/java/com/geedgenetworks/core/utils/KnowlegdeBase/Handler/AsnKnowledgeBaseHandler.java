@@ -35,7 +35,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
     }
 
     @Override
-    public Boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
+    public boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
         return buildKnowledgeBase(knowledgeBaseConfig);
     }
 
@@ -66,7 +66,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         return result;
     }
 
-    private static Boolean ifNeedUpdate(KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp) {
+    private static boolean ifNeedUpdate(KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp) {
 
         for (KnowLedgeBaseFileMeta knowLedgeEntity : kbInfoForIpLookUp.getKnowLedgeBaseFilesMetas()) {
             KnowLedgeBaseFileMeta metadata = getMetadata(kbInfoForIpLookUp.getKnowledgeConfig().getFsType(), kbInfoForIpLookUp.getKnowledgeConfig().getFsPath(), knowLedgeEntity.getKb_id());
@@ -77,7 +77,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         return false;
     }
 
-    private static Boolean buildKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
+    private static boolean buildKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
 
         IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
         List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetas = new ArrayList<>();

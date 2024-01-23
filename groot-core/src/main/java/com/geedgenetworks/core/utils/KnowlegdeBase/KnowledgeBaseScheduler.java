@@ -52,7 +52,7 @@ public class KnowledgeBaseScheduler {
             }
 
             if(scheduler.getCurrentlyExecutingJobs().isEmpty()){
-                scheduler.shutdown();
+                SchedulerUtils.shutdownScheduler();
             }
             // 启动调度器
     }
