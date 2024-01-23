@@ -12,6 +12,7 @@ import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.GeoIpKnowledgeBaseHan
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
 
 import com.alibaba.fastjson2.JSON;
+import com.geedgenetworks.domain.LocationResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -63,10 +64,37 @@ public class GeoIpLookup implements UDF {
         if (event.getExtractedFields().containsKey(lookupFieldName)) {
 
             if ("IP_TO_OBJECT".equals(option)) {
-
+                LocationResponse response  = GeoIpKnowledgeBaseHandler.lookUpObject(kbName,event.getExtractedFields().get(lookupFieldName).toString());
                 for (Map.Entry<String, String> entry : geoLocationFieldMapping.entrySet()) {
-                    event.getExtractedFields().put(entry.getValue(), GeoIpKnowledgeBaseHandler
-                            .lookUpObject(kbName, entry.getKey(), event.getExtractedFields().get(lookupFieldName).toString()));
+                    String result = "";
+                    if (response!=null) {
+                        switch (entry.getKey()) {
+                            case "COUNTRY":
+                                result = response.getCountry();
+                                break;
+                            case "PROVINCE":
+                                result = response.getSuperAdministrativeArea();
+                                break;
+                            case "CITY":
+                                result = response.getAdministrativeArea();
+                                break;
+                            case "LONGITUDE":
+                                result = response.getLongitude();
+                                break;
+                            case "LATITUDE":
+                                result = response.getLatitude();
+                                break;
+                            case "ISP":
+                                result = response.getIsp();
+                                break;
+                            case "ORGANIZATION":
+                                result = response.getOrganization();
+                                break;
+                            default:
+                                break;
+                        }
+                        event.getExtractedFields().put(entry.getValue(), result);
+                    }
                 }
             } else {
                 event.getExtractedFields().put(outputFieldName, GeoIpKnowledgeBaseHandler

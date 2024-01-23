@@ -40,6 +40,7 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
     @Override
     public void updateKnowledgeBase() {
+        System.out.println("start update ip ..........");
 
         for (Map.Entry<String, KnowledgeBaseInfoForIpLookUp> entry : kbNameWithKbConfigAndFileMetas.entrySet()) {
             try {
@@ -145,40 +146,10 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
     }
 
 
-    public static String lookUpObject(String kbName, String option, String ip) {
-        String result = "";
+    public static LocationResponse lookUpObject(String kbName, String ip) {
         Object object = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().infoLookup(ip);
-        if (!"".equals(object)) {
-            LocationResponse response = (LocationResponse) object;
-
-            switch (option) {
-                case "COUNTRY":
-                    result = response.getCountry();
-                    break;
-                case "PROVINCE":
-                    result = response.getSuperAdministrativeArea();
-                    break;
-                case "CITY":
-                    result = response.getAdministrativeArea();
-                    break;
-                case "LONGITUDE":
-                    result = response.getLongitude();
-                    break;
-                case "LATITUDE":
-                    result = response.getLatitude();
-                    break;
-                case "ISP":
-                    result = response.getIsp();
-                    break;
-                case "ORGANIZATION":
-                    result = response.getOrganization();
-                    break;
-                default:
-                    break;
-            }
-
-        }
-        return result;
+        LocationResponse response = (LocationResponse) object;
+        return response;
     }
 
 }

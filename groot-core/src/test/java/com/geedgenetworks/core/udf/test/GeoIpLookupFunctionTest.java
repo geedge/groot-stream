@@ -89,7 +89,7 @@ public class GeoIpLookupFunctionTest {
         assertEquals("", ispLookup);
         String infoLookupToJSONString  = GeoIpKnowledgeBaseHandler.lookUp("tsg_ip_location","IP_TO_JSON","2600:1015:b002::");
         assertEquals("{\"administrativeArea\":\"Unknown\",\"areaCode\":\" \",\"asn\":\" \",\"country\":\"美国\",\"countryCode\":\"\",\"dependentLocality\":\" \",\"doubleDependentLocality\":\" \",\"isp\":\" \",\"latitude\":\"39.9388\",\"locality\":\" \",\"longitude\":\"-86.1137\",\"organization\":\"\",\"privateIP\":false,\"subAdministrativeArea\":\" \",\"superAdministrativeArea\":\"印第安纳州\"}", infoLookupToJSONString);
-        String country = GeoIpKnowledgeBaseHandler.lookUpObject("tsg_ip_location","COUNTRY","2600:1015:b002::");
+        String country = GeoIpKnowledgeBaseHandler.lookUpObject("tsg_ip_location","2600:1015:b002::").getCountry();
         assertEquals("美国", country);
 
     }

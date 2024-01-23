@@ -42,7 +42,7 @@ public class KnowledgeBaseScheduler {
         }
     }
 
-    public static void stopSchedulerForKnowledgeBase() throws SchedulerException {
+    public synchronized static void stopSchedulerForKnowledgeBase() throws SchedulerException {
 
             // 创建调度器
             Scheduler scheduler = SchedulerUtils.getScheduler();
