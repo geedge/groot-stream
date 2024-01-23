@@ -5,19 +5,19 @@ Source connector for Apache Kafka
 ## Source Options
 In order to use the Kafka connector, the following dependencies are required. They can be download by Nexus Maven Repository.
 
-| Datasource      | Supported Versions | Maven                                                                                                                          |
-|-----------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| connector-kafka | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/connector-kafka/) |
+| Datasource | Supported Versions | Maven                                                                                                                          |
+|------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| Kafka      | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/connector-kafka/) |
 
 Kafka source customizes properties. if properties belongs to Kafka Consumer Config, you can use `kafka.` prefix to set.
 
-| Name                      | Type   | Required | Default      | Description                                                                                                                                                   |
-|---------------------------|--------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| topic                     | String | Yes      | -            | Topic name(s). It also supports topic list for source by using comma to separate topic names. eg. `topic1,topic2`                                             |
-| kafka.bootstrap.servers   | String | Yes      | -            | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. This list should be in the form `host1:port1,host2:port2,...`. |
-| format                    | String | No       | json         | Data format. The default value is `json`. The Optional values are `json`, `protobuf`.                                                                         |
-| Format Properties         |        | No       | -            | Data format properties. Please refer to [Format Options](../formats) for details.                                                                             |                                                                                                                                       
-| Kafka Consumer Properties |        | No       | -            | Kafka consumer properties. Please refer to [Kafka Consumer Config](https://kafka.apache.org/documentation/#consumerconfigs) for details.                      |
+| Name                    | Type   | Required | Default      | Description                                                                                                                                                   |
+|-------------------------|--------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| topic                   | String | Yes      | -            | Topic name(s). It also supports topic list for source by separating topic by semicolon like 'topic-1;topic-2'.                                                |
+| kafka.bootstrap.servers | String | Yes      | -            | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. This list should be in the form `host1:port1,host2:port2,...`. |
+| format                  | String | No       | json         | Data format. The default value is `json`. The Optional values are `json`, `protobuf`.                                                                         |
+| [format].config         | Map    | No       | -            | Data format properties. Please refer to [Format Options](../formats) for details.                                                                             |                                                                                                                                       
+| kafka.config            | Map    | No       | -            | Kafka consumer properties. Please refer to [Kafka Consumer Config](https://kafka.apache.org/documentation/#consumerconfigs) for details.                      |
 
 ## Example
 This example read data of kafka topic `SESSION-RECORD` and print to console.
