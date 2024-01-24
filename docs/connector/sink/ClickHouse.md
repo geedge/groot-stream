@@ -30,7 +30,7 @@ In order to use the ClickHouse connector, the following dependencies are require
 | ClickHouse | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/connector-clickhouse/) |
 
 
-ClickHouse sink customizes properties. if properties belongs to ClickHouse JDBC Config, you can use `connection.` prefix to set.
+ClickHouse sink custom properties. If properties belongs to ClickHouse JDBC Config, you can use `connection.` prefix to set.
 
 | Name                  | Type     | Required | Default | Description                                                                                                                                                                                                                                                                                                  |
 |-----------------------|----------|----------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

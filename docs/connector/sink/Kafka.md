@@ -9,7 +9,7 @@ In order to use the Kafka connector, the following dependencies are required. Th
 |------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------|
 | Kafka      | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/connector-kafka/) |
 
-Kafka sink customizes properties. if properties belongs to Kafka Producer Config, you can use `kafka.` prefix to set.
+Kafka sink custom properties. if properties belongs to Kafka Producer Config, you can use `kafka.` prefix to set.
 
 | Name                    | Type   | Required | Default | Description                                                                                                                                                   |
 |-------------------------|--------|----------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -54,8 +54,8 @@ sources: # [object] Define connector source
       format: json
       json.ignore.parse.errors: false
 
-sinks:
-  connector_kafka:
+sinks: # [object] Define connector sink
+  connector_kafka: # [object] Kafka sink connector name
     type: kafka
     properties:
       topic: SESSION-RECORD-TEST

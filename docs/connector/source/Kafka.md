@@ -9,7 +9,7 @@ In order to use the Kafka connector, the following dependencies are required. Th
 |------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------|
 | Kafka      | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/connector-kafka/) |
 
-Kafka source customizes properties. if properties belongs to Kafka Consumer Config, you can use `kafka.` prefix to set.
+Kafka source custom properties. if properties belongs to Kafka Consumer Config, you can use `kafka.` prefix to set.
 
 | Name                    | Type   | Required | Default      | Description                                                                                                                                                   |
 |-------------------------|--------|----------|--------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -22,8 +22,8 @@ Kafka source customizes properties. if properties belongs to Kafka Consumer Conf
 ## Example
 This example read data of kafka topic `SESSION-RECORD` and print to console.
 ```yaml
-sources:
-  kafka_source:
+sources: # [object] Define connector source
+  kafka_source: # [object] Kafka source connector name
     type : kafka
     fields: # [array of object] Schema field projection, support read data only from specified fields.
       - name: client_ip
