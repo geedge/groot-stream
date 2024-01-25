@@ -36,6 +36,7 @@ public class KnowledgeBaseScheduler {
                 // 将定时任务和触发器绑定到调度器
                 scheduler.scheduleJob(jobDetail, trigger);
                 // 启动调度器
+                Log.warn("Start scheduler task !");
                 SchedulerUtils.startScheduler();
                 methodCalled =true;
 
@@ -48,10 +49,12 @@ public class KnowledgeBaseScheduler {
             Scheduler scheduler = SchedulerUtils.getScheduler();
 
             if(scheduler.checkExists(JobKey.jobKey(JOB_NAME))){
+                Log.warn("Delete scheduler update job "+JOB_NAME);
                 scheduler.deleteJob(JobKey.jobKey(JOB_NAME));
             }
 
             if(scheduler.getCurrentlyExecutingJobs().isEmpty()){
+                Log.warn("Shutdown scheduler task !");
                 SchedulerUtils.shutdownScheduler();
             }
             // 启动调度器

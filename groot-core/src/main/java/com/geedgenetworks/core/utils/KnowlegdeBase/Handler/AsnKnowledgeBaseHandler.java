@@ -45,7 +45,13 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         for (Map.Entry<String, KnowledgeBaseInfoForIpLookUp> entry : kbNameWithKbConfigAndFileMetas.entrySet()) {
             try {
                 if (ifNeedUpdate(entry.getValue())) {
-                    buildKnowledgeBase(entry.getValue().getKnowledgeConfig());
+                    boolean result = buildKnowledgeBase(entry.getValue().getKnowledgeConfig());
+                    if(result) {
+                        logger.warn("AsnKnowledgeBase " + entry.getKey() + " update success!");
+                    }
+                    else {
+                        logger.warn("AsnKnowledgeBase " + entry.getKey() + " update error!");
+                    }
                 }
             } catch (Exception e) {
                 logger.error("updateKnowledgeBase " + entry.getKey() + " error " + e.getMessage());

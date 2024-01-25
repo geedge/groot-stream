@@ -44,7 +44,13 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         for (Map.Entry<String, KnowledgeBaseInfoForIpLookUp> entry : kbNameWithKbConfigAndFileMetas.entrySet()) {
             try {
                 if (ifNeedUpdate(entry.getValue())) {
-                    buildKnowledgeBase(entry.getValue().getKnowledgeConfig());
+                    boolean result = buildKnowledgeBase(entry.getValue().getKnowledgeConfig());
+                    if(result) {
+                        logger.warn("GeoIpKnowledgeBase " + entry.getKey() + " update success!");
+                    }
+                    else {
+                        logger.warn("GeoIpKnowledgeBase " + entry.getKey() + " update error!");
+                    }
                 }
             } catch (Exception e) {
                 logger.error("updateKnowledgeBase " + entry.getKey() + " error " + e.getMessage());

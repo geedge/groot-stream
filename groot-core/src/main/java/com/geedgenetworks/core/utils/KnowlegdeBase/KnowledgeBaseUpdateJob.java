@@ -43,6 +43,7 @@ public class KnowledgeBaseUpdateJob implements Job {
                 try {
                     isSuccess = abstractKnowledgeBaseHandler.initKnowledgeBase(knowledgeBaseConfig);
                     KnowLedgeBaseEntityMap.put(knowledgeBaseConfig.getName(), knowledgeBaseConfigWithHandler);
+                    logger.warn("initKnowledgeBase "+knowledgeBaseConfig.getName() + "Success");
                 } catch (Exception e) {
                     logger.error("initKnowledgeBase "+knowledgeBaseConfig.getName() + "Error" + e.getMessage());
                 }
@@ -60,6 +61,7 @@ public class KnowledgeBaseUpdateJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
 
+        logger.warn("Start scheduler knowledge_base update job !");
         if (!KnowLedgeBaseEntityMap.isEmpty()) {
             for (Map.Entry<String, KnowledgeBaseConfigWithHandler> entry : KnowLedgeBaseEntityMap.entrySet()) {
                 try {
