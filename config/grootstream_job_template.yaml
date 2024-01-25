@@ -197,6 +197,18 @@ processing_pipelines:
         parameters:
           path: [ props.hos.path, props.hos.bucket.name.traffic_file, mail_eml_file ]
 
+      - function: STRING_JOINER
+        lookup_fields: [ server_ip,client_ip ]
+        output_fields: [ ip_string ]
+        parameters:
+          separator: ','
+          prefix: '['
+          suffix: ']'
+
+      - function: GENERATE_STRING_ARRAY
+        lookup_fields: [ client_asn,server_asn ]
+        output_fields: [ asn_list ]
+
 postprocessing_pipelines:
   remove_field_processor: # [object] Processing Pipeline
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl

@@ -11,3 +11,5 @@ com.geedgenetworks.core.udf.JsonExtract
 com.geedgenetworks.core.udf.PathCombine
 com.geedgenetworks.core.udf.SnowflakeId
 com.geedgenetworks.core.udf.UnixTimestampConverter
+com.geedgenetworks.core.udf.GenerateStringArray
+com.geedgenetworks.core.udf.StringJoiner

@@ -22,6 +22,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
@@ -79,6 +80,9 @@ public class SimpleJobTest {
         Assert.assertEquals("6167", CollectSink.values.get(0).getExtractedFields().get("server_asn").toString());
         Assert.assertEquals("美国", CollectSink.values.get(0).getExtractedFields().get("client_country_region").toString());
         Assert.assertEquals("http://192.168.44.12:8089/traffic_file_bucket/test", CollectSink.values.get(0).getExtractedFields().get("packet_capture_file").toString());
+        Assert.assertEquals("[2600:1015:b002::,192.168.0.1]", CollectSink.values.get(0).getExtractedFields().get("ip_string").toString());
+        List<String> asn_list = (List<String>) CollectSink.values.get(0).getExtractedFields().get("asn_list");
+        Assert.assertEquals("6167", asn_list.get(1));
 
     }
 

@@ -102,6 +102,17 @@ processing_pipelines:
         output_fields: [ packet_capture_file ]
         parameters:
           path: [ props.hos.path, props.hos.bucket.name.traffic_file, packet_capture_file]
+      - function: STRING_JOINER
+        lookup_fields: [ server_ip,client_ip ]
+        output_fields: [ ip_string ]
+        parameters:
+          separator: ','
+          prefix: '['
+          suffix: ']'
+      - function: GENERATE_STRING_ARRAY
+        lookup_fields: [ client_asn,server_asn ]
+        output_fields: [ asn_list ]
+
 
 sinks:
   kafka_sink_a:
