@@ -28,9 +28,10 @@ import java.util.concurrent.TimeUnit;
 public class UDPSource extends RichParallelSourceFunction<byte[]> {
     private static final Log LOG = LogFactory.get();
 
-    private final int initialPort;
-    private final int bufferSize;
-    private final int receiveBuffer;
+    private final int startPort;
+    private final int endPort;
+    private final int maxPacketSize;
+    private final int maxReceiveBufferSize;
     private final Properties serviceDiscoveryProperties;
     private int currentPort;
     private String serverIp;
@@ -40,10 +41,11 @@ public class UDPSource extends RichParallelSourceFunction<byte[]> {
     private volatile boolean stop;
     private ScheduledExecutorService executorService;
 
-    public UDPSource(int initialPort, int bufferSize, int receiveBuffer, Properties serviceDiscoveryProperties) {
-        this.initialPort = initialPort;
-        this.bufferSize = bufferSize;
-        this.receiveBuffer = receiveBuffer;
+    public UDPSource(int startPort, int endPort, int maxPacketSize, int maxReceiveBufferSize, Properties serviceDiscoveryProperties) {
+        this.startPort = startPort;
+        this.endPort = endPort;
+        this.maxPacketSize = maxPacketSize;
+        this.maxReceiveBufferSize = maxReceiveBufferSize;
         this.serviceDiscoveryProperties = serviceDiscoveryProperties;
     }
 
@@ -51,15 +53,14 @@ public class UDPSource extends RichParallelSourceFunction<byte[]> {
     public void run(SourceContext<byte[]> ctx) throws IOException, NacosException {
         executorService = Executors.newScheduledThreadPool(1);
         channel = DatagramChannel.open();
-        channel.setOption(StandardSocketOptions.SO_RCVBUF, receiveBuffer);
+        channel.setOption(StandardSocketOptions.SO_RCVBUF, maxReceiveBufferSize);
         channel.configureBlocking(false);
         Selector selector = Selector.open();
-        currentPort = initialPort;
-        boolean portAvailable = false;
-        while (!portAvailable) {
+        currentPort = startPort;
+        while (currentPort <= endPort) {
             try {
                 channel.bind(new InetSocketAddress(currentPort));
-                portAvailable = true;
+                break;
             } catch (BindException e) {
                 currentPort++;
             }
@@ -67,7 +68,7 @@ public class UDPSource extends RichParallelSourceFunction<byte[]> {
         channel.register(selector, SelectionKey.OP_READ);
         serverIp = InetAddress.getLocalHost().getHostAddress();
         registerInstance(serverIp, currentPort);
-        ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+        ByteBuffer buffer = ByteBuffer.allocate(maxPacketSize);
         while (!stop) {
             selector.select();
             Iterator<SelectionKey> keyIterator = selector.selectedKeys().iterator();
@@ -121,7 +122,7 @@ public class UDPSource extends RichParallelSourceFunction<byte[]> {
             }, 0, healthCheckInterval, TimeUnit.SECONDS);
         } else if (registryMode == 1) {
             String consulToken = String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_TOKEN.key()));
-            consulClient = new ConsulClient(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_SERVER_ADDR.key())), Integer.parseInt(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_SERVER_PORT.key()))));
+            consulClient = new ConsulClient(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_SERVER_IP.key())), Integer.parseInt(String.valueOf(serviceDiscoveryProperties.get(IPFixConnectorOptions.SERVICE_DISCOVERY_CONSUL_SERVER_PORT.key()))));
             NewService newService = new NewService();
             newService.setName(serviceName);
             newService.setId(ip + ":" + port);

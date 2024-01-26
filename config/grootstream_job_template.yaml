@@ -46,10 +46,9 @@ sources:
 #      - name: log_id
 #        type: bigint
     properties:
-      initial.port: 12345
-      port.number: 3
-      buffer.size: 65535
-      receive.buffer: 104857600
+      port.range: 12345-12347
+      max.packet.size: 65535
+      max.receive.buffer.size: 104857600
       service.discovery.registry.mode: 0 # 0为nacos，1为consul，其他值为不使用服务发现，默认为0
       service.discovery.service.name: udp_ipfix
       service.discovery.health.check.interval: 5 # The time interval for reporting health status to the service registry center, in seconds.
@@ -58,7 +57,7 @@ sources:
       service.discovery.nacos.password: nacos
       service.discovery.nacos.namespace: test
       service.discovery.nacos.group: IPFIX
-#      service.discovery.consul.server.addr: 192.168.41.30
+#      service.discovery.consul.server.ip: 192.168.41.30
 #      service.discovery.consul.server.port: 8500
 #      service.discovery.consul.token:
 

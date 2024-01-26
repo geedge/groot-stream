@@ -53,11 +53,25 @@ public class IPFixSourceProvider implements SourceProvider {
     @Override
     public SingleOutputStreamOperator<Event> produceDataStream(StreamExecutionEnvironment env) {
         Properties serviceDiscoveryProperties = getServiceDiscoveryProperties(options);
-        UDPSource udpSource = new UDPSource(config.get(IPFixConnectorOptions.INITIAL_PORT),
-                config.get(IPFixConnectorOptions.BUFFER_SIZE),
-                config.get(IPFixConnectorOptions.RECEIVE_BUFFER),
+        String portRange = config.get(IPFixConnectorOptions.PORT_RANGE);
+        int startPort = 0;
+        int endPort = 0;
+        int udpSourceParallelism = 0;
+        String[] portRangeArray = portRange.split("-");
+        if (portRangeArray.length == 1) {
+            startPort = Integer.parseInt(portRange);
+            endPort = Integer.parseInt(portRange);
+            udpSourceParallelism = 1;
+        } else if (portRangeArray.length == 2) {
+            startPort = Integer.parseInt(portRangeArray[0]);
+            endPort = Integer.parseInt(portRangeArray[1]);
+            udpSourceParallelism = endPort - startPort + 1;
+        }
+        UDPSource udpSource = new UDPSource(startPort, endPort,
+                config.get(IPFixConnectorOptions.MAX_PACKET_SIZE),
+                config.get(IPFixConnectorOptions.MAX_RECEIVE_BUFFER_SIZE),
                 serviceDiscoveryProperties);
-        DataStream<byte[]> source = env.addSource(udpSource).setParallelism(config.get(IPFixConnectorOptions.PORT_NUMBER));
+        DataStream<byte[]> source = env.addSource(udpSource).setParallelism(udpSourceParallelism);
         return source.flatMap(new RichFlatMapFunction<byte[], Event>() {
             @Override
             public void flatMap(byte[] data, Collector<Event> out) {

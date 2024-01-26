@@ -5,25 +5,19 @@ import org.apache.flink.configuration.ConfigOptions;
 
 public class IPFixConnectorOptions {
 
-    public static final ConfigOption<Integer> INITIAL_PORT =
-            ConfigOptions.key("initial.port")
-                    .intType()
+    public static final ConfigOption<String> PORT_RANGE =
+            ConfigOptions.key("port.range")
+                    .stringType()
                     .noDefaultValue()
                     .withDescription("Initial port of the IPFix server.");
 
-    public static final ConfigOption<Integer> PORT_NUMBER =
-            ConfigOptions.key("port.number")
-                    .intType()
-                    .defaultValue(1)
-                    .withDescription("Number of ports of the IPFix server.");
-
-    public static final ConfigOption<Integer> BUFFER_SIZE =
-            ConfigOptions.key("buffer.size")
+    public static final ConfigOption<Integer> MAX_PACKET_SIZE =
+            ConfigOptions.key("max.packet.size")
                     .intType()
                     .defaultValue(65535);
 
-    public static final ConfigOption<Integer> RECEIVE_BUFFER =
-            ConfigOptions.key("receive.buffer")
+    public static final ConfigOption<Integer> MAX_RECEIVE_BUFFER_SIZE =
+            ConfigOptions.key("max.receive.buffer.size")
                     .intType()
                     .defaultValue(104857600);
 
@@ -70,8 +64,8 @@ public class IPFixConnectorOptions {
                     .stringType()
                     .defaultValue("DEFAULT_GROUP");
 
-    public static final ConfigOption<String> SERVICE_DISCOVERY_CONSUL_SERVER_ADDR =
-            ConfigOptions.key("service.discovery.consul.server.addr")
+    public static final ConfigOption<String> SERVICE_DISCOVERY_CONSUL_SERVER_IP =
+            ConfigOptions.key("service.discovery.consul.server.ip")
                     .stringType()
                     .defaultValue("127.0.0.1");
 

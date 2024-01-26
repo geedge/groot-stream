@@ -34,16 +34,15 @@ public class IPFixTableFactory implements SourceTableFactory {
     @Override
     public Set<ConfigOption<?>> requiredOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(IPFixConnectorOptions.INITIAL_PORT);
+        options.add(IPFixConnectorOptions.PORT_RANGE);
         return options;
     }
 
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
-        options.add(IPFixConnectorOptions.BUFFER_SIZE);
-        options.add(IPFixConnectorOptions.PORT_NUMBER);
-        options.add(IPFixConnectorOptions.RECEIVE_BUFFER);
+        options.add(IPFixConnectorOptions.MAX_PACKET_SIZE);
+        options.add(IPFixConnectorOptions.MAX_RECEIVE_BUFFER_SIZE);
         return options;
     }
 
