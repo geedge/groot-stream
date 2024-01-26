@@ -16,37 +16,40 @@ import java.util.Base64;
 @Slf4j
 public class DecodeBase64 implements UDF {
 
-    private String lookupFieldNameFirst;
-    private String lookupFieldNameSecond;
+    private String valueField;
+    private String charsetField;
     private String outputFieldName;
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
-        if(udfContext.getLookup_fields()==null || udfContext.getOutput_fields()==null){
+        if(udfContext.getParameters()==null || udfContext.getOutput_fields()==null){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
-        }
-        if(udfContext.getLookup_fields().size() !=2){
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
         }
         if(udfContext.getOutput_fields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
-        this.lookupFieldNameFirst = udfContext.getLookup_fields().get(0);
-        this.lookupFieldNameSecond = udfContext.getLookup_fields().get(1);
+        if(!udfContext.getParameters().containsKey("value_field") ||!udfContext.getParameters().containsKey("charset_field") ){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey value_field and charset_field");
+        }
         this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.valueField =udfContext.getParameters().get("value_field").toString();
+        this.charsetField =udfContext.getParameters().get("charset_field").toString();
+
+
+
     }
 
     @Override
     public Event evaluate(Event event) {
-        if (event.getExtractedFields().containsKey(lookupFieldNameFirst)) {
+        if (event.getExtractedFields().containsKey(valueField)) {
 
             String decodeResult = "";
             String message =
                     (String)
                             event.getExtractedFields()
-                                    .get(lookupFieldNameFirst);
+                                    .get(valueField);
             Object charset =
-                    event.getExtractedFields().getOrDefault(lookupFieldNameSecond,"");
+                    event.getExtractedFields().getOrDefault(charsetField,"");
             try {
                 if (StringUtil.isNotBlank(message)) {
                     byte[] base64decodedBytes = Base64.getDecoder().decode(message);

@@ -2,9 +2,11 @@ package com.geedgenetworks.core.utils.KnowlegdeBase.Handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
+import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.HttpClientPoolUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +16,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+@Slf4j
 public abstract class AbstractKnowledgeBaseHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractKnowledgeBaseHandler.class);
 
     public AbstractKnowledgeBaseHandler() {
         // 抽象类的构造函数
@@ -37,7 +38,7 @@ public abstract class AbstractKnowledgeBaseHandler {
                 result.append(String.format("%02x", b));
             }
         } catch (NoSuchAlgorithmException e) {
-            logger.error("calculateSHA256  error: " + e.getMessage());
+            Log.error("calculateSHA256  error: " + e.getMessage());
         }
         return result.toString();
     }
@@ -51,10 +52,10 @@ public abstract class AbstractKnowledgeBaseHandler {
                 HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
                 inputStream = httpClientPoolUtil.httpGetByte(fileUrl);
                 long end = System.currentTimeMillis();
-                logger.info(
+                Log.info(
                         "download file " + fileUrl + " finished, speed " + (end - start) + " ms");
             } catch (Exception e) {
-                logger.error("download file " + fileUrl + " error: " + e.getMessage());
+                Log.error("download file " + fileUrl + " error: " + e.getMessage());
             }
         }
         return inputStream;
@@ -81,11 +82,11 @@ public abstract class AbstractKnowledgeBaseHandler {
                 case "hdfs":
                     break;
                 default:
-                    logger.error("get file Metadata  error:  fs_type not suppoort !");
+                    Log.error("get file Metadata  error:  fs_type not suppoort !");
                     break;
             }
         } catch (Exception e) {
-            logger.error("get file Metadata error! path = " + path + " " + e.getMessage());
+            Log.error("get file Metadata error! path = " + path + " " + e.getMessage());
         }
 
         return knowLedgeBaseFileMetaList;
@@ -108,17 +109,17 @@ public abstract class AbstractKnowledgeBaseHandler {
                     knowLedgeBaseFileMetaList.removeIf(knowLedgeBaseFileMeta -> !"latest".equals(knowLedgeBaseFileMeta.getVersion()));
                     break;
                 case "local":
-                    logger.error("get file Metadata  error:  fs_type local not suppoort !");
+                    Log.error("get file Metadata  error:  fs_type local not suppoort !");
                     break;
                 case "hdfs":
-                    logger.error("get file Metadata  error:  fs_type hdfs not suppoort !");
+                    Log.error("get file Metadata  error:  fs_type hdfs not suppoort !");
                     break;
                 default:
-                    logger.error("get file Metadata  error:  fs_type not suppoort !");
+                    Log.error("get file Metadata  error:  fs_type not suppoort !");
                     break;
             }
         } catch (Exception e) {
-            logger.error("get file Metadata error! path = " + path + " " + e.getMessage());
+            Log.error("get file Metadata error! path = " + path + " " + e.getMessage());
             return null;
         }
 
@@ -126,7 +127,7 @@ public abstract class AbstractKnowledgeBaseHandler {
 
             return knowLedgeBaseFileMetaList.get(0);
         } else {
-            logger.error("file Metadata is null ! path = " + path + "?kb_id=" + kbId);
+            Log.error("file Metadata is null ! path = " + path + "?kb_id=" + kbId);
             return null;
         }
     }

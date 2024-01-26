@@ -17,7 +17,7 @@ sources:
       kafka.sasl.mechanism:
       kafka.sasl.jaas.config:
       kafka.buffer.memory:
-      kafka.group.id: SESSION-RECORD-COMPLETED-GROUP-GROOT-STREAM-20231021
+      kafka.group.id: SESSION-RECORD-COMPLETED-GROUP-GROOT-STREAM-20240126
       kafka.auto.offset.reset: latest
       kafka.max.request.size:
       kafka.compression.type: none
@@ -160,12 +160,16 @@ processing_pipelines:
           option: FIRST_SIGNIFICANT_SUBDOMAIN
 
       - function: BASE64_DECODE_TO_STRING
-        lookup_fields: [ mail_subject,mail_subject_charset ]
-        output_fields: [ mail_subject ]
+        output_fields: [mail_subject]
+        parameters:
+          value_field: mail_subject
+          charset_field: mail_subject_charset
 
       - function: BASE64_DECODE_TO_STRING
-        lookup_fields: [ mail_attachment_name,mail_attachment_name_charset ]
-        output_fields: [ mail_attachment_name ]
+        output_fields: [mail_attachment_name]
+        parameters:
+          value_field: mail_attachment_name
+          charset_field: mail_attachment_name_charset
 
       - function: PATH_COMBINE
         lookup_fields: [ packet_capture_file ]

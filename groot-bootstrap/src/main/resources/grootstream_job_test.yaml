@@ -5,12 +5,11 @@ sources:
     type : inline
     fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
     properties:
-      data:  '[{"packet_capture_file":"test","ssl_sni":"www.google.com","decoded_as":"BASE","ssl_san":"www.google.com","__timestamp":1705568517095,"client_ip":"192.168.0.1","server_ip":"2600:1015:b002::"},{"decoded_as":"HTTP","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"DNS","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"SSL","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"}]'
+      data:  '[{"mail_attachment_name_charset":"GBK","mail_attachment_name":"aGVsbG8=","packet_capture_file":"test","ssl_sni":"www.google.com","decoded_as":"BASE","ssl_san":"www.google.com","__timestamp":1705568517095,"client_ip":"255.255.255.255","server_ip":"2600:1015:b002::"},{"decoded_as":"HTTP","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"DNS","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"SSL","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"}]'
       interval.per.row: 1s # 可选
       repeat.count: 1 # 可选
       format: json
       json.ignore.parse.errors: false
-
 filters:
   schema_type_filter:
     type: com.geedgenetworks.core.filter.AviatorFilter
@@ -47,6 +46,21 @@ processing_pipelines:
         lookup_fields: [ '' ]
         output_fields: [ '' ]
         filter: event.decoded_as == 'SSL'
+      - function: BASE64_DECODE_TO_STRING
+        output_fields: [mail_attachment_name]
+        parameters:
+          value_field: mail_attachment_name
+          charset_field: mail_attachment_name_charset
+
+      - function: GEOIP_LOOKUP
+        lookup_fields: [ client_ip ]
+        output_fields: [ ]
+        parameters:
+          kb_name: tsg_ip_location
+          option: IP_TO_OBJECT
+          geolocation_field_mapping:
+            COUNTRY: client_country_region
+            PROVINCE: client_super_admin_area
       - function: GEOIP_LOOKUP
         lookup_fields: [ server_ip ]
         output_fields: []
@@ -54,8 +68,8 @@ processing_pipelines:
           kb_name: tsg_ip_location
           option: IP_TO_OBJECT
           geolocation_field_mapping:
-            COUNTRY: client_country_region
-            PROVINCE: client_super_admin_area
+            COUNTRY: server_country_region
+            PROVINCE: server_super_admin_area
       - function: ASN_LOOKUP
         lookup_fields: [ server_ip ]
         output_fields: [ server_asn ]
@@ -92,10 +106,6 @@ processing_pipelines:
         output_fields: [ server_domain ]
         parameters:
           option: FIRST_SIGNIFICANT_SUBDOMAIN
-
-      - function: BASE64_DECODE_TO_STRING
-        lookup_fields: [ mail_subject,mail_subject_charset ]
-        output_fields: [ mail_subject ]
 
       - function: PATH_COMBINE
         lookup_fields: [ packet_capture_file ]

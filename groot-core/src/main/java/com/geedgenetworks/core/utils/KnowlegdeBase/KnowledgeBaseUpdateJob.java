@@ -1,9 +1,11 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase;
 
+import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowledgeBaseConfigWithHandler;
 import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AbstractKnowledgeBaseHandler;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
@@ -12,13 +14,12 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-
+@Slf4j
 public class KnowledgeBaseUpdateJob implements Job {
 
 
     @Getter
     private static final Map<String, KnowledgeBaseConfigWithHandler> KnowLedgeBaseEntityMap= new ConcurrentHashMap<>() ;
-    private static final Logger logger = LoggerFactory.getLogger(KnowledgeBaseUpdateJob.class);
 
 
     public static void  updateKnowledgeBase(KnowledgeBaseConfigWithHandler knowledgeBaseConfigWithHandler)  {
@@ -26,7 +27,7 @@ public class KnowledgeBaseUpdateJob implements Job {
         try {
             knowledgeBaseConfigWithHandler.getAbstractKnowledgeBaseHandler().updateKnowledgeBase();
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            Log.error(e.getMessage());
         }
     }
 
@@ -43,9 +44,9 @@ public class KnowledgeBaseUpdateJob implements Job {
                 try {
                     isSuccess = abstractKnowledgeBaseHandler.initKnowledgeBase(knowledgeBaseConfig);
                     KnowLedgeBaseEntityMap.put(knowledgeBaseConfig.getName(), knowledgeBaseConfigWithHandler);
-                    logger.warn("initKnowledgeBase "+knowledgeBaseConfig.getName() + "Success");
+                    Log.warn("initKnowledgeBase "+knowledgeBaseConfig.getName() + "Success");
                 } catch (Exception e) {
-                    logger.error("initKnowledgeBase "+knowledgeBaseConfig.getName() + "Error" + e.getMessage());
+                    Log.error("initKnowledgeBase "+knowledgeBaseConfig.getName() + "Error" + e.getMessage());
                 }
             } else {
                 isSuccess = true;
@@ -61,13 +62,13 @@ public class KnowledgeBaseUpdateJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
 
-        logger.warn("Start scheduler knowledge_base update job !");
+        Log.warn("Start scheduler knowledge_base update job !");
         if (!KnowLedgeBaseEntityMap.isEmpty()) {
             for (Map.Entry<String, KnowledgeBaseConfigWithHandler> entry : KnowLedgeBaseEntityMap.entrySet()) {
                 try {
                     updateKnowledgeBase(entry.getValue());
                 } catch (Exception e) {
-                    logger.error(e.getMessage());
+                    Log.error(e.getMessage());
                 }
             }
         }

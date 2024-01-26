@@ -24,6 +24,10 @@ public class DecodeBase64FunctionTest {
          udfContext = new UDFContext();
          udfContext.setLookup_fields(Arrays.asList("message", "charset"));
          udfContext.setOutput_fields(Collections.singletonList("decodeResult"));
+         Map<String,Object> map = new HashMap<>();
+         map.put("value_field","message");
+         map.put("charset_field","charset");
+         udfContext .setParameters(map);
     }
     @Test
     public void testDecodeBase64Function() {
@@ -49,6 +53,7 @@ public class DecodeBase64FunctionTest {
         DecodeBase64 decodeBase64 = new DecodeBase64();
         udfContext.setLookup_fields(Collections.singletonList("message"));
         udfContext.setOutput_fields(Collections.singletonList("decodeResult"));
+        udfContext.getParameters().remove("value_field");
         assertThrows(GrootStreamRuntimeException.class,
                 () -> {
                     decodeBase64.open(null, udfContext);

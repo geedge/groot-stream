@@ -1,12 +1,14 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase.Handler;
 
 
+import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.pojo.KnowledgeBaseInfoForIpLookUp;
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,12 +16,11 @@ import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-
+@Slf4j
 public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
     @Getter
     private static Map<String, KnowledgeBaseInfoForIpLookUp> kbNameWithKbConfigAndFileMetas = new ConcurrentHashMap<>();
-    private static final Logger logger = LoggerFactory.getLogger(AsnKnowledgeBaseHandler.class);
     private static AsnKnowledgeBaseHandler instance;
 
     // 私有构造函数，防止外部实例化
@@ -47,14 +48,14 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                 if (ifNeedUpdate(entry.getValue())) {
                     boolean result = buildKnowledgeBase(entry.getValue().getKnowledgeConfig());
                     if(result) {
-                        logger.warn("AsnKnowledgeBase " + entry.getKey() + " update success!");
+                        Log.warn("AsnKnowledgeBase " + entry.getKey() + " update success!");
                     }
                     else {
-                        logger.warn("AsnKnowledgeBase " + entry.getKey() + " update error!");
+                        Log.warn("AsnKnowledgeBase " + entry.getKey() + " update error!");
                     }
                 }
             } catch (Exception e) {
-                logger.error("updateKnowledgeBase " + entry.getKey() + " error " + e.getMessage());
+                Log.error("updateKnowledgeBase " + entry.getKey() + " error " + e.getMessage());
             }
         }
 
@@ -67,7 +68,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                 result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().asnLookup(ip);
             }
         } catch (Exception e) {
-            logger.error("AsnKnowledgeBaseHandler lookUp Error kbName =" + kbName + " error " + e.getMessage());
+            Log.error("AsnKnowledgeBaseHandler lookUp Error kbName =" + kbName + " error " + e.getMessage());
         }
         return result;
     }
@@ -92,7 +93,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
             if (metadata != null) {
                 knowLedgeBaseFileMetas.add(getMetadata(knowledgeBaseConfig.getFsType(), knowledgeBaseConfig.getFsPath(), kbId));
             } else {
-                logger.error("get metadate error !");
+                Log.error("get metadate error !");
                 return false;
             }
         }
@@ -109,11 +110,11 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                             break;
                     }
                 } else {
-                    logger.error("check file sha256 error ");
+                    Log.error("check file sha256 error ");
                     return false;
                 }
             } catch (Exception e) {
-                logger.error("buildKnowledgeBase error " + e.getMessage());
+                Log.error("buildKnowledgeBase error " + e.getMessage());
                 return false;
             }
         }

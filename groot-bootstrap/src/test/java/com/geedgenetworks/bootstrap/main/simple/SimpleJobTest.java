@@ -76,11 +76,13 @@ public class SimpleJobTest {
         assertTrue(1000000000 < Integer.parseInt(CollectSink.values.get(0).getExtractedFields().get("recv_time").toString()));
         assertTrue(1000000000 < Integer.parseInt(CollectSink.values.get(0).getExtractedFields().get("processing_time").toString()));
         assertTrue(0 != Long.parseLong(CollectSink.values.get(0).getExtractedFields().get("log_id").toString()));
-        Assert.assertEquals("印第安纳州", CollectSink.values.get(0).getExtractedFields().get("client_super_admin_area").toString());
+        Assert.assertEquals("印第安纳州", CollectSink.values.get(0).getExtractedFields().get("server_super_admin_area").toString());
         Assert.assertEquals("6167", CollectSink.values.get(0).getExtractedFields().get("server_asn").toString());
-        Assert.assertEquals("美国", CollectSink.values.get(0).getExtractedFields().get("client_country_region").toString());
+        Assert.assertEquals("美国", CollectSink.values.get(0).getExtractedFields().get("server_country_region").toString());
+        Assert.assertTrue(!CollectSink.values.get(0).getExtractedFields().containsKey("client_country_region"));
         Assert.assertEquals("http://192.168.44.12:8089/traffic_file_bucket/test", CollectSink.values.get(0).getExtractedFields().get("packet_capture_file").toString());
-        Assert.assertEquals("[2600:1015:b002::,192.168.0.1]", CollectSink.values.get(0).getExtractedFields().get("ip_string").toString());
+        Assert.assertEquals("[2600:1015:b002::,255.255.255.255]", CollectSink.values.get(0).getExtractedFields().get("ip_string").toString());
+        Assert.assertEquals("hello", CollectSink.values.get(0).getExtractedFields().get("mail_attachment_name").toString());
         List<String> asn_list = (List<String>) CollectSink.values.get(0).getExtractedFields().get("asn_list");
         Assert.assertEquals("6167", asn_list.get(1));
 
