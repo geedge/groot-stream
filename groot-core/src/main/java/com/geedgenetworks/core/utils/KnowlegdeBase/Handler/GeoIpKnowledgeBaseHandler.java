@@ -5,7 +5,7 @@ import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.pojo.KnowledgeBaseInfoForIpLookUp;
-import com.geedgenetworks.domain.LocationResponse;
+import com.geedgenetworks.model.LocationResponse;
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -146,17 +146,19 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                     break;
             }
         } catch (Exception e) {
-            Log.error("GeoIpKnowledgeBaseHandler lookUp Error kbName =" + kbName + " error " + e.getMessage());
+            Log.error("GeoIpKnowledgeBaseHandler lookUp Error ip = "+ ip + "kbName =" + kbName + " error " + e.getMessage());
         }
         return result;
     }
 
 
     public static LocationResponse lookUpObject(String kbName, String ip) {
-        Object object = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().infoLookup(ip);
-        LocationResponse response =null;
-        if(object instanceof LocationResponse) {
-             response = (LocationResponse) object;
+        LocationResponse response = null;
+        try {
+             response = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().infoLookup(ip);
+        }
+        catch (Exception e){
+            Log.error("GeoIpKnowledgeBaseHandler lookUpObject Error ip = "+ ip + "kbName =" + kbName + " error " + e.getMessage());
         }
         return response;
     }

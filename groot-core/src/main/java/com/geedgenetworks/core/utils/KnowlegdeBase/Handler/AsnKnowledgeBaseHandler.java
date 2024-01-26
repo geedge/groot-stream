@@ -68,7 +68,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                 result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().asnLookup(ip);
             }
         } catch (Exception e) {
-            Log.error("AsnKnowledgeBaseHandler lookUp Error kbName =" + kbName + " error " + e.getMessage());
+            Log.error("AsnKnowledgeBaseHandler lookUp Error ip = " + ip +" kbName =" + kbName + " error " + e.getMessage());
         }
         return result;
     }

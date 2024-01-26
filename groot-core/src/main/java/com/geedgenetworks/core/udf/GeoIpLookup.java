@@ -12,7 +12,7 @@ import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.GeoIpKnowledgeBaseHan
 import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.domain.LocationResponse;
+import com.geedgenetworks.model.LocationResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
