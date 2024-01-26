@@ -153,7 +153,10 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
     public static LocationResponse lookUpObject(String kbName, String ip) {
         Object object = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().infoLookup(ip);
-        LocationResponse response = (LocationResponse) object;
+        LocationResponse response =null;
+        if(object instanceof LocationResponse) {
+             response = (LocationResponse) object;
+        }
         return response;
     }
 
