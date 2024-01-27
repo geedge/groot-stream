@@ -77,7 +77,7 @@ sources: # [object] Define connector source
       service.discovery.nacos.password: nacos
       service.discovery.nacos.namespace: test
       service.discovery.nacos.group: IPFIX
-#      service.discovery.consul.server.addr: 192.168.41.30
+#      service.discovery.consul.server.ip: 192.168.41.30
 #      service.discovery.consul.server.port: 8500
 #      service.discovery.consul.token:
 
@@ -125,6 +125,7 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
           geolocation_field_mapping:
               COUNTRY: client_country_region
               PROVINCE: client_super_admin_area
+
       - function: ASN_LOOKUP
         lookup_fields: [ server_ip ]
         output_fields: [ server_asn ]
@@ -187,8 +188,16 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
         output_fields: [ mail_subject ]
 
       - function: BASE64_DECODE_TO_STRING
-        lookup_fields: [ mail_attachment_name,mail_attachment_name_charset ]
+        output_fields: [ mail_subject ]
+        parameters:
+          value_field: mail_subject
+          charset_field: mail_subject_charset
+
+      - function: BASE64_DECODE_TO_STRING
         output_fields: [ mail_attachment_name ]
+        parameters:
+          value_field: mail_attachment_name
+          charset_field: mail_attachment_name_charset
 
       - function: PATH_COMBINE
         lookup_fields: [ packet_capture_file ]
@@ -219,6 +228,18 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
         output_fields: [ mail_eml_file ]
         parameters:
           path: [ props.hos.path, props.hos.bucket.name.traffic_file, mail_eml_file ]
+
+      - function: STRING_JOINER
+        lookup_fields: [ server_ip,client_ip ]
+        output_fields: [ ip_string ]
+        parameters:
+          separator: ','
+          prefix: '['
+          suffix: ']'
+
+      - function: GENERATE_STRING_ARRAY
+        lookup_fields: [ client_asn,server_asn ]
+        output_fields: [ asn_list ]
 
 postprocessing_pipelines: # [object] Define Processors for postprocessing pipelines.
   postprocessor: # [object] Define projection processor name, must be unique.
@@ -261,9 +282,10 @@ sinks: # [object] Define connector sink
     type: clickhouse
     properties:
       host: 127.0.0.1:9001
-      table: tsg_galaxy_v3.inline_source_test_local
+      table: inline_source_test_local
       batch.size: 10
       batch.interval: 1s
+      connection.database: tsg_galaxy_v3
       connection.user: default
       connection.password: ''
 

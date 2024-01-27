@@ -27,7 +27,7 @@
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>protobuf-shaded</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <classifier>optional</classifier>
             <exclusions>
                 <exclusion>

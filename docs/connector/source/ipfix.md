@@ -24,7 +24,7 @@ IPFIX source custom properties.
 | service.discovery.nacos.password        | String  | No       | -         | The password to use to connect to Nacos.Need specify `ipfix.service.discovery.registry.mode` to `0(nacos)`                                                    |
 | service.discovery.nacos.namespace       | String  | No       | -         | The namespace to use to connect to Nacos.Need specify `ipfix.service.discovery.registry.mode` to `0(nacos)`                                                   |
 | service.discovery.nacos.group           | String  | No       | -         | The group to use to connect to Nacos.Need specify `ipfix.service.discovery.registry.mode` to `0(nacos)`                                                       |
-| service.discovery.consul.server.addr    | String  | No       | -         | Consul server address. Need specify `ipfix.service.discovery.registry.mode` to `1(consul)`                                                                    |
+| service.discovery.consul.server.ip      | String  | No       | -         | Consul server IP address. Need specify `ipfix.service.discovery.registry.mode` to `1(consul)`                                                                 |
 | service.discovery.consul.server.port    | Integer | No       | -         | Consul server port. Need specify `ipfix.service.discovery.registry.mode` to `1(consul)`                                                                       |
 | service.discovery.consul.token          | String  | No       | -         | Consul token. Need specify `ipfix.service.discovery.registry.mode` to `1(consul)`                                                                             |
 

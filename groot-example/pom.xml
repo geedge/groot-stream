@@ -11,10 +11,10 @@
 
     <artifactId>groot-example</artifactId>
     <name>Groot : Example </name>
-    <packaging>pom</packaging>
+   <!-- <packaging>pom</packaging>-->
 
     <properties>
-        <scope>compile</scope>
+        <scope>provided</scope>
     </properties>
     <dependencies>
         <dependency>

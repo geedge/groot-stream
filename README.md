@@ -36,7 +36,7 @@ Configure a job, you'll set up Sources, Filters, Processing Pipeline, and Sinks,
 
 - [Source Connectors](docs/connector/source)
 - [Sink Connectors](docs/connector/sink)
-- [Functions](docs/processor/udf)
+- [Functions](docs/processor/udf.md)
 
 ## Minimum Requirements
 - Git installed
@@ -92,20 +92,19 @@ Can be started by a daemon with `-d`.
 6. Click the `Run` button.
 
 #### Running the CLI
-relate to [User Guide](docs/user-guide.md)
 - Run the following command to start the groot-stream server for Standalone Mode:
 ```shell
 cd "groot-stream-${version}"
-./bin/start.sh -c ./config/inline_to_print.yaml --target remote -d -n inline-to-print-job
+./bin/start.sh -c ./config/groot_stream_job_example.yaml --target remote -d -n inline-to-print-job
 ```
 - Run the following command to start the groot-stream server for Yarn Per-job Mode:
 ```shell
 cd "groot-stream-${version}"
-./bin/start.sh -c ./config/inline_to_print.yaml --target yarn-per-job -d -n inline-to-print-job
+./bin/start.sh -c ./config/groot_stream_job_example.yaml --target yarn-per-job -d -n inline-to-print-job
 ```
 ### Configuring
 
-The [Groot User Guide](docs/user-guide) provides detailed information on how to configure a job.
+The [User Guide](docs/user-guide.md) provides detailed information on how to configure a job.
 
 ## Documentation
 
