@@ -8,7 +8,7 @@ The main format of the config template file is `yaml`, for more details of this 
 sources:
   inline_source:
     type: inline
-    fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
+    fields:
       - name: log_id
         type: bigint
       - name: recv_time
@@ -22,7 +22,7 @@ sources:
       - name: decoded_as
         type: string
     properties:
-      data: '{"log_id": 1, "recv_time":"111","fqdn_string":"baidu.com", "client_ip":"192.168.0.1","server_ip":"120.233.20.242","decoded_as":"BASE"}'
+      data: '{"log_id": 1, "recv_time":"111","fqdn_string":"baidu.com", "client_ip":"192.168.0.1","server_ip":"120.233.20.242","decoded_as":"BASE", "dup_traffic_flag":1}'
       format: json
       json.ignore.parse.errors: false
 
@@ -33,7 +33,7 @@ filters:
       expression: event.decoded_as == 'BASE'
 
 preprocessing_pipelines:
-  transform_processor:
+  preprocessor:
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     functions:
       - function: EVAL
@@ -42,13 +42,11 @@ preprocessing_pipelines:
           value_expression: fqdn_string
 
 processing_pipelines:
-  session_record_processor: # [object] Processing Pipeline
+  processor: 
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     remove_fields: [log_id]
-    output_fields:
-    properties:
-      key: value
-    functions: # [array of object] Function List
+    output_fields: []
+    functions: 
       - function: DROP
         lookup_fields: []
         output_fields: []
@@ -56,6 +54,11 @@ processing_pipelines:
       - function: SNOWFLAKE_ID
         lookup_fields: []
         output_fields: [ log_id ]
+        
+postprocessing_pipelines:
+  postprocessor:  
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    remove_fields: [dup_traffic_flag]
 
 sinks:
   print_sink:
@@ -63,21 +66,26 @@ sinks:
     properties:
       format: json
 
-application: # [object] Application Configuration
-  env: # [object] Environment Variables
-    name: inline-to-console-job # [string] Job Name
-    parallelism: 1 # [number] Job-Level Parallelism
-  topology: # [array of object] Node List. It will be used build data flow for job dag graph.
-    - name: inline_source # [string] Node Name, must be unique. It will be used as the name of the corresponding Flink operator. eg. kafka_source the processor type as SOURCE.
-      #parallelism: 1 # [number] Operator-Level Parallelism.
-      downstream: [filter]
-    - name: filter
-      downstream: [transform_processor]
-    - name: transform_processor
-      downstream: [session_record_processor]
-    - name: session_record_processor
-      downstream: [print_sink]
+application:
+  env: 
+    name: inline-to-print-job  
+    parallelism: 3
+    pipeline:
+      object-reuse: true  
+  topology:  
+    - name: inline_source 
+      parallelism: 1 
+      downstream: [http_filter]
+    - name: http_filter
+      downstream: [preprocessor]
+    - name: preprocessor
+      downstream: [processor]
+    - name: processor
+      downstream: [postprocessor]
+    - name: postprocessor
+      downstream: [ print_sink ]
     - name: print_sink
+      parallelism: 1
       downstream: []
 ```
 
@@ -114,13 +122,17 @@ fields:
 
 
 ## Sources
-Source is used to define where GrootStream needs to ingest data. Multiple sources can be defined in a job. The supported sources are listed in [Source Connectors](connector/source). Each source has its own specific parameters to define how to fetch data, and GrootStream also extracts the properties that each source will use, such as the `topic` and `kafka.bootstrap.servers` of the `Kafka` source.  
+Source is used to define where GrootStream needs to ingest data. Multiple sources can be defined in a job. The supported sources are listed in [Source Connectors](connector/source). Each source has its own specific parameters to define how to fetch data, and GrootStream also extracts the properties that each source will use, such as the `topic` and `kafka.bootstrap.servers` of the `Kafka` source.
 
 ## Filters
+Filter operator is used to define the conditions for filtering data. Multiple filters can be defined in a job. The supported filters are listed in [Filters](filter). Each filter has its own specific parameters to define how to filter data, and GrootStream also extracts the properties that each filter will use, such as the `expression` of the `Aviator` filter.
+Based on the filter expression, the event will be passed to downstream if the expression is true, otherwise it will be dropped.
 
 ## Processing Pipelines
+Processing pipelines are used to define the event processing logic of the job. It can be categorized by functionality into stateless and stateful processors. Based processing order, it can be categorized into pre-processing pipeline, processing pipeline and post-processing pipeline. Each processor can assemble `UDFs`(User-defined functions) into a pipeline. The detail of processor is listed in [Processor](processor).
 
 ## Sinks
+Sink is used to define where GrootStream needs to output data. Multiple sinks can be defined in a job. The supported sinks are listed in [Sink Connectors](connector/sink). Each sink has its own specific parameters to define how to output data, and GrootStream also extracts the properties that each sink will use, such as the `topic` and `kafka.bootstrap.servers` of the `Kafka` sink.
 
 ## Application
 Used to define some common parameters of the job and the topology of the job. such as the name of the job, the parallelism of the job, etc. The following configuration parameters are supported.
