@@ -20,10 +20,19 @@ It is very popular in Streaming Data Pipeline. Now support protobuf format in so
 
 ## Data Type Mapping
 
-| Data Type    | Protobuf Data Type                                                                          | Description |
-|--------------|---------------------------------------------------------------------------------------------|-------------|
-| int / bigint | int32 / int64 / uint32 / uint64 / sint32 / sint64 / fixed32 / fixed64 / sfixed32 / sfixed64 |             |
-| string       | string                                                                                      |             |
+| Protobuf Data Type                              | Data Type | Description                                                                                                            |
+|-------------------------------------------------|-----------|------------------------------------------------------------------------------------------------------------------------|
+| int32 / uint32 / sint32 / fixed32 / sfixed32    | int       | Protobuf data type is recommended to use `int32 / sint32`. The data type also support `int / bigint / float / dobule`. |
+| int64 / uint64 / sint64 / fixed64 / sfixed64    | bigint    | Protobuf data type is recommended to use `int64 / sint64`. The data type also support `int / bigint / float / dobule`. |
+| float                                           | float     | Protobuf data type is recommended to use `double`. The data type also support `int / bigint / float / dobule`.         |
+| double                                          | double    | Protobuf data type is recommended to use `double`. The data type also support `int / bigint / float / dobule`.         |
+| bool                                            | boolean   | Protobuf data type is recommended to use `int32`. The data type also support `boolean / int(0:false,1:true) `.         |
+| enum                                            | int       | Protobuf data type is recommended to use `int32`. The data type also support `int`.                                    |
+| string                                          | string    | In data serialization support all data type converted to `String`.                                                     |
+| bytes                                           | binary    | -                                                                                                                      |
+| message                                         | struct    | -                                                                                                                      |
+| repeated                                        | array     | -                                                                                                                      |
+
 
 # How to use
 ## protobuf uses example
@@ -262,7 +271,7 @@ message SessionRecord {
   string tunnel_endpoint_b_desc = 223;
 }
 ```
-Build protobuf file to binary descriptor file.
+Build protobuf file to binary descriptor file. Only support `proto3` syntax. If data type has null value, need add `optional` keyword. We recommend add `optional` keyword for int and double etc.
 ```shell
 protoc --descriptor_set_out=session_record_test.desc session_record_test.proto
 ```

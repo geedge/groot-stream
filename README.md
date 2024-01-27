@@ -1,6 +1,6 @@
 # Groot Stream Platform
 
-Groot Stream Platform helps you process netflow data - logs, metrics etc. - in real time, high reliability and high performance, distributed data integration tool.
+Groot Stream Platform helps you process netflow data - logs, metrics etc. - in real time, high reliability and high performance, distributed data integration and synchronization tool.
 
 ## Table of contents
 
@@ -26,7 +26,7 @@ Groot Stream is designed to simplify the operation of ETL (Extract, Transform, L
 Configure a job, you'll set up Sources, Filters, Processing Pipeline, and Sinks, and will assemble several built-in functions into a Processing Pipeline. The job will then be deployed to a Flink cluster for execution. 
 - **Source**: The data source of the job, which can be a Kafka topic, a IPFIX Collector, or a file.
 - **Filter**: Filters data based on specified conditions.
-- **Pipelines**: The fundamental unit of data stream processing is the processor, categorized by functionality into stateless and stateful processors. Each processor can assemble built-in functions into a pipeline. 
+- **Pipelines**: The fundamental unit of data stream processing is the processor, categorized by functionality into stateless and stateful processors. Each processor can be assemble `UDFs`(User-defined functions) or `UDAFs`(User-defined aggregation functions) into a pipeline. The detail of processor is listed in [Processor](docs/processor).
   - **Pre-processing Pipeline**: Optional. Processes data before it enters the processing pipeline.
   - **Processing Pipeline**: Core data transformation pipeline.
   - **Post-processing Pipeline**: Optional. Processes data after it exits the processing pipeline.
@@ -58,15 +58,32 @@ Run the following Maven command to build the project modules and Skip Tests:
 ./mvnw clean install -DskipTests
 ```
 ### Deploying
-
+#### 1.Download the release package
+Download the latest release package from the [Releases](https://git.mesalab.cn/galaxy/platform/groot-stream/-/releases).
 Copy the `groot-release/target/groot-stream-${version}-bin.tar.gz` file to the target machine and extract it:
 ```shell
 tar -zxvf groot-stream-${version}-bin.tar.gz
 ls -lh groot-stream-${version}
 ```
+#### 2. Configure the environment
+You need to configure Flink engine environment variables in `config/grootstream-env.sh` file.Default will use system environment variables. If not set, it will use the default value for the following variables:
+
+```shell
+FLINK_HOME=${FLINK_HOME:-/opt/flink}
+FLINK_JOB_MANAGER_ADDRESS=${FLINK_JOB_MANAGER_ADDRESS:-localhost:8081}
+YARN_ADDRESS=${YARN_ADDRESS:-yarn-cluster}
+```
+#### 3. Configure the groot-stream job 
+You need to configure the groot-stream job in `config/inline_to_print_template.yaml` file. More information about config please check [config concept](docs/user-guide.md)
+
+#### 4. Submit a job to flink engine
+Can be started by a daemon with `-d`. 
+```shell
+  ./bin/start.sh -c *.yaml -d
+```
 ### Starting 
 
-### Running job in your IDE
+#### Running job in your IDE
 1. Set `groot-bootstrap` module pom.xml scope to `compile`.
 2. Open the `Run/Debug Configurations` window.
 3. Choose -cp `groot-bootstrap`
@@ -92,6 +109,6 @@ The [Groot User Guide](docs/user-guide) provides detailed information on how to 
 
 ## Documentation
 
-See the [Groot Stream Documentation](https://docs.geedge.net/pages/viewpage.action?pageId=91325479) for more information.
+See the [Groot Stream Documentation](docs) for more information.
 
 

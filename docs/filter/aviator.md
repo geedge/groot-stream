@@ -1,5 +1,5 @@
 # Aviator
-> Aviator filter operator
+> Filter data by AviatorFilter. The event whether drop or pass downstream is based on the Aviator expression.
 ## Description
 AviatorScript is a lightweight, high performance scripting language hosted on the JVM. It uses filter operator that uses the Aviator expression to filter data.
 More details about AviatorScript can be found at [AviatorScript](https://www.yuque.com/boyan-avfmj/aviatorscript).
