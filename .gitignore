@@ -29,6 +29,8 @@ target/
 .idea/*
 
 .DS_Store
+*.flattened-pom.xml
+dependency-reduced-pom.xml
 
 # see JDK-8214300
 .attach_pid*
