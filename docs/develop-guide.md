@@ -32,13 +32,13 @@
 ## How to throw an exception in Groot Stream Platform
 When throwing an exception with a hint message and ensure that the exception has a smaller scope. You can create a custom exception class that include error code and message parameter in its constructor. For example, if you encounters a checked exception `ClassNotFoundException` while dynamic class loading，a reasonable approach would be to the following:
  
-```java
+```
    try {
        // Class.forname
    } catch (ClassNotFoundException e) {
        throw GrootStreamBootstrapException("Missing class or incorrect classpath", e);
    }
-   ```
+```
 
 ## Design Principles
 
