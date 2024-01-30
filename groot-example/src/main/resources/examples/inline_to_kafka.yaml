@@ -35,7 +35,7 @@ sinks:
     type: kafka
     properties:
       topic: SESSION-RECORD-TEST
-      kafka.bootstrap.servers: 192.168.44.12:9092
+      kafka.bootstrap.servers: 192.168.44.12:9094
       kafka.retries: 0
       kafka.linger.ms: 10
       kafka.request.timeout.ms: 30000
@@ -43,12 +43,16 @@ sinks:
       kafka.buffer.memory: 134217728
       kafka.max.request.size: 10485760
       kafka.compression.type: snappy
+      kafka.security.protocol: SASL_PLAINTEXT
+      kafka.sasl.mechanism: PLAIN
+      kafka.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="galaxy2019";
       format: json
 
 application:  # [object] Define job configuration
   env:
     name: example-inline-to-kafka
     parallelism: 3
+    shade.identifier: default
     pipeline:
       object-reuse: true
   topology:

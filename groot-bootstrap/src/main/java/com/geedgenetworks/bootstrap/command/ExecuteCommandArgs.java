@@ -35,8 +35,17 @@ public class ExecuteCommandArgs extends CommandArgs {
         StartBuilder.setDeployMode(getDeployMode());
         userParamsToSysEnv();
         if(checkConfig) {
-            // todo check job config
+            return new ConfValidateCommand(this);
         }
+
+        if (encrypt) {
+            return new ConfEncryptCommand(this);
+        }
+
+        if (decrypt) {
+            return new ConfDecryptCommand(this);
+        }
+
         return new ExecuteCommand(this);
     }
 

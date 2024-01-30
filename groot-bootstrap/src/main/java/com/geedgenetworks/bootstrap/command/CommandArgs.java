@@ -30,15 +30,25 @@ public abstract class CommandArgs {
             names = {"--check"},
             description = "Whether check config")
     protected boolean checkConfig = false;
+
+
     @Parameter(names = {"-i", "--variable"},
-    splitter = ParameterSplitter.class,
-    description = "user-defined parameters , such as -i data_center=bj " +
-            "We use ',' as separator, when inside \"\", ',' are treated as normal characters instead of delimiters.")
+              splitter = ParameterSplitter.class,
+              description = "user-defined parameters , such as -i data_center=bj "
+                      + "We use ',' as separator, when inside \"\", ',' are treated as normal characters instead of delimiters.")
     protected List<String> variables = Collections.emptyList();
 
     @Parameter(names = {"-n", "--name"},
-    description = "job name")
+              description = "job name")
     protected String jobName = Constants.DEFAULT_JOB_NAME;
+
+    @Parameter(names = {"--encrypt"},
+               description = "Encrypt config file, when both --decrypt and --encrypt are specified, only --encrypt will take effect")
+    protected boolean encrypt = false;
+
+    @Parameter(names = {"--decrypt"},
+              description = "Decrypt config file, When both --decrypt and --encrypt are specified, only --encrypt will take effect")
+    protected boolean decrypt = false;
 
     protected List<String> originalParameters = Collections.emptyList();
 

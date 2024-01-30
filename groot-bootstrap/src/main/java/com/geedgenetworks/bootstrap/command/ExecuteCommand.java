@@ -7,6 +7,7 @@ import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.execution.ExecutionConfigKeyName;
 import com.geedgenetworks.bootstrap.execution.JobExecution;
 import com.geedgenetworks.bootstrap.utils.ConfigFileUtils;
+import com.geedgenetworks.bootstrap.utils.ConfigShadeUtils;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.ConfigProvider;
 import com.geedgenetworks.common.config.GrootStreamConfig;
@@ -35,6 +36,7 @@ public class ExecuteCommand implements Command<ExecuteCommandArgs> {
         Map<String, Object> configMap = YamlUtil.loadByPath(configFile.toString());
         ConfigObject configObject = ConfigValueFactory.fromMap(configMap);
         Config config = configObject.toConfig();
+        config = ConfigShadeUtils.decryptConfig(config);
         // if user specified job name using command line arguments, override config option
         if (!executeCommandArgs.getJobName().equals(Constants.DEFAULT_JOB_NAME)) {
           config = config.withValue(

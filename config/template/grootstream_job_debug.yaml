@@ -263,6 +263,7 @@ application: # [object] Application Configuration
   env: # [object] Environment Variables
     name: groot-stream-job # [string] Job Name
     parallelism: 3 # [number] Job-Level Parallelism
+    shade.identifier: default
     pipeline:
       object-reuse: true # [boolean] Object Reuse, default is false
   topology: # [array of object] Node List. It will be used build data flow for job dag graph.

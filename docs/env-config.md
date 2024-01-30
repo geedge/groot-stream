@@ -16,6 +16,9 @@ Note: The parallelism of a job can be overridden by explicitly configuring the p
 - Client Level: The parallelism of a job can be specified by using the `flink run -p` command.
 - System Level: The parallelism of a job can be specified by using the `flink-conf.yaml` file.
 
+### shade.identifier
+Specify the method of encryption, if you didn't have the requirement for encrypting or decrypting sensitive information in the configuration file, this option can be ignored.
+For more details, you can refer to the documentation [config-encryption-decryption](connector/config-encryption-decryption.md)
 
 ### pipeline.object-reuse
 This parameter is used to enable/disable object reuse for the execution of the job. If it is not specified, the default value is `false`.

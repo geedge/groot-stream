@@ -287,7 +287,7 @@ sinks: # [object] Define connector sink
       batch.interval: 1s
       connection.database: tsg_galaxy_v3
       connection.user: default
-      connection.password: ''
+      connection.password: 123456
 
   print_sink: # [object] Print sink connector name, must be unique. It used to define the sink node of the job topology.
     type: print
@@ -304,6 +304,7 @@ application: # [object] Application Configuration
   env: # [object] Define job runtime environment variables
     name: inline-to-print-job # [string] Job Name
     parallelism: 3 # [number] Job-Level Parallelism
+    shade.identifier: default # [string] Shade Identifier, Using to encrypt and decrypt sensitive configuration. if set default, it will not encrypt and decrypt sensitive configuration.
     pipeline:
       object-reuse: true # [boolean] Object Reuse, default is false
   topology: # [array of object] Node List. It will be used build data flow for job dag graph.
