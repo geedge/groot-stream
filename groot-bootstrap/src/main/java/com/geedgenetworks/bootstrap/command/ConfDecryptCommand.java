@@ -31,8 +31,10 @@ public class ConfDecryptCommand implements Command<ExecuteCommandArgs>{
         ConfigObject configObject = ConfigValueFactory.fromMap(configMap);
         Config config = configObject.toConfig();
         Config decryptConfig = ConfigShadeUtils.decryptConfig(config);
+        System.out.println(String.format(
+                "Decrypt config: %s", decryptConfig.root().render(ConfigRenderOptions.defaults().setOriginComments(false))));
         log.info(
-                "Encrypt config: \n{}",
+                "Decrypt config: \n{}",
                 decryptConfig
                         .root()
                         .render(ConfigRenderOptions.defaults().setOriginComments(false)));

@@ -59,6 +59,15 @@ public class GrootStreamRunner {
         command.add("--name");
         command.add(bootstrapCommandArgs.getJobName());
 
+        // set encryption
+        if (bootstrapCommandArgs.isEncrypt()) {
+            command.add("--encrypt");
+        }
+        // set decryption
+        if (bootstrapCommandArgs.isDecrypt()) {
+            command.add("--decrypt");
+        }
+
         // set extra system properties
         bootstrapCommandArgs.getVariables().stream()
                 .filter(Objects::nonNull)

@@ -31,6 +31,7 @@ public final class ConfigShadeUtils {
                 configShade -> {
                     CONFIG_SHADES.put(configShade.getIdentifier(), configShade);
                 });
+
         log.info("Load config shade: {}", CONFIG_SHADES.keySet());
     }
 

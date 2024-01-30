@@ -11,8 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import static com.geedgenetworks.bootstrap.utils.ConfigFileUtils.checkConfigExist;
-
 @Slf4j
 public class ConfEncryptCommand implements Command<ExecuteCommandArgs>{
     private final ExecuteCommandArgs executeCommandArgs;
@@ -32,11 +30,11 @@ public class ConfEncryptCommand implements Command<ExecuteCommandArgs>{
         ConfigObject configObject = ConfigValueFactory.fromMap(configMap);
         Config config = configObject.toConfig();
         Config encryptConfig = ConfigShadeUtils.encryptConfig(config);
+        System.out.println(String.format(
+                "Encrypt config: %s", encryptConfig.root().render(ConfigRenderOptions.defaults().setOriginComments(false))));
         log.info(
                 "Encrypt config: \n{}",
-                encryptConfig
-                        .root()
-                        .render(ConfigRenderOptions.defaults().setOriginComments(false)));
+                        encryptConfig.root().render(ConfigRenderOptions.defaults().setOriginComments(false)));
 
     }
 }
