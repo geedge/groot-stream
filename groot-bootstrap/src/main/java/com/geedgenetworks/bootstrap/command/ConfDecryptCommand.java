@@ -3,6 +3,8 @@ package com.geedgenetworks.bootstrap.command;
 import cn.hutool.setting.yaml.YamlUtil;
 import com.geedgenetworks.bootstrap.exception.CommandExecuteException;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
+import com.geedgenetworks.bootstrap.utils.ConfigBuilder;
+import com.geedgenetworks.bootstrap.utils.ConfigFileUtils;
 import com.geedgenetworks.bootstrap.utils.ConfigShadeUtils;
 import com.typesafe.config.*;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +26,10 @@ public class ConfDecryptCommand implements Command<ExecuteCommandArgs>{
 
     @Override
     public void execute() throws CommandExecuteException, ConfigCheckException {
-        String decryptConfigFile = executeCommandArgs.getConfigFile();
-        Path configPath = Paths.get(decryptConfigFile);
+        Path configPath = ConfigFileUtils.getConfigPath(executeCommandArgs);
         checkConfigExist(configPath);
         Map<String, Object> configMap = YamlUtil.loadByPath(configPath.toString());
-        ConfigObject configObject = ConfigValueFactory.fromMap(configMap);
-        Config config = configObject.toConfig();
-        Config decryptConfig = ConfigShadeUtils.decryptConfig(config);
+        Config decryptConfig = ConfigBuilder.of(configMap, true);
         System.out.println(String.format(
                 "Decrypt config: %s", decryptConfig.root().render(ConfigRenderOptions.defaults().setOriginComments(false))));
         log.info(
