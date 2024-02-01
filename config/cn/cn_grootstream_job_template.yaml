@@ -67,7 +67,7 @@ processing_pipelines:
 
       - function: GEOIP_LOOKUP
         lookup_fields: [ client_ip ]
-        output_fields: [ null ]
+        output_fields: [ ]
         parameters:
           kb_name: cn_ip_location
           option: IP_TO_OBJECT
@@ -81,7 +81,7 @@ processing_pipelines:
 
       - function: GEOIP_LOOKUP
         lookup_fields: [ server_ip ]
-        output_fields: [ null ]
+        output_fields: [ ]
         parameters:
           kb_name: cn_ip_location
           option: IP_TO_OBJECT
