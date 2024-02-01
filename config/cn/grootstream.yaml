@@ -1,0 +1,108 @@
+grootstream:
+  knowledge_base:
+    - name: cn_ip_location
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 1
+
+    - name: cn_ip_asn
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 2
+
+    - name: cn_idc_renter
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 11
+
+    - name: cn_link_direction
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 13
+
+    - name: cn_fqdn_category
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 5
+
+    - name: cn_fqdn_icp
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 4
+
+    - name: cn_fqdn_whois
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 6
+
+    - name: cn_dns_server
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 3
+
+    - name: cn_app_category
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 9
+
+    - name: cn_internal_ip
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 12
+
+    - name: cn_vpn_learning_ip
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 15
+
+    - name: cn_vpn_learning_domain
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 14
+
+    - name: cn_ioc_darkweb
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 8
+
+    - name: cn_ioc_malware
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 7
+
+    - name: cn_ip_tag_user_define
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base?category=cn_ip_tag_user_defined
+
+    - name: cn_domain_tag_user_define
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base?category=cn_domain_tag_user_defined
+
+    - name: cn_app_tag_user_define
+      fs_type: http
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base?category=cn_app_tag_user_defined
+
+    - name: cn_rule
+      fs_type: http
+      fs_path: http://192.168.44.54:8090
+      properties:
+        token: 1a653ea0-d39b-4246-94b0-1ba95db4b6a7
+
+  properties:
+    hos.path: http://192.168.44.12:8089
+    hos.bucket.name.traffic_file: traffic_file_bucket
+    hos.bucket.name.troubleshooting_file: troubleshooting_file_bucket
