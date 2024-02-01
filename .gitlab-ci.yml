@@ -15,7 +15,9 @@ test:
   stage: test
   script:
     - echo "$MAVEN_SETTINGS_XML" > /usr/share/maven/conf/settings.xml
-    - mvn $MAVEN_CLI_OPTS clean package test
+    # 由于该项目引用了自身子模块中使用 shade-plugin 生成的 uber-jar， 
+    # 故而导致需要先执行这些子模块的 package 操作才能使其他模块正常执行 test，所以此处使用 package 代替 test 用于执行单元测试
+    - mvn $MAVEN_CLI_OPTS clean package
   only:
     - merge_requests
     - tags
