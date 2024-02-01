@@ -15,7 +15,7 @@ test:
   stage: test
   script:
     - echo "$MAVEN_SETTINGS_XML" > /usr/share/maven/conf/settings.xml
-    - mvn $MAVEN_CLI_OPTS clean test
+    - mvn $MAVEN_CLI_OPTS clean package test
   only:
     - merge_requests
     - tags
