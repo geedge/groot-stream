@@ -9,9 +9,13 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>groot-example</artifactId>
-    <name>Groot : Example </name>
-   <!-- <packaging>pom</packaging>-->
+    <artifactId>groot-examples</artifactId>
+    <name>Groot : Examples :</name>
+    <packaging>pom</packaging>
+    <modules>
+        <module>inline-to-print-example</module>
+        <module>cn-example</module>
+    </modules>
 
     <properties>
         <scope>provided</scope>
