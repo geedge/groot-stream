@@ -5,12 +5,12 @@ import com.geedgenetworks.bootstrap.command.ExecuteCommandArgs;
 import com.geedgenetworks.bootstrap.enums.EngineType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.execution.ExecutionConfigKeyName;
+import com.geedgenetworks.bootstrap.main.simple.collect.CollectSink;
 import com.geedgenetworks.bootstrap.utils.CommandLineUtils;
 import com.geedgenetworks.bootstrap.utils.ConfigFileUtils;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.ConfigProvider;
 import com.geedgenetworks.common.config.GrootStreamConfig;
-import com.geedgenetworks.core.connector.collect.CollectSink;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigUtil;
@@ -84,7 +84,7 @@ public class SimpleJobTest {
         Assert.assertEquals("[2600:1015:b002::,255.255.255.255]", CollectSink.values.get(0).getExtractedFields().get("ip_string").toString());
         Assert.assertEquals("hello", CollectSink.values.get(0).getExtractedFields().get("mail_attachment_name").toString());
         List<String> asn_list = (List<String>) CollectSink.values.get(0).getExtractedFields().get("asn_list");
-        Assert.assertEquals("6167", asn_list.get(1));
+        Assert.assertEquals("6167", asn_list.get(0));
 
     }
 

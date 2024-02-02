@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.udf.knowlegdeBase.handler;
+package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;

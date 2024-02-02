@@ -8,8 +8,8 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.UDF;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.udf.knowlegdeBase.handler.GeoIpKnowledgeBaseHandler;
-import com.geedgenetworks.core.udf.knowlegdeBase.KnowledgeBaseUpdateJob;
+import com.geedgenetworks.core.udf.knowlegdebase.handler.GeoIpKnowledgeBaseHandler;
+import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.model.LocationResponse;

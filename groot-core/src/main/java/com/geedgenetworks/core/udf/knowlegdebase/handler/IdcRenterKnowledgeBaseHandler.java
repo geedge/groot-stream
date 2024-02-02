@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.udf.knowlegdeBase.handler;
+package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 import com.geedgenetworks.core.utils.cn.common.IPAddress;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
@@ -17,33 +17,33 @@ import java.util.Map;
 /**
  * @author gujinkai
  * @version 1.0
- * @date 2024/1/19 10:42
+ * @date 2024/1/18 11:22
  */
-public class IpVpnKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandler {
+public class IdcRenterKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(IpVpnKnowledgeBaseHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(IdcRenterKnowledgeBaseHandler.class);
 
-    private TreeRangeMap<IPAddress, String> treeRangeMap = TreeRangeMap.create();
+    private static TreeRangeMap<IPAddress, String> treeRangeMap = TreeRangeMap.create();
 
-    private IpVpnKnowledgeBaseHandler() {
+    private IdcRenterKnowledgeBaseHandler() {
     }
 
     private static final class InstanceHolder {
-        private static final IpVpnKnowledgeBaseHandler instance = new IpVpnKnowledgeBaseHandler();
+        private static final IdcRenterKnowledgeBaseHandler instance = new IdcRenterKnowledgeBaseHandler();
     }
 
-    public static IpVpnKnowledgeBaseHandler getInstance() {
+    public static IdcRenterKnowledgeBaseHandler getInstance() {
         return InstanceHolder.instance;
     }
 
     @Override
-    protected Boolean buildKnowledgeBase() {
+    public Boolean buildKnowledgeBase() {
         try {
             List<String> needColumns = new ArrayList<>();
             needColumns.add("addr_format");
             needColumns.add("ip1");
             needColumns.add("ip2");
-            needColumns.add("vpn_service_name");
+            needColumns.add("idc_renter");
             byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             TreeRangeMap<IPAddress, String> newTreeRangeMap = TreeRangeMap.create();
@@ -54,14 +54,14 @@ public class IpVpnKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandle
                     String addrFormat = line.get("addr_format");
                     String ip1 = line.get("ip1");
                     String ip2 = line.get("ip2");
-                    String vpnServiceName = line.get("vpn_service_name");
+                    String idcRenter = line.get("idc_renter");
 
                     if ("Single".equals(addrFormat)) {
                         IPAddress ipAddress = new IPAddress(ip1);
                         if (ipAddress.getIpAddress() == null) {
                             continue;
                         }
-                        newTreeRangeMap.put(Range.closed(ipAddress, ipAddress), vpnServiceName);
+                        newTreeRangeMap.put(Range.closed(ipAddress, ipAddress), idcRenter);
                     }
                     if ("Range".equals(addrFormat)) {
                         IPAddress startIpAddress = new IPAddress(ip1);
@@ -69,7 +69,7 @@ public class IpVpnKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandle
                         if (startIpAddress.getIpAddress() == null || endIpAddress.getIpAddress() == null) {
                             continue;
                         }
-                        newTreeRangeMap.put(Range.closed(startIpAddress, endIpAddress), vpnServiceName);
+                        newTreeRangeMap.put(Range.closed(startIpAddress, endIpAddress), idcRenter);
                     }
                     if ("CIDR".equals(addrFormat)) {
                         inet.ipaddr.IPAddress cidrIpAddress = new IPAddressString(ip1 + "/" + ip2).getAddress();
@@ -78,7 +78,7 @@ public class IpVpnKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandle
                         }
                         inet.ipaddr.IPAddress startIpAddress = cidrIpAddress.getLower();
                         inet.ipaddr.IPAddress endIpAddress = cidrIpAddress.getUpper();
-                        newTreeRangeMap.put(Range.closed(new IPAddress(startIpAddress), new IPAddress(endIpAddress)), vpnServiceName);
+                        newTreeRangeMap.put(Range.closed(new IPAddress(startIpAddress), new IPAddress(endIpAddress)), idcRenter);
                     }
                 } catch (Exception lineException) {
                     logger.error(this.getClass().getSimpleName() + " line: " + line.toString() + " parse error：" + lineException, lineException);
@@ -94,12 +94,12 @@ public class IpVpnKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandle
 
     public String lookup(String ip) {
         try {
-            IPAddress ipAddress = new IPAddress(ip);
-            if (ipAddress.getIpAddress() != null) {
-                return treeRangeMap.get(ipAddress);
+            IPAddress address = new IPAddress(ip);
+            if (address.getIpAddress() != null) {
+                return treeRangeMap.get(address);
             }
         } catch (Exception e) {
-            logger.error("ip vpn lookup faild: " + ip, e);
+            logger.warn("invalid ip: " + ip);
         }
         return null;
     }

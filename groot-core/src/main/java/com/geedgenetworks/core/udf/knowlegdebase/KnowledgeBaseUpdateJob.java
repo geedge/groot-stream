@@ -1,9 +1,9 @@
-package com.geedgenetworks.core.udf.knowlegdeBase;
+package com.geedgenetworks.core.udf.knowlegdebase;
 
 import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowledgeBaseConfigWithHandler;
-import com.geedgenetworks.core.udf.knowlegdeBase.handler.AbstractKnowledgeBaseHandler;
+import com.geedgenetworks.core.udf.knowlegdebase.handler.AbstractKnowledgeBaseHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;

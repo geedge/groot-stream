@@ -1,3 +1,2 @@
 com.geedgenetworks.core.connector.inline.InlineTableFactory
 com.geedgenetworks.core.connector.print.PrintTableFactory
-com.geedgenetworks.core.connector.collect.CollectTableFactory
