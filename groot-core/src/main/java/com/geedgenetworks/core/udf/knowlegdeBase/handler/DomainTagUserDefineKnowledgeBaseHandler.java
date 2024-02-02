@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.udf.knowlegdeBase.handler;
 
-import com.geedgenetworks.core.utils.cn.common.KnowledgeMetadata;
+import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.cn.common.Trie;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
 import org.apache.commons.lang3.StringUtils;
@@ -49,7 +49,7 @@ public class DomainTagUserDefineKnowledgeBaseHandler extends AbstractMultipleKno
         return true;
     }
 
-    private void buildSingleKnowledgeBase(Trie<Node> fqdnTagsFuzzy, Map<String, List<Node>> fqdnTagsFull, Long id, KnowledgeMetadata metadata) {
+    private void buildSingleKnowledgeBase(Trie<Node> fqdnTagsFuzzy, Map<String, List<Node>> fqdnTagsFull, Long id, KnowLedgeBaseFileMeta metadata) {
         try {
             List<String> needColumns = new ArrayList<>();
             needColumns.add("tag_value");

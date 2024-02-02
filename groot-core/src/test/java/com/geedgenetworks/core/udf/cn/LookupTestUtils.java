@@ -5,10 +5,9 @@ import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
-import com.geedgenetworks.core.udf.knowlegdeBase.handler.AbstractKnowledgeBaseHandler;
-import com.geedgenetworks.core.udf.knowlegdeBase.handler.AbstractMultipleKnowledgeBaseHandler;
-import com.geedgenetworks.core.udf.knowlegdeBase.KnowledgeBaseUpdateJob;
-import com.geedgenetworks.core.utils.cn.common.KnowledgeMetadata;
+import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AbstractKnowledgeBaseHandler;
+import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.cn.AbstractMultipleKnowledgeBaseHandler;
+import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -75,11 +74,11 @@ public class LookupTestUtils {
 
     static void mockMultipleKnowledgeBaseHandler(String downloadContent) {
         checkStaticMock();
-        KnowledgeMetadata knowledgeMetadata = new KnowledgeMetadata();
-        knowledgeMetadata.setPath(downloadPath);
-        Map<String, KnowledgeMetadata> knowledgeMetadataMap = new HashMap<>();
-        knowledgeMetadataMap.put("1", knowledgeMetadata);
-        abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.getMetadata(fsPath)).thenReturn(knowledgeMetadataMap);
+        KnowLedgeBaseFileMeta KnowLedgeBaseFileMeta = new KnowLedgeBaseFileMeta();
+        KnowLedgeBaseFileMeta.setPath(downloadPath);
+        Map<String, KnowLedgeBaseFileMeta> KnowLedgeBaseFileMetaMap = new HashMap<>();
+        KnowLedgeBaseFileMetaMap.put("1", KnowLedgeBaseFileMeta);
+        abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.getMetadata(fsPath)).thenReturn(KnowLedgeBaseFileMetaMap);
         abstractKnowledgeBaseHandlerMockedStatic.when(() -> AbstractKnowledgeBaseHandler.downloadFile(downloadPath, 1)).thenReturn(downloadContent.getBytes());
     }
 
