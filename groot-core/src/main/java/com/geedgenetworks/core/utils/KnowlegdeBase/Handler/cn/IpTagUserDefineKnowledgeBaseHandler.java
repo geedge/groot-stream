@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase.Handler.cn;
 
-import com.geedgenetworks.core.utils.cn.common.KnowledgeMetadata;
+import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
@@ -47,7 +47,7 @@ public class IpTagUserDefineKnowledgeBaseHandler extends AbstractMultipleKnowled
         return true;
     }
 
-    private void buildSingleKnowledgeBase(TreeRangeMap<IPAddress, List<Node>> treeRangeMap, Long id, KnowledgeMetadata metadata) {
+    private void buildSingleKnowledgeBase(TreeRangeMap<IPAddress, List<Node>> treeRangeMap, Long id, KnowLedgeBaseFileMeta metadata) {
         try {
             List<String> needColumns = new ArrayList<>();
             needColumns.add("tag_value");

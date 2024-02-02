@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AbstractKnowledgeBaseHandler;
-import com.geedgenetworks.core.utils.cn.common.KnowledgeMetadata;
 import lombok.Data;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -67,7 +66,7 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
         }
     }
 
-    public List<KnowledgeMetadata> getMetadata(String url) {
+    public List<KnowLedgeBaseFileMeta> getMetadata(String url) {
         final HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("Accept", "application/json");
         try {
@@ -76,7 +75,7 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
             if (entity != null) {
                 String content = EntityUtils.toString(entity, "UTF-8");
                 KnowledgeResponse knowledgeResponse = JSON.parseObject(content, KnowledgeResponse.class);
-                return JSON.parseArray(knowledgeResponse.data, KnowledgeMetadata.class).stream().filter(metadata -> "latest".equals(metadata.getVersion()) && metadata.getIsValid() == 1).collect(Collectors.toList());
+                return JSON.parseArray(knowledgeResponse.data, KnowLedgeBaseFileMeta.class).stream().filter(metadata -> "latest".equals(metadata.getVersion()) && metadata.getIsValid() == 1).collect(Collectors.toList());
             }
         } catch (IOException e) {
             logger.error("fetch knowledge metadata error", e);

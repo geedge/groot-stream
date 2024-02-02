@@ -2,8 +2,8 @@ package com.geedgenetworks.core.utils.KnowlegdeBase.Handler.cn;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
+import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AbstractKnowledgeBaseHandler;
-import com.geedgenetworks.core.utils.cn.common.KnowledgeMetadata;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.http.HttpEntity;
@@ -33,7 +33,7 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
 
     protected KnowledgeBaseConfig knowledgeBaseConfig;
 
-    protected Map<String, KnowledgeMetadata> knowledgeMetedataCacheMap;
+    protected Map<String, KnowLedgeBaseFileMeta> knowledgeMetedataCacheMap;
     private static final CloseableHttpClient HTTP_CLIENT = HttpClients.createMinimal();
 
     @Override
@@ -53,7 +53,7 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
     protected abstract Boolean buildKnowledgeBase();
 
     protected Boolean ifNeedUpdate() {
-        Map<String, KnowledgeMetadata> knowledgeMetedataMap = getMetadata(knowledgeBaseConfig.getFsPath());
+        Map<String, KnowLedgeBaseFileMeta> knowledgeMetedataMap = getMetadata(knowledgeBaseConfig.getFsPath());
         if (knowledgeMetedataMap.size() != knowledgeMetedataCacheMap.size()) {
             return true;
         }
@@ -66,7 +66,7 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
         return false;
     }
 
-    public static Map<String, KnowledgeMetadata> getMetadata(String url) {
+    public static Map<String, KnowLedgeBaseFileMeta> getMetadata(String url) {
         final HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("Accept", "application/json");
         try {
@@ -75,10 +75,10 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
             if (entity != null) {
                 String content = EntityUtils.toString(entity, "UTF-8");
                 KnowledgeResponse knowledgeResponse = JSON.parseObject(content, KnowledgeResponse.class);
-                List<KnowledgeMetadata> knowledgeMetedataList = JSON.parseArray(knowledgeResponse.data, KnowledgeMetadata.class);
+                List<KnowLedgeBaseFileMeta> knowledgeMetedataList = JSON.parseArray(knowledgeResponse.data, KnowLedgeBaseFileMeta.class);
                 return knowledgeMetedataList.stream()
                         .filter(metadata -> "latest".equals(metadata.getVersion()) && metadata.getIsValid() == 1 && metadata.getSha256() != null)
-                        .collect(Collectors.toMap(KnowledgeMetadata::getId, Function.identity(), (existing, replacement) -> existing, HashMap::new));
+                        .collect(Collectors.toMap(KnowLedgeBaseFileMeta::getKb_id, Function.identity(), (existing, replacement) -> existing, HashMap::new));
             }
         } catch (IOException e) {
             logger.error("fetch knowledge metadata error", e);

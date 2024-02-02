@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.utils.KnowlegdeBase.Handler.cn;
 
-import com.geedgenetworks.core.utils.cn.common.KnowledgeMetadata;
+import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class AppTagUserDefineKnowledgeBaseHandler extends AbstractMultipleKnowle
         return true;
     }
 
-    private void buildSingleKnowledgeBase(Map<String, List<Node>> appTags, Long id, KnowledgeMetadata metadata) {
+    private void buildSingleKnowledgeBase(Map<String, List<Node>> appTags, Long id, KnowLedgeBaseFileMeta metadata) {
         try {
             List<String> needColumns = new ArrayList<>();
             needColumns.add("tag_value");
