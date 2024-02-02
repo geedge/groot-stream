@@ -9,9 +9,9 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.UDF;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AsnKnowledgeBaseHandler;
+import com.geedgenetworks.core.udf.knowlegdeBase.handler.AsnKnowledgeBaseHandler;
 
-import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
+import com.geedgenetworks.core.udf.knowlegdeBase.KnowledgeBaseUpdateJob;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;

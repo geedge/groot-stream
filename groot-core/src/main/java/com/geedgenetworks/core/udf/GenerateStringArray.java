@@ -7,8 +7,8 @@ import com.geedgenetworks.common.udf.UDF;
 import com.geedgenetworks.common.udf.UDFContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GenerateStringArray implements UDF {
 
@@ -31,12 +31,24 @@ public class GenerateStringArray implements UDF {
     @Override
     public Event evaluate(Event event) {
 
-        List<String> resultList = new ArrayList<>();
-        for(String lookupFieldName :lookupFieldNames){
+        List<String> list = new ArrayList<>();
+        lookupFieldNames.forEach(fieldName -> {
+            Object value = event.getExtractedFields().get(fieldName);
+            if (value instanceof Collection) {
+                list.addAll(((Collection<?>) value).stream().map(Object::toString).collect(Collectors.toList()));
+            }
+            else if (value instanceof String) {
+                list.add(value.toString());
+            }
+            else if (value instanceof Number) {
+                list.add(value.toString());
+            }
+            else if (value instanceof Object[]) {
+                list.addAll(Arrays.stream((Object[]) value).map(Object::toString).collect(Collectors.toList()));
+            }
+        });
+        event.getExtractedFields().put(outputFieldName, list);
 
-            resultList.add(event.getExtractedFields().getOrDefault(lookupFieldName,"").toString().trim());
-        }
-        event.getExtractedFields().put(outputFieldName,resultList);
         return event;
     }
 

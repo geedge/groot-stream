@@ -1,10 +1,10 @@
-package com.geedgenetworks.core.utils.KnowlegdeBase.Handler.cn;
+package com.geedgenetworks.core.udf.knowlegdeBase.handler;
 
 import com.geedgenetworks.core.utils.cn.common.IPAddress;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
 import inet.ipaddr.IPAddressString;
 import org.apache.flink.shaded.guava18.com.google.common.collect.Range;
-import org.apache.flink.shaded.guava18.com.google.common.collect.TreeRangeSet;
+import org.apache.flink.shaded.guava18.com.google.common.collect.TreeRangeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,35 +17,36 @@ import java.util.Map;
 /**
  * @author gujinkai
  * @version 1.0
- * @date 2024/1/19 17:46
+ * @date 2024/1/18 11:22
  */
-public class InternalIpKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandler {
+public class IdcRenterKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(InternalIpKnowledgeBaseHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(IdcRenterKnowledgeBaseHandler.class);
 
-    private static TreeRangeSet<IPAddress> treeRangeSet = TreeRangeSet.create();
+    private static TreeRangeMap<IPAddress, String> treeRangeMap = TreeRangeMap.create();
 
-    private InternalIpKnowledgeBaseHandler() {
+    private IdcRenterKnowledgeBaseHandler() {
     }
 
     private static final class InstanceHolder {
-        private static final InternalIpKnowledgeBaseHandler instance = new InternalIpKnowledgeBaseHandler();
+        private static final IdcRenterKnowledgeBaseHandler instance = new IdcRenterKnowledgeBaseHandler();
     }
 
-    public static InternalIpKnowledgeBaseHandler getInstance() {
+    public static IdcRenterKnowledgeBaseHandler getInstance() {
         return InstanceHolder.instance;
     }
 
     @Override
-    protected Boolean buildKnowledgeBase() {
+    public Boolean buildKnowledgeBase() {
         try {
             List<String> needColumns = new ArrayList<>();
             needColumns.add("addr_format");
             needColumns.add("ip1");
             needColumns.add("ip2");
+            needColumns.add("idc_renter");
             byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
-            TreeRangeSet<IPAddress> newTreeRangeSet = TreeRangeSet.create();
+            TreeRangeMap<IPAddress, String> newTreeRangeMap = TreeRangeMap.create();
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
             while (iterator.hasNext()) {
                 Map<String, String> line = iterator.next();
@@ -53,13 +54,14 @@ public class InternalIpKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseH
                     String addrFormat = line.get("addr_format");
                     String ip1 = line.get("ip1");
                     String ip2 = line.get("ip2");
+                    String idcRenter = line.get("idc_renter");
 
                     if ("Single".equals(addrFormat)) {
                         IPAddress ipAddress = new IPAddress(ip1);
                         if (ipAddress.getIpAddress() == null) {
                             continue;
                         }
-                        newTreeRangeSet.add(Range.closed(ipAddress, ipAddress));
+                        newTreeRangeMap.put(Range.closed(ipAddress, ipAddress), idcRenter);
                     }
                     if ("Range".equals(addrFormat)) {
                         IPAddress startIpAddress = new IPAddress(ip1);
@@ -67,7 +69,7 @@ public class InternalIpKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseH
                         if (startIpAddress.getIpAddress() == null || endIpAddress.getIpAddress() == null) {
                             continue;
                         }
-                        newTreeRangeSet.add(Range.closed(startIpAddress, endIpAddress));
+                        newTreeRangeMap.put(Range.closed(startIpAddress, endIpAddress), idcRenter);
                     }
                     if ("CIDR".equals(addrFormat)) {
                         inet.ipaddr.IPAddress cidrIpAddress = new IPAddressString(ip1 + "/" + ip2).getAddress();
@@ -76,13 +78,13 @@ public class InternalIpKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseH
                         }
                         inet.ipaddr.IPAddress startIpAddress = cidrIpAddress.getLower();
                         inet.ipaddr.IPAddress endIpAddress = cidrIpAddress.getUpper();
-                        newTreeRangeSet.add(Range.closed(new IPAddress(startIpAddress), new IPAddress(endIpAddress)));
+                        newTreeRangeMap.put(Range.closed(new IPAddress(startIpAddress), new IPAddress(endIpAddress)), idcRenter);
                     }
                 } catch (Exception lineException) {
-                    logger.error("IpUtils line: " + line.toString() + " parse error：" + lineException, lineException);
+                    logger.error(this.getClass().getSimpleName() + " line: " + line.toString() + " parse error：" + lineException, lineException);
                 }
             }
-            treeRangeSet = newTreeRangeSet;
+            treeRangeMap = newTreeRangeMap;
         } catch (Exception e) {
             logger.error(this.getClass().getSimpleName() + " update error", e);
             return false;
@@ -90,21 +92,15 @@ public class InternalIpKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseH
         return true;
     }
 
-    public boolean isInternal(String ip) {
+    public String lookup(String ip) {
         try {
-            IPAddress ipAddress = new IPAddress(ip);
-            if (ipAddress.getIpAddress().isIPv4() && ipAddress.getIpAddress().toIPv4().isPrivate()) {
-                return true;
-            }
-            if (ipAddress.getIpAddress().isIPv6() && ipAddress.getIpAddress().toIPv6().isLocal()) {
-                return true;
-            }
-            if (treeRangeSet.contains(ipAddress)) {
-                return true;
+            IPAddress address = new IPAddress(ip);
+            if (address.getIpAddress() != null) {
+                return treeRangeMap.get(address);
             }
         } catch (Exception e) {
-            logger.error("internal ip ");
+            logger.warn("invalid ip: " + ip);
         }
-        return false;
+        return null;
     }
 }

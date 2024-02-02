@@ -1,15 +1,13 @@
-package com.geedgenetworks.core.utils.KnowlegdeBase;
+package com.geedgenetworks.core.udf.knowlegdeBase;
 
 import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowledgeBaseConfigWithHandler;
-import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AbstractKnowledgeBaseHandler;
+import com.geedgenetworks.core.udf.knowlegdeBase.handler.AbstractKnowledgeBaseHandler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

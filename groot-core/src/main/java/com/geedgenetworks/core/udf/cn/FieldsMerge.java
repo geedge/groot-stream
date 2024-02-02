@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2024/1/23 11:20
  */
+@Deprecated
 public class FieldsMerge implements UDF {
 
     private List<String> lookupFieldNames;

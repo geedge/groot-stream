@@ -5,6 +5,7 @@ import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.udf.GenerateStringArray;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import scala.Array;
 
 import java.util.*;
 
@@ -16,8 +17,8 @@ public class GenerateStringArrayFunctionTest {
     @BeforeAll
     public static void setUp() {
         udfContext = new UDFContext();
-        udfContext.setLookup_fields(Arrays.asList("client_asn", "server_asn"));
-        udfContext.setOutput_fields(Collections.singletonList("asn_list"));
+        udfContext.setLookup_fields(Arrays.asList("t1", "t2","t3","t4","t5"));
+        udfContext.setOutput_fields(Collections.singletonList("result_list"));
     }
 
     // 测试方法
@@ -28,13 +29,24 @@ public class GenerateStringArrayFunctionTest {
         generateStringArray.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
-        extractedFields.put("client_asn", "6975");
-        extractedFields.put("server_asn", "333");
+        extractedFields.put("t1", "6975");
+        extractedFields.put("t2", 333);
+        extractedFields.put("t3", Arrays.asList("1", "2"));
+        String[] array = {"1", "2"};
+        extractedFields.put("t4", array);
+        extractedFields.put("t5", null);
         event.setExtractedFields(extractedFields);
         Event result = generateStringArray.evaluate(event);
-        List<String> resultList = (List<String>) result.getExtractedFields().get("asn_list");
+        List<String> resultList = (List<String>) result.getExtractedFields().get("result_list");
         assertEquals("6975", resultList.get(0));
         assertEquals("333", resultList.get(1));
+        assertEquals("1", resultList.get(2));
+        assertEquals("2", resultList.get(3));
+        assertEquals("1", resultList.get(4));
+        assertEquals("2", resultList.get(5));
+        assertEquals(6, resultList.size());
+
+
 
     }
 }

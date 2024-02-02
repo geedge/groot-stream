@@ -10,7 +10,7 @@ import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.common.udf.UDF;
-import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseScheduler;
+import com.geedgenetworks.core.udf.knowlegdeBase.KnowledgeBaseScheduler;
 import com.google.common.collect.Lists;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;

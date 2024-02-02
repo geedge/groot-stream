@@ -1,6 +1,5 @@
-package com.geedgenetworks.core.utils.KnowlegdeBase.Handler.cn;
+package com.geedgenetworks.core.udf.knowlegdeBase.handler;
 
-import com.geedgenetworks.core.utils.cn.common.Trie;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,24 +14,23 @@ import java.util.Map;
 /**
  * @author gujinkai
  * @version 1.0
- * @date 2024/1/22 14:46
+ * @date 2024/1/19 10:53
  */
-public class IocMalwareKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandler {
+public class IocDarkwebKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(IocMalwareKnowledgeBaseHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(IocDarkwebKnowledgeBaseHandler.class);
 
-    private static HashMap<String, String> ipMap = new HashMap<>();
-    private static HashMap<String, String> domainMap = new HashMap<>();
-    private static Trie<String> urlTrie = new Trie<>();
+    private HashMap<String, String> ipMap = new HashMap<>();
+    private HashMap<String, String> domainMap = new HashMap<>();
 
-    private IocMalwareKnowledgeBaseHandler() {
+    private IocDarkwebKnowledgeBaseHandler() {
     }
 
     private static final class InstanceHolder {
-        private static final IocMalwareKnowledgeBaseHandler instance = new IocMalwareKnowledgeBaseHandler();
+        private static final IocDarkwebKnowledgeBaseHandler instance = new IocDarkwebKnowledgeBaseHandler();
     }
 
-    public static IocMalwareKnowledgeBaseHandler getInstance() {
+    public static IocDarkwebKnowledgeBaseHandler getInstance() {
         return InstanceHolder.instance;
     }
 
@@ -42,26 +40,23 @@ public class IocMalwareKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseH
             List<String> needColumns = new ArrayList<>();
             needColumns.add("ioc_type");
             needColumns.add("ioc_value");
-            needColumns.add("malware_name");
+            needColumns.add("node_type");
             byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             HashMap<String, String> newIpMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
             HashMap<String, String> newDomainMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
-            Trie<String> newUrlTrie = new Trie<>();
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
             while (iterator.hasNext()) {
                 Map<String, String> line = iterator.next();
                 try {
                     String type = line.get("ioc_type");
                     String value = line.get("ioc_value");
-                    String malwareName = line.get("malware_name");
+                    String nodeType = line.get("node_type");
 
                     if ("ip".equals(type)) {
-                        newIpMap.put(value, malwareName);
+                        newIpMap.put(value, nodeType);
                     } else if ("domain".equals(type)) {
-                        newDomainMap.put(value, malwareName);
-                    } else if ("url".equals(type)) {
-                        newUrlTrie.put(value, malwareName);
+                        newDomainMap.put(value, nodeType);
                     }
                 } catch (Exception lineException) {
                     logger.error(this.getClass().getSimpleName() + " line: " + line.toString() + " parse error：" + lineException, lineException);
@@ -69,7 +64,6 @@ public class IocMalwareKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseH
             }
             ipMap = newIpMap;
             domainMap = newDomainMap;
-            urlTrie = newUrlTrie;
         } catch (Exception e) {
             logger.error(this.getClass().getSimpleName() + " update error", e);
             return false;
@@ -95,13 +89,5 @@ public class IocMalwareKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseH
                 return null;
             }
         }
-    }
-
-    public String lookupByUrl(String url) {
-        List<String> list = urlTrie.get(url);
-        if (list.size() == 0) {
-            return null;
-        }
-        return list.get(0);
     }
 }

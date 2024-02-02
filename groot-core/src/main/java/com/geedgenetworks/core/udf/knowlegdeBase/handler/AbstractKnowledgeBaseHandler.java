@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.utils.KnowlegdeBase.Handler;
+package com.geedgenetworks.core.udf.knowlegdeBase.handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
@@ -7,8 +7,6 @@ import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.HttpClientPoolUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.security.MessageDigest;

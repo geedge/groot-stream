@@ -8,8 +8,8 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.UDF;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.GeoIpKnowledgeBaseHandler;
-import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
+import com.geedgenetworks.core.udf.knowlegdeBase.handler.GeoIpKnowledgeBaseHandler;
+import com.geedgenetworks.core.udf.knowlegdeBase.KnowledgeBaseUpdateJob;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.model.LocationResponse;
@@ -106,7 +106,7 @@ public class GeoIpLookup implements UDF {
 
     private void checkUdfContext(UDFContext udfContext) {
 
-        if (udfContext.getLookup_fields() == null || udfContext.getOutput_fields() == null || udfContext.getParameters() == null) {
+        if (udfContext.getLookup_fields() == null || udfContext.getParameters() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
         if (udfContext.getLookup_fields().size() != 1) {

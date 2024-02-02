@@ -1,8 +1,7 @@
-package com.geedgenetworks.core.utils.KnowlegdeBase.Handler.cn;
+package com.geedgenetworks.core.udf.knowlegdeBase.handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
-import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.AbstractKnowledgeBaseHandler;
 import lombok.Data;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;

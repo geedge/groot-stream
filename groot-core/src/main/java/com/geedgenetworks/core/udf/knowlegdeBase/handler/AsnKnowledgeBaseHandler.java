@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.utils.KnowlegdeBase.Handler;
+package com.geedgenetworks.core.udf.knowlegdeBase.handler;
 
 
 import com.esotericsoftware.minlog.Log;
@@ -9,8 +9,6 @@ import com.geedgenetworks.core.pojo.KnowledgeBaseInfoForIpLookUp;
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.util.*;

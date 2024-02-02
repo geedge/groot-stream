@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.utils.KnowlegdeBase.Handler.cn;
+package com.geedgenetworks.core.udf.knowlegdeBase.handler;
 
 import com.geedgenetworks.core.utils.cn.common.KnowledgeMetadata;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;

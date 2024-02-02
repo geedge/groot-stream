@@ -2,9 +2,9 @@ package com.geedgenetworks.core.udf.cn;
 
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.cn.DomainVpnKnowledgeBaseHandler;
-import com.geedgenetworks.core.utils.KnowlegdeBase.Handler.cn.IpVpnKnowledgeBaseHandler;
-import com.geedgenetworks.core.utils.KnowlegdeBase.KnowledgeBaseUpdateJob;
+import com.geedgenetworks.core.udf.knowlegdeBase.handler.DomainVpnKnowledgeBaseHandler;
+import com.geedgenetworks.core.udf.knowlegdeBase.handler.IpVpnKnowledgeBaseHandler;
+import com.geedgenetworks.core.udf.knowlegdeBase.KnowledgeBaseUpdateJob;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
