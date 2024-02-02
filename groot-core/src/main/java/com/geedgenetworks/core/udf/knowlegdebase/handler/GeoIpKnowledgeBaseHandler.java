@@ -1,11 +1,11 @@
-package com.geedgenetworks.core.udf.knowlegdeBase.handler;
+package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 
 import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
-
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.pojo.KnowledgeBaseInfoForIpLookUp;
+import com.geedgenetworks.model.LocationResponse;
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -15,20 +15,19 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
+public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
     @Getter
     private static Map<String, KnowledgeBaseInfoForIpLookUp> kbNameWithKbConfigAndFileMetas = new ConcurrentHashMap<>();
-    private static AsnKnowledgeBaseHandler instance;
+    private static GeoIpKnowledgeBaseHandler instance;
 
-    // 私有构造函数，防止外部实例化
 
-    private AsnKnowledgeBaseHandler() {
+    private GeoIpKnowledgeBaseHandler() {
     }
 
-    public static synchronized AsnKnowledgeBaseHandler getInstance() {
+    public static synchronized GeoIpKnowledgeBaseHandler getInstance() {
         if (instance == null) {
-            instance = new AsnKnowledgeBaseHandler();
+            instance = new GeoIpKnowledgeBaseHandler();
         }
         return instance;
     }
@@ -46,29 +45,16 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                 if (ifNeedUpdate(entry.getValue())) {
                     boolean result = buildKnowledgeBase(entry.getValue().getKnowledgeConfig());
                     if(result) {
-                        Log.warn("AsnKnowledgeBase " + entry.getKey() + " update success!");
+                        Log.warn("GeoIpKnowledgeBase " + entry.getKey() + " update success!");
                     }
                     else {
-                        Log.warn("AsnKnowledgeBase " + entry.getKey() + " update error!");
+                        Log.warn("GeoIpKnowledgeBase " + entry.getKey() + " update error!");
                     }
                 }
             } catch (Exception e) {
                 Log.error("updateKnowledgeBase " + entry.getKey() + " error " + e.getMessage());
             }
         }
-
-    }
-
-    public static String lookUp(String kbName,String option, String ip) {
-        String result = "";
-        try {
-            if("IP_TO_ASN".equals(option)) {
-                result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().asnLookup(ip);
-            }
-        } catch (Exception e) {
-            Log.error("AsnKnowledgeBaseHandler lookUp Error ip = " + ip +" kbName =" + kbName + " error " + e.getMessage());
-        }
-        return result;
     }
 
     private static boolean ifNeedUpdate(KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp) {
@@ -84,7 +70,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
     private static boolean buildKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
 
-        IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
+        IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
         List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetas = new ArrayList<>();
         for (String kbId : knowledgeBaseConfig.getFiles()) {
             KnowLedgeBaseFileMeta metadata = getMetadata(knowledgeBaseConfig.getFsType(), knowledgeBaseConfig.getFsPath(), kbId);
@@ -101,10 +87,10 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                 if (calculateSHA256(fileByte).equals(knowLedgeBaseFileMetas.get(i).getSha256())) {
                     switch (i) {
                         case 0:
-                            asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(fileByte));
+                            ipLookupBuilder.loadDataFile(new ByteArrayInputStream(fileByte));
                             break;
                         case 1:
-                            asnLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
+                            ipLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
                             break;
                     }
                 } else {
@@ -112,11 +98,11 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                     return false;
                 }
             } catch (Exception e) {
-                Log.error("buildKnowledgeBase error " + e.getMessage());
+                Log.error("updateKnowledgeBase error " + e.getMessage());
                 return false;
             }
         }
-        IpLookupV2 ipLookup = asnLookupBuilder.build();
+        IpLookupV2 ipLookup = ipLookupBuilder.build();
         KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp = new KnowledgeBaseInfoForIpLookUp();
         kbInfoForIpLookUp.setKnowLedgeBaseFilesMetas(knowLedgeBaseFileMetas);
         kbInfoForIpLookUp.setKnowledgeConfig(knowledgeBaseConfig);
@@ -125,5 +111,54 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         return true;
     }
 
+    public static String lookUp(String kbName, String option, String ip) {
+        String result = "";
+        try {
+            result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().asnLookup(ip);
+            switch (option) {
+                case "IP_TO_COUNTRY":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().countryLookup(ip);
+                    break;
+                case "IP_TO_PROVINCE":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().provinceLookup(ip);
+                    break;
+                case "IP_TO_CITY":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().cityLookup(ip);
+                    break;
+                case "IP_TO_SUBDIVISION_ADDR":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().cityLookupDetail(ip);
+                    break;
+                case "IP_TO_DETAIL":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().administrativeAreaLookupDetail(ip);
+                    break;
+                case "IP_TO_LATLNG":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().latLngLookup(ip);
+                    break;
+                case "IP_TO_PROVIDER":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().ispLookup(ip);
+                    break;
+                case "IP_TO_JSON":
+                    result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().infoLookupToJSONString(ip);
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            Log.error("GeoIpKnowledgeBaseHandler lookUp Error ip = "+ ip + "kbName =" + kbName + " error " + e.getMessage());
+        }
+        return result;
+    }
+
+
+    public static LocationResponse lookUpObject(String kbName, String ip) {
+        LocationResponse response = null;
+        try {
+             response = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().infoLookup(ip);
+        }
+        catch (Exception e){
+            Log.error("GeoIpKnowledgeBaseHandler lookUpObject Error ip = "+ ip + "kbName =" + kbName + " error " + e.getMessage());
+        }
+        return response;
+    }
 
 }

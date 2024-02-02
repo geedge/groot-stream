@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.pojo;
 
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
-import com.geedgenetworks.core.udf.knowlegdeBase.handler.AbstractKnowledgeBaseHandler;
+import com.geedgenetworks.core.udf.knowlegdebase.handler.AbstractKnowledgeBaseHandler;
 import lombok.Data;
 
 @Data

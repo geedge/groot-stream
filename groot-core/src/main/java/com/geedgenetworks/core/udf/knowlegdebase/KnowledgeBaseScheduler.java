@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.udf.knowlegdeBase;
+package com.geedgenetworks.core.udf.knowlegdebase;
 
 import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.core.utils.SchedulerUtils;

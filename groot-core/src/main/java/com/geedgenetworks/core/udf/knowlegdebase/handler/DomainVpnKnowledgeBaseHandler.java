@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.udf.knowlegdeBase.handler;
+package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
 import org.slf4j.Logger;
@@ -14,22 +14,22 @@ import java.util.Map;
 /**
  * @author gujinkai
  * @version 1.0
- * @date 2024/1/22 11:50
+ * @date 2024/1/19 16:40
  */
-public class FqdnWhoisKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandler {
+public class DomainVpnKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(FqdnWhoisKnowledgeBaseHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(DomainVpnKnowledgeBaseHandler.class);
 
-    private HashMap<String, String> whoIsMap = new HashMap<>();
+    private Map<String, String> map = new HashMap<>();
 
-    private FqdnWhoisKnowledgeBaseHandler() {
+    private DomainVpnKnowledgeBaseHandler() {
     }
 
     private static final class InstanceHolder {
-        private static final FqdnWhoisKnowledgeBaseHandler instance = new FqdnWhoisKnowledgeBaseHandler();
+        private static final DomainVpnKnowledgeBaseHandler instance = new DomainVpnKnowledgeBaseHandler();
     }
 
-    public static FqdnWhoisKnowledgeBaseHandler getInstance() {
+    public static DomainVpnKnowledgeBaseHandler getInstance() {
         return InstanceHolder.instance;
     }
 
@@ -37,24 +37,24 @@ public class FqdnWhoisKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHa
     protected Boolean buildKnowledgeBase() {
         try {
             List<String> needColumns = new ArrayList<>();
-            needColumns.add("fqdn");
-            needColumns.add("whois_registrant_org");
+            needColumns.add("domain");
+            needColumns.add("vpn_service_name");
             byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
-            HashMap<String, String> newWhoIsMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
+            Map<String, String> newMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
             while (iterator.hasNext()) {
                 Map<String, String> line = iterator.next();
                 try {
-                    String fqdn = line.get("fqdn");
-                    String whoisRegistrantOrg = line.get("whois_registrant_org");
+                    String domain = line.get("domain");
+                    String vpnServiceName = line.get("vpn_service_name");
 
-                    newWhoIsMap.put(fqdn, whoisRegistrantOrg);
+                    newMap.put(domain, vpnServiceName);
                 } catch (Exception lineException) {
                     logger.error(this.getClass().getSimpleName() + " line: " + line.toString() + " parse error：" + lineException, lineException);
                 }
             }
-            whoIsMap = newWhoIsMap;
+            map = newMap;
         } catch (Exception e) {
             logger.error(this.getClass().getSimpleName() + " update error", e);
             return false;
@@ -66,8 +66,8 @@ public class FqdnWhoisKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHa
         if (domain == null || domain.length() == 0) {
             return null;
         }
-        if (whoIsMap.containsKey(domain)) {
-            return whoIsMap.get(domain);
+        if (map.containsKey(domain)) {
+            return map.get(domain);
         } else {
             int index = domain.indexOf(".") + 1;
             if (index > 0) {

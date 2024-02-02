@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.udf.knowlegdeBase.handler;
+package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
