@@ -17,7 +17,7 @@
         <module>groot-bootstrap</module>
         <module>groot-release</module>
         <module>groot-shaded</module>
-        <module>groot-example</module>
+        <module>groot-examples</module>
         <module>groot-formats</module>
         <module>groot-tests</module>
     </modules>
