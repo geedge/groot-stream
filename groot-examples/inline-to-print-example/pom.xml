@@ -12,4 +12,9 @@
     <artifactId>inline-to-print-example</artifactId>
     <name>Groot : Examples : Inline-to-print</name>
 
+    <properties>
+        <maven.install.skip>true</maven.install.skip>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
 </project>
