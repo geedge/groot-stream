@@ -186,7 +186,7 @@ Example:
 ```
 
 ### Generate String Array
-Generate string array function is used to merge string fields to an array.
+Generate string array function is used to merge multiple fields into a string array. The merged field may be a string or a string array.
 
 ```GENERATE_STRING_ARRAY(filter, lookup_fields, output_fields)```
 - filter: optional
@@ -377,7 +377,6 @@ _`__timestamp` Internal field, from source ingestion time or current unix timest
         parameters:
           precision: seconds
 ```
-
 
 
 

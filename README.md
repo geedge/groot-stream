@@ -26,16 +26,17 @@ Groot Stream is designed to simplify the operation of ETL (Extract, Transform, L
 Configure a job, you'll set up Sources, Filters, Processing Pipeline, and Sinks, and will assemble several built-in functions into a Processing Pipeline. The job will then be deployed to a Flink cluster for execution. 
 - **Source**: The data source of the job, which can be a Kafka topic, a IPFIX Collector, or a file.
 - **Filter**: Filters data based on specified conditions.
-- **Pipelines**: The fundamental unit of data stream processing is the processor, categorized by functionality into stateless and stateful processors. Each processor can be assemble `UDFs`(User-defined functions) or `UDAFs`(User-defined aggregation functions) into a pipeline. The detail of processor is listed in [Processor](docs/processor).
-  - **Pre-processing Pipeline**: Optional. Processes data before it enters the processing pipeline.
-  - **Processing Pipeline**: Core data transformation pipeline.
-  - **Post-processing Pipeline**: Optional. Processes data after it exits the processing pipeline.
+- **Types of Pipelines**: The fundamental unit of data stream processing is the processor, categorized by functionality into stateless and stateful processors. Each processor can be assemble `UDFs`(User-defined functions) or `UDAFs`(User-defined aggregation functions) into a pipeline. There are 3 types of pipelines at different stages of the data processing process:
+  - **Pre-processing Pipeline**: Optional. These pipelines that are attached to a source to normalize the events before they enter the processing pipeline.
+  - **Processing Pipeline**: Event processing pipeline.
+  - **Post-processing Pipeline**: Optional. These pipelines that are attached to a sink to normalize the events before they're written to the sink.
 - **Sink**: The data sink of the job, which can be a Kafka topic, a ClickHouse table, or a file.
 
-## Supported Connectors & Functions
+## Supported Connectors & Processors & Functions
 
 - [Source Connectors](docs/connector/source)
 - [Sink Connectors](docs/connector/sink)
+- [Processor](docs/processor)
 - [Functions](docs/processor/udf.md)
 
 ## Minimum Requirements
