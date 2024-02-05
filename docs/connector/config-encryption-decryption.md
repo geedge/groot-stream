@@ -57,7 +57,7 @@ Next, I'll show how to quickly use groot-stream's own `aes` encryption:
     ```
 2. Using the `encrypt` command to encrypt the configuration file:
     ```shell
-      ${GROOTSTREAM_HOME}/bin/start.sh --c config/inline_to_clickhouse.yaml --encrypt
+      ${GROOTSTREAM_HOME}/bin/start.sh -c config/inline_to_clickhouse.yaml --encrypt
     ```
 3. Then you can see the encrypted configuration file in the terminal:
 The clickhouse_sink's connection.user and connection.password has been encrypted. We will using encrypted content replace the original content.
@@ -113,7 +113,7 @@ The clickhouse_sink's connection.user and connection.password has been encrypted
     ```
 4. Of course, you can also decrypt the encrypted configuration file, just execute the following command:
     ```shell
-      ${GROOTSTREAM_HOME}/bin/start.sh --c config/inline_to_clickhouse.yaml --decrypt
+      ${GROOTSTREAM_HOME}/bin/start.sh -c config/inline_to_clickhouse.yaml --decrypt
     ```
 
 ## How to implement user-defined encryption and decryption
