@@ -1,7 +1,6 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 
-import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.pojo.KnowledgeBaseInfoForIpLookUp;
@@ -45,14 +44,14 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                 if (ifNeedUpdate(entry.getValue())) {
                     boolean result = buildKnowledgeBase(entry.getValue().getKnowledgeConfig());
                     if(result) {
-                        Log.warn("GeoIpKnowledgeBase " + entry.getKey() + " update success!");
+                        log.warn("GeoIpKnowledgeBase " + entry.getKey() + " update success!");
                     }
                     else {
-                        Log.warn("GeoIpKnowledgeBase " + entry.getKey() + " update error!");
+                        log.warn("GeoIpKnowledgeBase " + entry.getKey() + " update error!");
                     }
                 }
             } catch (Exception e) {
-                Log.error("updateKnowledgeBase " + entry.getKey() + " error " + e.getMessage());
+                log.error("updateKnowledgeBase " + entry.getKey() + " error " + e.getMessage());
             }
         }
     }
@@ -77,7 +76,7 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
             if (metadata != null) {
                 knowLedgeBaseFileMetas.add(getMetadata(knowledgeBaseConfig.getFsType(), knowledgeBaseConfig.getFsPath(), kbId));
             } else {
-                Log.error("get metadate error !");
+                log.error("get metadate error !");
                 return false;
             }
         }
@@ -94,11 +93,11 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                             break;
                     }
                 } else {
-                    Log.error("check file sha256 error ");
+                    log.error("check file sha256 error ");
                     return false;
                 }
             } catch (Exception e) {
-                Log.error("updateKnowledgeBase error " + e.getMessage());
+                log.error("updateKnowledgeBase error " + e.getMessage());
                 return false;
             }
         }
@@ -144,7 +143,7 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                     break;
             }
         } catch (Exception e) {
-            Log.error("GeoIpKnowledgeBaseHandler lookUp Error ip = "+ ip + "kbName =" + kbName + " error " + e.getMessage());
+            log.error("GeoIpKnowledgeBaseHandler lookUp Error ip = "+ ip + "kbName =" + kbName + " error " + e.getMessage());
         }
         return result;
     }
@@ -156,7 +155,7 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
              response = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().infoLookup(ip);
         }
         catch (Exception e){
-            Log.error("GeoIpKnowledgeBaseHandler lookUpObject Error ip = "+ ip + "kbName =" + kbName + " error " + e.getMessage());
+            log.error("GeoIpKnowledgeBaseHandler lookUpObject Error ip = "+ ip + "kbName =" + kbName + " error " + e.getMessage());
         }
         return response;
     }

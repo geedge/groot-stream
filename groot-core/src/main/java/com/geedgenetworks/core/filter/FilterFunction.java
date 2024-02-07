@@ -11,14 +11,18 @@ import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.Counter;
 
 import java.util.Map;
 @Slf4j
 public class FilterFunction extends RichFilterFunction<Event> {
     private final com.geedgenetworks.core.pojo.FilterConfig FilterConfig;
-
     private static Expression compiledExp;
     private static String expression;
+    private transient Counter droppedEvents;
+    private transient Counter errorEvents;
+    private transient Counter outEvents;
+    private transient Counter inEvents;
     public FilterFunction(FilterConfig FilterConfig) {
         this.FilterConfig = FilterConfig;
     }
@@ -32,11 +36,15 @@ public class FilterFunction extends RichFilterFunction<Event> {
         instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
         instance.setFunctionMissing(null);
         compiledExp = instance.compile(expression, true);
-
+        this.errorEvents = getRuntimeContext().getMetricGroup().counter("error_events");
+        this.droppedEvents = getRuntimeContext().getMetricGroup().counter("dropped_events");
+        this.inEvents = getRuntimeContext().getMetricGroup().counter("in_events");
+        this.outEvents = getRuntimeContext().getMetricGroup().counter("out_events");
     }
 
     @Override
     public boolean filter(Event value)  {
+        inEvents.inc();
         boolean isFilter ;
         try {
 
@@ -51,9 +59,17 @@ public class FilterFunction extends RichFilterFunction<Event> {
         } catch (ExpressionRuntimeException e){
             isFilter = false;
             log.error("Invalid filter ! expression=" +expression);
+            errorEvents.inc();
         }
         catch (RuntimeException ignored) {
             isFilter = false;
+            errorEvents.inc();
+        }
+        if(isFilter){
+            outEvents.inc();
+        }
+        else {
+            droppedEvents.inc();
         }
         return isFilter;
     }

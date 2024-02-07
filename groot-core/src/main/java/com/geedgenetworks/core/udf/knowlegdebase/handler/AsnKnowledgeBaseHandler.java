@@ -1,7 +1,6 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 
-import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
@@ -46,14 +45,14 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                 if (ifNeedUpdate(entry.getValue())) {
                     boolean result = buildKnowledgeBase(entry.getValue().getKnowledgeConfig());
                     if(result) {
-                        Log.warn("AsnKnowledgeBase " + entry.getKey() + " update success!");
+                        log.warn("AsnKnowledgeBase " + entry.getKey() + " update success!");
                     }
                     else {
-                        Log.warn("AsnKnowledgeBase " + entry.getKey() + " update error!");
+                        log.warn("AsnKnowledgeBase " + entry.getKey() + " update error!");
                     }
                 }
             } catch (Exception e) {
-                Log.error("updateKnowledgeBase " + entry.getKey() + " error " + e.getMessage());
+                log.error("updateKnowledgeBase " + entry.getKey() + " error " + e.getMessage());
             }
         }
 
@@ -66,7 +65,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                 result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().asnLookup(ip);
             }
         } catch (Exception e) {
-            Log.error("AsnKnowledgeBaseHandler lookUp Error ip = " + ip +" kbName =" + kbName + " error " + e.getMessage());
+            log.error("AsnKnowledgeBaseHandler lookUp Error ip = " + ip +" kbName =" + kbName + " error " + e.getMessage());
         }
         return result;
     }
@@ -91,7 +90,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
             if (metadata != null) {
                 knowLedgeBaseFileMetas.add(getMetadata(knowledgeBaseConfig.getFsType(), knowledgeBaseConfig.getFsPath(), kbId));
             } else {
-                Log.error("get metadate error !");
+                log.error("get metadate error !");
                 return false;
             }
         }
@@ -108,11 +107,11 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                             break;
                     }
                 } else {
-                    Log.error("check file sha256 error ");
+                    log.error("check file sha256 error ");
                     return false;
                 }
             } catch (Exception e) {
-                Log.error("buildKnowledgeBase error " + e.getMessage());
+                log.error("buildKnowledgeBase error " + e.getMessage());
                 return false;
             }
         }

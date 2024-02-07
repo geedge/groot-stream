@@ -2,7 +2,6 @@ package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
-import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.HttpClientPoolUtil;
@@ -36,7 +35,7 @@ public abstract class AbstractKnowledgeBaseHandler {
                 result.append(String.format("%02x", b));
             }
         } catch (NoSuchAlgorithmException e) {
-            Log.error("calculateSHA256  error: " + e.getMessage());
+            log.error("calculateSHA256  error: " + e.getMessage());
         }
         return result.toString();
     }
@@ -50,10 +49,10 @@ public abstract class AbstractKnowledgeBaseHandler {
                 HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
                 inputStream = httpClientPoolUtil.httpGetByte(fileUrl);
                 long end = System.currentTimeMillis();
-                Log.info(
+                log.info(
                         "download file " + fileUrl + " finished, speed " + (end - start) + " ms");
             } catch (Exception e) {
-                Log.error("download file " + fileUrl + " error: " + e.getMessage());
+                log.error("download file " + fileUrl + " error: " + e.getMessage());
             }
         }
         return inputStream;
@@ -80,11 +79,11 @@ public abstract class AbstractKnowledgeBaseHandler {
                 case "hdfs":
                     break;
                 default:
-                    Log.error("get file Metadata  error:  fs_type not suppoort !");
+                    log.error("get file Metadata  error:  fs_type not suppoort !");
                     break;
             }
         } catch (Exception e) {
-            Log.error("get file Metadata error! path = " + path + " " + e.getMessage());
+            log.error("get file Metadata error! path = " + path + " " + e.getMessage());
         }
 
         return knowLedgeBaseFileMetaList;
@@ -107,17 +106,17 @@ public abstract class AbstractKnowledgeBaseHandler {
                     knowLedgeBaseFileMetaList.removeIf(knowLedgeBaseFileMeta -> !"latest".equals(knowLedgeBaseFileMeta.getVersion()));
                     break;
                 case "local":
-                    Log.error("get file Metadata  error:  fs_type local not suppoort !");
+                    log.error("get file Metadata  error:  fs_type local not suppoort !");
                     break;
                 case "hdfs":
-                    Log.error("get file Metadata  error:  fs_type hdfs not suppoort !");
+                    log.error("get file Metadata  error:  fs_type hdfs not suppoort !");
                     break;
                 default:
-                    Log.error("get file Metadata  error:  fs_type not suppoort !");
+                    log.error("get file Metadata  error:  fs_type not suppoort !");
                     break;
             }
         } catch (Exception e) {
-            Log.error("get file Metadata error! path = " + path + " " + e.getMessage());
+            log.error("get file Metadata error! path = " + path + " " + e.getMessage());
             return null;
         }
 
@@ -125,7 +124,7 @@ public abstract class AbstractKnowledgeBaseHandler {
 
             return knowLedgeBaseFileMetaList.get(0);
         } else {
-            Log.error("file Metadata is null ! path = " + path + "?kb_id=" + kbId);
+            log.error("file Metadata is null ! path = " + path + "?kb_id=" + kbId);
             return null;
         }
     }

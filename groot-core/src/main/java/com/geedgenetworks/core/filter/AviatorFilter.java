@@ -15,11 +15,11 @@ public class AviatorFilter implements Filter {
             return singleOutputStreamOperator
                     .filter(new FilterFunction(FilterConfig))
                     .setParallelism(FilterConfig.getParallelism())
-                    .name("Filter");
+                    .name(FilterConfig.getName());
         } else {
             return singleOutputStreamOperator
                     .filter(new FilterFunction(FilterConfig))
-                    .name("Filter");
+                    .name(FilterConfig.getName());
         }
     }
 }

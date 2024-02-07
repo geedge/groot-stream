@@ -19,17 +19,25 @@ import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.Counter;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 @Slf4j
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     private final ProjectionConfig projectionConfig;
-    private LinkedList<UdfEntity> functions ;
+    private LinkedList<UdfEntity> functions;
+    private transient Counter droppedEvents;
+    private transient Counter errorEvents;
+    private transient Counter outEvents;
+    private transient Counter inEvents;
+
 
     public ProjectionProcessFunction(ProjectionConfig projectionConfig) {
         this.projectionConfig = projectionConfig;
@@ -45,9 +53,9 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
             }
             Configuration configuration = (Configuration) getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
             List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
-            Map<String,String> udfClassReflect =getClassReflect(udfClassNameLists);
+            Map<String, String> udfClassReflect = getClassReflect(udfClassNameLists);
             CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
-            KnowledgeBaseScheduler.startSchedulerForKnowledgeBase(Integer.parseInt(commonConfig.getPropertiesConfig().getOrDefault("scheduler.knowledge_base.update.interval.minutes","5")));
+            KnowledgeBaseScheduler.startSchedulerForKnowledgeBase(Integer.parseInt(commonConfig.getPropertiesConfig().getOrDefault("scheduler.knowledge_base.update.interval.minutes", "5")));
             for (UDFContext udfContext : udfContexts) {
                 Expression filterExpression = null;
                 UdfEntity udfEntity = new UdfEntity();
@@ -73,29 +81,37 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION,
                             "Unsupported UDF: " + udfContext.getFunction());
                 }
+
             }
+            this.errorEvents = getRuntimeContext().getMetricGroup().counter("error_events");
+            this.droppedEvents = getRuntimeContext().getMetricGroup().counter("dropped_events");
+            this.inEvents = getRuntimeContext().getMetricGroup().counter("in_events");
+            this.outEvents = getRuntimeContext().getMetricGroup().counter("out_events");
         } catch (Exception e) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Initialization UDF failed!",e);
+            throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Initialization UDF failed!", e);
         }
     }
 
     @Override
     public void processElement(Event event, Context ctx, Collector<Event> out) {
 
-        for(UdfEntity udfEntity: functions){
+        inEvents.inc();
+        for (UdfEntity udfEntity : functions) {
             try {
                 if (event.isDropped()) {
                     break;
                 } else {
-                    boolean result = udfEntity.getFilterExpression() != null ? filterExecute(udfEntity.getFilterExpression(),udfEntity.getFilterExpression().newEnv("event", event.getExtractedFields())) : true;
+                    boolean result = udfEntity.getFilterExpression() != null ? filterExecute(udfEntity.getFilterExpression(), udfEntity.getFilterExpression().newEnv("event", event.getExtractedFields())) : true;
                     if (result) {
                         udfEntity.getUdfFunction().evaluate(event);
                     }
                 }
             } catch (ExpressionRuntimeException ignore) {
-                log.error("Function "+udfEntity.getName()+" Invalid filter !  ");
-            }  catch (Exception e){
-                log.error("Function "+udfEntity.getName()+" execute exception !", e);
+                log.error("Function " + udfEntity.getName() + " Invalid filter !  ");
+                errorEvents.inc();
+            } catch (Exception e) {
+                log.error("Function " + udfEntity.getName() + " execute exception !", e);
+                errorEvents.inc();
             }
 
         }
@@ -113,8 +129,14 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     ColumnUtil.columnRemover(
                             event.getExtractedFields(), projectionConfig.getRemove_fields()));
         }
-        if (!event.isDropped()) {out.collect(event);}
+        if (!event.isDropped()) {
+            out.collect(event);
+            outEvents.inc();
+        } else {
+            droppedEvents.inc();
+        }
     }
+
     public static Map<String, String> getClassReflect(List<String> plugins) {
 
         Map<String, String> classReflect = new HashMap<>();
@@ -135,14 +157,13 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         return classReflect;
     }
 
-    public static Boolean filterExecute(Expression expression,Map<String, Object> map)  {
+    public static Boolean filterExecute(Expression expression, Map<String, Object> map) {
 
-        boolean result ;
+        boolean result;
         Object object = expression.execute(map);
-        if(object != null){
+        if (object != null) {
             result = (Boolean) object;
-        }
-        else {
+        } else {
             throw new ExpressionRuntimeException();
         }
         return result;
@@ -151,7 +172,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     @Override
     public void close() throws Exception {
 
-        for(UdfEntity udfEntity: functions){
+        for (UdfEntity udfEntity : functions) {
 
             udfEntity.getUdfFunction().close();
         }
@@ -159,4 +180,24 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         super.close();
     }
 
+    public static String convertToCamelCase(String input) {
+        StringBuilder result = new StringBuilder();
+
+        // 分割单词
+        String[] words = input.toLowerCase().split("_");
+
+        for (int i = 0; i < words.length; i++) {
+            String word = words[i];
+
+            // 首字母大写（除了第一个单词）
+            if (i != 0) {
+                char firstChar = Character.toUpperCase(word.charAt(0));
+                word = firstChar + word.substring(1);
+            }
+
+            result.append(word);
+        }
+
+        return result.toString();
+    }
 }

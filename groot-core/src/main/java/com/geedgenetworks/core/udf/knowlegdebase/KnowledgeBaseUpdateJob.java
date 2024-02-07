@@ -1,6 +1,5 @@
 package com.geedgenetworks.core.udf.knowlegdebase;
 
-import com.esotericsoftware.minlog.Log;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowledgeBaseConfigWithHandler;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.AbstractKnowledgeBaseHandler;
@@ -25,7 +24,7 @@ public class KnowledgeBaseUpdateJob implements Job {
         try {
             knowledgeBaseConfigWithHandler.getAbstractKnowledgeBaseHandler().updateKnowledgeBase();
         } catch (Exception e) {
-            Log.error(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -42,9 +41,9 @@ public class KnowledgeBaseUpdateJob implements Job {
                 try {
                     isSuccess = abstractKnowledgeBaseHandler.initKnowledgeBase(knowledgeBaseConfig);
                     KnowLedgeBaseEntityMap.put(knowledgeBaseConfig.getName(), knowledgeBaseConfigWithHandler);
-                    Log.warn("initKnowledgeBase "+knowledgeBaseConfig.getName() + "Success");
+                    log.warn("initKnowledgeBase "+knowledgeBaseConfig.getName() + "Success");
                 } catch (Exception e) {
-                    Log.error("initKnowledgeBase "+knowledgeBaseConfig.getName() + "Error" + e.getMessage());
+                    log.error("initKnowledgeBase "+knowledgeBaseConfig.getName() + "Error" + e.getMessage());
                 }
             } else {
                 isSuccess = true;
@@ -60,13 +59,13 @@ public class KnowledgeBaseUpdateJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) {
 
-        Log.warn("Start scheduler knowledge_base update job !");
+        log.warn("Start scheduler knowledge_base update job !");
         if (!KnowLedgeBaseEntityMap.isEmpty()) {
             for (Map.Entry<String, KnowledgeBaseConfigWithHandler> entry : KnowLedgeBaseEntityMap.entrySet()) {
                 try {
                     updateKnowledgeBase(entry.getValue());
                 } catch (Exception e) {
-                    Log.error(e.getMessage());
+                    log.error(e.getMessage());
                 }
             }
         }
