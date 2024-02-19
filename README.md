@@ -96,12 +96,12 @@ Can be started by a daemon with `-d`.
 - Run the following command to start the groot-stream server for Standalone Mode:
 ```shell
 cd "groot-stream-${version}"
-./bin/start.sh -c ./config/groot_stream_job_example.yaml --target remote -d -n inline-to-print-job
+./bin/start.sh -c ./config/grootstream_job_example.yaml --target remote -d -n inline-to-print-job
 ```
 - Run the following command to start the groot-stream server for Yarn Per-job Mode:
 ```shell
 cd "groot-stream-${version}"
-./bin/start.sh -c ./config/groot_stream_job_example.yaml --target yarn-per-job -d -n inline-to-print-job
+./bin/start.sh -c ./config/grootstream_job_example.yaml --target yarn-per-job -d -n inline-to-print-job
 ```
 ### Configuring
 
