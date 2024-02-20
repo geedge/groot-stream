@@ -2,6 +2,7 @@ package com.geedgenetworks.core.filter;
 
 import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.core.metrics.InternalMetrics;
 import com.geedgenetworks.core.pojo.FilterConfig;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
@@ -19,32 +20,26 @@ public class FilterFunction extends RichFilterFunction<Event> {
     private final com.geedgenetworks.core.pojo.FilterConfig FilterConfig;
     private static Expression compiledExp;
     private static String expression;
-    private transient Counter droppedEvents;
-    private transient Counter errorEvents;
-    private transient Counter outEvents;
-    private transient Counter inEvents;
+    private transient InternalMetrics internalMetrics;
+
     public FilterFunction(FilterConfig FilterConfig) {
         this.FilterConfig = FilterConfig;
     }
 
     @Override
     public void open(Configuration parameters) throws Exception {
-
+        this.internalMetrics = new InternalMetrics(getRuntimeContext());
         expression = FilterConfig.getProperties().getOrDefault("expression", "").toString();
         AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
         instance.setCachedExpressionByDefault(true);
         instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
         instance.setFunctionMissing(null);
         compiledExp = instance.compile(expression, true);
-        this.errorEvents = getRuntimeContext().getMetricGroup().counter("error_events");
-        this.droppedEvents = getRuntimeContext().getMetricGroup().counter("dropped_events");
-        this.inEvents = getRuntimeContext().getMetricGroup().counter("in_events");
-        this.outEvents = getRuntimeContext().getMetricGroup().counter("out_events");
     }
 
     @Override
     public boolean filter(Event value)  {
-        inEvents.inc();
+        internalMetrics.incrementInEvents();
         boolean isFilter ;
         try {
 
@@ -59,17 +54,17 @@ public class FilterFunction extends RichFilterFunction<Event> {
         } catch (ExpressionRuntimeException e){
             isFilter = false;
             log.error("Invalid filter ! expression=" +expression);
-            errorEvents.inc();
+            internalMetrics.incrementErrorEvents();
         }
         catch (RuntimeException ignored) {
             isFilter = false;
-            errorEvents.inc();
+            internalMetrics.incrementErrorEvents();
         }
         if(isFilter){
-            outEvents.inc();
+            internalMetrics.incrementOutEvents();
         }
         else {
-            droppedEvents.inc();
+            internalMetrics.incrementDroppedEvents();
         }
         return isFilter;
     }

@@ -8,6 +8,7 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.core.metrics.InternalMetrics;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.common.udf.UDF;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseScheduler;
@@ -33,10 +34,7 @@ import java.util.Map;
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     private final ProjectionConfig projectionConfig;
     private LinkedList<UdfEntity> functions;
-    private transient Counter droppedEvents;
-    private transient Counter errorEvents;
-    private transient Counter outEvents;
-    private transient Counter inEvents;
+    private transient InternalMetrics internalMetrics;
 
 
     public ProjectionProcessFunction(ProjectionConfig projectionConfig) {
@@ -47,6 +45,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     public void open(Configuration parameters) throws Exception {
         functions = Lists.newLinkedList();
         try {
+            this.internalMetrics = new InternalMetrics(getRuntimeContext());
             List<UDFContext> udfContexts = projectionConfig.getFunctions();
             if (udfContexts == null || udfContexts.isEmpty()) {
                 return;
@@ -83,10 +82,6 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                 }
 
             }
-            this.errorEvents = getRuntimeContext().getMetricGroup().counter("error_events");
-            this.droppedEvents = getRuntimeContext().getMetricGroup().counter("dropped_events");
-            this.inEvents = getRuntimeContext().getMetricGroup().counter("in_events");
-            this.outEvents = getRuntimeContext().getMetricGroup().counter("out_events");
         } catch (Exception e) {
             throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Initialization UDF failed!", e);
         }
@@ -95,8 +90,10 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     @Override
     public void processElement(Event event, Context ctx, Collector<Event> out) {
 
-        inEvents.inc();
+        internalMetrics.incrementInEvents();
+        int errorCount = 0;
         for (UdfEntity udfEntity : functions) {
+
             try {
                 if (event.isDropped()) {
                     break;
@@ -108,14 +105,16 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                 }
             } catch (ExpressionRuntimeException ignore) {
                 log.error("Function " + udfEntity.getName() + " Invalid filter !  ");
-                errorEvents.inc();
+                errorCount++;
             } catch (Exception e) {
                 log.error("Function " + udfEntity.getName() + " execute exception !", e);
-                errorEvents.inc();
+                errorCount++;
             }
 
         }
-
+        if(errorCount>0){
+            internalMetrics.incrementErrorEvents();
+        }
         // 判断函数是否有output fields，减少输出字段
         if (projectionConfig.getOutput_fields() != null
                 && !projectionConfig.getOutput_fields().isEmpty()) {
@@ -131,9 +130,9 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         }
         if (!event.isDropped()) {
             out.collect(event);
-            outEvents.inc();
+            internalMetrics.incrementOutEvents();
         } else {
-            droppedEvents.inc();
+            internalMetrics.incrementDroppedEvents();
         }
     }
 
