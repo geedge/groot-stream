@@ -41,7 +41,7 @@ Configure a job, you'll set up Sources, Filters, Processing Pipeline, and Sinks,
 
 ## Minimum Requirements
 - Git installed
-- Java (JDK8/JDK11 are supported) installed and `JAVA_HOME` set
+- JAVA（JDK/JRE11 are required）installed and `JAVA_HOME` set
 - Maven 3.5.4
 - Scala 2.12
 - Flink 1.13.1
