@@ -26,19 +26,27 @@ public class InternalMetrics {
     public void incrementErrorEvents() {
         errorEvents.inc();
     }
-
     public void incrementDroppedEvents() {
         droppedEvents.inc();
     }
-
     public void incrementInEvents() {
         inEvents.inc();
     }
-
     public void incrementOutEvents() {
         outEvents.inc();
     }
-
+    public void incrementErrorEvents(long num) {
+        errorEvents.inc(num);
+    }
+    public void incrementDroppedEvents(long num) {
+        droppedEvents.inc(num);
+    }
+    public void incrementInEvents(long num) {
+        inEvents.inc(num);
+    }
+    public void incrementOutEvents(long num) {
+        outEvents.inc(num);
+    }
     public void incrementInBytes(long bytes) {
         inBytes.inc(bytes);
     }
