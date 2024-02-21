@@ -13,8 +13,8 @@
     <name>Groot : Examples :</name>
     <packaging>pom</packaging>
     <modules>
-        <module>inline-to-print-example</module>
-        <module>cn-example</module>
+        <module>end-to-end-example</module>
+        <module>cn-udf-example</module>
     </modules>
 
     <properties>
@@ -33,10 +33,26 @@
             <version>${revision}</version>
         </dependency>
 
+
         <dependency>
             <groupId>com.geedgenetworks</groupId>
-            <artifactId>groot-common</artifactId>
+            <artifactId>connector-kafka</artifactId>
             <version>${revision}</version>
+            <scope>${scope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>connector-clickhouse</artifactId>
+            <version>${revision}</version>
+            <scope>${scope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>connector-ipfix-collector</artifactId>
+            <version>${revision}</version>
+            <scope>${scope}</scope>
         </dependency>
 
         <dependency>

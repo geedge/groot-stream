@@ -43,7 +43,7 @@ public class SimpleJobTest {
     public void testPipeline() throws Exception {
 
 
-        String[] args ={"--target", "remote", "-c", ".\\grootstream_job_test.yaml"};
+        String[] args ={"--target", "remote", "-c", "grootstream_job_test.yaml"};
         ExecuteCommandArgs executeCommandArgs = CommandLineUtils
                 .parse(args, new ExecuteCommandArgs(), EngineType.FLINK13.getShellName(), true);
 
