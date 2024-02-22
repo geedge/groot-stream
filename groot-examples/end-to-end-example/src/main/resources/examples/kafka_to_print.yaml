@@ -12,7 +12,7 @@ sources:
       kafka.session.timeout.ms: 60000
       kafka.max.poll.records: 3000
       kafka.max.partition.fetch.bytes: 31457280
-      kafka.group.id: GROOT-STREAM-example-KAFKA-TO-PRINT
+      kafka.group.id: GROOT-STREAM-EXAMPLE-KAFKA-TO-PRINT
       kafka.auto.offset.reset: latest
       format: json
 
