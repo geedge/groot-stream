@@ -40,10 +40,10 @@ public class SimpleJobTest {
                             .build());
 
     @Test
-    public void testPipeline() throws Exception {
+    public void testEtl()  {
 
 
-        String[] args ={"--target", "remote", "-c", ".\\grootstream_job_test.yaml"};
+        String[] args ={"--target", "remote", "-c", ".\\grootstream_job_etl_test.yaml"};
         ExecuteCommandArgs executeCommandArgs = CommandLineUtils
                 .parse(args, new ExecuteCommandArgs(), EngineType.FLINK13.getShellName(), true);
 
@@ -88,4 +88,37 @@ public class SimpleJobTest {
 
     }
 
+    @Test
+    public void testTransmission() {
+
+        CollectSink.values.clear();
+        String[] args ={"--target", "remote", "-c", ".\\grootstream_job_transmission_test.yaml"};
+        ExecuteCommandArgs executeCommandArgs = CommandLineUtils
+                .parse(args, new ExecuteCommandArgs(), EngineType.FLINK13.getShellName(), true);
+
+        executeCommandArgs.buildCommand();
+
+
+        GrootStreamConfig grootStreamConfig = ConfigProvider.locateAndGetGrootStreamConfig();
+        Path configFile = ConfigFileUtils.getConfigPath(executeCommandArgs);
+        // check config file exist
+        Map<String, Object> configMap = YamlUtil.loadByPath(configFile.toString());
+        ConfigObject configObject = ConfigValueFactory.fromMap(configMap);
+        Config config = configObject.toConfig();
+
+        config = config.withValue(ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKeyName.ENV_TARGET_TYPE),
+                ConfigValueFactory.fromAnyRef(executeCommandArgs.getTargetType().getTarget()));
+
+
+        JobExecutionTest jobExecution = new JobExecutionTest(config, grootStreamConfig);
+        jobExecution.getSingleOutputStreamOperator();
+
+        try {
+            jobExecution.getJobRuntimeEnvironment().getStreamExecutionEnvironment().execute();
+
+        } catch (Exception e) {
+            throw new JobExecuteException("Job executed error", e);
+        }
+        Assert.assertEquals(4, CollectSink.values.size());
+    }
 }

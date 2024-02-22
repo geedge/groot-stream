@@ -1,0 +1,27 @@
+sources:
+  inline_source:
+    type : inline
+    fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
+    properties:
+      data:  '[{"mail_attachment_name_charset":"GBK","mail_attachment_name":"aGVsbG8=","packet_capture_file":"test","ssl_sni":"www.google.com","decoded_as":"BASE","ssl_san":"www.google.com","__timestamp":1705568517095,"client_ip":"255.255.255.255","server_ip":"2600:1015:b002::"},{"decoded_as":"HTTP","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"DNS","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"SSL","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"}]'
+      interval.per.row: 1s # 可选
+      repeat.count: 1 # 可选
+      format: json
+      json.ignore.parse.errors: false
+sinks:
+  collect_sink:
+    type: collect
+    properties:
+      format: json
+
+application: # [object] Application Configuration
+  env: # [object] Environment Variables
+    name: groot-stream-job # [string] Job Name
+    pipeline:
+      object-reuse: true # [boolean] Object Reuse, default is false
+  topology: # [array of object] Node List. It will be used build data flow for job dag graph.
+    - name: inline_source # [string] Node Name, must be unique. It will be used as the name of the corresponding Flink operator. eg. kafka_source the processor type as SOURCE.
+      parallelism: 1 # [number] Operator-Level Parallelism.
+      downstream: [collect_sink]
+    - name: collect_sink
+      parallelism: 1
