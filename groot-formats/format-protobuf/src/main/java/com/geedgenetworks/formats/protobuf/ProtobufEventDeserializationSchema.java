@@ -47,11 +47,11 @@ public class ProtobufEventDeserializationSchema implements DeserializationSchema
             event.setExtractedFields(map);
             return event;
         } catch (Exception e) {
-            LOG.error(String.format("proto解析失败for:%s", Base64.getEncoder().encodeToString(message)), e);
             if(ignoreParseErrors){
+                LOG.error(String.format("proto解析失败for:%s", Base64.getEncoder().encodeToString(message)), e);
                 return null;
             }else{
-                throw new IOException(e);
+                throw new IOException(String.format("proto解析失败for:%s", Base64.getEncoder().encodeToString(message)), e);
             }
         }
     }

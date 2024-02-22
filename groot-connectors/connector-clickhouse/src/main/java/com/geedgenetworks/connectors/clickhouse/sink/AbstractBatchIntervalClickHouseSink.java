@@ -5,6 +5,7 @@ import com.geedgenetworks.connectors.clickhouse.jdbc.ClickHouseBatchInsertConnec
 import com.geedgenetworks.connectors.clickhouse.jdbc.ClickHousePreparedBatchInsertStatement;
 import com.geedgenetworks.connectors.clickhouse.jdbc.DataTypeStringV2;
 import com.geedgenetworks.connectors.clickhouse.util.ClickHouseUtils;
+import com.geedgenetworks.core.metrics.InternalMetrics;
 import com.github.housepower.data.*;
 import com.github.housepower.data.type.*;
 import com.github.housepower.data.type.complex.*;
@@ -55,10 +56,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     private int batchSize;
     private long batchIntervalMs;
     private transient volatile boolean closed;
-    private transient Counter numRecordsOut;
-    private transient Counter numRecordsOutFailed;
-    private transient Meter numRecordsOutPerSecond;
-    private transient Meter numRecordsOutFailedPerSecond;
+    private transient InternalMetrics internalMetrics;
     private transient Thread outThread;
     private transient ReentrantLock lock;
     private transient Block batch;
@@ -132,10 +130,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     }
 
     private void initMetric() throws Exception {
-        numRecordsOut = getRuntimeContext().getMetricGroup().counter("ckNumRecordsOut");
-        numRecordsOutFailed = getRuntimeContext().getMetricGroup().counter("ckNumRecordsOutFailed");
-        numRecordsOutPerSecond = getRuntimeContext().getMetricGroup().meter("ckNumRecordsOutPerSecond", new MeterView(numRecordsOut));
-        numRecordsOutFailedPerSecond = getRuntimeContext().getMetricGroup().meter("ckNumRecordsOutFailedPerSecond", new MeterView(numRecordsOutFailed));
+        internalMetrics = new InternalMetrics(getRuntimeContext());
     }
 
     private void initClickHouseParams() throws Exception {
@@ -207,6 +202,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     @Override
     public final void invoke(T value, Context context) throws Exception {
         checkFlushException();
+        internalMetrics.incrementInEvents();
+
         lock.lock();
         try {
             if (addBatch(batch, value)) {
@@ -217,7 +214,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 flush();
             }
         } catch (Exception e) {
-            numRecordsOutFailed.inc();
+            internalMetrics.incrementErrorEvents();
             LOG.error("转换ck类型异常", e);
         } finally{
             lock.unlock();
@@ -253,8 +250,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     private void doFlush(Block block) throws Exception {
         long start = System.currentTimeMillis();
         int rowCnt = block.rowCnt();
-        ClickHouseUtils.showBlockColumnsByteSize(block); // 仅用于测试
-        LOG.warn("flush " + rowCnt + " start:" + new Timestamp(start) + "," + (start - lastFlushTs));
+        long blockByteSize = ClickHouseUtils.getBlockColumnsByteSize(block);
+        LOG.warn("flush " + rowCnt + ", totalSize:" + (blockByteSize >>> 20)  + "M" + ", start:" + new Timestamp(start) + "," + (start - lastFlushTs));
         lastFlushTs = System.currentTimeMillis();
 
         int retryCount = 0;
@@ -275,14 +272,15 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 ClickHouseUtils.copyInsertBlockColumns(block, stmt.getBlock());
                 stmt.executeBatch();
 
-                numRecordsOut.inc(rowCnt);
+                internalMetrics.incrementOutEvents(rowCnt);
+                internalMetrics.incrementOutBytes(blockByteSize);
                 LOG.warn("flush " + rowCnt + " end:" + new Timestamp(System.currentTimeMillis()) + "," + (System.currentTimeMillis() - start));
 
                 return;
             } catch (Exception e) {
                 LOG.error("ClickHouseBatchInsertFail url:" + url, e);
                 if (retryCount >= 3) {
-                    numRecordsOutFailed.inc(rowCnt);
+                    internalMetrics.incrementErrorEvents(rowCnt);
                     LOG.error("ClickHouseBatchInsertFinalFail for rowCnt:" + rowCnt);
                     // throw e;
                     return;

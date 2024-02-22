@@ -293,8 +293,7 @@ public class ClickHouseUtils {
         return defaultValue;
     }
 
-    // 仅用于测试
-    public static void showBlockColumnsByteSize(Block block) throws Exception {
+    public static long getBlockColumnsByteSize(Block block) throws Exception {
         IColumn[] columns = (IColumn[]) blockColumnsField.get(block);
         Field field = AbstractColumn.class.getDeclaredField("buffer");
         field.setAccessible(true);
@@ -304,8 +303,7 @@ public class ClickHouseUtils {
         byteBufferListField.setAccessible(true);
         int size = 0;
         int totalSize = 0;
-        double unitM = 1 << 20;
-        LOG.warn("rowCount:" + block.rowCnt());
+
         for (int i = 0; i < columns.length; i++) {
             Object columnWriter = columnWriterField.get(field.get(columns[i]));
             List<ByteBuffer> byteBufferList =
@@ -315,11 +313,13 @@ public class ClickHouseUtils {
                 size += byteBuffer.position();
             }
             totalSize += size;
-            if (size > unitM) {
-                // LOG.warn(columns[i].name() + "buf cnt:" + byteBufferList.size() +  ", size:" +
-                // size/unitM + "M");
-            }
+            /*if (size > 1000000) {
+                LOG.warn(columns[i].name() + "buf cnt:" + byteBufferList.size() +  ", size:" + size/1000000.0 + "M");
+            }*/
         }
-        LOG.warn("totalSize:" + totalSize / unitM + "M");
+
+        return totalSize;
     }
+
+
 }

@@ -32,8 +32,7 @@ public class ProtobufEventSerializationSchema implements SerializationSchema<Eve
         try {
             return serializer.serialize(map);
         } catch (Exception e) {
-            LOG.error(String.format("proto serialize失败for:%s", JSON.toJSONString(map)), e);
-            return null;
+            throw new RuntimeException(String.format("proto serialize失败for:%s", JSON.toJSONString(map)),e);
         }
     }
 }

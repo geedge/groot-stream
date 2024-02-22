@@ -7,7 +7,7 @@ import com.geedgenetworks.core.types.StructType;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer2;
 
 import java.util.List;
 import java.util.Properties;
@@ -34,7 +34,7 @@ public class KafkaSourceProvider implements SourceProvider {
 
     @Override
     public SingleOutputStreamOperator<Event> produceDataStream(StreamExecutionEnvironment env) {
-        FlinkKafkaConsumer<Event> kafkaConsumer = new FlinkKafkaConsumer<>(
+        FlinkKafkaConsumer2<Event> kafkaConsumer = new FlinkKafkaConsumer2<>(
                 topics,
                 new EventKafkaDeserializationSchema(valueDeserialization),
                 properties
