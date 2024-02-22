@@ -75,7 +75,7 @@ public class IPFixSourceProvider implements SourceProvider {
                 serviceDiscoveryProperties);
         DataStream<byte[]> source = env.addSource(udpSource).setParallelism(udpSourceParallelism);
         return source.flatMap(new RichFlatMapFunction<byte[], Event>() {
-            private InternalMetrics internalMetrics;
+            private transient InternalMetrics internalMetrics;
 
             @Override
             public void open(Configuration parameters) throws Exception {
@@ -110,6 +110,7 @@ public class IPFixSourceProvider implements SourceProvider {
                         fieldMap.put(Event.INTERNAL_TIMESTAMP_KEY, record.exportTime().get().getEpochSecond() * 1000);
                         event.setExtractedFields(fieldMap);
                         out.collect(event);
+                        internalMetrics.incrementOutEvents();
                     }
                 } catch (NoTemplateException e) {
                     LOG.error(e.getMessage() + ". The client did not send the template, or there was a delay in processing the template message.");
