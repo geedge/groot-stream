@@ -17,6 +17,8 @@ sources: # [object] Define connector source
       kafka.group.id: SESSION-RECORD-GROUP-GROOT-STREAM-001  # [string] Kafka Group ID for Consumer
       kafka.auto.offset.reset: latest   # [string] Kafka Auto Offset Reset, default is latest
       format: json  # [string] Data Format for Source. eg. json, protobuf, etc.
+      json.ignore.parse.errors: false  # [boolean] Flag to ignore parse errors, default will record the parse errors. If set true, it will ignore the parse errors.
+
 
   inline_source: # [object] Inline source connector name, must be unique. It used to define the source node of the job topology.
     type: inline
@@ -263,12 +265,14 @@ sinks: # [object] Define connector sink
       kafka.max.request.size:  10485760
       kafka.compression.type: snappy
       format: json
+      json.ignore.parse.errors: false
+      log.failures.only: true
 
   kafka_sink_b:
     type: kafka
     properties:
       topic: SESSION-RECORD-B
-      kafka.bootstrap.servers: 127.0.0.1:9092
+      kafka.bootstrap.servers: 127.0.0.1:9094
       kafka.retries: 0
       kafka.linger.ms: 10
       kafka.request.timeout.ms: 30000
@@ -276,7 +280,12 @@ sinks: # [object] Define connector sink
       kafka.buffer.memory: 134217728
       kafka.max.request.size: 10485760
       kafka.compression.type: snappy
+      kafka.security.protocol: SASL_PLAINTEXT
+      kafka.sasl.mechanism: PLAIN
+      kafka.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="123456";
       format: json
+      json.ignore.parse.errors: false
+      log.failures.only: true
 
   clickhouse_sink: # [object] ClickHouse sink connector name, must be unique. It used to define the sink node of the job topology.
     type: clickhouse
@@ -304,7 +313,7 @@ application: # [object] Application Configuration
   env: # [object] Define job runtime environment variables
     name: inline-to-print-job # [string] Job Name
     parallelism: 3 # [number] Job-Level Parallelism
-    shade.identifier: default # [string] Shade Identifier, Using to encrypt and decrypt sensitive configuration. if set default, it will not encrypt and decrypt sensitive configuration.
+    shade.identifier: default # [string] Shade Identifier, Using to encrypt and decrypt sensitive configuration. Support enum: default, aes, base64. if set default, it will not encrypt and decrypt sensitive configuration.
     pipeline:
       object-reuse: true # [boolean] Object Reuse, default is false
   topology: # [array of object] Node List. It will be used build data flow for job dag graph.

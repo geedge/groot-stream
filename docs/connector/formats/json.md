@@ -9,10 +9,10 @@ Event serialization and deserialization format.
 
 ## Format Options
 
-| Name                      | Type     | Required | Default | Description                                                                                                                                                                                                                                                                                                 |
-|---------------------------|----------|----------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| format                    | String   | Yes      | -       | Specify what format to use, here should be 'json'.                                                                                                                                                                                                                                                          |
-| json.ignore.parse.errors  | Boolean  | No       | false   | Skip fields and rows with parse errors instead of failing. Fields are set to null in case of errors.                                                                                                                                                                                                        |
+| Name                      | Type     | Required | Default | Description                                                                                                                                         |
+|---------------------------|----------|----------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| format                    | String   | Yes      | -       | Specify what format to use, here should be 'json'.                                                                                                  |
+| json.ignore.parse.errors  | Boolean  | No       | false   | Skip the parsing error or throw an exception. If set to true, the parsing error will be ignored. If set to false, the parsing error will be thrown. |                                            
 
 # How to use
 ## Inline uses example
