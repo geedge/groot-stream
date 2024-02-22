@@ -43,12 +43,12 @@ When throwing an exception with a hint message and ensure that the exception has
 ## Design Principles
 
 1. Package structure: `com.geedgenetworks.[module].[sub-module]`. `groot-stream` is the parent module, and other modules are dependent on it.
-2. Module naming: `groot-[module]`. e.g. `groot-common`, `groot-core`, `groot-connectors`, `groot-bootstrap`, `groot-example`, etc.
+2. Module naming: `groot-[module]`. e.g. `groot-common`, `groot-core`, `groot-connectors`, `groot-bootstrap`, `groot-examples`, etc.
 3. For unchecked exception (RuntimeException) within the 'groot-common' module, a global exception handling class named 'GrootRuntimeException' is defined. 
 
 ## Run a job example
-All examples are in module `groot-stream-example`. You can run the example [ running or debugging a job in IDEA].
-e.g. we use `groot-stream-example/src/main/java/com/geedgenetworks/example/InlineToConsoleExample.java` as the example, when you produce some sample data in `Inline` and you could see the result in console. as follows:
+All examples are in module `end-to-end-examples`-. You can run the example [ running or debugging a job in IDEA].
+e.g. we use `end-to-end-examples/src/main/java/com/geedgenetworks/example/GrootStreamExample.java` as the example, when you produce some sample data in `Inline` and you could see the result in console. as follows:
 ```json
 {"log_id":155652727148914688,"decoded_as":"BASE","recv_time":111,"fqdn_string":"baidu.com","server_ip":"120.233.20.242","additional_field_subdomain":"baidu.com","client_ip":"192.168.0.1"}
 ```

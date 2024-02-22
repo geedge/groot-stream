@@ -41,7 +41,7 @@ Configure a job, you'll set up Sources, Filters, Processing Pipeline, and Sinks,
 
 ## Minimum Requirements
 - Git installed
-- Java (JDK8/JDK11 are supported) installed and `JAVA_HOME` set
+- JAVA（JDK/JRE11 are required）installed and `JAVA_HOME` set
 - Maven 3.5.4
 - Scala 2.12
 - Flink 1.13.1
@@ -75,7 +75,7 @@ FLINK_JOB_MANAGER_ADDRESS=${FLINK_JOB_MANAGER_ADDRESS:-localhost:8081}
 YARN_ADDRESS=${YARN_ADDRESS:-yarn-cluster}
 ```
 #### 3. Configure the groot-stream job 
-You need to configure the groot-stream job in `config/inline_to_print_template.yaml` file. More information about config please check [config concept](docs/user-guide.md)
+You need to configure the groot-stream job in `config/template/grootstream_job_template.yaml` file. More information about config please check [config concept](docs/user-guide.md)
 
 #### 4. Submit a job to flink engine
 Can be started by a daemon with `-d`. 

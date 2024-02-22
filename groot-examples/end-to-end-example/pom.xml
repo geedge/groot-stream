@@ -9,8 +9,8 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>inline-to-print-example</artifactId>
-    <name>Groot : Examples : Inline-to-print</name>
+    <artifactId>end-to-end-example</artifactId>
+    <name>Groot : Examples : End-to-end</name>
 
     <properties>
         <maven.install.skip>true</maven.install.skip>

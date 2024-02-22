@@ -9,8 +9,8 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>cn-example</artifactId>
-    <name>Groot : Examples : CN</name>
+    <artifactId>cn-udf-example</artifactId>
+    <name>Groot : Examples : CN-UDF</name>
     <properties>
         <maven.install.skip>true</maven.install.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
