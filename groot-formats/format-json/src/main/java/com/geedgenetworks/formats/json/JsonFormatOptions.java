@@ -8,8 +8,7 @@ public class JsonFormatOptions {
             ConfigOptions.key("ignore.parse.errors")
                     .booleanType()
                     .defaultValue(false)
-                    .withDescription(
-                            "Optional flag to skip fields and rows with parse errors instead of failing;\n"
-                                    + "fields are set to null in case of errors, true by default.");
+                    .withDescription("Optional flag to skip fields and rows with parse errors instead of failing;\n"
+                                    + "fields are set to null in case of errors, false by default.");
 
 }

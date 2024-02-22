@@ -11,13 +11,14 @@ In order to use the Kafka connector, the following dependencies are required. Th
 
 Kafka sink custom properties. if properties belongs to Kafka Producer Config, you can use `kafka.` prefix to set.
 
-| Name                    | Type   | Required | Default | Description                                                                                                                                                   |
-|-------------------------|--------|----------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| topic                   | String | Yes      | -       | Topic name is required. It used to write data to kafka.                                                                                                       |                                             
-| kafka.bootstrap.servers | String | Yes      | -       | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. This list should be in the form `host1:port1,host2:port2,...`. |
-| format                  | String | No       | json    | Data format. The default value is `json`. The Optional values are `json`, `protobuf`.                                                                         |
-| [format].config         |        | No       | -       | Data format properties. Please refer to [Format Options](../formats) for details.                                                                             |                                                                                                                                       
-| kafka.config            |        | No       | -       | Kafka producer properties. Please refer to [Kafka Producer Config](https://kafka.apache.org/documentation/#producerconfigs) for details.                      |
+| Name                    | Type    | Required | Default | Description                                                                                                                                                                       |
+|-------------------------|---------|----------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| topic                   | String  | Yes      | -       | Topic name is required. It used to write data to kafka.                                                                                                                           |                                             
+| kafka.bootstrap.servers | String  | Yes      | -       | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. This list should be in the form `host1:port1,host2:port2,...`.                     |
+| log.failures.only       | Boolean | No       | true    | Whether the producer should fail on errors, or only log them; If this is set to true, then exceptions will be only logged, if set to false, exceptions will be eventually thrown. |
+| format                  | String  | No       | json    | Data format. The default value is `json`. The Optional values are `json`, `protobuf`.                                                                                             |
+| [format].config         |         | No       | -       | Data format properties. Please refer to [Format Options](../formats) for details.                                                                                                 |                                                                                                                                       
+| kafka.config            |         | No       | -       | Kafka producer properties. Please refer to [Kafka Producer Config](https://kafka.apache.org/documentation/#producerconfigs) for details.                                          |
 
 ## Example
 This example read data of inline test source and write to kafka topic `SESSION-RECORD-TEST`.

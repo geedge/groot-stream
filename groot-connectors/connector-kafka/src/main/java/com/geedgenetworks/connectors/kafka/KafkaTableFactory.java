@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptions.PROPS_BOOTSTRAP_SERVERS;
-import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptions.TOPIC;
+import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptions.*;
 import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptionsUtil.PROPERTIES_PREFIX;
 import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptionsUtil.getKafkaProperties;
 
@@ -56,9 +55,10 @@ public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
         ReadableConfig config = context.getConfiguration();
 
         String topic = config.get(TOPIC).get(0);
+        boolean logFailuresOnly = config.get(LOG_FAILURES_ONLY);
         final Properties properties = getKafkaProperties(context.getOptions());
 
-        return new KafkaSinkProvider(dataType, valueEncodingFormat, topic, properties);
+        return new KafkaSinkProvider(dataType, valueEncodingFormat, topic, properties, logFailuresOnly);
     }
 
     @Override
@@ -73,6 +73,7 @@ public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
+        options.add(LOG_FAILURES_ONLY);
         return options;
     }
 

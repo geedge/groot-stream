@@ -15,7 +15,7 @@ It is very popular in Streaming Data Pipeline. Now support protobuf format in so
 | format                        | String   | Yes      | -       | Specify what format to use, here should be 'protobuf'.                                                                                                                                                            |
 | protobuf.descriptor.file.path | String   | Yes      | -       | The descriptor file path.                                                                                                                                                                                         |
 | protobuf.message.name         | String   | Yes      | -       | The protobuf messageName to look for in descriptor file.                                                                                                                                                          |
-| protobuf.ignore.parse.errors  | Boolean  | No       | true    | Protobuf ignore parse errors, otherwise will throw exception.                                                                                                                                                     |
+| protobuf.ignore.parse.errors  | Boolean  | No       | false   | Protobuf ignore parse errors, otherwise will throw exception.                                                                                                                                                     |
 | protobuf.emit.default.values  | Boolean  | No       | false   | If true, default values will be emitted for missing fields. It is not recommended, because it will cause performance degradation. About basic data type, it is suggested to use `optional` instead of `required`. |
 
 ## Data Type Mapping

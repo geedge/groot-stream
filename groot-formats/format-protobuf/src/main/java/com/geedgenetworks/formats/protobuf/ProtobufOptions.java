@@ -20,16 +20,14 @@ public class ProtobufOptions {
             ConfigOptions.key("ignore.parse.errors")
                     .booleanType()
                     .defaultValue(false)
-                    .withDescription(
-                            "Optional flag to skip fields and rows with parse errors instead of failing;\n"
-                                    + "fields are set to null in case of errors, true by default.");
+                    .withDescription("Optional flag to skip fields and rows with parse errors instead of failing;\n"
+                                    + "fields are set to null in case of errors, false by default.");
 
     public static final ConfigOption<Boolean> EMIT_DEFAULT_VALUES =
             ConfigOptions.key("emit.default.values")
                     .booleanType()
                     .defaultValue(false)
-                    .withDescription(
-                            "Optional flag for whether to render fields with zero values when deserializing Protobuf to struct.\n"
+                    .withDescription("Optional flag for whether to render fields with zero values when deserializing Protobuf to struct.\n"
                                     + "When a field is empty in the serialized Protobuf, this library will deserialize them as null by default. However, this flag can control whether to render the type-specific zero value.\n"
                                     + "This operates similarly to includingDefaultValues in protobuf-java-util's JsonFormat, or emitDefaults in golang/protobuf's jsonpb.");
 }

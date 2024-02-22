@@ -18,17 +18,20 @@ public class KafkaSinkProvider implements SinkProvider {
 
     private final String topic;
     private final Properties properties;
+    private final boolean logFailuresOnly;
 
     public KafkaSinkProvider(
             StructType dataType,
             EncodingFormat valueEncodingFormat,
             String topic,
-            Properties properties
+            Properties properties,
+            boolean logFailuresOnly
     ) {
         this.dataType = dataType;
         this.valueSerialization = valueEncodingFormat.createRuntimeEncoder(dataType);
         this.topic = topic;
         this.properties = properties;
+        this.logFailuresOnly = logFailuresOnly;
     }
 
     @Override
@@ -39,7 +42,7 @@ public class KafkaSinkProvider implements SinkProvider {
                 properties,
                 Optional.empty()
         );
-        kafkaProducer.setLogFailuresOnly(true);
+        kafkaProducer.setLogFailuresOnly(logFailuresOnly);
         return dataStream.addSink(kafkaProducer);
     }
 }
