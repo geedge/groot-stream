@@ -146,6 +146,8 @@ Used to define job environment configuration information. For more details, you 
 Usage: start.sh [options]
 Options:
   --check                           Whether check config (default: false)
+  --encrypt                         Show encrypted config file. If config file is palin text, it will be encrypted and printed to the console.
+  --decrypt                         Show decrypted config file. If config file is encrypted, it will be decrypted and printed to the console.
   -c, --config <config file>        Config file path, must be specified
   -e, --deploy-mode <deploy mode>   Deploy mode, only support [run] (default: run)
   --target <target>                 Submitted target type, support [local, remote, yarn-session, yarn-per-job]
