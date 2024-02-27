@@ -11,6 +11,8 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.util.List;
 
+import static com.geedgenetworks.utils.FormatUtils.getTopPrivateDomain;
+
 @Slf4j
 public class Domain implements UDF {
 
@@ -50,35 +52,49 @@ public class Domain implements UDF {
     @Override
     public Event evaluate(Event event) {
         String domain = "";
-        for (String lookupField : lookupFields){
-
-            if(event.getExtractedFields().containsKey(lookupField)){
-
-                switch (option) {
-                    case "TOP_LEVEL_DOMAIN":
+        switch (option) {
+            case "TOP_LEVEL_DOMAIN":
+                for (String lookupField : lookupFields){
+                    if(event.getExtractedFields().containsKey(lookupField)) {
                         domain =
-                                FormatUtils.getTopPrivateDomain(
+                                getTopPrivateDomain(
                                         (String)
                                                 event.getExtractedFields()
                                                         .get(lookupField));
-                        if(domain.contains(".")) {
+                        if (domain.contains(".")) {
                             domain = domain.substring(domain.indexOf(".") + 1);
                         }
-                        break;
-                    case "FIRST_SIGNIFICANT_SUBDOMAIN":
+                        if(!domain.isEmpty()){
+                            break;
+                        }
+                    }
+                }
+                break;
+            case "FIRST_SIGNIFICANT_SUBDOMAIN":
+                for (String lookupField : lookupFields){
+                    if(event.getExtractedFields().containsKey(lookupField)) {
                         domain =
-                                FormatUtils.getTopPrivateDomain(
+                                getTopPrivateDomain(
                                         (String)
                                                 event.getExtractedFields()
                                                         .get(lookupField));
+                    }
+                    if(!domain.isEmpty()){
                         break;
-                    case "FQDN":
-                            domain = (String) event.getExtractedFields()
-                                    .get(lookupField);
-                            break;
-
+                    }
                 }
-            }
+                break;
+            case "FQDN":
+                for (String lookupField : lookupFields) {
+                    if (event.getExtractedFields().containsKey(lookupField)) {
+                        domain = (String) event.getExtractedFields()
+                                .get(lookupField);
+                    }
+                    if(!domain.isEmpty()){
+                        break;
+                    }
+                }
+                break;
         }
         event.getExtractedFields().put(outputFieldName, domain);
         return event;
