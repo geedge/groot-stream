@@ -10,10 +10,65 @@
     </parent>
 
     <artifactId>groot-tests</artifactId>
-    <name>Groot : Tests </name>
+    <packaging>pom</packaging>
+    <name>Groot : Tests : </name>
+    <modules>
+        <module>test-common</module>
+        <module>test-e2e-base</module>
+    </modules>
+
     <properties>
         <maven.install.skip>true</maven.install.skip>
         <maven.deploy.skip>true</maven.deploy.skip>
+        <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
+        <rest-assured.version>4.3.1</rest-assured.version>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+        </dependency>
+        <!-- Testcontainers 1.x is tightly coupled with the JUnit 4.x rule API-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit4.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${rest-assured.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <skip>${test.dependency.skip}</skip>
+                    <appendOutput>true</appendOutput>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+
 
 </project>

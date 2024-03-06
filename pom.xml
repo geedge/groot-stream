@@ -25,7 +25,6 @@
     <properties>
         <revision>1.1.0</revision>
         <java.version>11</java.version>
-        <flink.scope>provided</flink.scope>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
@@ -34,16 +33,17 @@
         <maven-helper-plugin.version>3.2.0</maven-helper-plugin.version>
         <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
         <flatten-maven-plugin.version>1.3.0</flatten-maven-plugin.version>
+        <testcontainer.version>1.19.6</testcontainer.version>
+        <awaitility.version>4.2.0</awaitility.version>
         <spotless.version>2.29.0</spotless.version>
-        <skip.spotless>true</skip.spotless>
-        <grootstream.shaded.package>com.geedgenetworks.shaded</grootstream.shaded.package>
         <slf4j.version>1.7.25</slf4j.version>
         <log4j2.version>2.17.1</log4j2.version>
         <log4j2-disruptor.version>3.4.4</log4j2-disruptor.version>
         <log4j.version>1.2.17</log4j.version>
         <logback.version>1.2.3</logback.version>
         <commons-logging.version>1.2</commons-logging.version>
-        <junit.version>5.9.0</junit.version>
+        <junit4.version>4.13.2</junit4.version>
+        <junit5.version>5.9.0</junit5.version>
         <flink.version>1.13.1</flink.version>
         <flink-shaded-hadoop-2.version>2.7.5-8.0</flink-shaded-hadoop-2.version>
         <hbase.version>2.2.3</hbase.version>
@@ -64,6 +64,13 @@
         <config.version>1.3.3</config.version>
         <hazelcast.version>5.1</hazelcast.version>
         <quartz.version>2.3.2</quartz.version>
+        <!--Option config-->
+        <test.dependency.skip>true</test.dependency.skip>
+        <skip.spotless>true</skip.spotless>
+        <flink.scope>provided</flink.scope>
+        <grootstream.shaded.package>com.geedgenetworks.shaded</grootstream.shaded.package>
+        <auto-service.version>1.0.1</auto-service.version>
+
     </properties>
 
     <dependencyManagement>
@@ -241,12 +248,19 @@
             </dependency>
 
             <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit4.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>${junit.version}</version>
+                <version>${junit5.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
 
             <dependency>
                 <groupId>org.antlr</groupId>
@@ -360,7 +374,6 @@
             </dependency>
 
 
-
             <dependency>
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-client</artifactId>
@@ -384,7 +397,36 @@
                 <version>${quartz.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainer.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${awaitility.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.auto.service</groupId>
+                <artifactId>auto-service</artifactId>
+                <version>${auto-service.version}</version>
+                <scope>provided</scope>
+            </dependency>
 
         </dependencies>
 
@@ -396,6 +438,13 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>${auto-service.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
