@@ -156,6 +156,29 @@
 
     <build>
         <finalName>${project.artifactId}</finalName>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>copy-starter-logging-package-for-e2e</id>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <phase>package</phase>
+                            <configuration>
+                                <excludeTransitive>false</excludeTransitive>
+                                <includeGroupIds>org.slf4j,org.apache.logging.log4j</includeGroupIds>
+                                <includeArtifactIds>slf4j-api,jcl-over-slf4j,log4j-slf4j-impl,log4j-api,log4j-core</includeArtifactIds>
+                                <outputDirectory>${project.build.directory}/logging-e2e</outputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
 </project>
