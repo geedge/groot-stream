@@ -55,6 +55,10 @@ public class GrootStreamRunner {
         if(bootstrapCommandArgs.isCheckConfig()) {
             command.add("--check");
         }
+        // set version flag
+        if(bootstrapCommandArgs.isVersion()) {
+            command.add("--version");
+        }
         // set job name
         command.add("--name");
         command.add(bootstrapCommandArgs.getJobName());

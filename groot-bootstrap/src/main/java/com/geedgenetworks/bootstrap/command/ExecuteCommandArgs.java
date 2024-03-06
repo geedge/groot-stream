@@ -38,6 +38,10 @@ public class ExecuteCommandArgs extends CommandArgs {
             return new ConfValidateCommand(this);
         }
 
+        if(version) {
+            return new ConfVersionCommand(this);
+        }
+
         if (encrypt) {
             return new ConfEncryptCommand(this);
         }

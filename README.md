@@ -111,4 +111,6 @@ The [User Guide](docs/user-guide.md) provides detailed information on how to con
 
 See the [Groot Stream Documentation](docs) for more information.
 
+## Contributors
+All developers see the list of contributors [here](https://git.mesalab.cn/galaxy/platform/groot-stream/-/graphs/develop?ref_type=heads).
 
