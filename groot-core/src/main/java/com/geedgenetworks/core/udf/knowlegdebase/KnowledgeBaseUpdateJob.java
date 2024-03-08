@@ -63,7 +63,9 @@ public class KnowledgeBaseUpdateJob implements Job {
         if (!KnowLedgeBaseEntityMap.isEmpty()) {
             for (Map.Entry<String, KnowledgeBaseConfigWithHandler> entry : KnowLedgeBaseEntityMap.entrySet()) {
                 try {
-                    updateKnowledgeBase(entry.getValue());
+                    if("http".equals(entry.getValue().getKnowledgeConfig().getFsType())) {
+                        updateKnowledgeBase(entry.getValue());
+                    }
                 } catch (Exception e) {
                     log.error(e.getMessage());
                 }

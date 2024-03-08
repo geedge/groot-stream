@@ -48,6 +48,8 @@ public class AsnLookup implements UDF {
         }
         this.lookupFieldName = udfContext.getLookup_fields().get(0);
         this.outputFieldName = udfContext.getOutput_fields().get(0);
+        AsnKnowledgeBaseHandler.increment();
+        log.warn("AsnKnowledgeBaseHandlerCountIn"+AsnKnowledgeBaseHandler.getCount());
     }
 
 
@@ -71,8 +73,11 @@ public class AsnLookup implements UDF {
 
     @Override
     public void close() {
-
-        KnowledgeBaseUpdateJob.removeKnowledgeBase(kbName);
+        AsnKnowledgeBaseHandler.decrement();
+        log.warn("+++++++++++++++++++++++++++++++++++AsnKnowledgeBaseHandlerCountDe"+AsnKnowledgeBaseHandler.getCount());
+        if (AsnKnowledgeBaseHandler.getCount()<=0) {
+            KnowledgeBaseUpdateJob.removeKnowledgeBase(kbName);
+        }
     }
 
     private void checkUdfContext(UDFContext udfContext) {

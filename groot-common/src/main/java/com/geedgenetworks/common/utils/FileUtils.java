@@ -190,4 +190,21 @@ public class FileUtils {
     public static String getFileName(@NonNull String filePath) {
         return filePath.substring(filePath.lastIndexOf(File.separatorChar) + 1);
     }
+
+    public static byte[] getFileFromDir(String filePath) {
+        try (BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(Paths.get(filePath)));
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = bis.read(buffer)) != -1) {
+                baos.write(buffer, 0, bytesRead);
+            }
+            return baos.toByteArray();
+        } catch (Exception e) {
+            String errorMsg = String.format("get local file [%s] failed", filePath);
+            throw new GrootStreamRuntimeException(
+                    CommonErrorCode.UNSUPPORTED_OPERATION, errorMsg, e);
+        }
+    }
 }

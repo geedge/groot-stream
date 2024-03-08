@@ -2,16 +2,15 @@ package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
-
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.pojo.KnowledgeBaseInfoForIpLookUp;
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-
 import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 @Slf4j
 public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
@@ -19,12 +18,22 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
     @Getter
     private static Map<String, KnowledgeBaseInfoForIpLookUp> kbNameWithKbConfigAndFileMetas = new ConcurrentHashMap<>();
     private static AsnKnowledgeBaseHandler instance;
+    private static int count = 0;
 
     // 私有构造函数，防止外部实例化
 
     private AsnKnowledgeBaseHandler() {
     }
 
+    public static synchronized void increment() {
+           count++;
+    }
+    public static synchronized void decrement() {
+        count--;
+    }
+    public static synchronized int getCount() {
+        return count;
+    }
     public static synchronized AsnKnowledgeBaseHandler getInstance() {
         if (instance == null) {
             instance = new AsnKnowledgeBaseHandler();
@@ -34,8 +43,12 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
     @Override
     public boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
-        return buildKnowledgeBase(knowledgeBaseConfig);
-    }
+
+        if("http".equals(knowledgeBaseConfig.getFsType()))
+            return buildKnowledgeBaseWithMeta(knowledgeBaseConfig);
+         else
+            return buildKnowledgeBaseWithoutMeta(knowledgeBaseConfig);
+        }
 
     @Override
     public void updateKnowledgeBase() {
@@ -43,7 +56,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         for (Map.Entry<String, KnowledgeBaseInfoForIpLookUp> entry : kbNameWithKbConfigAndFileMetas.entrySet()) {
             try {
                 if (ifNeedUpdate(entry.getValue())) {
-                    boolean result = buildKnowledgeBase(entry.getValue().getKnowledgeConfig());
+                    boolean result = buildKnowledgeBaseWithMeta(entry.getValue().getKnowledgeConfig());
                     if(result) {
                         log.warn("AsnKnowledgeBase " + entry.getKey() + " update success!");
                     }
@@ -80,8 +93,35 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         }
         return false;
     }
+    private boolean buildKnowledgeBaseWithoutMeta(KnowledgeBaseConfig knowledgeBaseConfig) {
 
-    private static boolean buildKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
+        IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
+        for (int i = 0; i < knowledgeBaseConfig.getFiles().size(); i++) {
+            try {
+                byte[] fileByte = getFileFromLocal(knowledgeBaseConfig.getFsPath() + knowledgeBaseConfig.getFiles().get(i));
+                    switch (i) {
+                        case 0:
+                            asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(fileByte));
+                            break;
+                        case 1:
+                            asnLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
+                            break;
+                    }
+
+            } catch (Exception e) {
+                log.error("buildKnowledgeBase error " + e.getMessage());
+                return false;
+            }
+
+        }
+        IpLookupV2 ipLookup = asnLookupBuilder.build();
+        KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp = new KnowledgeBaseInfoForIpLookUp();
+        kbInfoForIpLookUp.setKnowledgeConfig(knowledgeBaseConfig);
+        kbInfoForIpLookUp.setIpLookupV2(ipLookup);
+        kbNameWithKbConfigAndFileMetas.put(knowledgeBaseConfig.getName(), kbInfoForIpLookUp);
+        return true;
+    }
+    private static boolean buildKnowledgeBaseWithMeta(KnowledgeBaseConfig knowledgeBaseConfig) {
 
         IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
         List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetas = new ArrayList<>();

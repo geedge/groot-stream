@@ -33,7 +33,11 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
     @Override
     public boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
-        return buildKnowledgeBase(knowledgeBaseConfig);
+        if("http".equals(knowledgeBaseConfig.getFsType()))
+            return buildKnowledgeBaseWithMeta(knowledgeBaseConfig);
+        else
+            return buildKnowledgeBaseWithoutMeta(knowledgeBaseConfig);
+
     }
 
     @Override
@@ -42,7 +46,7 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         for (Map.Entry<String, KnowledgeBaseInfoForIpLookUp> entry : kbNameWithKbConfigAndFileMetas.entrySet()) {
             try {
                 if (ifNeedUpdate(entry.getValue())) {
-                    boolean result = buildKnowledgeBase(entry.getValue().getKnowledgeConfig());
+                    boolean result = buildKnowledgeBaseWithMeta(entry.getValue().getKnowledgeConfig());
                     if(result) {
                         log.warn("GeoIpKnowledgeBase " + entry.getKey() + " update success!");
                     }
@@ -66,8 +70,35 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         }
         return false;
     }
+    private boolean buildKnowledgeBaseWithoutMeta(KnowledgeBaseConfig knowledgeBaseConfig) {
 
-    private static boolean buildKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
+        IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
+        for (int i = 0; i < knowledgeBaseConfig.getFiles().size(); i++) {
+            try {
+                byte[] fileByte = getFileFromLocal(knowledgeBaseConfig.getFsPath()+knowledgeBaseConfig.getFiles().get(i));
+                switch (i) {
+                    case 0:
+                        ipLookupBuilder.loadDataFile(new ByteArrayInputStream(fileByte));
+                        break;
+                    case 1:
+                        ipLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
+                        break;
+                }
+
+            } catch (Exception e) {
+                log.error("buildKnowledgeBase error " + e.getMessage());
+                return false;
+            }
+
+        }
+        IpLookupV2 ipLookup = ipLookupBuilder.build();
+        KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp = new KnowledgeBaseInfoForIpLookUp();
+        kbInfoForIpLookUp.setKnowledgeConfig(knowledgeBaseConfig);
+        kbInfoForIpLookUp.setIpLookupV2(ipLookup);
+        kbNameWithKbConfigAndFileMetas.put(knowledgeBaseConfig.getName(), kbInfoForIpLookUp);
+        return true;
+    }
+    private static boolean buildKnowledgeBaseWithMeta(KnowledgeBaseConfig knowledgeBaseConfig) {
 
         IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
         List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetas = new ArrayList<>();
