@@ -12,8 +12,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.PipelineOptions;
 import org.apache.flink.configuration.RestOptions;
+import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
+import org.apache.flink.runtime.state.StateBackend;
+import org.apache.flink.runtime.state.filesystem.FsStateBackend;
+import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
+import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.util.TernaryBoolean;
+
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -129,8 +136,9 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         configuration.setString(Constants.SYSPROP_GROOTSTREAM_CONFIG, JSON.toJSONString(grootStreamConfig.getCommonConfig()));
         environment.getConfig().setGlobalJobParameters(configuration);
         setTimeCharacteristic();
-        // setCheckpoint();
+        setCheckpoint();
         EnvironmentUtil.setRestartStrategy(envConfig, environment.getConfig());
+
         if (envConfig.hasPath(ExecutionConfigKeyName.BUFFER_TIMEOUT_MILLIS)) {
             long timeout = envConfig.getLong(ExecutionConfigKeyName.BUFFER_TIMEOUT_MILLIS);
             environment.setBufferTimeout(timeout);
@@ -139,6 +147,11 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         if (envConfig.hasPath(ExecutionConfigKeyName.PARALLELISM)) {
             int parallelism = envConfig.getInt(ExecutionConfigKeyName.PARALLELISM);
             environment.setParallelism(parallelism);
+        }
+
+        if (envConfig.hasPath(ExecutionConfigKeyName.MAX_PARALLELISM)) {
+            int maxParallelism = envConfig.getInt(ExecutionConfigKeyName.MAX_PARALLELISM);
+            environment.setMaxParallelism(maxParallelism);
         }
 
     }
@@ -163,6 +176,83 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
                     break;
             }
         }
+    }
+
+    private void setCheckpoint() {
+        long interval = 0;
+        if (envConfig.hasPath(ExecutionConfigKeyName.CHECKPOINTING_INTERVAL)) {
+            interval = envConfig.getLong(ExecutionConfigKeyName.CHECKPOINTING_INTERVAL);
+        }
+
+        if (interval > 0) {
+            CheckpointConfig checkpointConfig = environment.getCheckpointConfig();
+            environment.enableCheckpointing(interval);
+            if (envConfig.hasPath(ExecutionConfigKeyName.CHECKPOINTING_MODE)) {
+                String mode = envConfig.getString(ExecutionConfigKeyName.CHECKPOINTING_MODE);
+                switch (mode.toLowerCase()) {
+                    case "exactly-once":
+                        checkpointConfig.setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
+                        break;
+                    case "at-least-once":
+                        checkpointConfig.setCheckpointingMode(CheckpointingMode.AT_LEAST_ONCE);
+                        break;
+                    default:
+                        log.warn(
+                                "set checkpointing.mode failed, unknown checkpointing.mode [{}],only support exactly-once,at-least-once",
+                                mode);
+                        break;
+                }
+            }
+
+            if (envConfig.hasPath(ExecutionConfigKeyName.CHECKPOINTING_TIMEOUT)) {
+                long timeout = envConfig.getLong(ExecutionConfigKeyName.CHECKPOINTING_TIMEOUT);
+                checkpointConfig.setCheckpointTimeout(timeout);
+            }
+
+            if (envConfig.hasPath(ExecutionConfigKeyName.CHECKPOINTING_DATA_URI)) {
+                String uri = envConfig.getString(ExecutionConfigKeyName.CHECKPOINTING_DATA_URI);
+                StateBackend fsStateBackend = new FsStateBackend(uri);
+                if (envConfig.hasPath(ExecutionConfigKeyName.STATE_BACKEND)) {
+                    String stateBackend = envConfig.getString(ExecutionConfigKeyName.STATE_BACKEND);
+                    if ("rocksdb".equalsIgnoreCase(stateBackend)) {
+                        StateBackend rocksDBStateBackend =
+                                new RocksDBStateBackend(fsStateBackend, TernaryBoolean.TRUE);
+                        environment.setStateBackend(rocksDBStateBackend);
+                    }
+                } else {
+                    environment.setStateBackend(fsStateBackend);
+                }
+            }
+
+            if (envConfig.hasPath(ExecutionConfigKeyName.MAX_CONCURRENT_CHECKPOINTS)) {
+                int max = envConfig.getInt(ExecutionConfigKeyName.MAX_CONCURRENT_CHECKPOINTS);
+                checkpointConfig.setMaxConcurrentCheckpoints(max);
+            }
+
+            if (envConfig.hasPath(ExecutionConfigKeyName.CHECKPOINTING_CLEANUP)) {
+                boolean cleanup = envConfig.getBoolean(ExecutionConfigKeyName.CHECKPOINTING_CLEANUP);
+                if (cleanup) {
+                    checkpointConfig.enableExternalizedCheckpoints(
+                            CheckpointConfig.ExternalizedCheckpointCleanup.DELETE_ON_CANCELLATION);
+                } else {
+                    checkpointConfig.enableExternalizedCheckpoints(
+                            CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
+                }
+            }
+
+            if (envConfig.hasPath(ExecutionConfigKeyName.MIN_PAUSE_BETWEEN_CHECKPOINTS)) {
+                long minPause = envConfig.getLong(ExecutionConfigKeyName.MIN_PAUSE_BETWEEN_CHECKPOINTS);
+                checkpointConfig.setMinPauseBetweenCheckpoints(minPause);
+            }
+
+            if (envConfig.hasPath(ExecutionConfigKeyName.TOLERABLE_FAILED_CHECKPOINTS)) {
+                int failNum = envConfig.getInt(ExecutionConfigKeyName.TOLERABLE_FAILED_CHECKPOINTS);
+                checkpointConfig.setTolerableCheckpointFailureNumber(failNum);
+            }
+        }
+
+
+
     }
 
 
