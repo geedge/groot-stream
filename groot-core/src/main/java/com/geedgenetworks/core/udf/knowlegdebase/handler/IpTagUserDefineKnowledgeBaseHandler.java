@@ -1,6 +1,5 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
-import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
@@ -40,21 +39,19 @@ public class IpTagUserDefineKnowledgeBaseHandler extends AbstractMultipleKnowled
     @Override
     protected Boolean buildKnowledgeBase() {
         TreeRangeMap<IPAddress, List<Node>> newIpTagRules = TreeRangeMap.create();
-        this.knowledgeMetedataCacheMap.forEach((key, value) -> {
-            buildSingleKnowledgeBase(newIpTagRules, convertId(key), value);
-        });
+        getAllFileIds().forEach(id -> buildSingleKnowledgeBase(newIpTagRules, id));
         ipTagRules = newIpTagRules;
         return true;
     }
 
-    private void buildSingleKnowledgeBase(TreeRangeMap<IPAddress, List<Node>> treeRangeMap, Long id, KnowLedgeBaseFileMeta metadata) {
+    private void buildSingleKnowledgeBase(TreeRangeMap<IPAddress, List<Node>> treeRangeMap, Long id) {
         try {
             List<String> needColumns = new ArrayList<>();
             needColumns.add("tag_value");
             needColumns.add("addr_format");
             needColumns.add("ip1");
             needColumns.add("ip2");
-            byte[] content = downloadFile(metadata.getPath(), 1);
+            byte[] content = downloadFile(id);
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
             while (iterator.hasNext()) {
@@ -123,5 +120,11 @@ public class IpTagUserDefineKnowledgeBaseHandler extends AbstractMultipleKnowled
             nodes = ipTagRules.get(address);
         }
         return nodes == null ? new ArrayList<>() : nodes;
+    }
+
+    @Override
+    public void close() {
+        ipTagRules.clear();
+        ipTagRules = null;
     }
 }

@@ -44,7 +44,7 @@ public class IpVpnKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandle
             needColumns.add("ip1");
             needColumns.add("ip2");
             needColumns.add("vpn_service_name");
-            byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
+            byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             TreeRangeMap<IPAddress, String> newTreeRangeMap = TreeRangeMap.create();
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
@@ -102,5 +102,11 @@ public class IpVpnKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHandle
             logger.error("ip vpn lookup faild: " + ip, e);
         }
         return null;
+    }
+
+    @Override
+    public void close() {
+        treeRangeMap.clear();
+        treeRangeMap = null;
     }
 }

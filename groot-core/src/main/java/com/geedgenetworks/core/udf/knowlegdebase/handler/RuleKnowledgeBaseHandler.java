@@ -2,6 +2,8 @@ package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import lombok.Data;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -53,17 +55,29 @@ public class RuleKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
     @Override
     public boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
         this.knowledgeBaseConfig = knowledgeBaseConfig;
-        updateCache(knowledgeBaseConfig.getFsPath());
+        updateCache();
         return true;
     }
 
     @Override
     public void updateKnowledgeBase() {
-        updateCache(knowledgeBaseConfig.getFsPath());
+        updateCache();
     }
 
-    public void updateCache(String address) {
-        String url = getUrl(address);
+    public void updateCache() {
+        if ("http".equals(knowledgeBaseConfig.getFsType())) {
+            requestApi();
+        }
+        if ("local".equals(knowledgeBaseConfig.getFsType())) {
+            byte[] localRuleContent = getFileFromLocal(knowledgeBaseConfig.getFsPath());
+            RuleResponse ruleResponse = JSON.parseObject(new String(localRuleContent), RuleResponse.class);
+            processResponse(ruleResponse);
+        }
+        throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
+    }
+
+    private void requestApi() {
+        String url = getUrl(knowledgeBaseConfig.getFsPath());
         final HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("Accept", "application/json");
         httpGet.addHeader("Cn-Authorization", knowledgeBaseConfig.getProperties().get("token"));
@@ -123,6 +137,12 @@ public class RuleKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
     public List<Rule> lookupByKbId(Long kbId) {
         return kbIdMap.get(kbId);
+    }
+
+    public void close() {
+        ruleMap.clear();
+        nameMap.clear();
+        kbIdMap.clear();
     }
 
     @Data

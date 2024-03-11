@@ -1,6 +1,8 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import lombok.Data;
 import org.apache.http.HttpEntity;
@@ -34,7 +36,9 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
     @Override
     public boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
         this.knowledgeBaseConfig = knowledgeBaseConfig;
-        this.knowledgeMetedataCache = getMetadata(knowledgeBaseConfig.getFsType(), knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(0));
+        if ("http".equals(knowledgeBaseConfig.getFsType())) {
+            this.knowledgeMetedataCache = getMetadata(knowledgeBaseConfig.getFsType(), knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(0));
+        }
         return buildKnowledgeBase();
     }
 
@@ -46,6 +50,16 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
     }
 
     protected abstract Boolean buildKnowledgeBase();
+
+    public byte[] downloadFile() {
+        if ("http".equals(knowledgeBaseConfig.getFsType())) {
+            return downloadFile(knowledgeMetedataCache.getPath(), 1);
+        }
+        if ("local".equals(knowledgeBaseConfig.getFsType())) {
+            return getFileFromLocal(knowledgeBaseConfig.getFsPath() + knowledgeBaseConfig.getFiles().get(0));
+        }
+        throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
+    }
 
     protected Boolean ifNeedUpdate() {
         KnowLedgeBaseFileMeta knowledgeMetedata = getMetadata(knowledgeBaseConfig.getFsType(), knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(0));
@@ -89,4 +103,5 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
         private String data;
     }
 
+    public abstract void close();
 }

@@ -5,9 +5,9 @@ import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
+import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.AbstractKnowledgeBaseHandler;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.AbstractMultipleKnowledgeBaseHandler;
-import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
 
 /**
@@ -29,7 +31,7 @@ import static org.mockito.Mockito.mockStatic;
 public class LookupTestUtils {
 
     private static String fsPath = "testPath";
-    private static String fsType = "testType";
+    private static String fsType = "http";
     private static List<String> fsFiles = Arrays.asList("testFile");
     public static String kbName = "testKbName";
     private static String downloadPath = "testDownloadPath";
@@ -75,11 +77,15 @@ public class LookupTestUtils {
     static void mockMultipleKnowledgeBaseHandler(String downloadContent) {
         checkStaticMock();
         KnowLedgeBaseFileMeta KnowLedgeBaseFileMeta = new KnowLedgeBaseFileMeta();
+        KnowLedgeBaseFileMeta.setKb_id("1");
         KnowLedgeBaseFileMeta.setPath(downloadPath);
         Map<String, KnowLedgeBaseFileMeta> KnowLedgeBaseFileMetaMap = new HashMap<>();
         KnowLedgeBaseFileMetaMap.put("1", KnowLedgeBaseFileMeta);
         abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.getMetadata(fsPath)).thenReturn(KnowLedgeBaseFileMetaMap);
         abstractKnowledgeBaseHandlerMockedStatic.when(() -> AbstractKnowledgeBaseHandler.downloadFile(downloadPath, 1)).thenReturn(downloadContent.getBytes());
+        abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.decodeId(anyString())).thenCallRealMethod();
+        abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.encodeId(anyLong())).thenCallRealMethod();
+        abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.checkId(anyString())).thenCallRealMethod();
     }
 
     static RuntimeContext mockRuleRuntimeContext() {
@@ -95,7 +101,7 @@ public class LookupTestUtils {
         knowledgeBaseConfig.setName(kbName);
         KnowledgeBaseConfig ruleKnowledgeBaseConfig = new KnowledgeBaseConfig();
         ruleKnowledgeBaseConfig.setFsPath("testRulePath");
-        ruleKnowledgeBaseConfig.setFsType("testRuleType");
+        ruleKnowledgeBaseConfig.setFsType(fsType);
         Map<String, String> properties = new HashMap<>();
         properties.put("token", "testToken");
         ruleKnowledgeBaseConfig.setProperties(properties);

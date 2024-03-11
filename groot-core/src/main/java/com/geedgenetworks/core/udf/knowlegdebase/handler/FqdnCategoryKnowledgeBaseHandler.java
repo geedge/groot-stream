@@ -42,7 +42,7 @@ public class FqdnCategoryKnowledgeBaseHandler extends AbstractSingleKnowledgeBas
             needColumns.add("reputation_level");
             needColumns.add("category_name");
             needColumns.add("category_group");
-            byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
+            byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             HashMap<String, FqdnCategory> newCategoryMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
@@ -95,5 +95,10 @@ public class FqdnCategoryKnowledgeBaseHandler extends AbstractSingleKnowledgeBas
         private String categoryName;
         private String categoryGroup;
         private String reputationLevel;
+    }
+
+    public void close() {
+        categoryMap.clear();
+        categoryMap = null;
     }
 }

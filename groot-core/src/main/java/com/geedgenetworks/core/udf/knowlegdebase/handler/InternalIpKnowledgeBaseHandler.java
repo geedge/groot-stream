@@ -43,7 +43,7 @@ public class InternalIpKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseH
             needColumns.add("addr_format");
             needColumns.add("ip1");
             needColumns.add("ip2");
-            byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
+            byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             TreeRangeSet<IPAddress> newTreeRangeSet = TreeRangeSet.create();
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
@@ -106,5 +106,10 @@ public class InternalIpKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseH
             logger.error("internal ip ");
         }
         return false;
+    }
+
+    public void close() {
+        treeRangeSet.clear();
+        treeRangeSet = null;
     }
 }
