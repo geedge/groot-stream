@@ -44,7 +44,7 @@ public class IdcRenterKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHa
             needColumns.add("ip1");
             needColumns.add("ip2");
             needColumns.add("idc_renter");
-            byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
+            byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             TreeRangeMap<IPAddress, String> newTreeRangeMap = TreeRangeMap.create();
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
@@ -102,5 +102,10 @@ public class IdcRenterKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHa
             logger.warn("invalid ip: " + ip);
         }
         return null;
+    }
+
+    public void close() {
+        treeRangeMap.clear();
+        treeRangeMap = null;
     }
 }

@@ -2,6 +2,8 @@ package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,7 +40,9 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
     @Override
     public boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
         this.knowledgeBaseConfig = knowledgeBaseConfig;
-        this.knowledgeMetedataCacheMap = getMetadata(knowledgeBaseConfig.getFsPath());
+        if ("http".equals(knowledgeBaseConfig.getFsType())) {
+            this.knowledgeMetedataCacheMap = getMetadata(knowledgeBaseConfig.getFsPath());
+        }
         return buildKnowledgeBase();
     }
 
@@ -50,6 +54,26 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
     }
 
     protected abstract Boolean buildKnowledgeBase();
+
+    protected byte[] downloadFile(Long id) {
+        if ("http".equals(knowledgeBaseConfig.getFsType())) {
+            return downloadFile(knowledgeMetedataCacheMap.get(encodeId(id)).getPath(), 1);
+        }
+        if ("local".equals(knowledgeBaseConfig.getFsType())) {
+            return getFileFromLocal(knowledgeBaseConfig.getFsPath() + id);
+        }
+        throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
+    }
+
+    protected List<Long> getAllFileIds() {
+        if ("http".equals(knowledgeBaseConfig.getFsType())) {
+            return knowledgeMetedataCacheMap.keySet().stream().map(AbstractMultipleKnowledgeBaseHandler::decodeId).collect(Collectors.toList());
+        }
+        if ("local".equals(knowledgeBaseConfig.getFsType())) {
+            return knowledgeBaseConfig.getFiles().stream().map(AbstractMultipleKnowledgeBaseHandler::decodeId).collect(Collectors.toList());
+        }
+        throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
+    }
 
     protected Boolean ifNeedUpdate() {
         Map<String, KnowLedgeBaseFileMeta> knowledgeMetedataMap = getMetadata(knowledgeBaseConfig.getFsPath());
@@ -76,13 +100,23 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
                 KnowledgeResponse knowledgeResponse = JSON.parseObject(content, KnowledgeResponse.class);
                 List<KnowLedgeBaseFileMeta> knowledgeMetedataList = JSON.parseArray(knowledgeResponse.data, KnowLedgeBaseFileMeta.class);
                 return knowledgeMetedataList.stream()
-                        .filter(metadata -> "latest".equals(metadata.getVersion()) && metadata.getIsValid() == 1 && metadata.getSha256() != null)
+                        .filter(metadata -> "latest".equals(metadata.getVersion()) && metadata.getIsValid() == 1 && metadata.getSha256() != null && checkId(metadata.getKb_id()))
                         .collect(Collectors.toMap(KnowLedgeBaseFileMeta::getKb_id, Function.identity(), (existing, replacement) -> existing, HashMap::new));
             }
         } catch (IOException e) {
             logger.error("fetch knowledge metadata error", e);
         }
         return new HashMap<>();
+    }
+
+    public static boolean checkId(String id) {
+        try {
+            decodeId(id);
+            return true;
+        } catch (Exception e) {
+            logger.error("knowledge id:" + id + " is illegal", e);
+            return false;
+        }
     }
 
     @Data
@@ -99,8 +133,12 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
      * @param id
      * @return
      */
-    protected Long convertId(String id) {
+    public static Long decodeId(String id) {
         return Long.parseLong(id);
+    }
+
+    public static String encodeId(Long id) {
+        return String.valueOf(id);
     }
 
     @Data
@@ -108,6 +146,7 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
     public static final class Node {
         private String tag;
         private Long kbId;
-
     }
+
+    public abstract void close();
 }

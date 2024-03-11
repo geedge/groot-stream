@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.utils.FileUtils;
-import com.geedgenetworks.common.utils.HdfsUtils;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.HttpClientPoolUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +14,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.geedgenetworks.common.utils.FileUtils.getFileFromDir;
 
 @Slf4j
 public abstract class AbstractKnowledgeBaseHandler {

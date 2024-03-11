@@ -39,7 +39,7 @@ public class FqdnWhoisKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHa
             List<String> needColumns = new ArrayList<>();
             needColumns.add("fqdn");
             needColumns.add("whois_registrant_org");
-            byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
+            byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             HashMap<String, String> newWhoIsMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
@@ -76,5 +76,10 @@ public class FqdnWhoisKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHa
                 return null;
             }
         }
+    }
+
+    public void close() {
+        whoIsMap.clear();
+        whoIsMap = null;
     }
 }

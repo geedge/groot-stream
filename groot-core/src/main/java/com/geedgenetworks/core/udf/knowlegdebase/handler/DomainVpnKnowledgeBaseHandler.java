@@ -39,7 +39,7 @@ public class DomainVpnKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHa
             List<String> needColumns = new ArrayList<>();
             needColumns.add("domain");
             needColumns.add("vpn_service_name");
-            byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
+            byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             Map<String, String> newMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
@@ -76,5 +76,10 @@ public class DomainVpnKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHa
                 return null;
             }
         }
+    }
+
+    public void close() {
+        map.clear();
+        map = null;
     }
 }

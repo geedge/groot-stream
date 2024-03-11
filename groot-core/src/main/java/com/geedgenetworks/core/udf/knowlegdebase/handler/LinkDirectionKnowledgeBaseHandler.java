@@ -38,7 +38,7 @@ public class LinkDirectionKnowledgeBaseHandler extends AbstractSingleKnowledgeBa
             List<String> needColumns = new ArrayList<>();
             needColumns.add("peer_city");
             needColumns.add("link_id");
-            byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
+            byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             HashMap<Long, String> newLinkMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
@@ -70,5 +70,11 @@ public class LinkDirectionKnowledgeBaseHandler extends AbstractSingleKnowledgeBa
             logger.warn("invalid link id: " + linkId);
         }
         return null;
+    }
+
+    @Override
+    public void close() {
+        linkMap.clear();
+        linkMap = null;
     }
 }

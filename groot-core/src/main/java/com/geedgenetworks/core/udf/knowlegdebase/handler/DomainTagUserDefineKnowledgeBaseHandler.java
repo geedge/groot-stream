@@ -1,6 +1,5 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
-import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.cn.common.Trie;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
 import org.apache.commons.lang3.StringUtils;
@@ -41,20 +40,18 @@ public class DomainTagUserDefineKnowledgeBaseHandler extends AbstractMultipleKno
     protected Boolean buildKnowledgeBase() {
         Trie<Node> newFqdnTagFuzzyMatchRules = new Trie<>();
         Map<String, List<Node>> newFqdnTagFullMatchRules = new HashMap<>();
-        this.knowledgeMetedataCacheMap.forEach((key, value) -> {
-            buildSingleKnowledgeBase(newFqdnTagFuzzyMatchRules, newFqdnTagFullMatchRules, convertId(key), value);
-        });
+        getAllFileIds().forEach(id -> buildSingleKnowledgeBase(newFqdnTagFuzzyMatchRules, newFqdnTagFullMatchRules, id));
         fqdnTagFuzzyMatchRules = newFqdnTagFuzzyMatchRules;
         fqdnTagFullMatchRules = newFqdnTagFullMatchRules;
         return true;
     }
 
-    private void buildSingleKnowledgeBase(Trie<Node> fqdnTagsFuzzy, Map<String, List<Node>> fqdnTagsFull, Long id, KnowLedgeBaseFileMeta metadata) {
+    private void buildSingleKnowledgeBase(Trie<Node> fqdnTagsFuzzy, Map<String, List<Node>> fqdnTagsFull, Long id) {
         try {
             List<String> needColumns = new ArrayList<>();
             needColumns.add("tag_value");
             needColumns.add("domain");
-            byte[] content = downloadFile(metadata.getPath(), 1);
+            byte[] content = downloadFile(id);
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
             while (iterator.hasNext()) {
@@ -101,5 +98,12 @@ public class DomainTagUserDefineKnowledgeBaseHandler extends AbstractMultipleKno
             nodes.addAll(fullNodes);
         }
         return nodes;
+    }
+
+    @Override
+    public void close() {
+        fqdnTagFuzzyMatchRules = null;
+        fqdnTagFullMatchRules.clear();
+        fqdnTagFullMatchRules = null;
     }
 }

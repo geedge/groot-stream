@@ -39,7 +39,7 @@ public class DnsServerInfoKnowledgeBaseHandler extends AbstractSingleKnowledgeBa
             List<String> needColumns = new ArrayList<>();
             needColumns.add("ip_addr");
             needColumns.add("dns_server_role");
-            byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
+            byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             HashMap<String, List<String>> newDnsMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
@@ -63,5 +63,10 @@ public class DnsServerInfoKnowledgeBaseHandler extends AbstractSingleKnowledgeBa
 
     public List<String> lookup(String ip) {
         return dnsMap.get(ip);
+    }
+
+    public void close() {
+        dnsMap.clear();
+        dnsMap = null;
     }
 }
