@@ -1,26 +1,24 @@
 package com.geedgenetworks.bootstrap.execution;
 
-import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
+import com.geedgenetworks.bootstrap.utils.SchemaConfigParse;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CheckConfigUtil;
 import com.geedgenetworks.common.config.CheckResult;
 import com.geedgenetworks.common.config.SourceConfigOptions;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
+import com.geedgenetworks.core.connector.schema.Schema;
 import com.geedgenetworks.core.connector.source.SourceProvider;
 import com.geedgenetworks.core.factories.FactoryUtil;
 import com.geedgenetworks.core.factories.SourceTableFactory;
 import com.geedgenetworks.core.factories.TableFactory;
 import com.geedgenetworks.core.pojo.SourceConfig;
-import com.geedgenetworks.core.types.StructType;
-import com.geedgenetworks.core.types.Types;
 import com.google.common.collect.Maps;
 import com.typesafe.config.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import java.net.URL;
@@ -53,10 +51,6 @@ public class SourceExecutor extends AbstractExecutor<String, SourceConfig> {
 
                 SourceConfig sourceConfig = new JSONObject((Map<String, Object>) value).toJavaObject(SourceConfig.class);
                 sourceConfig.setName(key);
-                if(CollectionUtils.isNotEmpty(sourceConfig.getFields())){
-                    StructType schema = Types.parseSchemaFromJson(JSON.toJSONString(sourceConfig.getFields()));
-                    sourceConfig.setDataType(schema);
-                }
                 sourceConfigMap.put(key, sourceConfig);
             });
 
@@ -73,12 +67,18 @@ public class SourceExecutor extends AbstractExecutor<String, SourceConfig> {
             SourceTableFactory tableFactory = FactoryUtil.discoverTableFactory(SourceTableFactory.class, sourceConfig.getType());
             Map<String, String> options = sourceConfig.getProperties();
             Configuration configuration = Configuration.fromMap(options);
-            StructType dataType = sourceConfig.getDataType();
-            TableFactory.Context context = new TableFactory.Context(dataType, dataType, options, configuration);
+            Schema schema = null;
+            if(sourceConfig.getSchema() != null && !sourceConfig.getSchema().isEmpty()){
+                schema = SchemaConfigParse.parseSchemaConfig(sourceConfig.getSchema());
+            }
+            TableFactory.Context context = new TableFactory.Context(schema, options, configuration);
             SourceProvider sourceProvider = tableFactory.getSourceProvider(context);
-            if(dataType != null){
-                System.out.println(String.format("source(%s) dataType:\n%s", sourceConfig.getName(), dataType.toString()));
-                System.out.println(String.format("source(%s) schema:\n%s", sourceConfig.getName(), dataType.treeString()));
+            if(!sourceProvider.supportDynamicSchema() && schema != null && schema.isDynamic()){
+                throw new UnsupportedOperationException(String.format("source(%s) not support DynamicSchema", sourceConfig.getName()));
+            }
+            if(schema != null){
+                System.out.println(String.format("source(%s) dataType:\n%s", sourceConfig.getName(), schema.getDataType().toString()));
+                System.out.println(String.format("source(%s) schema:\n%s", sourceConfig.getName(), schema.getDataType().treeString()));
             }
 
             sourceSingleOutputStreamOperator = sourceProvider.produceDataStream(jobRuntimeEnvironment.getStreamExecutionEnvironment());

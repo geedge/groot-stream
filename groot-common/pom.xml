@@ -42,6 +42,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>galaxy</artifactId>
             <exclusions>

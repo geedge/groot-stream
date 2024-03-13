@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class SinkConfig implements Serializable {
     private String type;
+    private Map<String, Object> schema;
     private Map<String, String> properties;
     private String name;
 
@@ -14,6 +15,14 @@ public class SinkConfig implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Map<String, Object> getSchema() {
+        return schema;
+    }
+
+    public void setSchema(Map<String, Object> schema) {
+        this.schema = schema;
     }
 
     public Map<String, String> getProperties() {

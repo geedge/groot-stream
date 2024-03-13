@@ -37,6 +37,67 @@ public class Types {
         return new StructType(fields);
     }
 
+    // 解析struct<>中的字段
+    public static StructType parseStructType(String str){
+        // 外面是否包含struct<>都能解析
+        Matcher matcher = STRUCT_RE.matcher(str);
+        if(matcher.matches()){
+            str = matcher.group(1);
+        }
+
+        List<StructField> fields = new ArrayList<>();
+        int startPos = 0, endPos = -1;
+        int i = startPos + 1;
+        int level = 0;
+        while (i < str.length()){
+            while (i < str.length()){
+                if(str.charAt(i) == ':'){
+                    endPos = i;
+                    break;
+                }
+                i++;
+            }
+
+            if(endPos <= startPos){
+                throw new UnsupportedOperationException("can not parse " + str);
+            }
+
+            String name = str.substring(startPos, endPos).trim();
+            startPos = i + 1;
+            endPos = -1;
+            i = startPos + 1;
+            while (i < str.length()){
+                if(str.charAt(i) == ',' && level == 0){
+                    endPos = i;
+                    break;
+                }
+                if(str.charAt(i) == '<'){
+                    level++;
+                }
+                if(str.charAt(i) == '>'){
+                    level--;
+                }
+                i++;
+            }
+
+            if(i == str.length()){
+                endPos = i;
+            }
+            if(endPos <= startPos){
+                throw new UnsupportedOperationException("can not parse " + str);
+            }
+
+            String tp = str.substring(startPos, endPos).trim();
+            fields.add(new StructField(name, parseDataType(tp)));
+
+            i++;
+            startPos = i;
+            endPos = -1;
+        }
+
+        return new StructType(fields.toArray(new StructField[fields.size()]));
+    }
+
     public static DataType parseDataType(String type){
         type = type.trim();
         if("int".equalsIgnoreCase(type)){
@@ -66,61 +127,11 @@ public class Types {
         // struct类型
         matcher = STRUCT_RE.matcher(type);
         if(matcher.matches()){
-            List<StructField> fields = new ArrayList<>();
             String str = matcher.group(1);
-            int startPos = 0, endPos = -1;
-            int i = startPos + 1;
-            int level = 0;
-            while (i < str.length()){
-                while (i < str.length()){
-                    if(str.charAt(i) == ':'){
-                        endPos = i;
-                        break;
-                    }
-                    i++;
-                }
-
-                if(endPos <= startPos){
-                    throw new UnsupportedOperationException("不支持的类型:" + type);
-                }
-
-                String name = str.substring(startPos, endPos).trim();
-                startPos = i + 1;
-                endPos = -1;
-                i = startPos + 1;
-                while (i < str.length()){
-                    if(str.charAt(i) == ',' && level == 0){
-                        endPos = i;
-                        break;
-                    }
-                    if(str.charAt(i) == '<'){
-                        level++;
-                    }
-                    if(str.charAt(i) == '>'){
-                        level--;
-                    }
-                    i++;
-                }
-
-                if(i == str.length()){
-                    endPos = i;
-                }
-                if(endPos <= startPos){
-                    throw new UnsupportedOperationException("不支持的类型:" + type);
-                }
-
-                String tp = str.substring(startPos, endPos).trim();
-                fields.add(new StructField(name, parseDataType(tp)));
-
-                i++;
-                startPos = i;
-                endPos = -1;
-            }
-
-            return new StructType(fields.toArray(new StructField[fields.size()]));
+            return parseStructType(str);
         }
 
-        throw new UnsupportedOperationException("不支持的类型:" + type);
+        throw new UnsupportedOperationException("not support type:" + type);
     }
 
     static void buildFormattedString(DataType dataType, String prefix, StringBuilder sb, int maxDepth){
