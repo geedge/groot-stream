@@ -1,11 +1,12 @@
 sources:
   kafka_source:
     type : kafka
-    fields: # [array of object] Schema field projection, support read data only from specified fields.
-      - name: client_ip
-        type: string
-      - name: server_ip
-        type: string
+    schema:
+      fields: # [array of object] Schema field projection, support read data only from specified fields.
+        - name: client_ip
+          type: string
+        - name: server_ip
+          type: string
     properties: # [object] Kafka source properties
       topic:  SESSION-RECORD
       kafka.bootstrap.servers: 192.168.44.11:9092
