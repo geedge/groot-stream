@@ -2,21 +2,20 @@ package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.bootstrap.enums.ProcessorType;
-import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
+import com.geedgenetworks.bootstrap.utils.SchemaConfigParse;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CheckConfigUtil;
 import com.geedgenetworks.common.config.CheckResult;
 import com.geedgenetworks.common.config.SinkConfigOptions;
-import com.geedgenetworks.common.config.SourceConfigOptions;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
+import com.geedgenetworks.core.connector.schema.Schema;
 import com.geedgenetworks.core.connector.sink.SinkProvider;
 import com.geedgenetworks.core.factories.FactoryUtil;
 import com.geedgenetworks.core.factories.SinkTableFactory;
 import com.geedgenetworks.core.factories.TableFactory;
 import com.geedgenetworks.core.pojo.SinkConfig;
-import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
@@ -70,8 +69,20 @@ public class SinkExecutor extends AbstractExecutor<String, SinkConfig> {
             SinkTableFactory sinkTableFactory = FactoryUtil.discoverTableFactory(SinkTableFactory.class, sinkConfig.getType());
             Map<String, String> options = sinkConfig.getProperties();
             Configuration configuration = Configuration.fromMap(options);
-            TableFactory.Context context = new TableFactory.Context(null, null, options, configuration);
+            Schema schema = null;
+            if(sinkConfig.getSchema() != null && !sinkConfig.getSchema().isEmpty()){
+                schema = SchemaConfigParse.parseSchemaConfig(sinkConfig.getSchema());
+            }
+            TableFactory.Context context = new TableFactory.Context(schema, options, configuration);
             SinkProvider sinkProvider = sinkTableFactory.getSinkProvider(context);
+            if(!sinkProvider.supportDynamicSchema() && schema != null && schema.isDynamic()){
+                throw new UnsupportedOperationException(String.format("sink(%s) not support DynamicSchema", sinkConfig.getName()));
+            }
+            if(schema != null){
+                System.out.println(String.format("sink(%s) dataType:\n%s", sinkConfig.getName(), schema.getDataType().toString()));
+                System.out.println(String.format("sink(%s) schema:\n%s", sinkConfig.getName(), schema.getDataType().treeString()));
+            }
+
             DataStreamSink<?> dataStreamSink = sinkProvider.consumeDataStream(dataStream);
             if (node.getParallelism() > 0) {
                 dataStreamSink.setParallelism(node.getParallelism());

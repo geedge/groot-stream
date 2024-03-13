@@ -8,8 +8,7 @@ import java.util.Map;
 
 public class SourceConfig implements Serializable {
     private String type;
-    private List<Object> fields;
-    private StructType dataType;
+    private Map<String, Object> schema;
     private Map<String, String> properties;
     private String name;
     public String getType() {
@@ -20,20 +19,12 @@ public class SourceConfig implements Serializable {
         this.type = type;
     }
 
-    public List<Object> getFields() {
-        return fields;
+    public Map<String, Object> getSchema() {
+        return schema;
     }
 
-    public void setFields(List<Object> fields) {
-        this.fields = fields;
-    }
-
-    public StructType getDataType() {
-        return dataType;
-    }
-
-    public void setDataType(StructType dataType) {
-        this.dataType = dataType;
+    public void setSchema(Map<String, Object> schema) {
+        this.schema = schema;
     }
 
     public Map<String, String> getProperties() {

@@ -1,27 +1,28 @@
 sources: # [object] Define connector source
   inline_source:
     type: inline
-    fields: # [array of object] Schema field projection, support read data only from specified fields.
-      - name: log_id
-        type: bigint
-      - name: recv_time
-        type: bigint
-      - name: server_fqdn
-        type: string
-      - name: server_domain
-        type: string
-      - name: client_ip
-        type: string
-      - name: server_ip
-        type: string
-      - name: server_asn
-        type: string
-      - name: decoded_as
-        type: string
-      - name: device_group
-        type: string
-      - name: device_tag
-        type: string
+    schema:
+      fields: # [array of object] Schema field projection, support read data only from specified fields.
+        - name: log_id
+          type: bigint
+        - name: recv_time
+          type: bigint
+        - name: server_fqdn
+          type: string
+        - name: server_domain
+          type: string
+        - name: client_ip
+          type: string
+        - name: server_ip
+          type: string
+        - name: server_asn
+          type: string
+        - name: decoded_as
+          type: string
+        - name: device_group
+          type: string
+        - name: device_tag
+          type: string
     properties:
       #
       # [string] Event Data, it will be parsed to Map<String, Object> by the specified format.

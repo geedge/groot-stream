@@ -51,7 +51,7 @@ public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
 
         helper.validateExcept(PROPERTIES_PREFIX); // 校验参数，排除properties.参数
 
-        StructType dataType = context.getSchema();
+        StructType dataType = context.getDataType();
         ReadableConfig config = context.getConfiguration();
 
         String topic = config.get(TOPIC).get(0);

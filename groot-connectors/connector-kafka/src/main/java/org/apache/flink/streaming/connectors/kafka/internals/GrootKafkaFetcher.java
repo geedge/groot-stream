@@ -6,16 +6,14 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction;
 import org.apache.flink.streaming.api.operators.StreamingRuntimeContext;
 import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.connectors.kafka.RuntimeContextAware;
-import org.apache.flink.streaming.connectors.kafka.internals.KafkaFetcher;
-import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
 import org.apache.flink.streaming.runtime.tasks.ProcessingTimeService;
 import org.apache.flink.util.SerializedValue;
 
 import java.util.Map;
 import java.util.Properties;
 
-public class KafkaFetcher2<T> extends KafkaFetcher<T> {
-    public KafkaFetcher2(
+public class GrootKafkaFetcher<T> extends KafkaFetcher<T> {
+    public GrootKafkaFetcher(
             SourceFunction.SourceContext<T> sourceContext,
             Map<KafkaTopicPartition, Long> assignedPartitionsWithInitialOffsets,
             SerializedValue<WatermarkStrategy<T>> watermarkStrategy,

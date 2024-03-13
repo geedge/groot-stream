@@ -34,14 +34,14 @@ class ProtobufFormatFactoryTest {
         options.put("protobuf.message.name", messageName);
 
         Configuration configuration = Configuration.fromMap(options);
-        TableFactory.Context context = new TableFactory.Context(null, null, options, configuration);
+        TableFactory.Context context = new TableFactory.Context( null, options, configuration);
         SourceProvider sourceProvider = tableFactory.getSourceProvider(context);
 
         SinkTableFactory sinkTableFactory = FactoryUtil.discoverTableFactory(SinkTableFactory.class, "print");
         options = new HashMap<>();
         options.put("format", "json");
         configuration = Configuration.fromMap(options);
-        context = new TableFactory.Context(null, null, options, configuration);
+        context = new TableFactory.Context( null, options, configuration);
         SinkProvider sinkProvider = sinkTableFactory.getSinkProvider(context);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

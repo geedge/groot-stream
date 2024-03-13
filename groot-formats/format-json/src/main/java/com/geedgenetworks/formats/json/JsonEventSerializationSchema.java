@@ -18,14 +18,19 @@ public class JsonEventSerializationSchema implements SerializationSchema<Event> 
         }
     };
     private final StructType dataType;
+    private final JsonSerializer serializer;
 
     public JsonEventSerializationSchema(StructType dataType) {
         this.dataType = dataType;
+        this.serializer = dataType != null? new JsonSerializer(dataType): null;
     }
 
     @Override
     public byte[] serialize(Event element) {
-        // sink暂不支持类型推断, dataType为null
-        return JSON.toJSONBytes(element.getExtractedFields(), proFilter);
+        if(dataType == null){
+            return JSON.toJSONBytes(element.getExtractedFields(), proFilter);
+        } else {
+            return serializer.serialize(element.getExtractedFields());
+        }
     }
 }

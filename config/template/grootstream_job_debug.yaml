@@ -1,7 +1,11 @@
 sources:
   kafka_source:
     type : kafka
-    # fields: # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
+    # source table schema, config through fields or local_file or url. if not set schema, all fields(Map<String, Object>) will be output.
+#    schema:
+#      fields: "struct<log_id:bigint, recv_time:bigint,client_ip: string>"
+#      local_file: "schema/test_schema.json"
+#      url: "http://127.0.0.1/schema.json"
     properties: # [object] Source Properties
       topic:  SESSION-RECORD
       kafka.bootstrap.servers: 192.168.44.11:9092
@@ -25,7 +29,6 @@ sources:
 
   inline_source:
     type : inline
-    fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
     properties:
       data:  '{"log_id": 1, "recv_time":"111", "client_ip":"192.168.0.1","server_ip":"120.233.20.242","common_schema_type":"BASE"}'
       format: json
@@ -42,9 +45,6 @@ sources:
 
   ipfix_source:
     type: ipfix
-#    fields: # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
-#      - name: log_id
-#        type: bigint
     properties:
       port.range: 12345-12347
       max.packet.size: 65535
@@ -220,6 +220,11 @@ postprocessing_pipelines:
 sinks:
   kafka_sink_a:
     type: kafka
+    # sink table schema, config through fields or local_file or url. if not set schema, all fields(Map<String, Object>) will be output.
+#    schema:
+#      fields: "struct<log_id:bigint, recv_time:bigint,client_ip: string>"
+#      local_file: "schema/test_schema.json"
+#      url: "http://127.0.0.1/schema.json"
     properties:
       topic:  SESSION-RECORD-JSON
       kafka.bootstrap.servers: 192.168.44.12:9092

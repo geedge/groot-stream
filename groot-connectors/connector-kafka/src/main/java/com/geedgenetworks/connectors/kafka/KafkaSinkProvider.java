@@ -7,7 +7,7 @@ import com.geedgenetworks.core.types.StructType;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer2;
+import org.apache.flink.streaming.connectors.kafka.GrootFlinkKafkaProducer;
 
 import java.util.Optional;
 import java.util.Properties;
@@ -36,7 +36,7 @@ public class KafkaSinkProvider implements SinkProvider {
 
     @Override
     public DataStreamSink<?> consumeDataStream(DataStream<Event> dataStream) {
-        FlinkKafkaProducer2<Event> kafkaProducer = new FlinkKafkaProducer2<>(
+        GrootFlinkKafkaProducer<Event> kafkaProducer = new GrootFlinkKafkaProducer<>(
                 topic,
                 valueSerialization,
                 properties,

@@ -1,6 +1,7 @@
 package com.geedgenetworks.connectors.clickhouse;
 
 import com.geedgenetworks.connectors.clickhouse.sink.EventBatchIntervalClickHouseSink;
+import com.geedgenetworks.core.connector.schema.Schema;
 import com.geedgenetworks.core.connector.sink.SinkProvider;
 import com.geedgenetworks.core.factories.FactoryUtil;
 import com.geedgenetworks.core.factories.FactoryUtil.TableFactoryHelper;
@@ -32,8 +33,7 @@ public class ClickHouseTableFactory implements SinkTableFactory {
 
         helper.validateExcept(CONNECTION_INFO_PREFIX); // 校验参数
 
-        // sink暂时没有dataType
-        //StructType dataType = context.getSchema();
+        Schema schema = context.getSchema();
         ReadableConfig config = context.getConfiguration();
 
         String host = config.get(HOST);
@@ -42,12 +42,17 @@ public class ClickHouseTableFactory implements SinkTableFactory {
         long batchIntervalMs = config.get(BATCH_INTERVAL).toMillis();
         Properties connInfo = getClickHouseConnInfo(context.getOptions());
 
-        final SinkFunction<Event> sinkFunction = new EventBatchIntervalClickHouseSink(batchSize, batchIntervalMs, host, table, connInfo);
+        final SinkFunction<Event> sinkFunction = new EventBatchIntervalClickHouseSink(schema, batchSize, batchIntervalMs, host, table, connInfo);
 
         return new SinkProvider() {
             @Override
             public DataStreamSink<?> consumeDataStream(DataStream<Event> dataStream) {
                 return dataStream.addSink(sinkFunction);
+            }
+
+            @Override
+            public boolean supportDynamicSchema() {
+                return true;
             }
         };
     }

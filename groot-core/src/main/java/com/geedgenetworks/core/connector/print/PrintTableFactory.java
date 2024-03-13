@@ -37,7 +37,7 @@ public class PrintTableFactory implements SinkTableFactory {
 
         helper.validate(); // 校验参数
 
-        StructType dataType = context.getSchema();
+        StructType dataType = context.getDataType();
         ReadableConfig config = context.getConfiguration();
 
         PrintMode printMode = Optional.ofNullable(PrintMode.fromName(config.get(MODE))).orElse(STDOUT);

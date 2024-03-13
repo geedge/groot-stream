@@ -8,4 +8,8 @@ import java.io.Serializable;
 
 public interface SinkProvider extends Serializable {
     DataStreamSink<?>  consumeDataStream(DataStream<Event> dataStream);
+
+    default boolean supportDynamicSchema(){
+        return false;
+    }
 }

@@ -15,4 +15,8 @@ public interface SourceProvider extends Serializable {
     default StructType schema(){
         return getPhysicalDataType();
     }
+
+    default boolean supportDynamicSchema(){
+        return false;
+    }
 }

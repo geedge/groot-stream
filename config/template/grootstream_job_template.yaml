@@ -22,27 +22,28 @@ sources: # [object] Define connector source
 
   inline_source: # [object] Inline source connector name, must be unique. It used to define the source node of the job topology.
     type: inline
-    fields: # [array of object] Schema field projection, support read data only from specified fields.
-      - name: log_id
-        type: bigint
-      - name: recv_time
-        type: bigint
-      - name: server_fqdn
-        type: string
-      - name: server_domain
-        type: string
-      - name: client_ip
-        type: string
-      - name: server_ip
-        type: string
-      - name: server_asn
-        type: string
-      - name: decoded_as
-        type: string
-      - name: device_group
-        type: string
-      - name: device_tag
-        type: string
+    schema:
+      fields: # [array of object] Schema field projection, support read data only from specified fields.
+        - name: log_id
+          type: bigint
+        - name: recv_time
+          type: bigint
+        - name: server_fqdn
+          type: string
+        - name: server_domain
+          type: string
+        - name: client_ip
+          type: string
+        - name: server_ip
+          type: string
+        - name: server_asn
+          type: string
+        - name: decoded_as
+          type: string
+        - name: device_group
+          type: string
+        - name: device_tag
+          type: string
     properties:
       #
       # [string] Event Data, it will be parsed to Map<String, Object> by the specified format.
@@ -64,9 +65,6 @@ sources: # [object] Define connector source
 
   ipfix_source: # [object] IPFIX source connector name, must be unique. It used to define the source node of the job topology.
     type: ipfix
-#    fields: # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
-#      - name: log_id
-#        type: bigint
     properties:
       port.range: 12345-12347
       max.packet.size: 65535
@@ -254,6 +252,11 @@ postprocessing_pipelines: # [object] Define Processors for postprocessing pipeli
 sinks: # [object] Define connector sink
   kafka_sink_a: # [object] Kafka sink connector name, must be unique. It used to define the sink node of the job topology.
     type: kafka
+    # sink table schema, config through fields or local_file or url. if not set schema, all fields(Map<String, Object>) will be output.
+#    schema:
+#      fields: "struct<log_id:bigint, recv_time:bigint,client_ip: string>"
+#      local_file: "schema/test_schema.json"
+#      url: "http://127.0.0.1/schema.json"
     properties:
       topic:  SESSION-RECORD-A
       kafka.bootstrap.servers: 127.0.0.1:9092

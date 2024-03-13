@@ -101,7 +101,7 @@ public class HttpClientPoolUtil {
         if (StringUtil.isNotEmpty(headers)) {
             for (Header h : headers) {
                 httpGet.addHeader(h);
-                log.info("request header : {}", h);
+                // log.info("request header : {}", h);
             }
         }
         try(CloseableHttpResponse response = httpClient.execute(httpGet)) {
