@@ -6,7 +6,7 @@ import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.streaming.api.operators.StreamingRuntimeContext;
 import org.apache.flink.streaming.connectors.kafka.config.OffsetCommitMode;
 import org.apache.flink.streaming.connectors.kafka.internals.AbstractFetcher;
-import org.apache.flink.streaming.connectors.kafka.internals.KafkaFetcher2;
+import org.apache.flink.streaming.connectors.kafka.internals.GrootKafkaFetcher;
 import org.apache.flink.streaming.connectors.kafka.internals.KafkaTopicPartition;
 import org.apache.flink.util.SerializedValue;
 
@@ -15,9 +15,9 @@ import java.util.Map;
 import java.util.Properties;
 
 @PublicEvolving
-public class FlinkKafkaConsumer2<T> extends FlinkKafkaConsumer<T> {
+public class GrootFlinkKafkaConsumer<T> extends FlinkKafkaConsumer<T> {
 
-    public FlinkKafkaConsumer2(List<String> topics, KafkaDeserializationSchema<T> deserializer, Properties props) {
+    public GrootFlinkKafkaConsumer(List<String> topics, KafkaDeserializationSchema<T> deserializer, Properties props) {
         super(topics, deserializer, props);
     }
 
@@ -36,7 +36,7 @@ public class FlinkKafkaConsumer2<T> extends FlinkKafkaConsumer<T> {
         // this overwrites whatever setting the user configured in the properties
         adjustAutoCommitConfig(properties, offsetCommitMode);
 
-        return new KafkaFetcher2<>(
+        return new GrootKafkaFetcher<>(
                 sourceContext,
                 assignedPartitionsWithInitialOffsets,
                 watermarkStrategy,
