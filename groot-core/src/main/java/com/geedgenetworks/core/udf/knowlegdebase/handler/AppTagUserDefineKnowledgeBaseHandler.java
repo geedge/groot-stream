@@ -1,6 +1,5 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
-import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,19 +36,17 @@ public class AppTagUserDefineKnowledgeBaseHandler extends AbstractMultipleKnowle
     @Override
     protected Boolean buildKnowledgeBase() {
         Map<String, List<Node>> newAppTagRules = new HashMap<>();
-        this.knowledgeMetedataCacheMap.forEach((key, value) -> {
-            buildSingleKnowledgeBase(newAppTagRules, convertId(key), value);
-        });
+        getAllFileIds().forEach(id -> buildSingleKnowledgeBase(newAppTagRules, id));
         appTagRules = newAppTagRules;
         return true;
     }
 
-    private void buildSingleKnowledgeBase(Map<String, List<Node>> appTags, Long id, KnowLedgeBaseFileMeta metadata) {
+    private void buildSingleKnowledgeBase(Map<String, List<Node>> appTags, Long id) {
         try {
             List<String> needColumns = new ArrayList<>();
             needColumns.add("tag_value");
             needColumns.add("app_name");
-            byte[] content = downloadFile(metadata.getPath(), 1);
+            byte[] content = downloadFile(id);
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
             while (iterator.hasNext()) {
@@ -79,4 +76,8 @@ public class AppTagUserDefineKnowledgeBaseHandler extends AbstractMultipleKnowle
         return new ArrayList<>();
     }
 
+    public void close() {
+        appTagRules.clear();
+        appTagRules = null;
+    }
 }

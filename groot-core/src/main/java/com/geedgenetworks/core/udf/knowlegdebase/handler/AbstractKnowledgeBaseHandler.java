@@ -3,6 +3,7 @@ package com.geedgenetworks.core.udf.knowlegdebase.handler;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
+import com.geedgenetworks.common.utils.FileUtils;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.HttpClientPoolUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 @Slf4j
 public abstract class AbstractKnowledgeBaseHandler {
 
@@ -58,30 +60,28 @@ public abstract class AbstractKnowledgeBaseHandler {
         return inputStream;
     }
 
+
+    public static byte[] getFileFromLocal(String filepath) {
+        return FileUtils.getFileFromDir(filepath);
+    }
+
+
+
     public static List<KnowLedgeBaseFileMeta> getMetadata(String type, String path) {
 
         List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetaList = new ArrayList<>();
 
         try {
-            switch (type) {
-                case "http":
 
-                    HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
-                    String metadate = httpClientPoolUtil.httpGet(URI.create(path));
-                    Map metaObject = JSON.parseObject(metadate, Map.class);
-                    JSONArray jsonArray = (JSONArray) metaObject.get("data");
-                    List<KnowLedgeBaseFileMeta> resultList = jsonArray.toJavaList(KnowLedgeBaseFileMeta.class);
-                    knowLedgeBaseFileMetaList.addAll(resultList);
-                    knowLedgeBaseFileMetaList.removeIf(knowLedgeBaseFileMeta -> !"latest".equals(knowLedgeBaseFileMeta.getVersion()));
-                    break;
-                case "local":
-                    break;
-                case "hdfs":
-                    break;
-                default:
-                    log.error("get file Metadata  error:  fs_type not suppoort !");
-                    break;
-            }
+            HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
+            String metadate = httpClientPoolUtil.httpGet(URI.create(path));
+            Map metaObject = JSON.parseObject(metadate, Map.class);
+            JSONArray jsonArray = (JSONArray) metaObject.get("data");
+            List<KnowLedgeBaseFileMeta> resultList = jsonArray.toJavaList(KnowLedgeBaseFileMeta.class);
+            knowLedgeBaseFileMetaList.addAll(resultList);
+            knowLedgeBaseFileMetaList.removeIf(knowLedgeBaseFileMeta -> !"latest".equals(knowLedgeBaseFileMeta.getVersion()));
+
+
         } catch (Exception e) {
             log.error("get file Metadata error! path = " + path + " " + e.getMessage());
         }
@@ -95,26 +95,15 @@ public abstract class AbstractKnowledgeBaseHandler {
         List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetaList = new ArrayList<>();
 
         try {
-            switch (type) {
-                case "http":
 
-                    HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
-                    String metadate = httpClientPoolUtil.httpGet(URI.create(path + "?kb_id=" + kbId));
-                    Map metaObject = JSON.parseObject(metadate, Map.class);
-                    JSONArray jsonArray = (JSONArray) metaObject.get("data");
-                    knowLedgeBaseFileMetaList = jsonArray.toJavaList(KnowLedgeBaseFileMeta.class);
-                    knowLedgeBaseFileMetaList.removeIf(knowLedgeBaseFileMeta -> !"latest".equals(knowLedgeBaseFileMeta.getVersion()));
-                    break;
-                case "local":
-                    log.error("get file Metadata  error:  fs_type local not suppoort !");
-                    break;
-                case "hdfs":
-                    log.error("get file Metadata  error:  fs_type hdfs not suppoort !");
-                    break;
-                default:
-                    log.error("get file Metadata  error:  fs_type not suppoort !");
-                    break;
-            }
+            HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
+            String metadate = httpClientPoolUtil.httpGet(URI.create(path + "?kb_id=" + kbId));
+            Map metaObject = JSON.parseObject(metadate, Map.class);
+            JSONArray jsonArray = (JSONArray) metaObject.get("data");
+            knowLedgeBaseFileMetaList = jsonArray.toJavaList(KnowLedgeBaseFileMeta.class);
+            knowLedgeBaseFileMetaList.removeIf(knowLedgeBaseFileMeta -> !"latest".equals(knowLedgeBaseFileMeta.getVersion()));
+
+
         } catch (Exception e) {
             log.error("get file Metadata error! path = " + path + " " + e.getMessage());
             return null;

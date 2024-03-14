@@ -38,7 +38,7 @@ public class FqdnIcpKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHand
             List<String> needColumns = new ArrayList<>();
             needColumns.add("fqdn");
             needColumns.add("icp_company_name");
-            byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
+            byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             HashMap<String, String> newIcpMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
@@ -75,5 +75,10 @@ public class FqdnIcpKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseHand
                 return null;
             }
         }
+    }
+
+    public void close() {
+        icpMap.clear();
+        icpMap = null;
     }
 }

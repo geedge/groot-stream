@@ -12,7 +12,7 @@ grootstream:
         - 64af7077-eb9b-4b8f-80cf-2ceebc89bea9
         - 004390bc-3135-4a6f-a492-3662ecb9e289
   properties:
-    hos.path: http://192.168.44.12:8089
+    hos.path: http://192.168.44.12:9098/hos
     hos.bucket.name.traffic_file: traffic_file_bucket
     hos.bucket.name.troubleshooting_file: troubleshooting_file_bucket
     scheduler.knowledge_base.update.interval.minutes: 5

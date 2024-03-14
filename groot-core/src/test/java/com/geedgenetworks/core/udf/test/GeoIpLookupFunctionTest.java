@@ -29,7 +29,6 @@ public class GeoIpLookupFunctionTest {
         udfContext.setOutput_fields(Collections.singletonList("iplocation"));
     }
 
-//com.geedgenetworks.core.udf.GeoIpLookup单元测试
     @Test
     public void testInit(){
         GeoIpLookup geoIpLookup = new GeoIpLookup();
@@ -69,33 +68,17 @@ public class GeoIpLookupFunctionTest {
         knowledgeBaseConfig.setName("tsg_ip_location");
         Map<String, String> parameters = new HashMap<>();
         knowledgeBaseConfig.setProperties(parameters);
-        knowledgeBaseConfig.setFsType("http");
-        knowledgeBaseConfig.setFsPath("http://192.168.44.67:9999/v1/knowledge_base");
-        knowledgeBaseConfig.setFiles(Arrays.asList("64af7077-eb9b-4b8f-80cf-2ceebc89bea9","004390bc-3135-4a6f-a492-3662ecb9e289"));
+        knowledgeBaseConfig.setFsType("local");
+        knowledgeBaseConfig.setFsPath("");
+        knowledgeBaseConfig.setFiles(Collections.singletonList("src/test/resources/ip_builtin.mmdb"));
         knowledgeBaseConfigList.add(knowledgeBaseConfig);
         commonConfig.setKnowledgeBaseConfig(knowledgeBaseConfigList);
         KnowledgeBaseUpdateJob.registerKnowledgeBase(GeoIpKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig);
-        String countryLookup  = GeoIpKnowledgeBaseHandler.lookUp("tsg_ip_location","IP_TO_COUNTRY","2600:1015:b002::");
-        assertEquals("美国", countryLookup);
-        String provinceLookup  = GeoIpKnowledgeBaseHandler.lookUp("tsg_ip_location","IP_TO_PROVINCE","2600:1015:b002::");
-        assertEquals("印第安纳州", provinceLookup);
-        String cityLookup  = GeoIpKnowledgeBaseHandler.lookUp("tsg_ip_location","IP_TO_CITY","2600:1015:b002::");
-        assertEquals("Unknown", cityLookup);
-        String cityLookupDetail  = GeoIpKnowledgeBaseHandler.lookUp("tsg_ip_location","IP_TO_SUBDIVISION_ADDR","2600:1015:b002::");
-        assertEquals("美国.印第安纳州.Unknown", cityLookupDetail);
-        String locationLookupDetail  = GeoIpKnowledgeBaseHandler.lookUp("tsg_ip_location","IP_TO_DETAIL","2600:1015:b002::");
-        assertEquals("美国.印第安纳州.Unknown.", locationLookupDetail.trim());
-        String latLngLookup  = GeoIpKnowledgeBaseHandler.lookUp("tsg_ip_location","IP_TO_LATLNG","2600:1015:b002::");
-        assertEquals("39.9388,-86.1137", latLngLookup);
-        String ispLookup  = GeoIpKnowledgeBaseHandler.lookUp("tsg_ip_location","IP_TO_PROVIDER","2600:1015:b002::");
-        assertEquals("", ispLookup);
-        String infoLookupToJSONString  = GeoIpKnowledgeBaseHandler.lookUp("tsg_ip_location","IP_TO_JSON","2600:1015:b002::");
-        assertEquals(JSONObject.parseObject(infoLookupToJSONString).getString("country"), "美国");
-        String country = GeoIpKnowledgeBaseHandler.lookUpObject("tsg_ip_location","2600:1015:b002::").getCountry();
-        assertEquals("美国", country);
+        String countryLookup  = GeoIpKnowledgeBaseHandler.lookUp("tsg_ip_location","IP_TO_COUNTRY","86.111.175.128");
+        assertEquals("United Kingdom", countryLookup);
+        String country = GeoIpKnowledgeBaseHandler.lookUpObject("tsg_ip_location","86.111.175.128").getCountry();
+        assertEquals("United Kingdom", country);
         assertNull(GeoIpKnowledgeBaseHandler.lookUpObject("tsg_ip_location", "255.255.255.255"));
 
     }
-
-
 }

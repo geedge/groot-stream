@@ -70,14 +70,14 @@ public class AsnLookupFunctionTest {
         knowledgeBaseConfig.setName("tsg_ip_asn");
         Map<String, String> parameters = new HashMap<>();
         knowledgeBaseConfig.setProperties(parameters);
-        knowledgeBaseConfig.setFsType("http");
-        knowledgeBaseConfig.setFsPath("http://192.168.44.67:9999/v1/knowledge_base");
-        knowledgeBaseConfig.setFiles(Collections.singletonList("f9f6bc91-2142-4673-8249-e097c00fe1ea"));
+        knowledgeBaseConfig.setFsType("local");
+        knowledgeBaseConfig.setFsPath("");
+        knowledgeBaseConfig.setFiles(Collections.singletonList("src/test/resources/asn.mmdb"));
         knowledgeBaseConfigList.add(knowledgeBaseConfig);
         commonConfig.setKnowledgeBaseConfig(knowledgeBaseConfigList);
         KnowledgeBaseUpdateJob.registerKnowledgeBase(AsnKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig);
-        String asn = AsnKnowledgeBaseHandler.lookUp("tsg_ip_asn","IP_TO_ASN","2600:1015:b002::");
-        assertEquals("6167", asn);
+        String asn = AsnKnowledgeBaseHandler.lookUp("tsg_ip_asn","IP_TO_ASN","12.16.98.1");
+        assertEquals("31978", asn);
 
     }
 

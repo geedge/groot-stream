@@ -41,7 +41,7 @@ public class IocDarkwebKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseH
             needColumns.add("ioc_type");
             needColumns.add("ioc_value");
             needColumns.add("node_type");
-            byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
+            byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             HashMap<String, String> newIpMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
             HashMap<String, String> newDomainMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
@@ -89,5 +89,12 @@ public class IocDarkwebKnowledgeBaseHandler extends AbstractSingleKnowledgeBaseH
                 return null;
             }
         }
+    }
+
+    public void close() {
+        ipMap.clear();
+        ipMap = null;
+        domainMap.clear();
+        domainMap = null;
     }
 }

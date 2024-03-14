@@ -43,7 +43,7 @@ public class AppCategoryKnowledgeBaseHandler extends AbstractSingleKnowledgeBase
             needColumns.add("app_subcategory");
             needColumns.add("app_company");
             needColumns.add("app_company_category");
-            byte[] content = downloadFile(knowledgeMetedataCache.getPath(), 1);
+            byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             HashMap<String, AppCategory> newAppMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
@@ -87,5 +87,10 @@ public class AppCategoryKnowledgeBaseHandler extends AbstractSingleKnowledgeBase
         private String subCategory;
         private String appCompany;
         private String appCompanyCategory;
+    }
+
+    public void close() {
+        appMap.clear();
+        appMap = null;
     }
 }

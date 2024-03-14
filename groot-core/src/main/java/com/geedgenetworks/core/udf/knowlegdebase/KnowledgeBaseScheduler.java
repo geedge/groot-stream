@@ -11,8 +11,17 @@ public class KnowledgeBaseScheduler {
     private final static String JOB_GROUP = "knowledgeBase";
     private final static String TRIGGER_NAME = "knowledgeBaseUpdateJob";
     private static boolean methodCalled = false;
+    private static int count = 0;
 
-
+    public static synchronized void increment() {
+        count++;
+    }
+    public static synchronized void decrement() {
+        count--;
+    }
+    public static synchronized int getCount() {
+        return count;
+    }
     public synchronized static void startSchedulerForKnowledgeBase(int intervalInMinutes) throws SchedulerException {
 
         if(!methodCalled){

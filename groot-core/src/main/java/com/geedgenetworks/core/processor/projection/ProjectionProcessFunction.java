@@ -85,6 +85,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         } catch (Exception e) {
             throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Initialization UDF failed!", e);
         }
+        KnowledgeBaseScheduler.increment();
     }
 
     @Override
@@ -172,10 +173,12 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     public void close() throws Exception {
 
         for (UdfEntity udfEntity : functions) {
-
             udfEntity.getUdfFunction().close();
         }
-        KnowledgeBaseScheduler.stopSchedulerForKnowledgeBase();
+        KnowledgeBaseScheduler.decrement();
+        if(KnowledgeBaseScheduler.getCount()<=0) {
+            KnowledgeBaseScheduler.stopSchedulerForKnowledgeBase();
+        }
         super.close();
     }
 
