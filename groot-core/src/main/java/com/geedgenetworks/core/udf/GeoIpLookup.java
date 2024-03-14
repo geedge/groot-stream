@@ -56,6 +56,8 @@ public class GeoIpLookup implements UDF {
         if(udfContext.getOutput_fields()!=null && !udfContext.getOutput_fields().isEmpty()){
             this.outputFieldName = udfContext.getOutput_fields().get(0);
         }
+        GeoIpKnowledgeBaseHandler.increment();
+        log.warn("GeoIpKnowledgeBaseHandler "+GeoIpKnowledgeBaseHandler.getCount());
     }
 
 
@@ -163,6 +165,10 @@ public class GeoIpLookup implements UDF {
 
     @Override
     public void close() {
-        KnowledgeBaseUpdateJob.removeKnowledgeBase(kbName);
+        GeoIpKnowledgeBaseHandler.decrement();
+        if (GeoIpKnowledgeBaseHandler.getCount()<=0) {
+            KnowledgeBaseUpdateJob.removeKnowledgeBase(kbName);
+            log.warn("GeoIpKnowledgeBaseHandler removeKnowledgeBase "+kbName);
+        }
     }
 }

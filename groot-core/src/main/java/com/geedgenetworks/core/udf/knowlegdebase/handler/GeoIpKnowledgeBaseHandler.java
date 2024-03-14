@@ -20,10 +20,19 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
     private static Map<String, KnowledgeBaseInfoForIpLookUp> kbNameWithKbConfigAndFileMetas = new ConcurrentHashMap<>();
     private static GeoIpKnowledgeBaseHandler instance;
 
+    private static int count = 0;
 
     private GeoIpKnowledgeBaseHandler() {
     }
-
+    public static synchronized void increment() {
+        count++;
+    }
+    public static synchronized void decrement() {
+        count--;
+    }
+    public static synchronized int getCount() {
+        return count;
+    }
     public static synchronized GeoIpKnowledgeBaseHandler getInstance() {
         if (instance == null) {
             instance = new GeoIpKnowledgeBaseHandler();
