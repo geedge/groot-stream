@@ -101,7 +101,7 @@ public class LookupTestUtils {
         knowledgeBaseConfig.setName(kbName);
         KnowledgeBaseConfig ruleKnowledgeBaseConfig = new KnowledgeBaseConfig();
         ruleKnowledgeBaseConfig.setFsPath("testRulePath");
-        ruleKnowledgeBaseConfig.setFsType("testRuleType");
+        ruleKnowledgeBaseConfig.setFsType(fsType);
         Map<String, String> properties = new HashMap<>();
         properties.put("token", "testToken");
         ruleKnowledgeBaseConfig.setProperties(properties);
