@@ -4,7 +4,8 @@ variables:
   MAVEN_CLI_OPTS: --batch-mode --errors --show-version
   SONAR_HOST_URL: http://192.168.40.153:9900
   SONAR_PROJECT_KEY: groot-stream
-
+  TESTCONTAINERS_HOST_OVERRIDE: "host.docker.internal"
+  
 stages:
   - test
   - build
