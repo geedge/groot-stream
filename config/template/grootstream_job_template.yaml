@@ -8,6 +8,10 @@
 sources: # [object] Define connector source
   kafka_source: # [object] Kafka source connector name, must be unique. It used to define the source node of the job topology.
     type: kafka  # [string] Source Type
+    schema: # [object] Source Schema, config through fields or local_file or url. if not set schema, all fields(Map<String, Object>) will be output.
+      #fields: "struct<log_id:bigint, recv_time:bigint,client_ip: string>"
+      local_file: /../schema/kafka_source_schema.json  # [string] Local File Path for Schema
+      #url: http:// # [string] URL for Schema
     properties: # [object] Kafka source properties
       topic: SESSION-RECORD  # [string] Topic Name, consumer will subscribe this topic.
       kafka.bootstrap.servers: 127.0.0.1:9092  # [string] Kafka Bootstrap Servers, if you have multiple servers, use comma to separate them.
@@ -118,7 +122,7 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
     functions: # [array of object] Function List
       - function: GEOIP_LOOKUP
         lookup_fields: [ server_ip ]
-        output_fields: [ server_asn ]
+        output_fields: [ server_geolocation ]
         parameters:
           kb_name: tsg_ip_location
           option: IP_TO_OBJECT
@@ -292,6 +296,8 @@ sinks: # [object] Define connector sink
 
   clickhouse_sink: # [object] ClickHouse sink connector name, must be unique. It used to define the sink node of the job topology.
     type: clickhouse
+    schema:
+      local_file: /../schema/clickhouse_sink_schema.json
     properties:
       host: 127.0.0.1:9001
       table: inline_source_test_local

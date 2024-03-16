@@ -1,0 +1,302 @@
+{
+  "type": "record",
+  "name": "test_source",
+  "namespace": "abc",
+  "fields": [
+    {
+      "name": "recv_time",
+      "label": "Receive Time",
+      "doc": {
+        "constraints": {
+          "type": "unix_timestamp"
+        },
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": {
+        "type": "long",
+        "logicalType": "unix_timestamp"
+      }
+    },
+    {
+      "name": "log_id",
+      "label": "Log ID",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "long"
+    },
+    {
+      "name": "http_url",
+      "label": "HTTP.URL",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },
+    {
+      "name": "http_host",
+      "label": "HTTP.Host",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },
+    {
+      "name": "http_request_line",
+      "label": "HTTP.Request Line",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },
+    {
+      "name": "http_response_line",
+      "label": "HTTP.Response Line",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },
+    {
+      "name": "decoded_as",
+      "label": "Decoded AS",
+      "doc": {
+        "constraints": {
+          "operator_functions": "=,!=,in,not in"
+        },
+        "data": [
+          {
+            "code": "BASE",
+            "value": "BASE"
+          },
+          {
+            "code": "MAIL",
+            "value": "MAIL"
+          },
+          {
+            "code": "DNS",
+            "value": "DNS"
+          },
+          {
+            "code": "HTTP",
+            "value": "HTTP"
+          },
+          {
+            "code": "SSL",
+            "value": "SSL"
+          },
+          {
+            "code": "DTLS",
+            "value": "DTLS"
+          },
+          {
+            "code": "QUIC",
+            "value": "QUIC"
+          },
+          {
+            "code": "FTP",
+            "value": "FTP"
+          },
+          {
+            "code": "SSH",
+            "value": "SSH"
+          },
+          {
+            "code": "Stratum",
+            "value": "Stratum"
+          },
+          {
+            "code": "RDP",
+            "value": "RDP"
+          },
+          {
+            "code": "SIP",
+            "value": "SIP"
+          },
+          {
+            "code": "RTP",
+            "value": "RTP"
+          }
+        ],
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },
+    {
+      "name": "tcp_rtt_ms",
+      "label": "Round-trip Time (ms)",
+      "doc": {
+        "constraints": {
+          "type": "decimal",
+          "aggregation_functions": "AVG, MAX, MIN, MEDIAN, P95_PERCENTILE, P99_PERCENTILE"
+        },
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "int"
+    },
+    {
+      "name": "sent_bytes",
+      "label": "Bytes Sent",
+      "doc": {
+        "constraints": {
+          "type": "bytes"
+        },
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "long"
+    },
+    {
+      "name": "received_bytes",
+      "label": "Bytes Received",
+      "doc": {
+        "constraints": {
+          "type": "bytes"
+        },
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "long"
+    },{
+      "name": "server_fqdn",
+      "label": "Server FQDN",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },
+    {
+      "name": "server_domain",
+      "label": "Server Domain",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },{
+      "name": "client_ip",
+      "label": "Client IP",
+      "doc": {
+        "constraints": {
+          "type": "ip"
+        },
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },
+    {
+      "name": "client_port",
+      "label": "Client Port",
+      "doc": {
+        "constraints": {
+          "aggregation_functions": "COUNT, COUNT_DISTINCT"
+        },
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "int"
+    },
+    {
+      "name": "client_os_desc",
+      "type": "string",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "label": "Client OS Description"
+    },
+    {
+      "name": "client_geolocation",
+      "label": "Client Geolocation",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },
+    {
+      "name": "client_asn",
+      "label": "Client ASN",
+      "doc": {
+        "constraints": {
+          "aggregation_functions": "COUNT, COUNT_DISTINCT"
+        },
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "long"
+    },
+    {
+      "name": "subscriber_id",
+      "label": "Subscriber ID",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },{
+      "name": "server_ip",
+      "label": "Server IP",
+      "doc": {
+        "constraints": {
+          "type": "ip"
+        },
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },
+    {
+      "name": "server_port",
+      "label": "Server Port",
+      "doc": {
+        "constraints": {
+          "aggregation_functions": "COUNT, COUNT_DISTINCT"
+        },
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "int"
+    },
+    {
+      "name": "server_os_desc",
+      "type": "string",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "label": "Server OS Description"
+    },
+    {
+      "name": "server_geolocation",
+      "label": "Server Geolocation",
+      "doc": {
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "string"
+    },
+    {
+      "name": "server_asn",
+      "label": "Server ASN",
+      "doc": {
+        "constraints": {
+          "aggregation_functions": "COUNT, COUNT_DISTINCT"
+        },
+        "visibility": "enabled",
+        "ttl": null
+      },
+      "type": "long"
+    }
+  ]
+}

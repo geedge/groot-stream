@@ -7,13 +7,13 @@ Source Connector contains some common core features, and each source connector s
 sources:
   ${source_name}:
     type: ${source_connector_type}
-    # source table schema, config through fields or local_file or url
-    schema:
-      fields: 
+    # Source schema, config through fields or local_file or url. if not set schema, all fields(Map<String, Object>) will be output.
+    schema: 
+      fields:
         - name: ${field_name}
           type: ${field_type}
-      # local_file: "schema path"
-      # url: "schema http url"
+      # local_file: "/path/to/schema.json" 
+      # url: "https://localhost:8080/schema.json"
     properties:
       ${prop_key}: ${prop_value}
 ```
@@ -29,12 +29,13 @@ The source connector supports reading only specified fields from the data source
 The Schema Structure refer to [Schema Structure](../user-guide.md#schema-structure).
 
 ## Schema Config
-Schema can config through fields or local_file or url.
+Schema can be configured through fields or local_file or url. If not set schema, all fields(Map<String, Object>) will be output. And local_file and url only support Avro schema format. More details see the [Avro Schema](https://avro.apache.org/docs/1.11.1/specification/).
 
-### fields
+### Fields
+It can be configured through array or sql style. It is recommended to use array style, which is more readable.
 ```yaml
 schema:
-  # by array
+  # array style
   fields:
     - name: ${field_name}
       type: ${field_type}
@@ -42,31 +43,28 @@ schema:
 
 ```yaml
 schema:
-  # by sql
+  # sql style
   fields: "struct<field_name:field_type, ...>"
   # can also without outer struct<>
   # fields: "field_name:field_type, ..."
 ```
 
-### local_file
-
+### Local File
+To retrieve the schema from a local file using its absolute path.
 ```yaml
 schema:
   # by array
   fields:
-    local_file: "schema path"
+    local_file: "/path/to/schema.json"
 ```
 
-### url
-Retrieve updated schema from URL for cycle, support dynamic schema. Not all connector support dynamic schema.
-
-The connectors that currently support dynamic schema include: clickHouse sink.
-
+### URL
+Some connectors support periodically fetching and updating the schema from a URL, such as the `ClickHouse Sink`.
 ```yaml
 schema:
   # by array
   fields:
-    url: "schema http url"
+    url: "https://localhost:8080/schema.json"
 ```
 
 # Sink Connector
@@ -81,8 +79,8 @@ sinks:
     # sink table schema, config through fields or local_file or url. if not set schema, all fields(Map<String, Object>) will be output.
     schema:
       fields: "struct<field_name:field_type, ...>"
-      # local_file: "schema path"
-      # url: "schema url"
+      # local_file: "/path/to/schema.json"
+      # url: "https://localhost:8080/schema.json"
     properties:
       ${prop_key}: ${prop_value}
 ```

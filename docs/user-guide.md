@@ -8,19 +8,20 @@ The main format of the config template file is `yaml`, for more details of this 
 sources:
   inline_source:
     type: inline
-    fields:
-      - name: log_id
-        type: bigint
-      - name: recv_time
-        type: bigint
-      - name: fqdn_string
-        type: string
-      - name: client_ip
-        type: string
-      - name: server_ip
-        type: string
-      - name: decoded_as
-        type: string
+    schema:
+        fields:
+          - name: log_id
+            type: bigint
+          - name: recv_time
+            type: bigint
+          - name: fqdn_string
+            type: string
+          - name: client_ip
+            type: string
+          - name: server_ip
+            type: string
+          - name: decoded_as
+            type: string
     properties:
       data: '{"log_id": 1, "recv_time":"111","fqdn_string":"baidu.com", "client_ip":"192.168.0.1","server_ip":"120.233.20.242","decoded_as":"BASE", "dup_traffic_flag":1}'
       format: json
@@ -92,19 +93,20 @@ application:
 ## Schema Structure
 Some sources are not strongly limited schema, so you need use `fields` to define the field name and type. The source can customize the schema. Like `Kafka` `Inline` source etc.
 ```yaml
-fields:   
-      - name: log_id
-        type: bigint
-      - name: recv_time
-        type: bigint
-      - name: fqdn_string
-        type: string
-      - name: client_ip
-        type: string
-      - name: server_ip
-        type: string
-      - name: decoded_as
-        type: string
+Schema:
+    fields:   
+          - name: log_id
+            type: bigint
+          - name: recv_time
+            type: bigint
+          - name: fqdn_string
+            type: string
+          - name: client_ip
+            type: string
+          - name: server_ip
+            type: string
+          - name: decoded_as
+            type: string
 ```
 `name` The name of the field. `type` The data type of the field.
 
@@ -136,6 +138,7 @@ Sink is used to define where GrootStream needs to output data. Multiple sinks ca
 
 ## Application
 Used to define some common parameters of the job and the topology of the job. such as the name of the job, the parallelism of the job, etc. The following configuration parameters are supported.
+
 ### ENV
 Used to define job environment configuration information. For more details, you can refer to the documentation [JobEnvConfig](./env-config.md).
 
