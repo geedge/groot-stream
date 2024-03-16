@@ -7,7 +7,8 @@ import static com.geedgenetworks.test.common.container.EngineType.FLINK;
 @Getter
 @AllArgsConstructor
 public enum TestContainerId {
-    FLINK_1_13(FLINK, "1.13.6");
+    FLINK_1_13(FLINK, "1.13.1"),
+    FLINK_1_17(FLINK, "1.17.2");
     private final EngineType engineType;
     private final String version;
 

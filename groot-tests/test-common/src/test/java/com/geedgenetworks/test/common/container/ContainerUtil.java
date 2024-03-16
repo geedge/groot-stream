@@ -1,32 +1,22 @@
 package com.geedgenetworks.test.common.container;
 
 import cn.hutool.core.util.XmlUtil;
-import cn.hutool.json.XML;
 import com.geedgenetworks.bootstrap.utils.ConfigBuilder;
-import com.geedgenetworks.common.config.CheckConfigUtil;
-import com.geedgenetworks.common.config.CheckResult;
-import com.geedgenetworks.common.config.SourceConfigOptions;
-import com.geedgenetworks.common.exception.CommonErrorCode;
-import com.geedgenetworks.common.exception.ConfigValidationException;
-import com.geedgenetworks.core.pojo.SourceConfig;
-import com.geedgenetworks.core.types.StructType;
-import com.geedgenetworks.core.types.Types;
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigResolveOptions;
+import groovy.lang.Tuple2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
+import org.testcontainers.containers.Container;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.MountableFile;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import javax.xml.xpath.XPathConstants;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -281,6 +271,68 @@ public final class ContainerUtil {
                         ConfigFactory.systemProperties(),
                         ConfigResolveOptions.defaults().setAllowUnresolved(true));
     }
+
+    public static List<String> getJVMThreadNames(GenericContainer<?> container)
+            throws IOException, InterruptedException {
+        return getJVMThreads(container).stream().map(Tuple2::getV1).collect(Collectors.toList());
+    }
+
+    public static Map<String, Integer> getJVMLiveObject(GenericContainer<?> container)
+            throws IOException, InterruptedException {
+        Container.ExecResult liveObjects =
+                container.execInContainer("jmap", "-histo:live", getJVMProcessId(container));
+        Assertions.assertEquals(0, liveObjects.getExitCode());
+        String value = liveObjects.getStdout().trim();
+        return Arrays.stream(value.split("\n"))
+                .skip(2)
+                .map(
+                        str ->
+                                Arrays.stream(str.split(" "))
+                                        .filter(StringUtils::isNotEmpty)
+                                        .collect(Collectors.toList()))
+                .filter(list -> list.size() == 4)
+                .collect(
+                        Collectors.toMap(
+                                list -> list.get(3),
+                                list -> Integer.valueOf(list.get(1)),
+                                (a, b) -> a));
+    }
+
+    public static List<Tuple2<String, String>> getJVMThreads(GenericContainer<?> container)
+            throws IOException, InterruptedException {
+        Container.ExecResult threads =
+                container.execInContainer("jstack", getJVMProcessId(container));
+        Assertions.assertEquals(0, threads.getExitCode());
+        // Thread name line example
+        // "hz.main.MetricsRegistry.thread-2" #232 prio=5 os_prio=0 tid=0x0000ffff3c003000 nid=0x5e
+        // waiting on condition [0x0000ffff6cf3a000]
+        return Arrays.stream(threads.getStdout().trim().split("\n\n"))
+                .filter(s -> s.startsWith("\""))
+                .map(
+                        threadStr ->
+                                new Tuple2<>(
+                                        Arrays.stream(threadStr.split("\n"))
+                                                .filter(s -> s.startsWith("\""))
+                                                .map(s -> s.substring(1, s.lastIndexOf("\"")))
+                                                .findFirst()
+                                                .get(),
+                                        threadStr))
+                .collect(Collectors.toList());
+    }
+
+    private static String getJVMProcessId(GenericContainer<?> container)
+            throws IOException, InterruptedException {
+        Container.ExecResult processes = container.execInContainer("jps");
+        Assertions.assertEquals(0, processes.getExitCode());
+        Optional<String> server =
+                Arrays.stream(processes.getStdout().trim().split("\n"))
+                        .filter(s -> s.contains("GrootstreamServer"))
+                        .findFirst();
+        Assertions.assertTrue(server.isPresent());
+        return server.get().trim().split(" ")[0];
+    }
+
+
 
 
 
