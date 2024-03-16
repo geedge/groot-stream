@@ -18,6 +18,8 @@ application:
     name: example-inline-to-print
     parallelism: 1
     execution:
+      runtime-mode: streaming
+      buffer-timeout: 10
       checkpointing:
         interval: 10000
         mode: exactly_once

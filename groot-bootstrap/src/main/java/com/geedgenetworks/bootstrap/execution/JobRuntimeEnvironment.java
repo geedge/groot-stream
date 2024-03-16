@@ -9,6 +9,7 @@ import com.geedgenetworks.common.config.GrootStreamConfig;
 import com.geedgenetworks.common.utils.ReflectionUtils;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.api.common.RuntimeExecutionMode;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.PipelineOptions;
 import org.apache.flink.configuration.RestOptions;
@@ -21,6 +22,8 @@ import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.TernaryBoolean;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -137,6 +140,7 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         environment.getConfig().setGlobalJobParameters(configuration);
         setTimeCharacteristic();
         setCheckpoint();
+        setRuntimeMode();
         EnvironmentUtil.setRestartStrategy(envConfig, environment.getConfig());
 
         if (envConfig.hasPath(ExecutionConfigKeyName.BUFFER_TIMEOUT_MILLIS)) {
@@ -154,6 +158,21 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
             environment.setMaxParallelism(maxParallelism);
         }
 
+    }
+
+    private void setRuntimeMode() {
+        if (envConfig.hasPath(ExecutionConfigKeyName.RUNTIME_MODE)) {
+            String runtimeMode = envConfig.getString(ExecutionConfigKeyName.RUNTIME_MODE);
+            if (runtimeMode.equalsIgnoreCase("batch")) {
+                environment.setRuntimeMode(RuntimeExecutionMode.BATCH);
+            } else if (runtimeMode.equalsIgnoreCase("streaming")) {
+                environment.setRuntimeMode(RuntimeExecutionMode.STREAMING);
+            } else {
+                log.warn(
+                        "set runtime-mode failed, unknown runtime-mode [{}],only support batch,streaming",
+                        runtimeMode);
+            }
+        }
     }
 
     private void setTimeCharacteristic() {

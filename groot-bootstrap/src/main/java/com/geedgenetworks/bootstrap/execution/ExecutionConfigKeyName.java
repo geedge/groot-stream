@@ -6,6 +6,8 @@ public class ExecutionConfigKeyName {
     }
     public static final String PARALLELISM = "parallelism";
     public static final String BUFFER_TIMEOUT_MILLIS = "execution.buffer-timeout";
+
+    public static final String RUNTIME_MODE = "execution.runtime-mode";
     public static final String MAX_PARALLELISM = "pipeline.max-parallelism";
     public static final String TIME_CHARACTERISTIC = "pipeline.time-characteristic";
     public static final String CHECKPOINTING_INTERVAL = "execution.checkpointing.interval";

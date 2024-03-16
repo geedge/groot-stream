@@ -16,11 +16,14 @@ Note: The parallelism of a job can be overridden by explicitly configuring the p
 - System Level: The parallelism of a job can be specified by using the `flink-conf.yaml` file.
 
 ### execution.buffer-timeout
-The maximum time frequency (milliseconds) for the flushing of the output buffers. If is not specified, the default value is `1000`.
+The maximum time frequency (milliseconds) for the flushing of the output buffers. If is not specified, the default value is `100`.
 You can set directly in Flink's parameter `fink.execution.buffer-timeout` to override the value in the configuration file.
 - A positive value triggers flushing periodically by that interval
 - 0 triggers flushing after every record thus minimizing latency
 - -1 ms triggers flushing only when the output buffer is full thus maximizing throughput
+### execution.runtime-mode
+This parameter is used to define the runtime mode of the job, the default value is `STREAMING`. If you want to run the job in batch mode, you can set `execution.runtime-mode = "BATCH"`.
+
 ### shade.identifier
 Specify the method of encryption, if you didn't have the requirement for encrypting or decrypting sensitive information in the configuration file, this option can be ignored.
 For more details, you can refer to the documentation [config-encryption-decryption](connector/config-encryption-decryption.md)

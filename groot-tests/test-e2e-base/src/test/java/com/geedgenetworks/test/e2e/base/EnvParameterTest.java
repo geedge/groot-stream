@@ -25,7 +25,7 @@ import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @DisabledOnContainer(
-        value = {TestContainerId.FLINK_1_14},
+        value = {TestContainerId.FLINK_1_17},
         type = {},
         disabledReason = "only flink adjusts the parameter configuration rules")
 public class EnvParameterTest extends TestSuiteBase {

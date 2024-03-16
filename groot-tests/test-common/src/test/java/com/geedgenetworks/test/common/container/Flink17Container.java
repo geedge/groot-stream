@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AutoService(TestContainer.class)
-public class Flink14Container extends AbstractTestFlinkContainer {
+public class Flink17Container extends AbstractTestFlinkContainer {
 
     @Override
     protected String getStartModuleName() {
@@ -34,10 +34,10 @@ public class Flink14Container extends AbstractTestFlinkContainer {
 
     @Override
     public TestContainerId identifier() {
-        return TestContainerId.FLINK_1_14;
+        return TestContainerId.FLINK_1_17 ;
     }
     @Override
     protected String getDockerImage() {
-        return "flink:1.14.6-scala_2.12-java11";
+        return "flink:1.17.2-scala_2.12-java11";
     }
 }
