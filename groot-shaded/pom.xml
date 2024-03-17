@@ -17,6 +17,7 @@
         <module>hbase-client-shaded</module>
         <module>protobuf-shaded</module>
         <module>http-client-shaded</module>
+        <module>guava-shaded</module>
     </modules>
 
     <properties>
