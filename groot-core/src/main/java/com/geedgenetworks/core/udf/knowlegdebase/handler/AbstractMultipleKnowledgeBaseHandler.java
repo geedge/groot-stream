@@ -1,6 +1,7 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
@@ -97,8 +98,9 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 String content = EntityUtils.toString(entity, "UTF-8");
-                KnowledgeResponse knowledgeResponse = JSON.parseObject(content, KnowledgeResponse.class);
-                List<KnowLedgeBaseFileMeta> knowledgeMetedataList = JSON.parseArray(knowledgeResponse.data, KnowLedgeBaseFileMeta.class);
+                Map knowledgeResponse = JSON.parseObject(content, Map.class);
+                JSONArray data = (JSONArray) knowledgeResponse.get("data");
+                List<KnowLedgeBaseFileMeta> knowledgeMetedataList = data.toJavaList(KnowLedgeBaseFileMeta.class);
                 return knowledgeMetedataList.stream()
                         .filter(metadata -> "latest".equals(metadata.getVersion()) && metadata.getIsValid() == 1 && metadata.getSha256() != null && checkId(metadata.getKb_id()))
                         .collect(Collectors.toMap(KnowLedgeBaseFileMeta::getKb_id, Function.identity(), (existing, replacement) -> existing, HashMap::new));

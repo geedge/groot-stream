@@ -2,9 +2,9 @@ package com.geedgenetworks.core.udf.cn;
 
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.IocMalwareKnowledgeBaseHandler;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.RuleKnowledgeBaseHandler;
-import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,26 +41,32 @@ public class IocLookup extends AbstractKnowledgeWithRuleUDF {
             switch (option) {
                 case "IP_TO_MALWARE":
                     String ipMalware = knowledgeBaseHandler.lookupByIp(lookupValue);
-                    event.getExtractedFields().put(outputFieldName, ipMalware);
-                    RuleKnowledgeBaseHandler.Rule ipRule = ruleKnowledgeBaseHandler.lookupByName(ipMalware);
-                    if (ipRule != null) {
-                        ruleMetadata.addRule(ipRule.getRuleId(), IocType.IP.getType());
+                    if (ipMalware != null) {
+                        event.getExtractedFields().put(outputFieldName, ipMalware);
+                        RuleKnowledgeBaseHandler.Rule ipRule = ruleKnowledgeBaseHandler.lookupByName(ipMalware);
+                        if (ipRule != null) {
+                            ruleMetadata.addRule(ipRule.getRuleId(), IocType.IP.getType());
+                        }
                     }
                     break;
                 case "DOMAIN_TO_MALWARE":
                     String domainMalware = knowledgeBaseHandler.lookupByDomain(lookupValue);
-                    event.getExtractedFields().put(outputFieldName, domainMalware);
-                    RuleKnowledgeBaseHandler.Rule domainRule = ruleKnowledgeBaseHandler.lookupByName(domainMalware);
-                    if (domainRule != null) {
-                        ruleMetadata.addRule(domainRule.getRuleId(), IocType.DOMAIN.getType());
+                    if (domainMalware != null) {
+                        event.getExtractedFields().put(outputFieldName, domainMalware);
+                        RuleKnowledgeBaseHandler.Rule domainRule = ruleKnowledgeBaseHandler.lookupByName(domainMalware);
+                        if (domainRule != null) {
+                            ruleMetadata.addRule(domainRule.getRuleId(), IocType.DOMAIN.getType());
+                        }
                     }
                     break;
                 case "HTTP_URL_TO_MALWARE":
                     String urlMalware = knowledgeBaseHandler.lookupByUrl(lookupValue);
-                    event.getExtractedFields().put(outputFieldName, urlMalware);
-                    RuleKnowledgeBaseHandler.Rule urlRule = ruleKnowledgeBaseHandler.lookupByName(urlMalware);
-                    if (urlRule != null) {
-                        ruleMetadata.addRule(urlRule.getRuleId(), IocType.DOMAIN.getType());
+                    if (urlMalware != null) {
+                        event.getExtractedFields().put(outputFieldName, urlMalware);
+                        RuleKnowledgeBaseHandler.Rule urlRule = ruleKnowledgeBaseHandler.lookupByName(urlMalware);
+                        if (urlRule != null) {
+                            ruleMetadata.addRule(urlRule.getRuleId(), IocType.URL.getType());
+                        }
                     }
                     break;
                 default:

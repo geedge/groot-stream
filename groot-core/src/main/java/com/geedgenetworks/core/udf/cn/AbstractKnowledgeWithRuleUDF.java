@@ -40,7 +40,8 @@ public abstract class AbstractKnowledgeWithRuleUDF extends AbstractKnowledgeUDF 
     protected enum IocType {
         IP("ip"),
         DOMAIN("domain"),
-        APP("app");
+        APP("app"),
+        URL("url");
 
         private String type;
 

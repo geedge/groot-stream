@@ -19,7 +19,7 @@ public class CnExample {
 
     public static void main(String[] args) throws FileNotFoundException, URISyntaxException {
         //System.setProperty("udf.config", "");
-        String configPath = args.length > 0 ? args[0] : "/example/cn_grootstream_job_local_template.yaml";
+        String configPath = args.length > 0 ? args[0] : "/example/cn_grootstream_job_template.yaml";
         String configFile = getTestConfigFile(configPath);
         ExecuteCommandArgs executeCommandArgs = new ExecuteCommandArgs();
         executeCommandArgs.setConfigFile(configFile);
