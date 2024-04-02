@@ -106,7 +106,12 @@ public abstract class AbstractKnowledgeBaseHandler {
 
         } catch (Exception e) {
             log.error("get file Metadata error! path = " + path + " " + e.getMessage());
-            return null;
+            KnowLedgeBaseFileMeta knowLedgeBaseFileMeta = new KnowLedgeBaseFileMeta();
+            knowLedgeBaseFileMeta.setKb_id(kbId);
+            knowLedgeBaseFileMeta.setPath(path);
+            knowLedgeBaseFileMeta.setSha256("");
+            knowLedgeBaseFileMetaList.add(knowLedgeBaseFileMeta);
+            return knowLedgeBaseFileMeta;
         }
 
         if (!knowLedgeBaseFileMetaList.isEmpty()) {
@@ -114,7 +119,12 @@ public abstract class AbstractKnowledgeBaseHandler {
             return knowLedgeBaseFileMetaList.get(0);
         } else {
             log.error("file Metadata is null ! path = " + path + "?kb_id=" + kbId);
-            return null;
+            KnowLedgeBaseFileMeta knowLedgeBaseFileMeta = new KnowLedgeBaseFileMeta();
+            knowLedgeBaseFileMeta.setKb_id(kbId);
+            knowLedgeBaseFileMeta.setPath(path);
+            knowLedgeBaseFileMeta.setSha256("");
+            knowLedgeBaseFileMetaList.add(knowLedgeBaseFileMeta);
+            return knowLedgeBaseFileMeta;
         }
     }
 }

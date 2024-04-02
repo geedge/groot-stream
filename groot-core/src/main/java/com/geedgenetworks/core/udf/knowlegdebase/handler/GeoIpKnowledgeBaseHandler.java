@@ -73,8 +73,10 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
         for (KnowLedgeBaseFileMeta knowLedgeEntity : kbInfoForIpLookUp.getKnowLedgeBaseFilesMetas()) {
             KnowLedgeBaseFileMeta metadata = getMetadata(kbInfoForIpLookUp.getKnowledgeConfig().getFsType(), kbInfoForIpLookUp.getKnowledgeConfig().getFsPath(), knowLedgeEntity.getKb_id());
-            if (!knowLedgeEntity.getSha256().equals(Objects.requireNonNull(metadata).getSha256())) {
-                return true;
+            if (metadata.getName() != null) {
+                if (!knowLedgeEntity.getSha256().equals(Objects.requireNonNull(metadata).getSha256())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -122,20 +124,32 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         }
         for (int i = 0; i < knowLedgeBaseFileMetas.size(); i++) {
             try {
-                byte[] fileByte = downloadFile(knowLedgeBaseFileMetas.get(i).getPath(), knowLedgeBaseFileMetas.get(i).getIsValid());
-                if (calculateSHA256(fileByte).equals(knowLedgeBaseFileMetas.get(i).getSha256())) {
-                    switch (i) {
-                        case 0:
-                            ipLookupBuilder.loadDataFile(new ByteArrayInputStream(fileByte));
-                            break;
-                        case 1:
-                            ipLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
-                            break;
+                if (knowLedgeBaseFileMetas.get(i).getName() != null) {
+                    byte[] fileByte = downloadFile(knowLedgeBaseFileMetas.get(i).getPath(), knowLedgeBaseFileMetas.get(i).getIsValid());
+                    if (calculateSHA256(fileByte).equals(knowLedgeBaseFileMetas.get(i).getSha256())) {
+                        switch (i) {
+                            case 0:
+                                ipLookupBuilder.loadDataFile(new ByteArrayInputStream(fileByte));
+                                break;
+                            case 1:
+                                ipLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
+                                break;
+                        }
+                    } else {
+                        log.error("check file sha256 error ");
+                        return false;
                     }
-                } else {
-                    log.error("check file sha256 error ");
+                }else {
+                    log.error("buildKnowledgeBase error File is null");
+                    IpLookupV2 ipLookup = ipLookupBuilder.build();
+                    KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp = new KnowledgeBaseInfoForIpLookUp();
+                    kbInfoForIpLookUp.setKnowLedgeBaseFilesMetas(knowLedgeBaseFileMetas);
+                    kbInfoForIpLookUp.setKnowledgeConfig(knowledgeBaseConfig);
+                    kbInfoForIpLookUp.setIpLookupV2(ipLookup);
+                    kbNameWithKbConfigAndFileMetas.put(knowledgeBaseConfig.getName(), kbInfoForIpLookUp);
                     return false;
                 }
+
             } catch (Exception e) {
                 log.error("updateKnowledgeBase error " + e.getMessage());
                 return false;

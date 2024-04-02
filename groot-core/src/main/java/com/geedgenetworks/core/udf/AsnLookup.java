@@ -35,9 +35,7 @@ public class AsnLookup implements UDF {
         CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
         for (KnowledgeBaseConfig knowledgeBaseConfig : commonConfig.getKnowledgeBaseConfig()) {
             if (kbName.equals(knowledgeBaseConfig.getName())) {
-                if (!KnowledgeBaseUpdateJob.registerKnowledgeBase(AsnKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig)) {
-                    throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Register AsnKnowledgeBase error ");
-                }
+                KnowledgeBaseUpdateJob.registerKnowledgeBase(AsnKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig);
                 break;
             }
         }

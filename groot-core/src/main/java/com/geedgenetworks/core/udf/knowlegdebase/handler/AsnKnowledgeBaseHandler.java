@@ -7,6 +7,7 @@ import com.geedgenetworks.core.pojo.KnowledgeBaseInfoForIpLookUp;
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
 import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,14 +27,17 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
     }
 
     public static synchronized void increment() {
-           count++;
+        count++;
     }
+
     public static synchronized void decrement() {
         count--;
     }
+
     public static synchronized int getCount() {
         return count;
     }
+
     public static synchronized AsnKnowledgeBaseHandler getInstance() {
         if (instance == null) {
             instance = new AsnKnowledgeBaseHandler();
@@ -44,11 +48,11 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
     @Override
     public boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
 
-        if("http".equals(knowledgeBaseConfig.getFsType()))
+        if ("http".equals(knowledgeBaseConfig.getFsType()))
             return buildKnowledgeBaseWithMeta(knowledgeBaseConfig);
-         else
+        else
             return buildKnowledgeBaseWithoutMeta(knowledgeBaseConfig);
-        }
+    }
 
     @Override
     public void updateKnowledgeBase() {
@@ -57,10 +61,9 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
             try {
                 if (ifNeedUpdate(entry.getValue())) {
                     boolean result = buildKnowledgeBaseWithMeta(entry.getValue().getKnowledgeConfig());
-                    if(result) {
+                    if (result) {
                         log.warn("AsnKnowledgeBase " + entry.getKey() + " update success!");
-                    }
-                    else {
+                    } else {
                         log.warn("AsnKnowledgeBase " + entry.getKey() + " update error!");
                     }
                 }
@@ -71,14 +74,14 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
     }
 
-    public static String lookUp(String kbName,String option, String ip) {
+    public static String lookUp(String kbName, String option, String ip) {
         String result = "";
         try {
-            if("IP_TO_ASN".equals(option)) {
+            if ("IP_TO_ASN".equals(option)) {
                 result = kbNameWithKbConfigAndFileMetas.get(kbName).getIpLookupV2().asnLookup(ip);
             }
         } catch (Exception e) {
-            log.error("AsnKnowledgeBaseHandler lookUp Error ip = " + ip +" kbName =" + kbName + " error " + e.getMessage());
+            log.error("AsnKnowledgeBaseHandler lookUp Error ip = " + ip + " kbName =" + kbName + " error " + e.getMessage());
         }
         return result;
     }
@@ -87,26 +90,29 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
         for (KnowLedgeBaseFileMeta knowLedgeEntity : kbInfoForIpLookUp.getKnowLedgeBaseFilesMetas()) {
             KnowLedgeBaseFileMeta metadata = getMetadata(kbInfoForIpLookUp.getKnowledgeConfig().getFsType(), kbInfoForIpLookUp.getKnowledgeConfig().getFsPath(), knowLedgeEntity.getKb_id());
-            if (!knowLedgeEntity.getSha256().equals(Objects.requireNonNull(metadata).getSha256())) {
-                return true;
+            if (metadata.getName() != null) {
+                if (!knowLedgeEntity.getSha256().equals(Objects.requireNonNull(metadata).getSha256())) {
+                    return true;
+                }
             }
         }
         return false;
     }
+
     private boolean buildKnowledgeBaseWithoutMeta(KnowledgeBaseConfig knowledgeBaseConfig) {
 
         IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
         for (int i = 0; i < knowledgeBaseConfig.getFiles().size(); i++) {
             try {
                 byte[] fileByte = getFileFromLocal(knowledgeBaseConfig.getFsPath() + knowledgeBaseConfig.getFiles().get(i));
-                    switch (i) {
-                        case 0:
-                            asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(fileByte));
-                            break;
-                        case 1:
-                            asnLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
-                            break;
-                    }
+                switch (i) {
+                    case 0:
+                        asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(fileByte));
+                        break;
+                    case 1:
+                        asnLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
+                        break;
+                }
 
             } catch (Exception e) {
                 log.error("buildKnowledgeBase error " + e.getMessage());
@@ -121,6 +127,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         kbNameWithKbConfigAndFileMetas.put(knowledgeBaseConfig.getName(), kbInfoForIpLookUp);
         return true;
     }
+
     private static boolean buildKnowledgeBaseWithMeta(KnowledgeBaseConfig knowledgeBaseConfig) {
 
         IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
@@ -136,18 +143,29 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         }
         for (int i = 0; i < knowLedgeBaseFileMetas.size(); i++) {
             try {
-                byte[] fileByte = downloadFile(knowLedgeBaseFileMetas.get(i).getPath(), knowLedgeBaseFileMetas.get(i).getIsValid());
-                if (calculateSHA256(fileByte).equals(knowLedgeBaseFileMetas.get(i).getSha256())) {
-                    switch (i) {
-                        case 0:
-                            asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(fileByte));
-                            break;
-                        case 1:
-                            asnLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
-                            break;
+                if (knowLedgeBaseFileMetas.get(i).getName() != null) {
+                    byte[] fileByte = downloadFile(knowLedgeBaseFileMetas.get(i).getPath(), knowLedgeBaseFileMetas.get(i).getIsValid());
+                    if (calculateSHA256(fileByte).equals(knowLedgeBaseFileMetas.get(i).getSha256())) {
+                        switch (i) {
+                            case 0:
+                                asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(fileByte));
+                                break;
+                            case 1:
+                                asnLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
+                                break;
+                        }
+                    } else {
+                        log.error("check file sha256 error ");
+                        return false;
                     }
                 } else {
-                    log.error("check file sha256 error ");
+                    log.error("buildKnowledgeBase error File is null");
+                    IpLookupV2 ipLookup = asnLookupBuilder.build();
+                    KnowledgeBaseInfoForIpLookUp kbInfoForIpLookUp = new KnowledgeBaseInfoForIpLookUp();
+                    kbInfoForIpLookUp.setKnowLedgeBaseFilesMetas(knowLedgeBaseFileMetas);
+                    kbInfoForIpLookUp.setKnowledgeConfig(knowledgeBaseConfig);
+                    kbInfoForIpLookUp.setIpLookupV2(ipLookup);
+                    kbNameWithKbConfigAndFileMetas.put(knowledgeBaseConfig.getName(), kbInfoForIpLookUp);
                     return false;
                 }
             } catch (Exception e) {
