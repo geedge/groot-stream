@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,10 +77,42 @@ class CalcCodeConvertorTest {
                 commonClientPort > commonServerPort ? "C2S:" + commonC2sPktNum : "S2C:" + commonS2cPktNum);
         assertEquals(
                 CalcCodeConvertor.convert("common_c2s_pkt_num > common_s2c_pkt_num " +
-                        "& common_c2s_byte_num > common_s2c_byte_num ? common_client_port : common_server_port").eval(origin),
+                        "&& common_c2s_byte_num > common_s2c_byte_num ? common_client_port : common_server_port").eval(origin),
                 commonC2sPktNum > commonS2cPktNum
                         && commonC2sByteNum > commonS2cByteNum ? commonClientPort : commonServerPort
         );
+    }
+
+    @Test
+    public void testArithmeticExpression() throws Exception {
+        final Map<String, Object> map = Collections.emptyMap();
+        assertEquals(
+                1, CalcCodeConvertor.convert("5 & 3").eval(map));
+        assertEquals(
+                7, CalcCodeConvertor.convert("5 | 3").eval(map));
+        assertEquals(
+                20, CalcCodeConvertor.convert("5 << 2").eval(map));
+        assertEquals(
+                1, CalcCodeConvertor.convert("5 >> 2").eval(map));
+        assertEquals(
+                8, CalcCodeConvertor.convert("5 + 3").eval(map));
+        assertEquals(
+                2, CalcCodeConvertor.convert("5 - 3").eval(map));
+        assertEquals(
+                15, CalcCodeConvertor.convert("5 * 3").eval(map));
+        assertEquals(
+                2, CalcCodeConvertor.convert("5 / 2").eval(map));
+        assertEquals(
+                2, CalcCodeConvertor.convert("5 % 3").eval(map));
+
+
+        final Map<String, Object> map1 = new HashMap<>();
+        map1.put("flags", 8);
+
+        assertEquals("B",
+                CalcCodeConvertor.convert(" flags & 8 == 9 ? 'A' : 'B'").eval(map1));
+        assertEquals("A",
+                CalcCodeConvertor.convert(" 5 | flags == 13 ? 'A' : 'B'").eval(map1));
     }
 
     @Test
