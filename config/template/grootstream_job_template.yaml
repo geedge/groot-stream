@@ -20,6 +20,7 @@ sources: # [object] Define connector source
       kafka.max.partition.fetch.bytes: 31457280
       kafka.group.id: SESSION-RECORD-GROUP-GROOT-STREAM-001  # [string] Kafka Group ID for Consumer
       kafka.auto.offset.reset: latest   # [string] Kafka Auto Offset Reset, default is latest
+      kafka.compression.type: snappy # [string] Kafka Compression Type, default is none
       format: json  # [string] Data Format for Source. eg. json, protobuf, etc.
       json.ignore.parse.errors: false  # [boolean] Flag to ignore parse errors, default will record the parse errors. If set true, it will ignore the parse errors.
 

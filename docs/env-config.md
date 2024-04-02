@@ -44,12 +44,18 @@ Specify a list of classpath URLs via `pipeline.classpaths`, The classpaths are s
 You can directly use the flink parameter by prefixing `flink.`, such as `flink.execution.buffer-timeout`, `flink.object-reuse`, etc. More details can be found in the official [flink documentation](https://flink.apache.org/).
 Of course, you can use groot stream parameter, here are some parameter names corresponding to the names in Flink.
 
-| Groot Stream             | Flink                          |
-|--------------------------|--------------------------------|
-| execution.buffer-timeout | flink.execution.buffer-timeout |
-| pipeline.object-reuse    | flink.object-reuse             |
-| pipeline.max-parallelism | flink.pipeline.max-parallelism |
-| ...                      | ...                            |
+| Groot Stream                           | Flink                                                         |
+|----------------------------------------|---------------------------------------------------------------|
+| execution.buffer-timeout               | flink.execution.buffer-timeout                                |
+| pipeline.object-reuse                  | flink.object-reuse                                            |
+| pipeline.max-parallelism               | flink.pipeline.max-parallelism                                |
+| execution.restart.strategy             | flink.restart-strategy                                        |
+| execution.restart.attempts             | flink.restart-strategy.fixed-delay.attempts                   |
+| execution.restart.delayBetweenAttempts | flink.restart-strategy.fixed-delay.delay                      |
+| execution.restart.failure-rate         | flink.restart-strategy.failure-rate.max-failures-per-interval |
+| execution.restart.failureInterval      | flink.restart-strategy.failure-rate.failure-rate-interval     |
+| execution.restart.delayInterval        | flink.restart-strategy.failure-rate.delay                     |
+| ...                                    | ...                                                           |
 
 
 

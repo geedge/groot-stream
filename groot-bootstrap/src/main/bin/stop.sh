@@ -16,7 +16,7 @@ stop_jobs() {
             done
             ;;
         yarn-per-job)
-           # Command to stop YARN applications for the specified job name
+           # Command to stop YARN applications for the specified Yarn cluster app name
             yarn application -list -appStates RUNNING | grep "$job_name" | awk '{print $1}' | while read -r appId
             do
                 yarn application -kill "$appId"
@@ -64,9 +64,6 @@ fi
 # Assigning input arguments to variables
 deployment_mode=$1  # standalone, yarn-per-job, or yarn-session
 job_name=$2  # The Flink job name to stop
-
-# Trim whitespace from job_name
-job_name=$(echo "$job_name" | tr -d '[:space:]')
 
 # Checking for empty input arguments
 if [ -z "$deployment_mode" ] || [ -z "$job_name" ]; then

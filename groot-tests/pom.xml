@@ -15,6 +15,7 @@
     <modules>
         <module>test-common</module>
         <module>test-e2e-base</module>
+       <module>test-e2e-kafka</module>
     </modules>
 
     <properties>
@@ -25,6 +26,25 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>groot-bootstrap</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>format-json</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>

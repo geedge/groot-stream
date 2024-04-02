@@ -30,28 +30,27 @@
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>groot-bootstrap</artifactId>
-            <version>${revision}</version>
+            <version>${project.version}</version>
         </dependency>
-
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>connector-kafka</artifactId>
-            <version>${revision}</version>
+            <version>${project.version}</version>
             <scope>${scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>connector-clickhouse</artifactId>
-            <version>${revision}</version>
+            <version>${project.version}</version>
             <scope>${scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>connector-ipfix-collector</artifactId>
-            <version>${revision}</version>
+            <version>${project.version}</version>
             <scope>${scope}</scope>
         </dependency>
 

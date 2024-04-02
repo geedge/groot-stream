@@ -71,7 +71,7 @@ public final class ContainerUtil {
                 Paths.get(GrootStreamHomeInContainer, "bootstrap", startJarName).toString());
 
 
-        // copy lib
+        // copy libs
         String hbaseClientJar = "hbase-client-shaded-" + getProjectVersion() + ".jar";
         Path hbaseClientJarPath =
                 Paths.get(PROJECT_ROOT_PATH, "groot-shaded/hbase-client-shaded", "target", hbaseClientJar);

@@ -33,6 +33,9 @@ application:
     parallelism: 3
     pipeline:
       object-reuse: true
+    execution:
+      restart:
+        strategy: none
   topology:
     - name: inline_source
       downstream: [filter_operator]
