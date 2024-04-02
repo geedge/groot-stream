@@ -60,10 +60,10 @@ class EvalExpressionResolverTest {
                         new ValueExpression.ArithmeticExpression(ArithmeticOperator.PLUS,
                                 new ValueExpression.StringConstantExpression("S2C:"),
                                 new ValueExpression.FieldRefExpression("common_s2c_pkt_num")))
-                );
+        );
         assertEquals(
                 resolver.resolve("common_c2s_pkt_num > common_s2c_pkt_num " +
-                        "& common_c2s_byte_num > common_s2c_byte_num ? common_client_port : common_server_port"),
+                        "&& common_c2s_byte_num > common_s2c_byte_num ? common_client_port : common_server_port"),
                 new ValueExpression.TernaryExpression(
                         new BooleanExpression.PredicateExpression(PredicateOperator.AND,
                                 new BooleanExpression.ComparisonExpression(ComparisonOperator.GT,
@@ -74,6 +74,14 @@ class EvalExpressionResolverTest {
                                         new ValueExpression.FieldRefExpression("common_s2c_byte_num"))),
                         new ValueExpression.FieldRefExpression("common_client_port"),
                         new ValueExpression.FieldRefExpression("common_server_port"))
+        );
+        assertEquals(
+                resolver.resolve("common_c2s_pkt_num & 2"),
+                new ValueExpression.ArithmeticExpression(
+                        ArithmeticOperator.BITWISE_AND,
+                        new ValueExpression.FieldRefExpression("common_c2s_pkt_num"),
+                        new ValueExpression.NumberConstantExpression(2)
+                )
         );
     }
 

@@ -97,6 +97,18 @@ public class EvalCodeGenerator implements ExpressionVisitor<String> {
             case SLASH:
                 code += String.format("%s / %s", leftTerm, rightTerm);
                 break;
+            case LEFT_SHIFT:
+                code += String.format("((java.lang.Integer)%s).intValue() << ((java.lang.Integer)%s).intValue()", leftTerm, rightTerm);
+                break;
+            case RIGHT_SHIFT:
+                code += String.format("((java.lang.Integer)%s).intValue() >> ((java.lang.Integer)%s).intValue()", leftTerm, rightTerm);
+                break;
+            case BITWISE_AND:
+                code += String.format("((java.lang.Integer)%s).intValue() & ((java.lang.Integer)%s).intValue()", leftTerm, rightTerm);
+                break;
+            case BITWISE_OR:
+                code += String.format("((java.lang.Integer)%s).intValue() | ((java.lang.Integer)%s).intValue()", leftTerm, rightTerm);
+                break;
         }
         ctx.addEvalCodeStatements(code + ";");
         return name;

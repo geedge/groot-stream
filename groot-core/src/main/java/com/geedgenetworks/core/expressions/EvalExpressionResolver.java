@@ -39,7 +39,7 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
                         message +=
                                 "Expect: "
                                         + e.getExpectedTokens()
-                                                .toString(recognizer.getVocabulary());
+                                        .toString(recognizer.getVocabulary());
                         message += "\n";
                         message += StringUtils.split(expr, "\n")[currentToken.getLine() - 1];
                         message += "\n";
@@ -187,7 +187,7 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
                 (short)
                         (factor
                                 * Short.parseShort(
-                                        ctx.SMALLINT_LITERAL().getText().replace("S", "")));
+                                ctx.SMALLINT_LITERAL().getText().replace("S", "")));
         return new ValueExpression.NumberConstantExpression(value);
     }
 
@@ -243,9 +243,19 @@ public class EvalExpressionResolver extends EvalExpressionBaseVisitor<Object> {
         } else if (ctx.ASTERISK() != null) {
             return ArithmeticOperator.ASTERISK;
         } else if (ctx.SLASH() != null) {
-            return ArithmeticOperator.ASTERISK;
-        } else {
+            return ArithmeticOperator.SLASH;
+        } else if (ctx.PERCENT() != null) {
             return ArithmeticOperator.PERCENT;
+        } else if (ctx.LEFT_SHIFT() != null) {
+            return ArithmeticOperator.LEFT_SHIFT;
+        } else if (ctx.RIGHT_SHIFT() != null) {
+            return ArithmeticOperator.RIGHT_SHIFT;
+        } else if (ctx.BITWISE_AND() != null) {
+            return ArithmeticOperator.BITWISE_AND;
+        } else if (ctx.BITWISE_OR() != null) {
+            return ArithmeticOperator.BITWISE_OR;
+        } else {
+            throw new IllegalArgumentException("Unsupported operate.");
         }
     }
 

@@ -6,5 +6,9 @@ public enum ArithmeticOperator {
     MINUS,
     ASTERISK,
     SLASH,
-    PERCENT
+    PERCENT,
+    LEFT_SHIFT,
+    RIGHT_SHIFT,
+    BITWISE_AND,
+    BITWISE_OR
 }

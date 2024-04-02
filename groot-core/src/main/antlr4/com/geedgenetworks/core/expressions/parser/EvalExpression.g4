@@ -67,6 +67,7 @@ comparisonOperator
 
 arithmeticOperator
     : PLUS | MINUS | ASTERISK | SLASH | PERCENT
+    | LEFT_SHIFT | RIGHT_SHIFT | BITWISE_AND | BITWISE_OR
     ;
 
 predicateOperator
@@ -87,9 +88,13 @@ MINUS: '-';
 ASTERISK: '*';
 SLASH: '/';
 PERCENT: '%';
+LEFT_SHIFT: '<<';
+RIGHT_SHIFT: '>>';
+BITWISE_OR: '|';
+BITWISE_AND: '&';
 
-AND: '&' | '&&';
-OR: '|' | '||';
+AND: '&&';
+OR: '||';
 NOT: '!';
 
 TRUE: 'TRUE';
