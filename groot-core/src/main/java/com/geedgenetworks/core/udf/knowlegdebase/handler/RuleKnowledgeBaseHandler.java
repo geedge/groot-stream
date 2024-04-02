@@ -67,11 +67,13 @@ public class RuleKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
     public void updateCache() {
         if ("http".equals(knowledgeBaseConfig.getFsType())) {
             requestApi();
+            return;
         }
         if ("local".equals(knowledgeBaseConfig.getFsType())) {
             byte[] localRuleContent = getFileFromLocal(knowledgeBaseConfig.getFsPath());
             RuleResponse ruleResponse = JSON.parseObject(new String(localRuleContent), RuleResponse.class);
             processResponse(ruleResponse);
+            return;
         }
         throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
     }
@@ -102,6 +104,7 @@ public class RuleKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         List<Rule> addList = ruleResponse.data.addList;
         addList.addAll(ruleResponse.data.updateList);
         List<Long> deleteIds = ruleResponse.data.deleteIds;
+        addList.forEach(rule -> rule.setName(rule.getName().toLowerCase()));
         addList.stream().filter(rule -> rule.isBuiltIn == 1).forEach(rule -> {
             nameMap.put(rule.name, rule);
             ruleMap.put(rule.ruleId, rule);
@@ -132,7 +135,10 @@ public class RuleKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
     }
 
     public Rule lookupByName(String name) {
-        return nameMap.get(name);
+        if (name == null) {
+            return null;
+        }
+        return nameMap.get(name.toLowerCase());
     }
 
     public List<Rule> lookupByKbId(Long kbId) {

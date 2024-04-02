@@ -1,6 +1,7 @@
 sources:
   kafka_source:
     type: kafka
+    # fields: # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
     properties: # [object] Source Properties
       topic: SESSION-RECORD
       kafka.bootstrap.servers: 192.168.44.11:9094,192.168.44.13:9094,192.168.44.14:9094,192.168.44.15:9094,192.168.44.16:9094
@@ -16,7 +17,7 @@ sources:
       kafka.sasl.mechanism: PLAIN
       kafka.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="galaxy2019";
       kafka.buffer.memory:
-      kafka.group.id: local-test
+      kafka.group.id: 44.55-test
       kafka.auto.offset.reset: latest
       kafka.max.request.size:
       kafka.compression.type: none
@@ -167,17 +168,29 @@ processing_pipelines:
             COMPANY: app_company
             COMPANY_CATEGORY: app_company_category
 
+      - function: EVAL
+        output_fields: [ client_zone ]
+        parameters:
+          value_expression: "flags & 8 == 8 ? 'internal' : 'external'"
+
+      - function: EVAL
+        output_fields: [ server_zone ]
+        parameters:
+          value_expression: "flags & 16 == 16 ? 'internal' : 'external'"
+
       - function: CN_IP_ZONE_LOOKUP
         lookup_fields: [ client_ip ]
         output_fields: [ client_zone ]
         parameters:
-          kb_name: cn_internal_ip
+          kb_name: none
+          #kb_name: cn_internal_ip
 
       - function: CN_IP_ZONE_LOOKUP
         lookup_fields: [ server_ip ]
         output_fields: [ server_zone ]
         parameters:
-          kb_name: cn_internal_ip
+          kb_name: none
+          #kb_name: cn_internal_ip
 
       - function: CN_VPN_LOOKUP
         lookup_fields: [ server_ip ]
@@ -249,15 +262,15 @@ processing_pipelines:
           kb_name: cn_app_tag_user_define
           option: APP_TO_TAG
 
-      - function: CN_FIELDS_MERGE
+      - function: GENERATE_STRING_ARRAY
         lookup_fields: [ client_idc_renter,client_ip_tags ]
         output_fields: [ client_ip_tags ]
 
-      - function: CN_FIELDS_MERGE
+      - function: GENERATE_STRING_ARRAY
         lookup_fields: [ server_idc_renter,server_dns_server,server_node_type,server_malware,server_vpn_service_name,server_ip_tags ]
         output_fields: [ server_ip_tags ]
 
-      - function: CN_FIELDS_MERGE
+      - function: GENERATE_STRING_ARRAY
         lookup_fields: [ domain_node_type,domain_malware,domain_vpn_service_name,domain_tags ]
         output_fields: [ domain_tags ]
 
@@ -288,13 +301,13 @@ processing_pipelines:
 postprocessing_pipelines:
   remove_field_processor: # [object] Processing Pipeline
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
-    remove_fields: [ log_id, device_tag, dup_traffic_flag ]
+    output_fields: [ recv_time,log_id,flags,start_timestamp_ms,end_timestamp_ms,duration_ms,decoded_as,client_ip,server_ip,client_port,server_port,app,app_transition,decoded_path,ip_protocol,l7_protocol,out_link_id,in_link_id,subscriber_id,imei,imsi,phone_number,apn,http_url,dns_rcode,dns_qname,dns_qtype,dns_rr,out_link_direction,in_link_direction,server_fqdn,server_domain,domain,domain_sld,domain_category_name,domain_category_group,domain_reputation_level,domain_icp_company_name,domain_whois_org,domain_tags,client_zone,client_country_region,client_super_admin_area,client_admin_area,client_longitude,client_latitude,client_isp,client_asn,client_ip_tags,server_zone,server_country_region,server_super_admin_area,server_admin_area,server_longitude,server_latitude,server_isp,server_asn,server_ip_tags,app_category,app_subcategory,app_company,app_company_category,app_tags,sent_pkts,sent_bytes,received_pkts,received_bytes,sessions,tcp_c2s_lost_bytes,tcp_s2c_lost_bytes,tcp_c2s_o3_pkts,tcp_s2c_o3_pkts,tcp_c2s_rtx_bytes,tcp_s2c_rtx_bytes,tcp_c2s_rtx_pkts,tcp_s2c_rtx_pkts,tcp_rtt_ms,http_response_latency_ms,ssl_handshake_latency_ms,dns_response_latency_ms,cn_internal_rule_id_list,cn_internal_ioc_type_list ]
 
 sinks:
   kafka_sink_a:
     type: kafka
     properties:
-      topic: test
+      topic: SESSION-RECORD-CN
       kafka.bootstrap.servers: 192.168.44.55:9092
       kafka.retries: 0
       kafka.linger.ms: 10
@@ -313,11 +326,6 @@ sinks:
       kafka.sasl.jaas.config:
       format: json
 
-  print_sink:
-    type: print
-    properties:
-      format: json
-
 application: # [object] Application Configuration
   env: # [object] Environment Variables
     name: groot-stream-job # [string] Job Name
@@ -331,8 +339,6 @@ application: # [object] Application Configuration
     - name: session_record_processor
       downstream: [ remove_field_processor ]
     - name: remove_field_processor
-      downstream: [ print_sink ]
+      downstream: [ kafka_sink_a ]
     - name: kafka_sink_a
-      downstream: [ ]
-    - name: print_sink
       downstream: [ ]

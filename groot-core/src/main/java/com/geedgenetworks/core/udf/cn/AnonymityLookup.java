@@ -2,9 +2,9 @@ package com.geedgenetworks.core.udf.cn;
 
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.IocDarkwebKnowledgeBaseHandler;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.RuleKnowledgeBaseHandler;
-import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,18 +41,23 @@ public class AnonymityLookup extends AbstractKnowledgeWithRuleUDF {
             switch (option) {
                 case "IP_TO_NODE_TYPE":
                     String ipNodeType = knowledgeBaseHandler.lookupByIp(lookupValue);
-                    event.getExtractedFields().put(outputFieldName, ipNodeType);
-                    RuleKnowledgeBaseHandler.Rule ipRule = ruleKnowledgeBaseHandler.lookupByName(ipNodeType);
-                    if (ipRule != null) {
-                        ruleMetadata.addRule(ipRule.getRuleId(), IocType.IP.getType());
+                    if (ipNodeType != null) {
+                        event.getExtractedFields().put(outputFieldName, ipNodeType);
+                        RuleKnowledgeBaseHandler.Rule ipRule = ruleKnowledgeBaseHandler.lookupByName(ipNodeType);
+                        if (ipRule != null) {
+                            ruleMetadata.addRule(ipRule.getRuleId(), IocType.IP.getType());
+                        }
                     }
+
                     break;
                 case "DOMAIN_TO_NODE_TYPE":
                     String domainNodeType = knowledgeBaseHandler.lookupByDomain(lookupValue);
-                    event.getExtractedFields().put(outputFieldName, domainNodeType);
-                    RuleKnowledgeBaseHandler.Rule domainRule = ruleKnowledgeBaseHandler.lookupByName(domainNodeType);
-                    if (domainRule != null) {
-                        ruleMetadata.addRule(domainRule.getRuleId(), IocType.DOMAIN.getType());
+                    if (domainNodeType != null) {
+                        event.getExtractedFields().put(outputFieldName, domainNodeType);
+                        RuleKnowledgeBaseHandler.Rule domainRule = ruleKnowledgeBaseHandler.lookupByName(domainNodeType);
+                        if (domainRule != null) {
+                            ruleMetadata.addRule(domainRule.getRuleId(), IocType.DOMAIN.getType());
+                        }
                     }
                     break;
                 default:
