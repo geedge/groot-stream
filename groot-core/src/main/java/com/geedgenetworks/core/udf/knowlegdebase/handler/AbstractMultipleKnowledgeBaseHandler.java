@@ -79,12 +79,14 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
     protected Boolean ifNeedUpdate() {
         Map<String, KnowLedgeBaseFileMeta> knowledgeMetedataMap = getMetadata(knowledgeBaseConfig.getFsPath());
         if (knowledgeMetedataMap.size() != knowledgeMetedataCacheMap.size()) {
+            this.knowledgeMetedataCacheMap = knowledgeMetedataMap;
             return true;
         }
         for (String id : knowledgeMetedataCacheMap.keySet()) {
             if (knowledgeMetedataMap.containsKey(id) && knowledgeMetedataCacheMap.get(id).getSha256().equals(knowledgeMetedataMap.get(id).getSha256())) {
                 continue;
             }
+            this.knowledgeMetedataCacheMap = knowledgeMetedataMap;
             return true;
         }
         return false;

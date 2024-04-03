@@ -63,7 +63,7 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
 
     protected Boolean ifNeedUpdate() {
         KnowLedgeBaseFileMeta knowledgeMetedata = getMetadata(knowledgeBaseConfig.getFsType(), knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(0));
-        if (knowledgeMetedata == null || knowledgeMetedata.getSha256() == null) {
+        if (knowledgeMetedata == null || "".equals(knowledgeMetedata.getSha256())) {
             return false;
         }
         if (knowledgeMetedataCache == null || knowledgeMetedataCache.getSha256() == null) {
