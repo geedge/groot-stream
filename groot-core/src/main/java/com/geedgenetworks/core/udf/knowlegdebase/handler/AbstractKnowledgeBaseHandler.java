@@ -95,14 +95,12 @@ public abstract class AbstractKnowledgeBaseHandler {
         List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetaList = new ArrayList<>();
 
         try {
-
             HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
             String metadate = httpClientPoolUtil.httpGet(URI.create(path + "?kb_id=" + kbId));
             Map metaObject = JSON.parseObject(metadate, Map.class);
             JSONArray jsonArray = (JSONArray) metaObject.get("data");
             knowLedgeBaseFileMetaList = jsonArray.toJavaList(KnowLedgeBaseFileMeta.class);
             knowLedgeBaseFileMetaList.removeIf(knowLedgeBaseFileMeta -> !"latest".equals(knowLedgeBaseFileMeta.getVersion()));
-
 
         } catch (Exception e) {
             log.error("get file Metadata error! path = " + path + " " + e.getMessage());
@@ -111,20 +109,7 @@ public abstract class AbstractKnowledgeBaseHandler {
             knowLedgeBaseFileMeta.setPath(path);
             knowLedgeBaseFileMeta.setSha256("");
             knowLedgeBaseFileMetaList.add(knowLedgeBaseFileMeta);
-            return knowLedgeBaseFileMeta;
         }
-
-        if (!knowLedgeBaseFileMetaList.isEmpty()) {
-
-            return knowLedgeBaseFileMetaList.get(0);
-        } else {
-            log.error("file Metadata is null ! path = " + path + "?kb_id=" + kbId);
-            KnowLedgeBaseFileMeta knowLedgeBaseFileMeta = new KnowLedgeBaseFileMeta();
-            knowLedgeBaseFileMeta.setKb_id(kbId);
-            knowLedgeBaseFileMeta.setPath(path);
-            knowLedgeBaseFileMeta.setSha256("");
-            knowLedgeBaseFileMetaList.add(knowLedgeBaseFileMeta);
-            return knowLedgeBaseFileMeta;
-        }
+        return knowLedgeBaseFileMetaList.get(0);
     }
 }
