@@ -90,8 +90,8 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
         for (KnowLedgeBaseFileMeta knowLedgeEntity : kbInfoForIpLookUp.getKnowLedgeBaseFilesMetas()) {
             KnowLedgeBaseFileMeta metadata = getMetadata(kbInfoForIpLookUp.getKnowledgeConfig().getFsType(), kbInfoForIpLookUp.getKnowledgeConfig().getFsPath(), knowLedgeEntity.getKb_id());
-            if (metadata.getName() != null) {
-                if (!knowLedgeEntity.getSha256().equals(Objects.requireNonNull(metadata).getSha256())) {
+            if (!"".equals(metadata.getSha256())) {
+                if (!knowLedgeEntity.getSha256().equals(metadata.getSha256())) {
                     return true;
                 }
             }

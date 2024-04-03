@@ -73,7 +73,7 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
 
         for (KnowLedgeBaseFileMeta knowLedgeEntity : kbInfoForIpLookUp.getKnowLedgeBaseFilesMetas()) {
             KnowLedgeBaseFileMeta metadata = getMetadata(kbInfoForIpLookUp.getKnowledgeConfig().getFsType(), kbInfoForIpLookUp.getKnowledgeConfig().getFsPath(), knowLedgeEntity.getKb_id());
-            if (metadata.getName() != null) {
+            if (!"".equals(metadata.getSha256())) {
                 if (!knowLedgeEntity.getSha256().equals(Objects.requireNonNull(metadata).getSha256())) {
                     return true;
                 }
