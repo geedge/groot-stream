@@ -1,5 +1,8 @@
 package com.geedgenetworks.test.e2e.kafka;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
+import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.types.StructType;
 import com.geedgenetworks.core.types.Types;
@@ -10,11 +13,13 @@ import com.geedgenetworks.test.common.container.TestContainer;
 import com.geedgenetworks.test.common.container.TestContainerId;
 import com.geedgenetworks.test.common.junit.DisabledOnContainer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.record.CompressionType;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -23,17 +28,25 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestTemplate;
+import org.testcontainers.containers.Container;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.lifecycle.Startables;
+import org.testcontainers.shaded.com.google.common.base.CharMatcher;
+import org.testcontainers.shaded.com.google.common.base.Strings;
+import org.testcontainers.shaded.com.google.common.primitives.Chars;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.DockerLoggerFactory;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
+
+import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @DisabledOnContainer(
@@ -47,11 +60,11 @@ public class KafkaConnectorTest extends TestSuiteBase implements TestResource {
     private static final String KAFKA_HOST = "kafkaCluster";
     private KafkaProducer<byte[], byte[]> producer;
 
-
+    private static final String DEFAULT_TEST_TOPIC_SOURCE = "test_topic_source";
 
     @Override
     @BeforeAll
-    public void startUp() throws Exception {
+    public void startUp() {
         kafkaContainer = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE_NAME))
                 .withNetwork(NETWORK)
                 .withNetworkAliases(KAFKA_HOST)
@@ -67,45 +80,56 @@ public class KafkaConnectorTest extends TestSuiteBase implements TestResource {
                 .untilAsserted(this::initKafkaProducer);
 
         log.info("Write 100 records to topic test_topic_source");
-
-        StructType dataType = Types.parseStructType("client_ip: string, server_ip: String");
-        JsonSerializer serializer = new JsonSerializer(dataType);
-        generateTestData(serializer::serialize, 0, 100);
-
-
+        generateTestData(DEFAULT_TEST_TOPIC_SOURCE,0, 100);
     }
 
-    private void generateTestData(ProducerRecordConverter converter, int start, int end) {
 
+
+    @TestTemplate
+    public void testSourceKafkaJsonToConsole(TestContainer container) {
+        generateTestData("test_topic_json", 0, 10);
+        CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        return container.executeJob("/kafka_source_to_console.yaml");
+                    } catch (Exception e) {
+                        log.error("Commit task exception :" + e.getMessage());
+                        throw new RuntimeException(e);
+                    }
+                });
+
+         await().atMost(300000, TimeUnit.MILLISECONDS)
+                .untilAsserted(
+                        () -> {
+                            String logs = container.getServerLogs();
+                            Assertions.assertEquals(StringUtils.countMatches(logs, "PrintSinkFunction"), 10);
+                        });
+    }
+
+    private void generateTestData(String topic, int start, int end) {
+        StructType dataType = Types.parseStructType("id: int, client_ip: string, server_ip: string, flag: string");
+        JsonSerializer serializer = new JsonSerializer(dataType);
         for (int i = start; i < end; i++) {
             Map<String, Object> row = Map
-                    .of("client_ip", "192.168.40.12", "server_ip", "8.8.8.8");
+                    .of("id", i,
+                        "client_ip", "192.168.40.12",
+                        "server_ip", "8.8.8.8" ,
+                        "flag", Boolean.FALSE.booleanValue());
             ProducerRecord<byte[], byte[]> record =
-                    new ProducerRecord<>("TEST-TOPIC-SOURCE", converter.convert(row));
+                    new ProducerRecord<>(topic, serializer.serialize(row));
             producer.send(record);
         }
-
-
 
     }
 
 
     @TestTemplate
-    public void testSourceKafkaToConsole(TestContainer container) throws IOException, InterruptedException {
-
-       List<String> data = getKafkaConsumerListData("TEST-TOPIC-SOURCE");
-
-       for (String record : data) {
-           log.info("Record: {}", record);}
-
-        Assertions.assertEquals(100, data.size());
+    public void testSinkKafka(TestContainer container) throws IOException, InterruptedException {
+        Container.ExecResult execResult = container.executeJob("/kafka_sink_inline_to_kafka.yaml");
+        Assertions.assertEquals(0, execResult.getExitCode(), execResult.getStderr());
+        List<String> data = getKafkaConsumerListData("test_topic");
+        Assertions.assertEquals(10, data.size()); // Check if all 10 records are consumed
     }
-
-    interface ProducerRecordConverter {
-       byte[] convert(Map<String, Object> row);
-    }
-
-
 
     @AfterAll
     @Override
