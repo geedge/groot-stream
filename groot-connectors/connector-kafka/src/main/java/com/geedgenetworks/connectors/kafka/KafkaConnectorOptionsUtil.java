@@ -1,7 +1,5 @@
 package com.geedgenetworks.connectors.kafka;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Map;
 import java.util.Properties;
 
@@ -19,9 +17,7 @@ public class KafkaConnectorOptionsUtil {
                             key -> {
                                 final String value = tableOptions.get(key);
                                 final String subKey = key.substring((PROPERTIES_PREFIX).length());
-                                if(!StringUtils.isBlank(value)){
-                                    kafkaProperties.put(subKey, value);
-                                }
+                                kafkaProperties.put(subKey, value);
                             });
         }
         return kafkaProperties;
