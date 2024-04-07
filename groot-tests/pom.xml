@@ -15,6 +15,7 @@
     <modules>
         <module>test-common</module>
         <module>test-e2e-base</module>
+       <module>test-e2e-kafka</module>
     </modules>
 
     <properties>
@@ -22,9 +23,29 @@
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
         <rest-assured.version>4.3.1</rest-assured.version>
+        <snappy-java.version>1.1.8.3</snappy-java.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>groot-bootstrap</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.typesafe</groupId>
+            <artifactId>config</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>format-json</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
@@ -53,6 +74,7 @@
             <version>${rest-assured.version}</version>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>

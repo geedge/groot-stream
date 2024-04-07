@@ -55,6 +55,8 @@ public abstract class AbstractTestFlinkContainer extends AbstractTestContainer {
                                 new LogMessageWaitStrategy()
                                         .withRegEx(".*Starting the resource manager.*")
                                         .withStartupTimeout(Duration.ofMinutes(2)));
+
+        // Copy groot-stream bootstrap and some other files to the container
         copyGrootStreamStarterToContainer(jobManager);
         copyGrootStreamStarterLoggingToContainer(jobManager);
 

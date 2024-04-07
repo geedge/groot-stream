@@ -1,0 +1,40 @@
+sources:
+  kafka_source:
+    type : kafka
+    schema:
+      fields: # [array of object] Schema field projection, support read data only from specified fields.
+        - name: client_ip
+          type: string
+        - name: server_ip
+          type: string
+    properties: # [object] Kafka source properties
+      topic: test_topic_json
+      kafka.bootstrap.servers: kafkaCluster:9092
+      kafka.session.timeout.ms: 60000
+      kafka.max.poll.records: 3000
+      kafka.max.partition.fetch.bytes: 31457280
+      kafka.group.id: test_topic_json_group
+      kafka.auto.offset.reset: earliest
+      format: json
+
+sinks: # [object] Define connector sink
+  print_sink:
+      type: print
+      properties:
+        mode: log_warn
+        format: json
+
+application: # [object] Define job configuration
+  env:
+    name: example-kafka-to-print
+    parallelism: 1
+    pipeline:
+      object-reuse: true
+    execution:
+        restart:
+            strategy: no
+  topology:
+    - name: kafka_source
+      downstream: [print_sink]
+    - name: print_sink
+      downstream: []

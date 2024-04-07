@@ -106,7 +106,7 @@ cd "groot-stream-${version}"
 - Run the following command to start the groot-stream server for Yarn Per-job Mode:
 ```shell
 cd "groot-stream-${version}"
-./bin/start.sh -c ./config/grootstream_job_example.yaml --target yarn-per-job -n inline-to-print-job -d
+./bin/start.sh -c ./config/grootstream_job_example.yaml --target yarn-per-job -Dyarn.application.name="inline-to-print-job"  -n inline-to-print-job -d
 ```
 ### Configuring
 

@@ -43,7 +43,7 @@ public class GrootStreamServer {
     private static void outputFatalError(Throwable throwable) {
         log.error("\\n\\n===============================================================================\\n\\n");
         String errorMsg = throwable.getMessage();
-        log.error("Fatal Error ,Reason is :{} \n", errorMsg);
+        log.error("Fatal Error: {} \n", errorMsg);
         log.error("Exception StackTrace :{}", ExceptionUtils.getStackTrace(throwable));
         log.error("\\n\\n===============================================================================\\n\\n");
     }

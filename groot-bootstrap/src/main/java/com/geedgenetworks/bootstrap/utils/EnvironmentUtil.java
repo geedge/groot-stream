@@ -52,7 +52,7 @@ public final class EnvironmentUtil {
             if (envConfig.hasPath(ExecutionConfigKeyName.RESTART_STRATEGY)) {
                 String restartStrategy = envConfig.getString(ExecutionConfigKeyName.RESTART_STRATEGY);
                 switch (restartStrategy.toLowerCase()) {
-                    case "no":
+                    case "none":
                         executionConfig.setRestartStrategy(RestartStrategies.noRestart());
                         break;
                     case "fixed-delay":
@@ -68,18 +68,18 @@ public final class EnvironmentUtil {
                         long delayInterval = envConfig.getLong(ExecutionConfigKeyName.RESTART_DELAY_INTERVAL);
                         executionConfig.setRestartStrategy(
                                 RestartStrategies.failureRateRestart(
-                                        rate,
-                                        Time.of(failureInterval, TimeUnit.MILLISECONDS),
-                                        Time.of(delayInterval, TimeUnit.MILLISECONDS)));
+                                        rate, // max failures per interval
+                                        Time.of(failureInterval, TimeUnit.MILLISECONDS), //time interval for measuring failure rate
+                                        Time.of(delayInterval, TimeUnit.MILLISECONDS))); // delay
                         break;
                     default:
                         log.warn(
-                                "set restart.strategy failed, unknown restart.strategy [{}],only support no,fixed-delay,failure-rate",
+                                "Set restart strategy failed, unknown restart strategy [{}],only support no,fixed-delay,failure-rate",
                                 restartStrategy);
                 }
             }
         } catch (Exception e) {
-            log.warn("set restart.strategy in config '{}' exception", envConfig, e);
+            log.warn("Set restart strategy in config '{}' exception", envConfig, e);
         }
     }
 

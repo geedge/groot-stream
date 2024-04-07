@@ -5,7 +5,6 @@ import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.geedgenetworks.test.common.TestSuiteBase;
 import com.geedgenetworks.test.common.container.AbstractTestFlinkContainer;
-import com.geedgenetworks.test.common.container.TestContainer;
 import com.geedgenetworks.test.common.container.TestContainerId;
 import com.geedgenetworks.test.common.junit.DisabledOnContainer;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +24,14 @@ import static org.awaitility.Awaitility.await;
         value = {TestContainerId.FLINK_1_17},
         type = {},
         disabledReason = "only flink adjusts the parameter configuration rules")
-public class InlineToPrint extends TestSuiteBase {
+public class InlineToPrintTest extends TestSuiteBase {
 
     @TestTemplate
     public void testInlineToPrint(AbstractTestFlinkContainer container) throws IOException, InterruptedException {
         CompletableFuture.supplyAsync(
                 () -> {
                     try {
-                        return container.executeJob("/inline_to_print.yaml");
+                        return container.executeJob("/kafka_to_print.yaml");
                     } catch (Exception e) {
                         log.error("Commit task exception :" + e.getMessage());
                         throw new RuntimeException(e);
