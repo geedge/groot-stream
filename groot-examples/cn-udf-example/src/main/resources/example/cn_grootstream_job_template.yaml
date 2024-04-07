@@ -43,11 +43,6 @@ processing_pipelines:
           precision: seconds
 
       - function: EVAL
-        output_fields: [ ingestion_time ]
-        parameters:
-          value_expression: recv_time
-
-      - function: EVAL
         output_fields: [ domain ]
         parameters:
           value_expression: server_fqdn
@@ -234,33 +229,26 @@ processing_pipelines:
           kb_name: cn_ioc_malware
           option: DOMAIN_TO_MALWARE
 
-      - function: CN_USER_DEFINE_TAG_LOOKUP
+      - function: CN_INTELLIGENCE_INDICATOR_LOOKUP
         lookup_fields: [ client_ip ]
         output_fields: [ client_ip_tags ]
         parameters:
-          kb_name: cn_ip_tag_user_define
+          kb_name: cn_intelligence_indicator
           option: IP_TO_TAG
 
-      - function: CN_USER_DEFINE_TAG_LOOKUP
+      - function: CN_INTELLIGENCE_INDICATOR_LOOKUP
         lookup_fields: [ server_ip ]
         output_fields: [ server_ip_tags ]
         parameters:
-          kb_name: cn_ip_tag_user_define
+          kb_name: cn_intelligence_indicator
           option: IP_TO_TAG
 
-      - function: CN_USER_DEFINE_TAG_LOOKUP
+      - function: CN_INTELLIGENCE_INDICATOR_LOOKUP
         lookup_fields: [ domain ]
         output_fields: [ domain_tags ]
         parameters:
-          kb_name: cn_domain_tag_user_define
+          kb_name: cn_intelligence_indicator
           option: DOMAIN_TO_TAG
-
-      - function: CN_USER_DEFINE_TAG_LOOKUP
-        lookup_fields: [ app ]
-        output_fields: [ app_tags ]
-        parameters:
-          kb_name: cn_app_tag_user_define
-          option: APP_TO_TAG
 
       - function: GENERATE_STRING_ARRAY
         lookup_fields: [ client_idc_renter,client_ip_tags ]
