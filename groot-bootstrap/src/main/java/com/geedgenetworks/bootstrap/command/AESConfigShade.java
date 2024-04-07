@@ -12,7 +12,7 @@ public class AESConfigShade implements ConfigShade {
             SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue(), ".geedgenetworks.".getBytes(StandardCharsets.UTF_8)).getEncoded() ;
 
     private static final String[] SENSITIVE_OPTIONS =
-            new String[] {"connection.user", "connection.password", "kafka.sasl.jaas.config"};
+            new String[] {"connection.user", "connection.password", "kafka.sasl.jaas.config","kafka.ssl.keystore.password","kafka.ssl.truststore.password","kafka.ssl.truststore.password"};
 
     @Override
     public String[] sensitiveOptions() {
