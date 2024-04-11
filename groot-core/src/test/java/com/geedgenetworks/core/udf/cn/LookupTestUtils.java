@@ -35,6 +35,8 @@ public class LookupTestUtils {
 
     private static String fsPath = "testPath";
     private static String fsType = "http";
+
+    private static int isValid = 1;
     private static List<String> fsFiles = Arrays.asList("testFile");
     public static String kbName = "testKbName";
     private static String downloadPath = "testDownloadPath";
@@ -77,6 +79,7 @@ public class LookupTestUtils {
         checkStaticMock();
         KnowLedgeBaseFileMeta knowLedgeBaseFileMeta = new KnowLedgeBaseFileMeta();
         knowLedgeBaseFileMeta.setPath(downloadPath);
+        knowLedgeBaseFileMeta.setIsValid(isValid);
         abstractKnowledgeBaseHandlerMockedStatic.when(() -> AbstractKnowledgeBaseHandler.getMetadata(fsType, fsPath, fsFiles.get(0))).thenReturn(knowLedgeBaseFileMeta);
         abstractKnowledgeBaseHandlerMockedStatic.when(() -> AbstractKnowledgeBaseHandler.downloadFile(downloadPath, 1)).thenReturn(downloadContent.getBytes());
     }
@@ -86,6 +89,7 @@ public class LookupTestUtils {
         KnowLedgeBaseFileMeta KnowLedgeBaseFileMeta = new KnowLedgeBaseFileMeta();
         KnowLedgeBaseFileMeta.setKb_id("1");
         KnowLedgeBaseFileMeta.setPath(downloadPath);
+        KnowLedgeBaseFileMeta.setIsValid(isValid);
         Map<String, KnowLedgeBaseFileMeta> KnowLedgeBaseFileMetaMap = new HashMap<>();
         KnowLedgeBaseFileMetaMap.put("1", KnowLedgeBaseFileMeta);
         abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.getMetadata(fsPath)).thenReturn(KnowLedgeBaseFileMetaMap);
