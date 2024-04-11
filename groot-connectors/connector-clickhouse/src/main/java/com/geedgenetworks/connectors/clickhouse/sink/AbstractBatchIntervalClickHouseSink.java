@@ -1,5 +1,6 @@
 package com.geedgenetworks.connectors.clickhouse.sink;
 
+import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.connectors.clickhouse.jdbc.BytesCharVarSeq;
 import com.geedgenetworks.connectors.clickhouse.jdbc.ClickHouseBatchInsertConnection;
 import com.geedgenetworks.connectors.clickhouse.jdbc.ClickHousePreparedBatchInsertStatement;
@@ -15,9 +16,6 @@ import com.github.housepower.misc.BytesCharSeq;
 import com.github.housepower.misc.DateTimeUtil;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.metrics.Counter;
-import org.apache.flink.metrics.Meter;
-import org.apache.flink.metrics.MeterView;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
 import org.apache.flink.runtime.state.FunctionSnapshotContext;
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
@@ -470,14 +468,16 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                     bytesCharVarSeq.setBytesAndLen(bs, bs.length);
                     return bytesCharVarSeq;
                 }
+                String str;
                 if (obj instanceof CharSequence) {
                     if (((CharSequence) obj).length() == 0) {
                         return ClickHouseUtils.EMPTY_BYTES_CHAR_SEQ;
                     }
+                    str = obj.toString();
                 } else {
                     // LOG.debug("set value[{}]: {} on String Column", obj.getClass(), obj);
+                    str = JSON.toJSONString(obj);
                 }
-                String str = obj.toString();
                 int length = str.length() * 3;
                 byte[] bs = bytes;
                 if (length > MAX_STR_BYTES_LENGTH) {
@@ -502,14 +502,16 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 if (obj instanceof byte[]) {
                     return new BytesCharSeq((byte[]) obj);
                 }
+                String str;
                 if (obj instanceof CharSequence) {
                     if (((CharSequence) obj).length() == 0) {
                         return ClickHouseUtils.EMPTY_BYTES_CHAR_SEQ;
                     }
+                    str = obj.toString();
                 } else {
                     // LOG.debug("set value[{}]: {} on String Column", obj.getClass(), obj);
+                    str = JSON.toJSONString(obj);
                 }
-                String str = obj.toString();
                 int length = str.length() * 3;
                 byte[] bs = bytes;
                 if (length > MAX_STR_BYTES_LENGTH) {
