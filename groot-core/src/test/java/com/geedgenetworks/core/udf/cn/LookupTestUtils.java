@@ -11,6 +11,9 @@ import com.geedgenetworks.core.udf.knowlegdebase.handler.AbstractMultipleKnowled
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.metrics.SimpleCounter;
+import org.apache.flink.runtime.metrics.groups.OperatorMetricGroup;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -44,6 +47,10 @@ public class LookupTestUtils {
         RuntimeContext runtimeContext = Mockito.mock(RuntimeContext.class);
         ExecutionConfig executionConfig = Mockito.mock(ExecutionConfig.class);
         Mockito.when(runtimeContext.getExecutionConfig()).thenReturn(executionConfig);
+        MetricGroup metricGroup = Mockito.mock(OperatorMetricGroup.class);
+        Mockito.when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
+        Mockito.when(metricGroup.addGroup(Mockito.anyString())).thenReturn(metricGroup);
+        Mockito.when(metricGroup.counter(Mockito.anyString())).thenReturn(new SimpleCounter());
         Configuration configuration = new Configuration();
         CommonConfig commonConfig = new CommonConfig();
         KnowledgeBaseConfig knowledgeBaseConfig = new KnowledgeBaseConfig();
@@ -92,6 +99,10 @@ public class LookupTestUtils {
         RuntimeContext runtimeContext = Mockito.mock(RuntimeContext.class);
         ExecutionConfig executionConfig = Mockito.mock(ExecutionConfig.class);
         Mockito.when(runtimeContext.getExecutionConfig()).thenReturn(executionConfig);
+        MetricGroup metricGroup = Mockito.mock(OperatorMetricGroup.class);
+        Mockito.when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
+        Mockito.when(metricGroup.addGroup(Mockito.anyString())).thenReturn(metricGroup);
+        Mockito.when(metricGroup.counter(Mockito.anyString())).thenReturn(new SimpleCounter());
         Configuration configuration = new Configuration();
         CommonConfig commonConfig = new CommonConfig();
         KnowledgeBaseConfig knowledgeBaseConfig = new KnowledgeBaseConfig();

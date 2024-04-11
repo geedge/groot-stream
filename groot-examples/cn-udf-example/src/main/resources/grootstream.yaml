@@ -84,17 +84,11 @@ grootstream:
       files:
         - 7
 
-    - name: cn_ip_tag_user_define
+    - name: cn_intelligence_indicator
       fs_type: http
-      fs_path: http://192.168.44.55:9999/v1/knowledge_base?category=cn_ip_tag_user_defined
-
-    - name: cn_domain_tag_user_define
-      fs_type: http
-      fs_path: http://192.168.44.55:9999/v1/knowledge_base?category=cn_domain_tag_user_defined
-
-    - name: cn_app_tag_user_define
-      fs_type: http
-      fs_path: http://192.168.44.55:9999/v1/knowledge_base?category=cn_app_tag_user_defined
+      fs_path: http://192.168.44.55:9999/v1/knowledge_base
+      files:
+        - 16
 
     - name: cn_rule
       fs_type: http
@@ -103,6 +97,4 @@ grootstream:
         token: 1a653ea0-d39b-4246-94b0-1ba95db4b6a7
 
   properties:
-    hos.path: http://192.168.44.12:8089
-    hos.bucket.name.traffic_file: traffic_file_bucket
-    hos.bucket.name.troubleshooting_file: troubleshooting_file_bucket
+    scheduler.knowledge_base.update.interval.minutes: 5
