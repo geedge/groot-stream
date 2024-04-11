@@ -45,7 +45,12 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
     @Override
     public void updateKnowledgeBase() {
         if (ifNeedUpdate()) {
-            buildKnowledgeBase();
+            Boolean result = buildKnowledgeBase();
+            if (result) {
+                logger.warn("KnowledgeBase " + knowledgeBaseConfig.getName() + " update success!");
+            } else {
+                logger.error("KnowledgeBase " + knowledgeBaseConfig.getName() + " update failed!");
+            }
         }
     }
 
@@ -53,7 +58,7 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
 
     public byte[] downloadFile() {
         if ("http".equals(knowledgeBaseConfig.getFsType())) {
-            return downloadFile(knowledgeMetedataCache.getPath(), 1);
+            return downloadFile(knowledgeMetedataCache.getPath(), knowledgeMetedataCache.getIsValid());
         }
         if ("local".equals(knowledgeBaseConfig.getFsType())) {
             return getFileFromLocal(knowledgeBaseConfig.getFsPath() + knowledgeBaseConfig.getFiles().get(0));
