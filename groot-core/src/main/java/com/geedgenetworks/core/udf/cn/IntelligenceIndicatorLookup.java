@@ -32,22 +32,29 @@ public class IntelligenceIndicatorLookup extends AbstractKnowledgeUDF {
     @Override
     public Event evaluate(Event event) {
         if (event.getExtractedFields().get(lookupFieldName) != null && event.getExtractedFields().get(lookupFieldName).toString().length() != 0) {
+            lookUpExistCounter.inc();
             String lookupValue = event.getExtractedFields().get(lookupFieldName).toString();
             switch (option) {
                 case "IP_TO_TAG":
                     List<String> ipTags = knowledgeBaseHandler.lookupByIp(lookupValue);
-                    if (event.getExtractedFields().get(outputFieldName) != null && event.getExtractedFields().get(outputFieldName) instanceof List) {
-                        ((List<String>) event.getExtractedFields().get(outputFieldName)).addAll(ipTags);
-                    } else {
-                        event.getExtractedFields().put(outputFieldName, ipTags);
+                    if (ipTags != null) {
+                        hitCounter.inc();
+                        if (event.getExtractedFields().get(outputFieldName) != null && event.getExtractedFields().get(outputFieldName) instanceof List) {
+                            ((List<String>) event.getExtractedFields().get(outputFieldName)).addAll(ipTags);
+                        } else {
+                            event.getExtractedFields().put(outputFieldName, ipTags);
+                        }
                     }
                     break;
                 case "DOMAIN_TO_TAG":
                     List<String> domainTags = knowledgeBaseHandler.lookupByDomain(lookupValue);
-                    if (event.getExtractedFields().get(outputFieldName) != null && event.getExtractedFields().get(outputFieldName) instanceof List) {
-                        ((List<String>) event.getExtractedFields().get(outputFieldName)).addAll(domainTags);
-                    } else {
-                        event.getExtractedFields().put(outputFieldName, domainTags);
+                    if (domainTags != null) {
+                        hitCounter.inc();
+                        if (event.getExtractedFields().get(outputFieldName) != null && event.getExtractedFields().get(outputFieldName) instanceof List) {
+                            ((List<String>) event.getExtractedFields().get(outputFieldName)).addAll(domainTags);
+                        } else {
+                            event.getExtractedFields().put(outputFieldName, domainTags);
+                        }
                     }
                     break;
                 default:

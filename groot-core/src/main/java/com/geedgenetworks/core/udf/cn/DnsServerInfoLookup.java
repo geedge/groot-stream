@@ -1,8 +1,10 @@
 package com.geedgenetworks.core.udf.cn;
 
 import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.udf.knowlegdebase.handler.DnsServerInfoKnowledgeBaseHandler;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
+import com.geedgenetworks.core.udf.knowlegdebase.handler.DnsServerInfoKnowledgeBaseHandler;
+
+import java.util.List;
 
 /**
  * @author gujinkai
@@ -16,12 +18,14 @@ public class DnsServerInfoLookup extends AbstractKnowledgeUDF {
     @Override
     public Event evaluate(Event event) {
         if (event.getExtractedFields().get(lookupFieldName) != null && event.getExtractedFields().get(lookupFieldName).toString().length() != 0) {
-            event.getExtractedFields().put(
-                    outputFieldName,
-                    knowledgeBaseHandler.lookup(
-                            event.getExtractedFields().get(lookupFieldName).toString()
-                    )
+            lookUpExistCounter.inc();
+            List<String> dnsServerRoleList = knowledgeBaseHandler.lookup(
+                    event.getExtractedFields().get(lookupFieldName).toString()
             );
+            if (dnsServerRoleList != null) {
+                hitCounter.inc();
+                event.getExtractedFields().put(outputFieldName, dnsServerRoleList);
+            }
         }
         return event;
     }

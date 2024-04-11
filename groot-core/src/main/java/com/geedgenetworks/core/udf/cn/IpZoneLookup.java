@@ -19,6 +19,7 @@ public class IpZoneLookup extends AbstractKnowledgeUDF {
     @Override
     public Event evaluate(Event event) {
         if (event.getExtractedFields().get(lookupFieldName) != null && event.getExtractedFields().get(lookupFieldName).toString().length() != 0) {
+            lookUpExistCounter.inc();
             String ip = event.getExtractedFields().get(lookupFieldName).toString();
             if (knowledgeBaseHandler.isInternal(ip)) {
                 event.getExtractedFields().put(outputFieldName, "internal");
