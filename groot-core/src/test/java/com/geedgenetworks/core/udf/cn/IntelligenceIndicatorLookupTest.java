@@ -4,7 +4,7 @@ import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -23,8 +23,8 @@ public class IntelligenceIndicatorLookupTest {
 
     private static RuntimeContext runtimeContext;
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUp() {
         runtimeContext = mockRuntimeContext();
 
         String content = "type,ip_addr_format,ip1,ip2,domain,tags\nIP,CIDR,116.178.65.0,25,ali.com,\"阿里1,云服务1\"\nDomain,CIDR,116.178.65.0,25,ali.com,\"阿里2,云服务2\"";
