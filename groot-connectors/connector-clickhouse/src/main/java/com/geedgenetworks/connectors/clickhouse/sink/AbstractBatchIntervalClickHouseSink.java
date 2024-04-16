@@ -14,6 +14,7 @@ import com.github.housepower.exception.ClickHouseSQLException;
 import com.github.housepower.jdbc.ClickHouseArray;
 import com.github.housepower.misc.BytesCharSeq;
 import com.github.housepower.misc.DateTimeUtil;
+import com.github.housepower.settings.SettingKey;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.state.FunctionInitializationContext;
@@ -81,6 +82,11 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         this.urls = ClickHouseUtils.buildUrlsFromHost(host);
         this.table = table;
         this.connInfo = connInfo;
+        if(!this.connInfo.containsKey(SettingKey.connect_timeout.name())){
+            this.connInfo.setProperty(SettingKey.connect_timeout.name(), "30");
+        }if(!this.connInfo.containsKey(SettingKey.query_timeout.name())){
+            this.connInfo.setProperty(SettingKey.query_timeout.name(), "300");
+        }
     }
 
     @Override
