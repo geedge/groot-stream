@@ -16,11 +16,11 @@ import java.util.Map;
  * how to store:
  * if we put "baidu.com":"1" and "baidu.cn":"2" into the trie tree, the tree will be like this:
  * root -> b -> a -> i -> d -> u -> . -> c -> o -> m
- * -> n
+ *                                         -> n
  * the data "1" is stored in the last node "m" and the data "2" is stored in the last node "n"
  * then we put "baidu":"3" into the trie tree, the tree will be like this:
  * root -> b -> a -> i -> d -> u -> . -> c -> o -> m
- * -> n
+ *                                         -> n
  * the data "3" will be stored in the node "u"
  * <p>
  * how to get:
