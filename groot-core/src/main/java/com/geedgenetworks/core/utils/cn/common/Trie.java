@@ -7,6 +7,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Trie tree
+ *
+ * @param <T> data type
+ * @description Trie tree put every character of the string into a node, and the data is stored in the last node.
+ * for example:
+ * how to store:
+ * if we put "baidu.com":"1" and "baidu.cn":"2" into the trie tree, the tree will be like this:
+ * root -> b -> a -> i -> d -> u -> . -> c -> o -> m
+ * -> n
+ * the data "1" is stored in the last node "m" and the data "2" is stored in the last node "n"
+ * then we put "baidu":"3" into the trie tree, the tree will be like this:
+ * root -> b -> a -> i -> d -> u -> . -> c -> o -> m
+ * -> n
+ * the data "3" will be stored in the node "u"
+ * <p>
+ * how to get:
+ * traversal the trie tree by the special string, and get all the data in the path
+ * if we get "baidu.com" from the trie tree, we will get "1" and "3"
+ * if we get "baidu.cn" from the trie tree, we will get "2" and "3"
+ */
 public class Trie<T> {
 
     private final Node<T> root = new Node<>();
