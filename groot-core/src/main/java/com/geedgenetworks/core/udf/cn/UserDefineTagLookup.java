@@ -44,39 +44,48 @@ public class UserDefineTagLookup extends AbstractKnowledgeWithRuleUDF {
             switch (option) {
                 case "IP_TO_TAG":
                     List<AbstractMultipleKnowledgeBaseHandler.Node> ipNodes = ipKnowledgeBaseHandler.lookup(lookupValue);
-                    ipNodes.forEach(node -> {
-                        lookupTagsCounter.inc();
-                        tags.add(node.getTag());
-                        List<RuleKnowledgeBaseHandler.Rule> rules = ruleKnowledgeBaseHandler.lookupByKbId(node.getKbId());
-                        if (rules != null) {
-                            ruleHitCounter.inc();
-                            rules.forEach(rule -> ruleMetadata.addRule(rule.getRuleId(), IocType.IP.getType()));
-                        }
-                    });
+                    if (ipNodes != null && ipNodes.size() > 0) {
+                        hitCounter.inc();
+                        ipNodes.forEach(node -> {
+                            lookupTagsCounter.inc();
+                            tags.add(node.getTag());
+                            List<RuleKnowledgeBaseHandler.Rule> rules = ruleKnowledgeBaseHandler.lookupByKbId(node.getKbId());
+                            if (rules != null) {
+                                ruleHitCounter.inc();
+                                rules.forEach(rule -> ruleMetadata.addRule(rule.getRuleId(), IocType.IP.getType()));
+                            }
+                        });
+                    }
                     break;
                 case "DOMAIN_TO_TAG":
                     List<AbstractMultipleKnowledgeBaseHandler.Node> domainNodes = domainKnowledgeBaseHandler.lookup(lookupValue);
-                    domainNodes.forEach(node -> {
-                        lookupTagsCounter.inc();
-                        tags.add(node.getTag());
-                        List<RuleKnowledgeBaseHandler.Rule> rules = ruleKnowledgeBaseHandler.lookupByKbId(node.getKbId());
-                        if (rules != null) {
-                            ruleHitCounter.inc();
-                            rules.forEach(rule -> ruleMetadata.addRule(rule.getRuleId(), IocType.DOMAIN.getType()));
-                        }
-                    });
+                    if (domainNodes != null && domainNodes.size() > 0) {
+                        hitCounter.inc();
+                        domainNodes.forEach(node -> {
+                            lookupTagsCounter.inc();
+                            tags.add(node.getTag());
+                            List<RuleKnowledgeBaseHandler.Rule> rules = ruleKnowledgeBaseHandler.lookupByKbId(node.getKbId());
+                            if (rules != null) {
+                                ruleHitCounter.inc();
+                                rules.forEach(rule -> ruleMetadata.addRule(rule.getRuleId(), IocType.DOMAIN.getType()));
+                            }
+                        });
+                    }
                     break;
                 case "APP_TO_TAG":
                     List<AbstractMultipleKnowledgeBaseHandler.Node> appNodes = appKnowledgeBaseHandler.lookup(lookupValue);
-                    appNodes.forEach(node -> {
-                        lookupTagsCounter.inc();
-                        tags.add(node.getTag());
-                        List<RuleKnowledgeBaseHandler.Rule> rules = ruleKnowledgeBaseHandler.lookupByKbId(node.getKbId());
-                        if (rules != null) {
-                            ruleHitCounter.inc();
-                            rules.forEach(rule -> ruleMetadata.addRule(rule.getRuleId(), IocType.APP.getType()));
-                        }
-                    });
+                    if (appNodes != null && appNodes.size() > 0) {
+                        hitCounter.inc();
+                        appNodes.forEach(node -> {
+                            lookupTagsCounter.inc();
+                            tags.add(node.getTag());
+                            List<RuleKnowledgeBaseHandler.Rule> rules = ruleKnowledgeBaseHandler.lookupByKbId(node.getKbId());
+                            if (rules != null) {
+                                ruleHitCounter.inc();
+                                rules.forEach(rule -> ruleMetadata.addRule(rule.getRuleId(), IocType.APP.getType()));
+                            }
+                        });
+                    }
                     break;
                 default:
                     break;
