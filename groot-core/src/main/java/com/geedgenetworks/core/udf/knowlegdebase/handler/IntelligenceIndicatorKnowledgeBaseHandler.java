@@ -136,10 +136,10 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
     }
 
     public List<String> lookupByIp(String ip) {
-        List<String> tags = null;
+        List<String> tags = new ArrayList<>();
         IPAddress address = new IPAddressString(ip).getAddress();
         if (address != null) {
-            tags = ipTagMap.get(address);
+            Optional.ofNullable(ipTagMap.get(address)).ifPresent(tags::addAll);
         }
         return tags;
     }
