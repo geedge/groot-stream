@@ -27,7 +27,7 @@ public class IntelligenceIndicatorLookupTest {
     void setUp() {
         runtimeContext = mockRuntimeContext();
 
-        String content = "type,ip_addr_format,ip1,ip2,domain,tags\nIP,CIDR,116.178.65.0,25,ali.com,\"阿里1,云服务1\"\nDomain,CIDR,116.178.65.0,25,ali.com,\"阿里2,云服务2\"";
+        String content = "type,ip_addr_format,ip1,ip2,domain,tags\nIP,CIDR,116.178.65.0,25,ali.com,\"阿里1,云服务1\"\nDomain,CIDR,116.178.65.0,25,$ali.com,\"阿里2,云服务2\"\nDomain,CIDR,116.178.65.0,25,*baidu.com,\"阿里3,云服务3\"";
         mockKnowledgeBaseHandler(content);
 
         intelligenceIndicatorLookup = new IntelligenceIndicatorLookup();
@@ -115,6 +115,25 @@ public class IntelligenceIndicatorLookupTest {
         event.setExtractedFields(fields);
         Event evaluate = intelligenceIndicatorLookup.evaluate(event);
         assertEquals(Arrays.asList("test", "test1", "阿里2", "云服务2"), evaluate.getExtractedFields().get("domain_tags"));
+    }
+
+    @Test
+    void evaluate5() {
+        UDFContext udfContext = new UDFContext();
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("kb_name", kbName);
+        parameters.put("option", "DOMAIN_TO_TAG");
+        udfContext.setParameters(parameters);
+        udfContext.setLookup_fields(Collections.singletonList("domain"));
+        udfContext.setOutput_fields(Collections.singletonList("domain_tags"));
+        intelligenceIndicatorLookup.open(runtimeContext, udfContext);
+
+        Event event = new Event();
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("domain", "test.baidu.com");
+        event.setExtractedFields(fields);
+        Event evaluate = intelligenceIndicatorLookup.evaluate(event);
+        assertEquals(Arrays.asList("阿里3", "云服务3"), evaluate.getExtractedFields().get("domain_tags"));
     }
 
     @AfterEach

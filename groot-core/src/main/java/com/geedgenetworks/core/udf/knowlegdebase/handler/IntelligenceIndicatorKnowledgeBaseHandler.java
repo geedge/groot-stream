@@ -1,8 +1,10 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
+import com.geedgenetworks.core.utils.cn.common.Trie;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
 import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.guava18.com.google.common.collect.Range;
 import org.apache.flink.shaded.guava18.com.google.common.collect.TreeRangeMap;
 import org.slf4j.Logger;
@@ -23,7 +25,11 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
 
     private TreeRangeMap<IPAddress, List<String>> ipTagMap = TreeRangeMap.create();
 
+    // $开头，精确匹配
     private HashMap<String, List<String>> domainTagMap = new HashMap<>();
+
+    // *开头，模糊匹配
+    private Trie<String> domainSuffix = new Trie<>();
 
     private IntelligenceIndicatorKnowledgeBaseHandler() {
     }
@@ -50,6 +56,7 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             TreeRangeMap<IPAddress, List<String>> newIpTagMap = TreeRangeMap.create();
             HashMap<String, List<String>> newDomainMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
+            Trie<String> newDomainSuffix = new Trie<>();
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
             while (iterator.hasNext()) {
                 Map<String, String> line = iterator.next();
@@ -104,10 +111,14 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
                         });
                         newIpTagMap.putAll(subRangeMap);
                     } else if ("Domain".equals(type)) {
-                        if (newDomainMap.containsKey(domain)) {
-                            newDomainMap.get(domain).addAll(tags);
+                        String finalDomain = domain.substring(1);
+                        if (domain.startsWith("$")) {
+                            newDomainMap.computeIfAbsent(finalDomain, k -> new ArrayList<>()).addAll(tags);
+                        } else if (domain.startsWith("*")) {
+                            String reverseDomain = StringUtils.reverse(finalDomain);
+                            tags.forEach(tag -> newDomainSuffix.put(reverseDomain, tag));
                         } else {
-                            newDomainMap.put(domain, new ArrayList<>(tags));
+                            logger.warn("intelligence indicator find unknown domain: " + domain);
                         }
                     }
                 } catch (Exception lineException) {
@@ -116,6 +127,7 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
             }
             ipTagMap = newIpTagMap;
             domainTagMap = newDomainMap;
+            domainSuffix = newDomainSuffix;
         } catch (Exception e) {
             logger.error(this.getClass().getSimpleName() + " update error", e);
             return false;
@@ -124,28 +136,22 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
     }
 
     public List<String> lookupByIp(String ip) {
-        List<String> tags = null;
+        List<String> tags = new ArrayList<>();
         IPAddress address = new IPAddressString(ip).getAddress();
         if (address != null) {
-            tags = ipTagMap.get(address);
+            Optional.ofNullable(ipTagMap.get(address)).ifPresent(tags::addAll);
         }
         return tags;
     }
 
     public List<String> lookupByDomain(String domain) {
+        List<String> result = new ArrayList<>();
         if (domain == null || domain.length() == 0) {
-            return new ArrayList<String>();
+            return result;
         }
-        if (domainTagMap.containsKey(domain)) {
-            return domainTagMap.get(domain);
-        } else {
-            int index = domain.indexOf(".") + 1;
-            if (index > 0) {
-                return lookupByDomain(domain.substring(index));
-            } else {
-                return new ArrayList<String>();
-            }
-        }
+        Optional.ofNullable(domainTagMap.get(domain)).ifPresent(result::addAll);
+        result.addAll(domainSuffix.get(StringUtils.reverse(domain)));
+        return result;
     }
 
     @Override

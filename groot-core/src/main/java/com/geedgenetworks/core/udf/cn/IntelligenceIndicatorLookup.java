@@ -37,7 +37,7 @@ public class IntelligenceIndicatorLookup extends AbstractKnowledgeUDF {
             switch (option) {
                 case "IP_TO_TAG":
                     List<String> ipTags = knowledgeBaseHandler.lookupByIp(lookupValue);
-                    if (ipTags != null) {
+                    if (ipTags != null && ipTags.size() > 0) {
                         hitCounter.inc();
                         if (event.getExtractedFields().get(outputFieldName) != null && event.getExtractedFields().get(outputFieldName) instanceof List) {
                             ((List<String>) event.getExtractedFields().get(outputFieldName)).addAll(ipTags);
@@ -48,7 +48,7 @@ public class IntelligenceIndicatorLookup extends AbstractKnowledgeUDF {
                     break;
                 case "DOMAIN_TO_TAG":
                     List<String> domainTags = knowledgeBaseHandler.lookupByDomain(lookupValue);
-                    if (domainTags != null) {
+                    if (domainTags != null && domainTags.size() > 0) {
                         hitCounter.inc();
                         if (event.getExtractedFields().get(outputFieldName) != null && event.getExtractedFields().get(outputFieldName) instanceof List) {
                             ((List<String>) event.getExtractedFields().get(outputFieldName)).addAll(domainTags);
