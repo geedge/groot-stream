@@ -16,6 +16,7 @@
         <module>format-json</module>
         <module>format-protobuf</module>
         <module>format-msgpack</module>
+        <module>format-raw</module>
     </modules>
 
     <dependencies>
