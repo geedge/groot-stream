@@ -79,11 +79,30 @@ public class EvalCodeGenerator implements ExpressionVisitor<String> {
         ArithmeticOperator operator = expression.getOperator();
         String leftTerm = visit(expression.getLeft());
         String rightTerm = visit(expression.getRight());
-        String name = ctx.addLocalObjectVariable(true);
+
+        // Only Plus
+        String value1 = ctx.addLocalObjectVariable(true);
+        String value2 = ctx.addLocalObjectVariable(true);
+
+        String name = ctx.addLocalObjectVariable(false);
         String code = name + " = ";
         switch (operator) {
             case PLUS:
-                code += String.format("((java.lang.Number)%s).intValue() + ((java.lang.Number)%s).intValue()", leftTerm, rightTerm);
+                code += "null;\n";
+
+                code += String.format("%s = %s;", value1, leftTerm);
+                code += String.format("%s = %s;", value2, rightTerm);
+
+                code += String.format("if ( (%s instanceof java.lang.String) || (%s instanceof java.lang.String) ) {\n" +
+                        "%s = %s.toString() + %s.toString();\n" +
+                        "}", value1, value2, name, value1, value2);
+                code += String.format("else if ( (%s instanceof java.lang.Number) && (%s instanceof java.lang.Number) ) {\n" +
+                        "%s = ((java.lang.Number)%s).intValue() + ((java.lang.Number)%s).intValue();\n" +
+                        "}", value1, value2, name, value1, value2);
+                code += String.format("else {" +
+                        "throw new com.geedgenetworks.core.expressions.InvalidProgramException(" +
+                            "\"Addition operation is not supported, values: [\" + %s + \", \" + %s + \"]\");\n" +
+                        "}\n", value1, value2);
                 break;
             case ASTERISK:
                 code += String.format("%s * %s", leftTerm, rightTerm);

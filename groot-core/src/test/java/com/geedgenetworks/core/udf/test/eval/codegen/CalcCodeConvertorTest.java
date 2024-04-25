@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.udf.test.eval.codegen;
 
-
+import com.geedgenetworks.core.expressions.Calc;
 import com.geedgenetworks.core.expressions.InvalidProgramException;
 import com.geedgenetworks.core.expressions.SyntaxErrorException;
 import com.geedgenetworks.core.expressions.codegen.CalcCodeConvertor;
@@ -81,6 +81,7 @@ class CalcCodeConvertorTest {
                 commonC2sPktNum > commonS2cPktNum
                         && commonC2sByteNum > commonS2cByteNum ? commonClientPort : commonServerPort
         );
+
     }
 
     @Test
@@ -130,7 +131,10 @@ class CalcCodeConvertorTest {
                 () -> CalcCodeConvertor.convert("common_c2s_pkt_num > common_s2c_pkt_num"));
         assertThrows(SyntaxErrorException.class,
                 () -> CalcCodeConvertor.convert("2 = 3"));
-        assertThrows(InvalidProgramException.class,
-                () -> CalcCodeConvertor.convert("common_client_ip - 10"));
+
+        final Map<String, Object> map = new HashMap<>(origin);
+        map.put("has_address", true);
+        Calc convert = CalcCodeConvertor.convert("common_c2s_pkt_num + has_address");
+        assertThrows(InvalidProgramException.class, () -> convert.eval(map));
     }
 }
