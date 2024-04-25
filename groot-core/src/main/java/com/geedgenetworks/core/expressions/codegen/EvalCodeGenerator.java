@@ -83,13 +83,13 @@ public class EvalCodeGenerator implements ExpressionVisitor<String> {
         String code = name + " = ";
         switch (operator) {
             case PLUS:
-                code += String.format("%s + %s", leftTerm, rightTerm);
+                code += String.format("((java.lang.Number)%s).intValue() + ((java.lang.Number)%s).intValue()", leftTerm, rightTerm);
                 break;
             case ASTERISK:
                 code += String.format("%s * %s", leftTerm, rightTerm);
                 break;
             case MINUS:
-                code += String.format("%s - %s", leftTerm, rightTerm);
+                code += String.format("((java.lang.Number)%s).intValue() - ((java.lang.Number)%s).intValue()", leftTerm, rightTerm);
                 break;
             case PERCENT:
                 code += leftTerm + " % " + rightTerm;

@@ -116,6 +116,15 @@ class CalcCodeConvertorTest {
     }
 
     @Test
+    public void testFieldArithmeticExpression() throws Exception {
+        assertEquals(1,
+                CalcCodeConvertor.convert("common_c2s_pkt_num - common_s2c_pkt_num").eval(origin));
+
+        assertEquals(17, CalcCodeConvertor.convert("common_c2s_pkt_num + 10 + 1D").eval(origin));
+
+    }
+
+    @Test
     public void testError() {
         assertThrows(SyntaxErrorException.class,
                 () -> CalcCodeConvertor.convert("common_c2s_pkt_num > common_s2c_pkt_num"));
