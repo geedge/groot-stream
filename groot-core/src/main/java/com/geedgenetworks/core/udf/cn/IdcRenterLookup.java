@@ -1,8 +1,8 @@
 package com.geedgenetworks.core.udf.cn;
 
 import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.udf.knowlegdebase.handler.IdcRenterKnowledgeBaseHandler;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
+import com.geedgenetworks.core.udf.knowlegdebase.handler.IdcRenterKnowledgeBaseHandler;
 
 /**
  * @author gujinkai
@@ -16,12 +16,14 @@ public class IdcRenterLookup extends AbstractKnowledgeUDF {
     @Override
     public Event evaluate(Event event) {
         if (event.getExtractedFields().get(lookupFieldName) != null && event.getExtractedFields().get(lookupFieldName).toString().length() != 0) {
-            event.getExtractedFields().put(
-                    outputFieldName,
-                    knowledgeBaseHandler.lookup(
-                            event.getExtractedFields().get(lookupFieldName).toString()
-                    )
+            lookUpExistCounter.inc();
+            String idcRenter = knowledgeBaseHandler.lookup(
+                    event.getExtractedFields().get(lookupFieldName).toString()
             );
+            if (idcRenter != null) {
+                hitCounter.inc();
+                event.getExtractedFields().put(outputFieldName, idcRenter);
+            }
         }
         return event;
     }

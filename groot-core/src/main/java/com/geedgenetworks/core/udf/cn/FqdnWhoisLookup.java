@@ -1,8 +1,8 @@
 package com.geedgenetworks.core.udf.cn;
 
 import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.udf.knowlegdebase.handler.FqdnWhoisKnowledgeBaseHandler;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
+import com.geedgenetworks.core.udf.knowlegdebase.handler.FqdnWhoisKnowledgeBaseHandler;
 
 /**
  * @author gujinkai
@@ -16,12 +16,14 @@ public class FqdnWhoisLookup extends AbstractKnowledgeUDF {
     @Override
     public Event evaluate(Event event) {
         if (event.getExtractedFields().get(lookupFieldName) != null && event.getExtractedFields().get(lookupFieldName).toString().length() != 0) {
-            event.getExtractedFields().put(
-                    outputFieldName,
-                    knowledgeBaseHandler.lookup(
-                            event.getExtractedFields().get(lookupFieldName).toString()
-                    )
+            lookUpExistCounter.inc();
+            String whoisRegistrantOrg = knowledgeBaseHandler.lookup(
+                    event.getExtractedFields().get(lookupFieldName).toString()
             );
+            if (whoisRegistrantOrg != null) {
+                hitCounter.inc();
+                event.getExtractedFields().put(outputFieldName, whoisRegistrantOrg);
+            }
         }
         return event;
     }

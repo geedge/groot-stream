@@ -11,6 +11,9 @@ import com.geedgenetworks.core.udf.knowlegdebase.handler.AbstractMultipleKnowled
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.MetricGroup;
+import org.apache.flink.metrics.SimpleCounter;
+import org.apache.flink.runtime.metrics.groups.OperatorMetricGroup;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -32,6 +35,10 @@ public class LookupTestUtils {
 
     private static String fsPath = "testPath";
     private static String fsType = "http";
+
+    private static int isValid = 1;
+
+    private static String format = "csv";
     private static List<String> fsFiles = Arrays.asList("testFile");
     public static String kbName = "testKbName";
     private static String downloadPath = "testDownloadPath";
@@ -44,6 +51,10 @@ public class LookupTestUtils {
         RuntimeContext runtimeContext = Mockito.mock(RuntimeContext.class);
         ExecutionConfig executionConfig = Mockito.mock(ExecutionConfig.class);
         Mockito.when(runtimeContext.getExecutionConfig()).thenReturn(executionConfig);
+        MetricGroup metricGroup = Mockito.mock(OperatorMetricGroup.class);
+        Mockito.when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
+        Mockito.when(metricGroup.addGroup(Mockito.anyString())).thenReturn(metricGroup);
+        Mockito.when(metricGroup.counter(Mockito.anyString())).thenReturn(new SimpleCounter());
         Configuration configuration = new Configuration();
         CommonConfig commonConfig = new CommonConfig();
         KnowledgeBaseConfig knowledgeBaseConfig = new KnowledgeBaseConfig();
@@ -70,6 +81,8 @@ public class LookupTestUtils {
         checkStaticMock();
         KnowLedgeBaseFileMeta knowLedgeBaseFileMeta = new KnowLedgeBaseFileMeta();
         knowLedgeBaseFileMeta.setPath(downloadPath);
+        knowLedgeBaseFileMeta.setIsValid(isValid);
+        knowLedgeBaseFileMeta.setFormat(format);
         abstractKnowledgeBaseHandlerMockedStatic.when(() -> AbstractKnowledgeBaseHandler.getMetadata(fsType, fsPath, fsFiles.get(0))).thenReturn(knowLedgeBaseFileMeta);
         abstractKnowledgeBaseHandlerMockedStatic.when(() -> AbstractKnowledgeBaseHandler.downloadFile(downloadPath, 1)).thenReturn(downloadContent.getBytes());
     }
@@ -79,6 +92,8 @@ public class LookupTestUtils {
         KnowLedgeBaseFileMeta KnowLedgeBaseFileMeta = new KnowLedgeBaseFileMeta();
         KnowLedgeBaseFileMeta.setKb_id("1");
         KnowLedgeBaseFileMeta.setPath(downloadPath);
+        KnowLedgeBaseFileMeta.setIsValid(isValid);
+        KnowLedgeBaseFileMeta.setFormat(format);
         Map<String, KnowLedgeBaseFileMeta> KnowLedgeBaseFileMetaMap = new HashMap<>();
         KnowLedgeBaseFileMetaMap.put("1", KnowLedgeBaseFileMeta);
         abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.getMetadata(fsPath)).thenReturn(KnowLedgeBaseFileMetaMap);
@@ -92,6 +107,10 @@ public class LookupTestUtils {
         RuntimeContext runtimeContext = Mockito.mock(RuntimeContext.class);
         ExecutionConfig executionConfig = Mockito.mock(ExecutionConfig.class);
         Mockito.when(runtimeContext.getExecutionConfig()).thenReturn(executionConfig);
+        MetricGroup metricGroup = Mockito.mock(OperatorMetricGroup.class);
+        Mockito.when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
+        Mockito.when(metricGroup.addGroup(Mockito.anyString())).thenReturn(metricGroup);
+        Mockito.when(metricGroup.counter(Mockito.anyString())).thenReturn(new SimpleCounter());
         Configuration configuration = new Configuration();
         CommonConfig commonConfig = new CommonConfig();
         KnowledgeBaseConfig knowledgeBaseConfig = new KnowledgeBaseConfig();

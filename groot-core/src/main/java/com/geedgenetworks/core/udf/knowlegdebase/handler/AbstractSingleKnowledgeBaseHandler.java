@@ -1,23 +1,15 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
-import com.alibaba.fastjson2.JSON;
+
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
+import com.geedgenetworks.crypt.AESUtil;
 import lombok.Data;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author gujinkai
@@ -33,6 +25,8 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
     protected KnowLedgeBaseFileMeta knowledgeMetedataCache;
     private static final CloseableHttpClient HTTP_CLIENT = HttpClients.createMinimal();
 
+    private static final String AES_KEY = "86cf0e2ffba3f541a6c6761313e5cc7e";
+
     @Override
     public boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
         this.knowledgeBaseConfig = knowledgeBaseConfig;
@@ -45,20 +39,65 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
     @Override
     public void updateKnowledgeBase() {
         if (ifNeedUpdate()) {
-            buildKnowledgeBase();
+            Boolean result = buildKnowledgeBase();
+            if (result) {
+                logger.warn("KnowledgeBase " + knowledgeBaseConfig.getName() + " update success!");
+            } else {
+                logger.error("KnowledgeBase " + knowledgeBaseConfig.getName() + " update failed!");
+            }
         }
     }
 
     protected abstract Boolean buildKnowledgeBase();
 
+    /**
+     * 下载文件
+     * 在decrypt方法中解密,并在其中处理了文件下载异常后返回null的情况
+     *
+     * @return byte[]
+     */
     public byte[] downloadFile() {
-        if ("http".equals(knowledgeBaseConfig.getFsType())) {
-            return downloadFile(knowledgeMetedataCache.getPath(), 1);
+        byte[] data;
+        switch (knowledgeBaseConfig.getFsType()) {
+            case "http":
+                data = downloadFile(knowledgeMetedataCache.getPath(), knowledgeMetedataCache.getIsValid());
+                break;
+            case "local":
+                data = getFileFromLocal(knowledgeBaseConfig.getFsPath() + knowledgeBaseConfig.getFiles().get(0));
+                break;
+            default:
+                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
         }
-        if ("local".equals(knowledgeBaseConfig.getFsType())) {
-            return getFileFromLocal(knowledgeBaseConfig.getFsPath() + knowledgeBaseConfig.getFiles().get(0));
+        return decrypt(data);
+    }
+
+    /**
+     * 解密
+     * 支持的文件格式: csv、aes
+     *
+     * @param data byte[]
+     * @return byte[]
+     */
+    private byte[] decrypt(byte[] data) {
+        byte[] result = new byte[0];
+        try {
+            if (data == null) {
+                data = new byte[0];
+            }
+            switch (knowledgeMetedataCache.getFormat()) {
+                case "aes":
+                    result = AESUtil.decrypt(data, AES_KEY);
+                    break;
+                case "csv":
+                    result = data;
+                    break;
+                default:
+                    logger.error("unknown format: " + knowledgeMetedataCache.getFormat());
+            }
+        } catch (Exception e) {
+            logger.error("decrypt error", e);
         }
-        throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
+        return result;
     }
 
     protected Boolean ifNeedUpdate() {
@@ -76,23 +115,6 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
             knowledgeMetedataCache = knowledgeMetedata;
             return true;
         }
-    }
-
-    public List<KnowLedgeBaseFileMeta> getMetadata(String url) {
-        final HttpGet httpGet = new HttpGet(url);
-        httpGet.addHeader("Accept", "application/json");
-        try {
-            CloseableHttpResponse response = HTTP_CLIENT.execute(httpGet);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                String content = EntityUtils.toString(entity, "UTF-8");
-                KnowledgeResponse knowledgeResponse = JSON.parseObject(content, KnowledgeResponse.class);
-                return JSON.parseArray(knowledgeResponse.data, KnowLedgeBaseFileMeta.class).stream().filter(metadata -> "latest".equals(metadata.getVersion()) && metadata.getIsValid() == 1).collect(Collectors.toList());
-            }
-        } catch (IOException e) {
-            logger.error("fetch knowledge metadata error", e);
-        }
-        return Collections.singletonList(null);
     }
 
     @Data

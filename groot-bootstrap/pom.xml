@@ -67,7 +67,7 @@
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
-            <artifactId>format-raw</artifactId>
+            <artifactId>format-msgpack</artifactId>
             <version>${revision}</version>
             <scope>${scope}</scope>
         </dependency>
@@ -91,6 +91,13 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-json</artifactId>
             <version>${flink.version}</version>
+            <scope>${scope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>format-raw</artifactId>
+            <version>${revision}</version>
             <scope>${scope}</scope>
         </dependency>
 
