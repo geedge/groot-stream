@@ -35,14 +35,17 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
 
     protected KnowledgeBaseConfig knowledgeBaseConfig;
 
-    protected Map<String, KnowLedgeBaseFileMeta> knowledgeMetedataCacheMap;
+    protected Map<String, KnowLedgeBaseFileMeta> knowledgeMetedataCacheMap = new HashMap<>();
     private static final CloseableHttpClient HTTP_CLIENT = HttpClients.createMinimal();
 
     @Override
     public boolean initKnowledgeBase(KnowledgeBaseConfig knowledgeBaseConfig) {
         this.knowledgeBaseConfig = knowledgeBaseConfig;
         if ("http".equals(knowledgeBaseConfig.getFsType())) {
-            this.knowledgeMetedataCacheMap = getMetadata(knowledgeBaseConfig.getFsPath());
+            Map<String, KnowLedgeBaseFileMeta> metadata = getMetadata(knowledgeBaseConfig.getFsPath());
+            if (metadata != null) {
+                this.knowledgeMetedataCacheMap = metadata;
+            }
         }
         return buildKnowledgeBase();
     }
@@ -58,7 +61,7 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
 
     protected byte[] downloadFile(Long id) {
         if ("http".equals(knowledgeBaseConfig.getFsType())) {
-            return downloadFile(knowledgeMetedataCacheMap.get(encodeId(id)).getPath(), 1);
+            return downloadFile(knowledgeMetedataCacheMap.get(encodeId(id)).getPath(), knowledgeMetedataCacheMap.get(encodeId(id)).getIsValid());
         }
         if ("local".equals(knowledgeBaseConfig.getFsType())) {
             return getFileFromLocal(knowledgeBaseConfig.getFsPath() + id);
@@ -78,6 +81,9 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
 
     protected Boolean ifNeedUpdate() {
         Map<String, KnowLedgeBaseFileMeta> knowledgeMetedataMap = getMetadata(knowledgeBaseConfig.getFsPath());
+        if (knowledgeMetedataMap == null) {
+            return false;
+        }
         if (knowledgeMetedataMap.size() != knowledgeMetedataCacheMap.size()) {
             this.knowledgeMetedataCacheMap = knowledgeMetedataMap;
             return true;
@@ -110,7 +116,7 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
         } catch (IOException e) {
             logger.error("fetch knowledge metadata error", e);
         }
-        return new HashMap<>();
+        return null;
     }
 
     public static boolean checkId(String id) {

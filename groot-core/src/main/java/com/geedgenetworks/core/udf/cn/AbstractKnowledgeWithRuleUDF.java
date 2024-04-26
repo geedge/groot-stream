@@ -6,6 +6,7 @@ import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.udf.UDFContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.Counter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +26,8 @@ public abstract class AbstractKnowledgeWithRuleUDF extends AbstractKnowledgeUDF 
 
     protected String internalIocTypeListFieldName = cnInternalFieldNamePrefix + "ioc_type_list";
 
+    protected Counter ruleHitCounter;
+
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         Configuration configuration = (Configuration) runtimeContext
@@ -35,6 +38,7 @@ public abstract class AbstractKnowledgeWithRuleUDF extends AbstractKnowledgeUDF 
         ruleConfigs = commonConfig.getKnowledgeBaseConfig().stream().filter(knowledgeBaseConfig -> knowledgeBaseConfig.getName().equals("cn_rule")).collect(Collectors.toList());
 
         super.open(runtimeContext, udfContext);
+        ruleHitCounter = metrics.counter("rule_hit");
     }
 
     protected enum IocType {

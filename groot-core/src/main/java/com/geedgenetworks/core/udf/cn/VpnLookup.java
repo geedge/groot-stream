@@ -2,9 +2,9 @@ package com.geedgenetworks.core.udf.cn;
 
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.DomainVpnKnowledgeBaseHandler;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.IpVpnKnowledgeBaseHandler;
-import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +33,7 @@ public class VpnLookup extends AbstractKnowledgeUDF {
     @Override
     public Event evaluate(Event event) {
         if (event.getExtractedFields().get(lookupFieldName) != null && event.getExtractedFields().get(lookupFieldName).toString().length() != 0) {
+            lookUpExistCounter.inc();
             String lookup = event.getExtractedFields().get(lookupFieldName).toString();
             String result = null;
             switch (option) {
@@ -46,7 +47,10 @@ public class VpnLookup extends AbstractKnowledgeUDF {
                     logger.error("unknown option: " + option);
                     break;
             }
-            event.getExtractedFields().put(outputFieldName, result);
+            if (result != null) {
+                hitCounter.inc();
+                event.getExtractedFields().put(outputFieldName, result);
+            }
         }
         return event;
     }

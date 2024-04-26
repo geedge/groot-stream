@@ -7,6 +7,8 @@ import com.geedgenetworks.common.udf.UDF;
 import com.geedgenetworks.common.udf.UDFContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.metrics.Counter;
+import org.apache.flink.metrics.MetricGroup;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,8 +28,18 @@ public abstract class AbstractKnowledgeUDF implements UDF {
 
     protected List<KnowledgeBaseConfig> knowledgeBaseConfigs;
 
+    protected MetricGroup metrics;
+
+    protected Counter lookUpExistCounter;
+    protected Counter hitCounter;
+
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
+        String metricPrefix = buildMetricPrefix(udfContext);
+        metrics = runtimeContext.getMetricGroup().addGroup(metricPrefix + "_udf_metrics");
+        lookUpExistCounter = metrics.counter("look_up_exist");
+        hitCounter = metrics.counter("knowledge_hit");
+
         String kbName = udfContext.getParameters().get("kb_name").toString();
 
         Configuration configuration = (Configuration) runtimeContext
@@ -42,6 +54,10 @@ public abstract class AbstractKnowledgeUDF implements UDF {
         if (udfContext.getOutput_fields() != null && udfContext.getOutput_fields().size() > 0) {
             this.outputFieldName = udfContext.getOutput_fields().get(0);
         }
+    }
+
+    private String buildMetricPrefix(UDFContext udfContext) {
+        return functionName().toLowerCase() + "_" + udfContext.getLookup_fields().get(0);
     }
 
     protected abstract void registerKnowledges();

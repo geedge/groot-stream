@@ -2,8 +2,8 @@ package com.geedgenetworks.core.udf.cn;
 
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.udf.knowlegdebase.handler.AppCategoryKnowledgeBaseHandler;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
+import com.geedgenetworks.core.udf.knowlegdebase.handler.AppCategoryKnowledgeBaseHandler;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +32,10 @@ public class AppCategoryLookup extends AbstractKnowledgeUDF {
     @Override
     public Event evaluate(Event event) {
         if (event.getExtractedFields().get(lookupFieldName) != null && event.getExtractedFields().get(lookupFieldName).toString().length() != 0) {
+            lookUpExistCounter.inc();
             AppCategoryKnowledgeBaseHandler.AppCategory appCategory = knowledgeBaseHandler.lookup(event.getExtractedFields().get(lookupFieldName).toString());
             if (appCategory != null) {
+                hitCounter.inc();
                 fieldMapping.forEach((key, value) -> {
                     switch (key) {
                         case "CATEGORY":
