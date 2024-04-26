@@ -148,9 +148,8 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
       - function: SNOWFLAKE_ID
         lookup_fields: [ '' ]
         output_fields: [ log_id ]
-        filter:
         parameters:
-          data_center_id_num: 1
+          data_center_id_num: 1  # [number] Data Center ID, Default is 0, range is 0-31. Multi-data center deployment, each data center has a unique ID.
 
       - function: JSON_EXTRACT
         lookup_fields: [ device_tag ]
@@ -183,14 +182,10 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
           value_expression: recv_time
 
       - function: DOMAIN
-        lookup_fields: [ http_host,ssl_sni,dtls_sni,quic_sni ]
+        lookup_fields: [ http_host, ssl_sni, dtls_sni, quic_sni ]
         output_fields: [ server_domain ]
         parameters:
           option: FIRST_SIGNIFICANT_SUBDOMAIN
-
-      - function: BASE64_DECODE_TO_STRING
-        lookup_fields: [ mail_subject,mail_subject_charset ]
-        output_fields: [ mail_subject ]
 
       - function: BASE64_DECODE_TO_STRING
         output_fields: [ mail_subject ]
@@ -205,16 +200,10 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
           charset_field: mail_attachment_name_charset
 
       - function: PATH_COMBINE
-        lookup_fields: [ packet_capture_file ]
-        output_fields: [ packet_capture_file ]
-        parameters:
-          path: [ props.hos.path, props.hos.bucket.name.traffic_file, packet_capture_file]
-
-      - function: PATH_COMBINE
         lookup_fields: [ rtp_pcap_path ]
         output_fields: [ rtp_pcap_path ]
         parameters:
-          path: [ props.hos.path, props.hos.bucket.name.troubleshooting_file, rtp_pcap_path ]
+          path: [ props.hos.path, props.hos.bucket.name.traffic_file, rtp_pcap_path ]
 
       - function: PATH_COMBINE
         lookup_fields: [ http_request_body ]
@@ -233,6 +222,12 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
         output_fields: [ mail_eml_file ]
         parameters:
           path: [ props.hos.path, props.hos.bucket.name.traffic_file, mail_eml_file ]
+
+      - function: PATH_COMBINE
+        lookup_fields: [ packet_capture_file ]
+        output_fields: [ packet_capture_file ]
+        parameters:
+          path: [ props.hos.path, props.hos.bucket.name.traffic_file, packet_capture_file ]
 
       - function: STRING_JOINER
         lookup_fields: [ server_ip,client_ip ]

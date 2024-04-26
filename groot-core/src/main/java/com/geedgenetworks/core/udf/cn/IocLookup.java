@@ -36,15 +36,18 @@ public class IocLookup extends AbstractKnowledgeWithRuleUDF {
     @SuppressWarnings("unchecked")
     public Event evaluate(Event event) {
         if (event.getExtractedFields().get(lookupFieldName) != null && event.getExtractedFields().get(lookupFieldName).toString().length() != 0) {
+            lookUpExistCounter.inc();
             String lookupValue = event.getExtractedFields().get(lookupFieldName).toString();
             RuleMetadata ruleMetadata = new RuleMetadata();
             switch (option) {
                 case "IP_TO_MALWARE":
                     String ipMalware = knowledgeBaseHandler.lookupByIp(lookupValue);
                     if (ipMalware != null) {
+                        hitCounter.inc();
                         event.getExtractedFields().put(outputFieldName, ipMalware);
                         RuleKnowledgeBaseHandler.Rule ipRule = ruleKnowledgeBaseHandler.lookupByName(ipMalware);
                         if (ipRule != null) {
+                            ruleHitCounter.inc();
                             ruleMetadata.addRule(ipRule.getRuleId(), IocType.IP.getType());
                         }
                     }
@@ -52,9 +55,11 @@ public class IocLookup extends AbstractKnowledgeWithRuleUDF {
                 case "DOMAIN_TO_MALWARE":
                     String domainMalware = knowledgeBaseHandler.lookupByDomain(lookupValue);
                     if (domainMalware != null) {
+                        hitCounter.inc();
                         event.getExtractedFields().put(outputFieldName, domainMalware);
                         RuleKnowledgeBaseHandler.Rule domainRule = ruleKnowledgeBaseHandler.lookupByName(domainMalware);
                         if (domainRule != null) {
+                            ruleHitCounter.inc();
                             ruleMetadata.addRule(domainRule.getRuleId(), IocType.DOMAIN.getType());
                         }
                     }
@@ -62,9 +67,11 @@ public class IocLookup extends AbstractKnowledgeWithRuleUDF {
                 case "HTTP_URL_TO_MALWARE":
                     String urlMalware = knowledgeBaseHandler.lookupByUrl(lookupValue);
                     if (urlMalware != null) {
+                        hitCounter.inc();
                         event.getExtractedFields().put(outputFieldName, urlMalware);
                         RuleKnowledgeBaseHandler.Rule urlRule = ruleKnowledgeBaseHandler.lookupByName(urlMalware);
                         if (urlRule != null) {
+                            ruleHitCounter.inc();
                             ruleMetadata.addRule(urlRule.getRuleId(), IocType.URL.getType());
                         }
                     }

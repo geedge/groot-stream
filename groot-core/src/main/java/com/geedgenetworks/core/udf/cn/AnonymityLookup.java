@@ -36,15 +36,18 @@ public class AnonymityLookup extends AbstractKnowledgeWithRuleUDF {
     @SuppressWarnings("unchecked")
     public Event evaluate(Event event) {
         if (event.getExtractedFields().get(lookupFieldName) != null && event.getExtractedFields().get(lookupFieldName).toString().length() != 0) {
+            lookUpExistCounter.inc();
             String lookupValue = event.getExtractedFields().get(lookupFieldName).toString();
             RuleMetadata ruleMetadata = new RuleMetadata();
             switch (option) {
                 case "IP_TO_NODE_TYPE":
                     String ipNodeType = knowledgeBaseHandler.lookupByIp(lookupValue);
                     if (ipNodeType != null) {
+                        hitCounter.inc();
                         event.getExtractedFields().put(outputFieldName, ipNodeType);
                         RuleKnowledgeBaseHandler.Rule ipRule = ruleKnowledgeBaseHandler.lookupByName(ipNodeType);
                         if (ipRule != null) {
+                            ruleHitCounter.inc();
                             ruleMetadata.addRule(ipRule.getRuleId(), IocType.IP.getType());
                         }
                     }
@@ -53,9 +56,11 @@ public class AnonymityLookup extends AbstractKnowledgeWithRuleUDF {
                 case "DOMAIN_TO_NODE_TYPE":
                     String domainNodeType = knowledgeBaseHandler.lookupByDomain(lookupValue);
                     if (domainNodeType != null) {
+                        hitCounter.inc();
                         event.getExtractedFields().put(outputFieldName, domainNodeType);
                         RuleKnowledgeBaseHandler.Rule domainRule = ruleKnowledgeBaseHandler.lookupByName(domainNodeType);
                         if (domainRule != null) {
+                            ruleHitCounter.inc();
                             ruleMetadata.addRule(domainRule.getRuleId(), IocType.DOMAIN.getType());
                         }
                     }

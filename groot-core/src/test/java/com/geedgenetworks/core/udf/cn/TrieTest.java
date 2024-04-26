@@ -43,6 +43,26 @@ public class TrieTest {
 
         List<String> strings8 = trie.get(StringUtils.reverse("txj/r~/moc.elgoog.yxorpdeef//:ptth"));
         assertEquals(Arrays.asList("4"), strings8);
+
+        Trie<String> trie1 = new Trie<>();
+
+        trie1.put("baidu.com", "1");
+        trie1.put("baidu.cn", "2");
+        trie1.put("baidu", "3");
+
+        List<String> list1 = trie1.get("baidu.com");
+        assertEquals(Arrays.asList("3", "1"), list1);
+
+        List<String> list2 = trie1.get("baidu.cn");
+        assertEquals(Arrays.asList("3", "2"), list2);
+
+
+        Trie<String> trie2 = new Trie<>();
+        trie2.put("baidu.com", "1");
+        trie2.put("baidu.com", "2");
+        trie2.put("baidu.com", "3");
+        List<String> list = trie2.get("baidu.com.cn");
+        assertEquals(Arrays.asList("1", "2", "3"), list);
     }
 
     @Test

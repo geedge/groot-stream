@@ -18,6 +18,9 @@ AES encryption support encrypt the following parameters:
 - connection.user
 - connection.password
 - kafka.sasl.jaas.config
+- kafka.ssl.keystore.password
+- kafka.ssl.truststore.password
+- kafka.ssl.key.password
 
 Next, I'll show how to quickly use groot-stream's own `aes` encryption:
 

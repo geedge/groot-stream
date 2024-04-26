@@ -129,6 +129,12 @@
                 </dependency>
                 <dependency>
                     <groupId>com.geedgenetworks</groupId>
+                    <artifactId>format-msgpack</artifactId>
+                    <version>${project.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.geedgenetworks</groupId>
                     <artifactId>format-raw</artifactId>
                     <version>${project.version}</version>
                     <scope>provided</scope>
