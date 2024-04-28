@@ -1,6 +1,7 @@
 package com.geedgenetworks.connectors.kafka;
 
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.connectors.kafka.rate.RateLimitingStrategy;
 import com.geedgenetworks.core.connector.format.EncodingFormat;
 import com.geedgenetworks.core.connector.sink.SinkProvider;
 import com.geedgenetworks.core.types.StructType;
@@ -19,19 +20,22 @@ public class KafkaSinkProvider implements SinkProvider {
     private final String topic;
     private final Properties properties;
     private final boolean logFailuresOnly;
+    private final RateLimitingStrategy rateLimitingStrategy;
 
     public KafkaSinkProvider(
             StructType dataType,
             EncodingFormat valueEncodingFormat,
             String topic,
             Properties properties,
-            boolean logFailuresOnly
+            boolean logFailuresOnly,
+            RateLimitingStrategy rateLimitingStrategy
     ) {
         this.dataType = dataType;
         this.valueSerialization = valueEncodingFormat.createRuntimeEncoder(dataType);
         this.topic = topic;
         this.properties = properties;
         this.logFailuresOnly = logFailuresOnly;
+        this.rateLimitingStrategy = rateLimitingStrategy;
     }
 
     @Override
@@ -43,6 +47,7 @@ public class KafkaSinkProvider implements SinkProvider {
                 Optional.empty()
         );
         kafkaProducer.setLogFailuresOnly(logFailuresOnly);
+        kafkaProducer.setRateLimitingStrategy(rateLimitingStrategy);
         return dataStream.addSink(kafkaProducer);
     }
 }
