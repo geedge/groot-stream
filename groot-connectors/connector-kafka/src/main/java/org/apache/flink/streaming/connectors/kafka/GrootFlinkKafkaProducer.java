@@ -17,6 +17,8 @@
 
 package org.apache.flink.streaming.connectors.kafka;
 
+import com.geedgenetworks.connectors.kafka.rate.RateLimitingStatus;
+import com.geedgenetworks.connectors.kafka.rate.RateLimitingStrategy;
 import com.geedgenetworks.core.metrics.InternalMetrics;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.Internal;
@@ -253,6 +255,8 @@ public class GrootFlinkKafkaProducer<IN>
      * Cache of metrics to replace already registered metrics instead of overwriting existing ones.
      */
     private final Map<String, KafkaMetricMutableWrapper> previouslyCreatedMetrics = new HashMap<>();
+    private RateLimitingStrategy rateLimitingStrategy;
+    private boolean rateLimitingEnable;
 
     private transient InternalMetrics internalMetrics;
 
@@ -760,6 +764,11 @@ public class GrootFlinkKafkaProducer<IN>
         this.logFailuresOnly = logFailuresOnly;
     }
 
+    public void setRateLimitingStrategy(RateLimitingStrategy rateLimitingStrategy) {
+        this.rateLimitingStrategy = rateLimitingStrategy;
+        this.rateLimitingEnable = rateLimitingStrategy != null && rateLimitingStrategy.rateLimited();
+    }
+
     /**
      * Disables the propagation of exceptions thrown when committing presumably timed out Kafka
      * transactions during recovery of the job. If a Kafka transaction is timed out, a commit will
@@ -781,6 +790,12 @@ public class GrootFlinkKafkaProducer<IN>
     /** Initializes the connection to Kafka. */
     @Override
     public void open(Configuration configuration) throws Exception {
+        if(rateLimitingEnable){
+            int subtasks = getRuntimeContext().getNumberOfParallelSubtasks();
+            long subTaskMaxRate = rateLimitingStrategy.maxRate() / subtasks;
+            rateLimitingStrategy = rateLimitingStrategy.withMaxRate(subTaskMaxRate);
+            LOG.error("rateLimitingStrategy: {}", rateLimitingStrategy);
+        }
         internalMetrics = new InternalMetrics(getRuntimeContext());
         if (logFailuresOnly) {
             callback =
@@ -914,8 +929,17 @@ public class GrootFlinkKafkaProducer<IN>
                 record = kafkaSchema.serialize(next, context.timestamp());
             }
 
-            pendingRecords.incrementAndGet();
-            transaction.producer.send(record, callback);
+            if (!rateLimitingEnable) {
+                pendingRecords.incrementAndGet();
+                transaction.producer.send(record, callback);
+            } else {
+                if (rateLimitingStrategy.record(record.value().length) == RateLimitingStatus.DROP) {
+                    internalMetrics.incrementDroppedEvents();
+                } else {
+                    pendingRecords.incrementAndGet();
+                    transaction.producer.send(record, callback);
+                }
+            }
         } catch (Exception e) {
             internalMetrics.incrementErrorEvents();
             LOG.error("serialize error", e);
