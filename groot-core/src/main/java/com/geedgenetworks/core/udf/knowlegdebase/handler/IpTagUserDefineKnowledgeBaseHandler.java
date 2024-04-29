@@ -100,8 +100,9 @@ public class IpTagUserDefineKnowledgeBaseHandler extends AbstractMultipleKnowled
                     nodes.add(node);
                     subRangeMap.put(Range.closed(startIpAddress, endIpAddress), nodes);
                     rangeListMap.forEach((ipAddressRange, ipAddressNode) -> {
-                        ipAddressNode.add(new Node(tagValue, id));
-                        subRangeMap.put(ipAddressRange, ipAddressNode);
+                        List<Node> newNodeList = new ArrayList<>(ipAddressNode);
+                        newNodeList.add(new Node(tagValue, id));
+                        subRangeMap.put(ipAddressRange, newNodeList);
                     });
                     treeRangeMap.putAll(subRangeMap);
                 } catch (Exception lineException) {
