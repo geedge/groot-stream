@@ -8,8 +8,8 @@ Print sink custom properties.
 
 | Name            | Type     | Required | Default | Description                                                                       |
 |-----------------|----------|----------|---------|-----------------------------------------------------------------------------------|
-| format          | String   | Yes      | -       | Data format. The Optional values are `json`, `protobuf`.                          |
-| [format].config | Map      | No       | -       | Data format properties. Please refer to [Format Options](../formats) for details. |
+| format          | String   | Yes      | (none)  | Data format. The Optional values are `json`, `protobuf`.                          |
+| [format].config | Map      | No       | (none)  | Data format properties. Please refer to [Format Options](../formats) for details. |
 | mode            | String   | No       | stdout  | Print mode. The Optional values are `stdout`, `log_info`, `log_warn`, `null`.     |
 
 ## Example

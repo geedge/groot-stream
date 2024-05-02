@@ -3,15 +3,15 @@
 ## Description
 MessagePack is a binary serialization format. If you need a fast and compact alternative of JSON, MessagePack is your friend. For example, a small integer can be encoded in a single byte, and short strings only need a single byte prefix + the original byte array. MessagePack implementation is already available in various languages (See also the list in http://msgpack.org) and works as a universal data format.
 
-| Name        | Supported Versions | Maven                                                                                                                      |
-|-------------|--------------------|----------------------------------------------------------------------------------------------------------------------------|
-| Format MessagePack | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/format-msgpack/) |
+| Name                | Supported Versions | Maven                                                                                                                             |
+|---------------------|--------------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| Format MessagePack  | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/format-msgpack/)     |
 
 ## Format Options
 
-| Name                      | Type     | Required | Default | Description                                                                                                                                         |
-|---------------------------|----------|----------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| format                    | String   | Yes      | -       | Specify what format to use, here should be 'msgpack'.                                                                                                  |
+| Name                      | Type     | Required | Default | Description                                             |
+|---------------------------|----------|----------|---------|---------------------------------------------------------|
+| format                    | String   | Yes      | (none)  | Specify what format to use, here should be 'msgpack'.   |
 
 # How to use
 ## Inline uses example

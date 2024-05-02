@@ -18,11 +18,11 @@ sources:
       ${prop_key}: ${prop_value}
 ```
 
-| Name                                | Type                                                             | Required |         Default          | Description                                                                                                              |
-|-------------------------------------|------------------------------------------------------------------|----------|--------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| type                                | String                                                           | Yes      | -                        | The type of the source connector. The `SourceTableFactory` will use this value as identifier to create source connector. |
-| schema                              | Map                                                              | No       | -                        | The source table schema, config through fields or local_file or url.                                                     |
-| properties                          | Map of String                                                    | Yes      | -                        | The source connector customize properties, more details see the [Source](source) documentation.                          |                                                                                                                                                                           
+| Name        | Type          | Required | Default | Description                                                                                                              |
+|-------------|---------------|----------|---------|--------------------------------------------------------------------------------------------------------------------------|
+| type        | String        | Yes      | (none)  | The type of the source connector. The `SourceTableFactory` will use this value as identifier to create source connector. |
+| schema      | Map           | No       | (none)  | The source table schema, config through fields or local_file or url.                                                     |
+| properties  | Map of String | Yes      | (none)  | The source connector customize properties, more details see the [Source](source) documentation.                          |                                                                                                                                                                           
 
 ## Schema Field Projection
 The source connector supports reading only specified fields from the data source. For example `KafkaSource` will read all content from topic and then use `fields` to filter unnecessary columns. 
@@ -85,9 +85,9 @@ sinks:
       ${prop_key}: ${prop_value}
 ```
 
-| Name                                | Type                                                               | Required |         Default          | Description                                                                                                        |
-|-------------------------------------|--------------------------------------------------------------------|----------|--------------------------|--------------------------------------------------------------------------------------------------------------------|
-| type                                | String                                                             | Yes      | -                        | The type of the sink connector. The `SinkTableFactory` will use this value as identifier to create sink connector. |
-| schema                              | Map                                                                | No       | -                        | The sink table schema, config through fields or local_file or url.                                                 |
-| properties                          | Map of String                                                      | Yes      | -                        | The sink connector customize properties, more details see the [Sink](sink) documentation.                          |                                                                                                                                                                           
+| Name         | Type           | Required | Default | Description                                                                                                        |
+|--------------|----------------|----------|---------|--------------------------------------------------------------------------------------------------------------------|
+| type         | String         | Yes      | (none)  | The type of the sink connector. The `SinkTableFactory` will use this value as identifier to create sink connector. |
+| schema       | Map            | No       | (none)  | The sink table schema, config through fields or local_file or url.                                                 |
+| properties   | Map of String  | Yes      | (none)  | The sink connector customize properties, more details see the [Sink](sink) documentation.                          |                                                                                                                                                                           
 
