@@ -6,6 +6,10 @@ Sink connector for ClickHouse, write data to ClickHouse. You need to know follow
 > 2. The Sink Table must be created before using the ClickHouse connector.
 > 3. When writing data to sink table, you don't need to specify its schema, because the connector will automatically query current table's schema information using `DESCRIBE TABLE` command.
 
+## Key Features
+
+- [ ] [Rate Limiting](../../connector/connector.md)
+
 
 ## Data Type Mapping
 
@@ -21,6 +25,8 @@ Sink connector for ClickHouse, write data to ClickHouse. You need to know follow
 | TIME            | DateTime                                                                           |
 | ARRAY           | Array                                                                              |
 | MAP             | Map                                                                                |
+| Byte[]          | Binary                                                                             |
+
 
 ## Sink Options
 In order to use the ClickHouse connector, the following dependencies are required. They can be download by Nexus Maven Repository.
@@ -34,14 +40,14 @@ ClickHouse sink custom properties. If properties belongs to ClickHouse JDBC Conf
 
 | Name                | Type     | Required | Default | Description                                                                                                                                                                                                                                                                                                  |
 |---------------------|----------|----------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| host                | String   | Yes      | -       | `ClickHouse` cluster address, the format is `host:port` , allowing multiple `hosts` to be specified. Such as `"host1:8123,host2:8123"`.                                                                                                                                                                      |
-| connection.database | String   | Yes      | -       | The `ClickHouse` database.                                                                                                                                                                                                                                                                                   |
-| table               | String   | Yes      | -       | The table name.                                                                                                                                                                                                                                                                                              |
+| host                | String   | Yes      | (none)  | `ClickHouse` cluster address, the format is `host:port` , allowing multiple `hosts` to be specified. Such as `"host1:8123,host2:8123"`.                                                                                                                                                                      |
+| connection.database | String   | Yes      | (none)  | The `ClickHouse` database.                                                                                                                                                                                                                                                                                   |
+| table               | String   | Yes      | (none)  | The table name.                                                                                                                                                                                                                                                                                              |
 | batch.size          | Integer  | Yes      | 100000  | The number of rows written through [Clickhouse-jdbc](https://github.com/ClickHouse/clickhouse-jdbc) each time, the `default is 20000`.                                                                                                                                                                       |
 | batch.interval      | Duration | Yes      | 30s     | The time interval for writing data through.                                                                                                                                                                                                                                                                  |
-| connection.user     | String   | Yes      | -       | The username to use to connect to `ClickHouse`.                                                                                                                                                                                                                                                              |
-| connection.password | String   | Yes      | -       | The password to use to connect to `ClickHouse`.                                                                                                                                                                                                                                                              |
-| connection.config   | Map      | No       | -       | In addition to the above mandatory parameters that must be specified by `clickhouse-jdbc` , users can also specify multiple optional parameters, which cover all the [parameters](https://github.com/ClickHouse/clickhouse-jdbc/tree/master/clickhouse-client#configuration) provided by `clickhouse-jdbc`.  |
+| connection.user     | String   | Yes      | (none)  | The username to use to connect to `ClickHouse`.                                                                                                                                                                                                                                                              |
+| connection.password | String   | Yes      | (none)  | The password to use to connect to `ClickHouse`.                                                                                                                                                                                                                                                              |
+| connection.config   | Map      | No       | (none)  | In addition to the above mandatory parameters that must be specified by `clickhouse-jdbc` , users can also specify multiple optional parameters, which cover all the [parameters](https://github.com/ClickHouse/clickhouse-jdbc/tree/master/clickhouse-client#configuration) provided by `clickhouse-jdbc`.  |
 
 ## Example
 This example read data of inline test source and write to ClickHouse table `test`.

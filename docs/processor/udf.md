@@ -1,9 +1,10 @@
 # UDF
-> The functions for projection processor
+> The functions for projection processors.
 ## Function of content
 
 - [Asn Lookup](#asn-lookup)
 - [Base64 Decode](#base64-decode)
+- [Base64 Encode](#base64-encode)
 - [Current Unix Timestamp](#current-unix-timestamp)
 - [Domain](#domain)
 - [Drop](#drop)
@@ -62,7 +63,7 @@ Example:
 ### Base64 Decode
 Base64 decode function is used to decode the base64 encoded string.
 
-```BASE64_DECODE(filter, output_fields[, parameters])```
+```BASE64_DECODE_TO_STRING(filter, output_fields[, parameters])```
 - filter: optional
 - lookup_fields: not required
 - output_fields: required
@@ -72,11 +73,29 @@ Base64 decode function is used to decode the base64 encoded string.
 
 Example:
 ```yaml
-      - function: BASE64_DECODE
+      - function: BASE64_DECODE_TO_STRING
         output_fields: [mail_attachment_name]
         parameters:
           value_field: mail_attachment_name
           charset_field: mail_attachment_name_charset
+```
+
+### Base64 Encode
+Base64 encode function is commonly used to encode the binary data to base64 string. Especially when that data need to be stored and transferred over media that are designed to deal with text. This encoding helps to ensure that the data remains intact without modification during transport.
+
+```BASE64_ENCODE_TO_STRING(filter, output_fields[, parameters])```
+- filter: optional
+- lookup_fields: not required
+- output_fields: required
+- parameters: required
+  - value_field: `<String>` required.
+
+Example:
+```yaml
+      - function: BASE64_ENCODE_TO_STRING
+        output_fields: [packet]
+        parameters:
+          value_field: packet
 ```
 
 ### Current Unix Timestamp
