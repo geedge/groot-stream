@@ -50,7 +50,7 @@ public class RateLimitingStrategyTest {
     }
 
     public static void testBlockDropRateLimitingStrategyForDrop() throws Exception{
-        BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(600000, 0, 0 );
+        BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(1,600000, 0, 0 );
 
         int times = 500 * 60;
         long startTs = System.currentTimeMillis();
@@ -86,7 +86,7 @@ public class RateLimitingStrategyTest {
 
     public static void testBlockDropRateLimitingStrategyForBlockDrop() throws Exception{
         //BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(600000, 10000, 1000 );
-        BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(600000, 40000, 1000 );
+        BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(1,600000, 40000, 1000 );
 
         int times = 500 * 60;
         long startTs = System.currentTimeMillis();
@@ -127,7 +127,7 @@ public class RateLimitingStrategyTest {
 
     public static void testBlockDropRateLimitingStrategyForBlock() throws Exception{
         //RateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(600000, 10000, 1000 );
-        BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(600000, TimeUtils.parseDuration("1d").toMillis(), 1000 );
+        BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(1,600000, TimeUtils.parseDuration("1d").toMillis(), 1000 );
 
         int times = 500 * 60;
         long startTs = System.currentTimeMillis();
@@ -203,7 +203,7 @@ public class RateLimitingStrategyTest {
 
         Thread consumerThread = new Thread(() -> {
             //BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(600000, 40000, 1000 );
-            BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(600000, 30000, 1000 );
+            BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(1,600000, 30000, 1000 );
             //BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(600000, 0, 1000 );
             //BlockDropRateLimitingStrategy strategy = new BlockDropRateLimitingStrategy(600000, TimeUtils.parseDuration("1d").toMillis(), 1000 );
             System.out.println(new java.sql.Timestamp(System.currentTimeMillis()) + ",poll_before");
