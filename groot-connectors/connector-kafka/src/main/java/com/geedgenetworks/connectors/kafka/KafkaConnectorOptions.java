@@ -36,6 +36,12 @@ public class KafkaConnectorOptions {
                     .defaultValue("10Mbps")
                     .withDescription("Limit rate, examples: 10Mbps, 10Kbps, 10240bps.");
 
+    public static final ConfigOption<Integer> RATE_LIMITING_WINDOW_SIZE =
+            ConfigOptions.key("rate.limiting.window.size")
+                    .intType()
+                    .defaultValue(5)
+                    .withDescription("window size, unit second, default 5 second.");
+
     public static final ConfigOption<Duration> RATE_LIMITING_BLOCK_DURATION =
             ConfigOptions.key("rate.limiting.block.duration")
                     .durationType()
