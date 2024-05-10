@@ -1,7 +1,7 @@
 # Kafka
 > Kafka sink connector
 ## Description
-Sink connector for Apache Kafka. Write data to Kafka topic.
+Sink connector for Apache Kafka. Write data to Kafka topic. More details about producer configs can be found [here](https://docs.confluent.io/platform/current/installation/configuration/producer-configs.htmls).
 
 ## Key Features
 

@@ -15,12 +15,47 @@ sources: # [object] Define connector source
     properties: # [object] Kafka source properties
       topic: SESSION-RECORD  # [string] Topic Name, consumer will subscribe this topic.
       kafka.bootstrap.servers: 127.0.0.1:9092  # [string] Kafka Bootstrap Servers, if you have multiple servers, use comma to separate them.
-      kafka.session.timeout.ms: 60000 # [number] Kafka Session Timeout, default is 60000
+
+      # The minimum amount of data the server should return for a fetch request.
+      # If insufficient data is available the request will wait for that much data to accumulate before answering the request.
+      # The default setting of 1 byte means that fetch requests are answered as soon as that many byte(s) of data is available or the fetch request times out waiting for data to arrive.
+      # Setting this to a larger value will cause the server to wait for larger amounts of data to accumulate which can improve server throughput a bit at the cost of some additional latency
+      kafka.fetch.min.bytes: 1
+
+      # The timeout used to detect client failures when using Kafka’s group management facility.
+      # The client sends periodic heartbeats to indicate its liveness to the broker.
+      # If no heartbeats are received by the broker before the expiration of this session timeout, then the broker will remove this client from the group and initiate a rebalance.
+      # Note that the value must be in the allowable range as configured in the broker configuration by group.min.session.timeout.ms and group.max.session.timeout.ms.
+      kafka.session.timeout.ms: 60000 # [number] Kafka Session Timeout, default is 45 seconds
+
+      # Heartbeats are used to ensure that the consumer’s session stays active and to facilitate rebalancing when new consumers join or leave the group.
+      # The value must be set lower than session.timeout.ms, but typically should be set no higher than 1/3 of that value.
+      # It can be adjusted even lower to control the expected time for normal rebalances.
+      kafka.heartbeat.interval.ms: 10000 # [number] The expected time between heartbeats to the consumer coordinator when using Kafka’s group management facilities.
+
+      # The maximum number of records returned in a single call to poll().
+      # Note, that max.poll.records does not impact the underlying fetching behavior.
+      # The consumer will cache the records from each fetch request and returns them incrementally from each poll.
       kafka.max.poll.records: 3000
+
+      # The maximum amount of data per-partition the server will return. Records are fetched in batches by the consumer.
+      # If the first record batch in the first non-empty partition of the fetch is larger than this limit, the batch will still be returned to ensure that the consumer can make progress.
+      # The maximum record batch size accepted by the broker is defined via message.max.bytes (broker config) or max.message.bytes (topic config). See fetch.max.bytes for limiting the consumer request size.
       kafka.max.partition.fetch.bytes: 31457280
+
+      kafka.security.protocol: SSL
+      kafka.ssl.endpoint.identification.algorithm: ""
+      kafka.ssl.keystore.location: /data/tsg/olap/flink/topology/data/keystore.jks
+      kafka.ssl.keystore.password: 86cf0e2ffba3f541a6c6761313e5cc7e
+      kafka.ssl.truststore.location: /data/tsg/olap/flink/topology/data/truststore.jks
+      kafka.ssl.truststore.password: 86cf0e2ffba3f541a6c6761313e5cc7e
+      kafka.ssl.key.password: 86cf0e2ffba3f541a6c6761313e5cc7e
+      #kafka.security.protocol: SASL_PLAINTEXT
+      #kafka.sasl.mechanism: PLAIN
+      #kafka.sasl.jaas.config: 454f65ea6eef1256e3067104f82730e737b68959560966b811e7ff364116b03124917eb2b0f3596f14733aa29ebad9352644ce1a5c85991c6f01ba8a5e8f177a7ff0b2d3889a424249967b3870b50993d9644f239f0de82cdb13bdb502959e16afadffa49ef1e1d2b9c9b5113e619817
+
       kafka.group.id: SESSION-RECORD-GROUP-GROOT-STREAM-001  # [string] Kafka Group ID for Consumer
       kafka.auto.offset.reset: latest   # [string] Kafka Auto Offset Reset, default is latest
-      kafka.compression.type: snappy # [string] Kafka Compression Type, default is none
       format: json  # [string] Data Format for Source. eg. json, protobuf, etc.
       json.ignore.parse.errors: false  # [boolean] Flag to ignore parse errors, default will record the parse errors. If set true, it will ignore the parse errors.
 
@@ -261,11 +296,22 @@ sinks: # [object] Define connector sink
       topic:  SESSION-RECORD-A
       kafka.bootstrap.servers: 127.0.0.1:9092
       kafka.retries: 0
+
       kafka.linger.ms: 10
+
       kafka.request.timeout.ms: 30000
+      # The producer will attempt to batch records together into fewer requests whenever multiple records are being sent to the same partition.
+      # This helps performance on both the client and the server. This configuration controls the default batch size in bytes.
       kafka.batch.size: 262144
+      # The total bytes of memory the producer can use to buffer records waiting to be sent to the server.
+      # If records are sent faster than they can be delivered to the server the producer will block for max.block.ms after which it will throw an exception.
+      # This setting should correspond roughly to the total memory the producer will use, but is not a hard bound since not all memory the producer uses is used for buffering.
+      # Some additional memory will be used for compression (if compression is enabled) as well as for maintaining in-flight requests.
       kafka.buffer.memory: 134217728
       kafka.max.request.size:  10485760
+      # The compression type for all data generated by the producer.
+      # The default is none (i.e. no compression). Valid values are none, gzip, snappy, lz4, or zstd.
+      # Compression is of full batches of data, so the efficacy of batching will also impact the compression ratio (more batching means better compression).
       kafka.compression.type: snappy
       format: json
       json.ignore.parse.errors: false

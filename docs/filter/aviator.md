@@ -26,7 +26,7 @@ This example read data from inline source and print to console. It will filter t
    filter_operator: # [object] AviatorFilter operator name 
      type: com.geedgenetworks.core.filter.AviatorFilter 
      properties:
-       expression: event.server_ip == '8.8.8.8' # [string] Aviator expression, it return true or false.
+       expression: event.server_ip == '8.8.8.8' || event.decoded_as == 'HTTP' # [string] Aviator expression, it return true or false.
 
  sinks:
    print_sink:

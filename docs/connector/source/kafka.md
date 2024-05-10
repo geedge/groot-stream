@@ -1,7 +1,7 @@
 # Kafka
 > Kafka source connector
 ## Description
-Source connector for Apache Kafka
+Source connector for Apache Kafka. More details about consumer configs can be found [here](https://docs.confluent.io/platform/current/installation/configuration/consumer-configs.html).
 
 ## Source Options
 In order to use the Kafka connector, the following dependencies are required. They can be download by Nexus Maven Repository.
