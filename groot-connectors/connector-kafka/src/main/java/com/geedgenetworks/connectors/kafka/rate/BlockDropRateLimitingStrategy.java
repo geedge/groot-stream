@@ -5,12 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
 
 public class BlockDropRateLimitingStrategy implements RateLimitingStrategy {
     private static final Logger LOG = LoggerFactory.getLogger(BlockDropRateLimitingStrategy.class);
     private static final int blockTsLastSize = 8;
     private static final int blockTsLastMask = 7;
+    private final int windowSecond;
     private final long maxRate;
     private final boolean blockEnable;
     private final long maxBlockDuration; // 毫秒
@@ -33,15 +33,16 @@ public class BlockDropRateLimitingStrategy implements RateLimitingStrategy {
      * @param maxBlockDuration 最长阻塞时长(毫秒), 值为0代表超速直接丢弃不执行阻塞
      * @param resetBlockDuration 阻塞重置恢复时长, 超速阻塞后速率恢复正常多长时间后重置超速阻塞状态
      */
-    public BlockDropRateLimitingStrategy(long maxRate, long maxBlockDuration, long resetBlockDuration) {
+    public BlockDropRateLimitingStrategy(int windowSecond, long maxRate, long maxBlockDuration, long resetBlockDuration) {
         Preconditions.checkArgument(maxRate > 0);
         Preconditions.checkArgument(maxBlockDuration >= 0);
         Preconditions.checkArgument(resetBlockDuration >= 0);
+        this.windowSecond = windowSecond;
         this.maxRate = maxRate;
         this.blockEnable = maxBlockDuration > 0;
         this.maxBlockDuration = maxBlockDuration;
         this.resetBlockDuration = resetBlockDuration;
-        this.stat = new SlidingWindowRateStat();
+        this.stat = new SlidingWindowRateStat(windowSecond);
         this.firstBlockTs = 0;
         this.lastBlockTs = 0;
         this.firstBlockTsLast = new long[blockTsLastSize];
@@ -56,7 +57,7 @@ public class BlockDropRateLimitingStrategy implements RateLimitingStrategy {
 
     @Override
     public BlockDropRateLimitingStrategy withMaxRate(long maxRate) {
-        return new BlockDropRateLimitingStrategy(maxRate, maxBlockDuration, resetBlockDuration);
+        return new BlockDropRateLimitingStrategy(windowSecond, maxRate, maxBlockDuration, resetBlockDuration);
     }
 
     @Override
@@ -100,10 +101,9 @@ public class BlockDropRateLimitingStrategy implements RateLimitingStrategy {
             firstBlockTsLast[blockTsLastIndex] = firstBlockTs;
             lastBlockTsLast[blockTsLastIndex] = lastBlockTs;
         } else {
-            if(currentTs - lastBlockTs <= 300L){
-                lastBlockTs = currentTs;
-                lastBlockTsLast[blockTsLastIndex] = lastBlockTs;
-            }
+            lastBlockTs = currentTs;
+            lastBlockTsLast[blockTsLastIndex] = lastBlockTs;
+
             // drop立马return
             if (lastBlockTs - firstBlockTs > maxBlockDuration) {
                 limitingDropCount += 1;
@@ -136,16 +136,19 @@ public class BlockDropRateLimitingStrategy implements RateLimitingStrategy {
         if (hasLimitingStat && currentTs - limitingStatStartTs > 120000L) {
             hasLimitingStat = false;
             StringBuilder blockTsInfos = new StringBuilder();
-            int idx;
-            for (int i = 0; i < blockTsLastSize; i++) {
-                idx = (blockTsLastIndex - i) & blockTsLastMask;
-                blockTsInfos.append(new Timestamp(firstBlockTsLast[idx]).toString())
-                        .append("_").append(new Timestamp(lastBlockTsLast[idx]).toString()).append("_").append(lastBlockTsLast[idx] - firstBlockTsLast[idx]);
-                if(i != blockTsLastSize - 1){
-                    blockTsInfos.append(",\n");
+            if(blockEnable){
+                blockTsInfos.append('\n');
+                int idx;
+                for (int i = 0; i < blockTsLastSize; i++) {
+                    idx = (blockTsLastIndex - i) & blockTsLastMask;
+                    blockTsInfos.append(new Timestamp(firstBlockTsLast[idx]).toString())
+                            .append("_").append(new Timestamp(lastBlockTsLast[idx]).toString()).append("_").append(lastBlockTsLast[idx] - firstBlockTsLast[idx]);
+                    if(i != blockTsLastSize - 1){
+                        blockTsInfos.append(",\n");
+                    }
                 }
             }
-            LOG.info("from {} to {} limiting info for max rate({} bytes), blockCount: {}, blockMs: {}, dropCount: {}, dropSize: {},blockTsInfos:\n{}.", new Timestamp(limitingStatStartTs).toString(), new Timestamp(currentTs).toString(),
+            LOG.info("from {} to {} limiting info for max rate({} bytes), blockCount: {}, blockMs: {}, dropCount: {}, dropSize: {},blockTsInfos:{}.", new Timestamp(limitingStatStartTs).toString(), new Timestamp(currentTs).toString(),
                     maxRate,limitingBlockCount, limitingBlockMs, limitingDropCount, limitingDropSize, blockTsInfos.toString()
             );
         }
