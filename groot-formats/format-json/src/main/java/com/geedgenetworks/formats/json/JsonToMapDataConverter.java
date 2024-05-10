@@ -34,10 +34,8 @@ public class JsonToMapDataConverter implements Serializable {
             while (!reader.nextIfMatch('}') ){
                 String fieldName = reader.readFieldName();
                 ValueConverter converter = filedConverters.get(fieldName);
-                //System.out.println(fieldName);
                 if(converter != null){
                     Object rst = converter.convert(reader);
-                    //System.out.println(rst);
                     obj.put(fieldName, rst);
                 }else{
                     reader.skipValue();
@@ -46,12 +44,13 @@ public class JsonToMapDataConverter implements Serializable {
 
             return obj;
         } catch (Exception e) {
-            LOG.error(String.format("json解析失败for:%s", message), e);
+
+            LOG.error(String.format("JSON Parse Errors:%s", message), e);
             if(ignoreParseErrors){
                 return null;
             }
 
-            throw new UnsupportedOperationException("json格式不正确:" + message);
+            throw new UnsupportedOperationException("Unsupported type or invalid data format:" + message);
         }
     }
 

@@ -38,10 +38,10 @@ public class JsonEventDeserializationSchema implements DeserializationSchema<Eve
                 map = JSON.parseObject(message);
             } catch (Exception e) {
                 if(ignoreParseErrors){
-                    LOG.error(String.format("json解析失败for:%s", message), e);
+                    LOG.error(String.format("JSON Parse Errors:%s", message), e);
                     return null;
                 }else{
-                    throw new IOException(String.format("json解析失败for:%s", message), e);
+                    throw new IOException(String.format("JSON Parse Errors:%s", message), e);
                 }
             }
 

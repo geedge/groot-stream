@@ -22,7 +22,7 @@ sources: # [object] Define connector source
         - name: device_group
           type: string
         - name: device_tag
-          type: string
+          type: bigint
     properties:
       #
       # [string] Event Data, it will be parsed to Map<String, Object> by the specified format.
@@ -38,7 +38,7 @@ sinks:
   connector_kafka:
     type: kafka
     properties:
-      topic: test_topic
+      topic: test_handle_error_json_format_topic
       kafka.bootstrap.servers: kafkaCluster:9092
       kafka.retries: 0
       kafka.linger.ms: 10

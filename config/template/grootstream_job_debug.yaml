@@ -65,9 +65,8 @@ sources:
 filters:
   schema_type_filter:
     type: com.geedgenetworks.core.filter.AviatorFilter
-    output_fields:
     properties:
-      expression: event.decoded_as == 'SSL' || event.decoded_as == 'HTTP' || event.decoded_as == 'BASE'
+      expression: event.ip_protocol == 'tcp'
 
 
 preprocessing_pipelines:

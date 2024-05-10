@@ -30,9 +30,6 @@ application: # [object] Define job configuration
     parallelism: 1
     pipeline:
       object-reuse: true
-    execution:
-        restart:
-            strategy: no
   topology:
     - name: kafka_source
       downstream: [print_sink]
