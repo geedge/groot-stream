@@ -78,6 +78,7 @@ public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
         options.add(LOG_FAILURES_ONLY);
         options.add(RATE_LIMITING_STRATEGY);
         options.add(RATE_LIMITING_LIMIT_RATE);
+        options.add(RATE_LIMITING_WINDOW_SIZE);
         options.add(RATE_LIMITING_BLOCK_DURATION);
         options.add(RATE_LIMITING_BLOCK_RESET_DURATION);
         return options;
@@ -90,6 +91,7 @@ public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
                 return new NoRateLimitingStrategy();
             case SLIDING_WINDOW:
                 return new BlockDropRateLimitingStrategy(
+                        config.get(RATE_LIMITING_WINDOW_SIZE),
                         parseRateLimitingRate(config.get(RATE_LIMITING_LIMIT_RATE)),
                         config.get(RATE_LIMITING_BLOCK_DURATION).toMillis(),
                         config.get(RATE_LIMITING_BLOCK_RESET_DURATION).toMillis());
