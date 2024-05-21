@@ -276,6 +276,53 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
         lookup_fields: [ client_asn,server_asn ]
         output_fields: [ asn_list ]
 
+  metrics_processor: # [object] metrics processing Pipeline
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    output_fields:
+    properties:
+      key: value
+    functions:
+
+      - function: FLATTEN
+        lookup_fields: [ fields,tags ]
+        output_fields: [  ]
+        parameters:
+          #prefix: ""
+          depth:  3
+          # delimiter: "."
+
+      - function: RENAME
+        lookup_fields: [ '' ]
+        output_fields: [ '' ]
+        filter:
+        parameters:
+          # parent_fields: [tags]
+          #rename_fields:
+          #  tags: tags
+          rename_expression: key =string.replace_all(key,'tags.','');key =string.replace_all(key,'fields.','');return key;
+
+      - function: EVAL
+        output_fields: [ internal_ip ]
+        parameters:
+          value_expression:  'direction=Outbound? client_ip : server_ip'
+      - function: EVAL
+        output_fields: [ external_ip ]
+        parameters:
+          value_expression:  'direction=Outbound? server_ip : client_ip'
+
+      - function: UNIX_TIMESTAMP_CONVERTER
+        lookup_fields: [ timestamp_ms ]
+        output_fields: [ recv_time ]
+        parameters:
+          precision: seconds
+
+      - function: SNOWFLAKE_ID
+        lookup_fields: [ '' ]
+        output_fields: [ log_id ]
+        filter:
+        parameters:
+          data_center_id_num: 1
+
 postprocessing_pipelines: # [object] Define Processors for postprocessing pipelines.
   postprocessor: # [object] Define projection processor name, must be unique.
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl

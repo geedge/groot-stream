@@ -38,7 +38,8 @@ public class UnixTimestampConverter implements UDF {
         }
         else{
             if(!udfContext.getParameters().get("precision").toString().equals("seconds") &&
-                    !udfContext.getParameters().get("precision").toString().equals("milliseconds")){
+                    !udfContext.getParameters().get("precision").toString().equals("milliseconds") &&
+                        !udfContext.getParameters().get("precision").toString().equals("minutes")){
                 throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters option value is not correct");
             }else {
 
@@ -72,6 +73,9 @@ public class UnixTimestampConverter implements UDF {
                     break;
                 case "milliseconds":
                     timestamp = instant.toEpochMilli();
+                    break;
+                case "minutes":
+                    timestamp = instant.getEpochSecond()/60*60;
                     break;
             }
             event.getExtractedFields().put(outputFieldName, timestamp);
