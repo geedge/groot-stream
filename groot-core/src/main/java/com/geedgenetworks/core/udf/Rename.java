@@ -9,10 +9,11 @@ import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.util.*;
-
+@Slf4j
 public class Rename implements UDF {
 
     private static Expression compiledExp;
@@ -78,7 +79,11 @@ public class Rename implements UDF {
                     }
                     if (!newKey.startsWith("__")) {
                         if (renameExpression != null && !renameExpression.isEmpty()) {
-                            newKey = (String) compiledExp.execute(compiledExp.newEnv("key", newKey));
+                            try {
+                                newKey = (String) compiledExp.execute(compiledExp.newEnv("key", newKey));
+                            } catch (Exception e) {
+                                log.error("Error evaluating rename expression: " + renameExpression);
+                            }
                         }
                     }
                     renamedMap.put(newKey, value);
@@ -107,7 +112,11 @@ public class Rename implements UDF {
             }
             if (!newKey.startsWith("__")) {
                 if (renameExpression != null && !renameExpression.isEmpty()) {
-                    newKey = (String) compiledExp.execute(compiledExp.newEnv("key", newKey));
+                    try {
+                        newKey = (String) compiledExp.execute(compiledExp.newEnv("key", newKey));
+                    } catch (Exception e) {
+                        log.error("Error evaluating rename expression: " + renameExpression);
+                    }
                 }
             }
             renamedMap.put(newKey, value);
