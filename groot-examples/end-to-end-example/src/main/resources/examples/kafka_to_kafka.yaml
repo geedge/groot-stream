@@ -1,0 +1,51 @@
+sources:
+  kafka_source:
+    type : kafka
+    properties: # [object] Kafka source properties
+      topic:  SESSION-RECORD
+      kafka.bootstrap.servers: 192.168.44.11:9092
+      kafka.session.timeout.ms: 60000
+      kafka.max.poll.records: 3000
+      kafka.max.partition.fetch.bytes: 31457280
+      kafka.group.id: GROOT-STREAM-EXAMPLE-KAFKA-TO-kafka
+      kafka.auto.offset.reset: latest
+      format: json
+
+sinks: # [object] Define connector sink
+  connector_kafka:
+    type: kafka
+    properties:
+      topic: SESSION-RECORD
+      kafka.bootstrap.servers: 192.168.44.12:9094
+      kafka.retries: 0
+      kafka.linger.ms: 10
+      kafka.request.timeout.ms: 30000
+      kafka.batch.size: 262144
+      kafka.buffer.memory: 134217728
+      kafka.max.request.size: 10485760
+      kafka.compression.type: snappy
+      kafka.security.protocol: SASL_PLAINTEXT
+      kafka.sasl.mechanism: PLAIN
+      kafka.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="galaxy2019";
+      format: json
+      log.failures.only: true
+      rate.limiting.strategy: sliding_window
+      rate.limiting.window.size: 5
+      rate.limiting.limit.rate: 10Mbps
+      rate.limiting.block.duration: 60s
+      rate.limiting.block.reset.duration: 30s
+
+
+application: # [object] Define job configuration
+  env:
+    name: example-kafka-to-kafka-with-rate-limiting
+    parallelism: 1
+    pipeline:
+      object-reuse: true
+    flink:
+      restart-strategy: none
+  topology:
+    - name: kafka_source
+      downstream: [connector_kafka]
+    - name: connector_kafka
+      downstream: []
