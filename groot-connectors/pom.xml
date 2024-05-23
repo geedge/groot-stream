@@ -15,6 +15,7 @@
         <module>connector-kafka</module>
         <module>connector-clickhouse</module>
         <module>connector-ipfix-collector</module>
+        <module>connector-file</module>
     </modules>
     <dependencies>
         <dependency>
