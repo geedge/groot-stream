@@ -49,8 +49,8 @@ public class RenameFunctionTest {
     public void testRenameFunctionWithouExpression() {
 
         UDFContext udfContext = new UDFContext();
-        List<String> parent = List.of("parent1_firstName,parent3_firstName.parent3_firstName");
-        Map<String, Object> rename_fields = Map.of("parent2_firstName", "parent3_firstName", "parent2_lastName", "parent3_lastName", "parent2_age", "parent3_age", "parent1_firstName", "newkey");
+        List<String> parent = List.of("k1,k3,k3.k3_1.k3_1_1,k3.k3_1");
+        Map<String, Object> rename_fields = Map.of("k1", "k1_rename","k1_1","k1_1_rename","k3_1_1","k3_1_1_rename","k3_1","k3_1_rename","k3_1_1_1","k3_1_1_1_rename","k3_1_2","k3_1_2_rename");
         Map<String, Object> params = new HashMap<>();
         params.put("parent_fields", parent);
         params.put("rename_fields", rename_fields);
@@ -58,16 +58,19 @@ public class RenameFunctionTest {
         Rename rename = new Rename();
         rename.open(null, udfContext);
         Event event = new Event();
-        Map<String, Object> extractedFields = Map.of("parent1_firstName", Map.of("parent2_firstName", "parent3_firstName", "parent2_lastName", "parent3_lastName", "parent2_age", "parent3_age"), "parent1_lastName", Map.of("parent2_firstName", "parent3_firstName", "parent2_lastName", "parent3_lastName", "parent2_age", "parent3_age"), "parent1_age", 1, "parent2_firstName", "Jim", "parent2_lastName", "Galley", "parent2_age", 2
-                , "parent3_firstName", Map.of("parent3_firstName", Map.of("parent1_firstName", "parent3_firstName.parent3_firstName.parent1_firstName")));
+        Map<String, Object> extractedFields = Map.of("k1", Map.of("k1_1", "k1_1_v", "k1_2", "k1_2_v"),"k2","k2_v","k3", Map.of("k3_1", Map.of("k3_1_1", Map.of("k3_1_1_1", "k3_1_1_1_v", "k3_1_1_2", "k3_1_1_2_v"), "k3_1_2", "k3_1_2_v"), "k3_2", "k3_2_v"));
         event.setExtractedFields(extractedFields);
         Event result1 = rename.evaluate(event);
-        Map<String, Object> map1 = (Map<String, Object>) result1.getExtractedFields().getOrDefault("parent1_firstName", new HashMap<>());
-        assertEquals("parent3_firstName", map1.get("parent3_firstName").toString());
-        Map<String, Object> map2 = (Map<String, Object>) result1.getExtractedFields().getOrDefault("parent1_lastName", new HashMap<>());
-        assertEquals("parent3_firstName", map2.get("parent2_firstName"));
-        Map<String, Object> map3 = (Map<String, Object>) result1.getExtractedFields().getOrDefault("parent3_firstName", new HashMap<>());
-        Map<String, Object> map4 = (Map<String, Object>) map3.getOrDefault("parent3_firstName", new HashMap<>());
-        assertEquals("parent3_firstName.parent3_firstName.parent1_firstName", map4.get("newkey"));
+        Map<String, Object> map1 = (Map<String, Object>) result1.getExtractedFields().getOrDefault("k1_rename", new HashMap<>());
+        assertEquals("k1_1_v", map1.get("k1_1_rename").toString());
+        Map<String, Object> map2 = (Map<String, Object>) result1.getExtractedFields().getOrDefault("k3", new HashMap<>());
+        assertEquals("k3_2_v", map2.get("k3_2"));
+        Map<String, Object> map3 = (Map<String, Object>) result1.getExtractedFields().getOrDefault("k3", new HashMap<>());
+        Map<String, Object> map4 = (Map<String, Object>) map3.getOrDefault("k3_1_rename", new HashMap<>());
+        assertEquals("k3_1_2_v", map4.get("k3_1_2_rename"));
+        Map<String, Object> map5 = (Map<String, Object>) map3.getOrDefault("k3_1_rename", new HashMap<>());
+        Map<String, Object> map6 = (Map<String, Object>) map5.getOrDefault("k3_1_1_rename", new HashMap<>());
+        assertEquals("k3_1_1_1_v", map6.get("k3_1_1_1_rename"));
+
     }
 }
