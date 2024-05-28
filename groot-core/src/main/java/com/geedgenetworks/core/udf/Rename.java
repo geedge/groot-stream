@@ -67,45 +67,43 @@ public class Rename implements UDF {
         Map<String, Object> renamedMap = new HashMap<>();
         nestedMap.forEach((key, value) -> {
 
-            if (parentFields.isEmpty() || parentFields.contains(prefix + key)) {
+            if (parentFields.contains(prefix + key)) {
                 if (value instanceof Map) {
                     Map<String, Object> childMap = (Map<String, Object>) value;
+                    childMap = rename(childMap, parentFields, renameFields, renameExpression,prefix+key+".");
                     childMap = renameMap(childMap, renameFields, renameExpression);
-                    renamedMap.put(key, childMap);
-                } else {
-                    String newKey = key;
-                    if (renameFields.containsKey(key)) {
-                        newKey = renameFields.get(key);
-                    }
-                    if (!newKey.startsWith("__")) {
-                        if (renameExpression != null && !renameExpression.isEmpty()) {
-                            try {
-                                newKey = (String) compiledExp.execute(compiledExp.newEnv("key", newKey));
-                            } catch (Exception e) {
-                                log.error("Error evaluating rename expression: " + renameExpression);
-                            }
-                        }
-                    }
-                    renamedMap.put(newKey, value);
+                    value = childMap;
                 }
-            } else {
-
+                key = renameKey(key, renameFields, renameExpression);
+            }
+            else {
                 if (value instanceof Map) {
                     Map<String, Object> childMap = (Map<String, Object>) value;
-                    childMap = rename(childMap, parentFields, renameFields, renameExpression, prefix + key + ".");
-                    renamedMap.put(key, childMap);
-                } else {
-                    renamedMap.put(key, value);
+                    childMap = rename(childMap, parentFields, renameFields, renameExpression,prefix+key+".");
+                    value = childMap;
                 }
             }
+            if (prefix.isEmpty()) {//判断是否顶层
+                key = renameKey(key, renameFields, renameExpression);
+            }
+            renamedMap.put(key, value);
         });
 
         return renamedMap;
     }
 
-    private static Map<String, Object> renameMap(Map<String, Object> map, Map<String, String> renameFields, String renameExpression) {
+   private static Map<String, Object> renameMap(Map<String, Object> nestedMap, Map<String, String> renameFields, String renameExpression) {
         Map<String, Object> renamedMap = new HashMap<>();
-        map.forEach((key, value) -> {
+        nestedMap.forEach((key, value) -> {
+            key = renameKey(key, renameFields, renameExpression);
+            renamedMap.put(key, value);
+        });
+        return renamedMap;
+    }
+
+
+    private static String renameKey(String key,Map<String, String> renameFields, String renameExpression) {
+
             String newKey = key;
             if (renameFields.containsKey(key)) {
                 newKey = renameFields.get(key);
@@ -119,8 +117,6 @@ public class Rename implements UDF {
                     }
                 }
             }
-            renamedMap.put(newKey, value);
-        });
-        return renamedMap;
+        return newKey;
     }
 }
