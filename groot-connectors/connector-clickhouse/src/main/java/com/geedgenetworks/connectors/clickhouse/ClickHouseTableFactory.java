@@ -8,10 +8,12 @@ import com.geedgenetworks.core.factories.FactoryUtil.TableFactoryHelper;
 import com.geedgenetworks.core.factories.SinkTableFactory;
 import com.geedgenetworks.common.Event;
 import org.apache.flink.configuration.ConfigOption;
+import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import org.apache.flink.util.Preconditions;
 
 import java.util.HashSet;
 import java.util.Properties;
@@ -39,10 +41,13 @@ public class ClickHouseTableFactory implements SinkTableFactory {
         String host = config.get(HOST);
         String table = config.get(TABLE);
         int batchSize = config.get(BATCH_SIZE);
+        MemorySize batchByteMemorySize = config.get(BATCH_BYTE_SIZE);
+        Preconditions.checkArgument(batchByteMemorySize.getMebiBytes() < 1000, "batch.byte.size can not bigger than 1000m");
+        int batchByteSize = (int) batchByteMemorySize.getBytes();
         long batchIntervalMs = config.get(BATCH_INTERVAL).toMillis();
         Properties connInfo = getClickHouseConnInfo(context.getOptions());
 
-        final SinkFunction<Event> sinkFunction = new EventBatchIntervalClickHouseSink(schema, batchSize, batchIntervalMs, host, table, connInfo);
+        final SinkFunction<Event> sinkFunction = new EventBatchIntervalClickHouseSink(schema, batchSize, batchByteSize, batchIntervalMs, host, table, connInfo);
 
         return new SinkProvider() {
             @Override
@@ -71,6 +76,7 @@ public class ClickHouseTableFactory implements SinkTableFactory {
     public Set<ConfigOption<?>> optionalOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
         options.add(BATCH_SIZE);
+        options.add(BATCH_BYTE_SIZE);
         options.add(BATCH_INTERVAL);
         return options;
     }
