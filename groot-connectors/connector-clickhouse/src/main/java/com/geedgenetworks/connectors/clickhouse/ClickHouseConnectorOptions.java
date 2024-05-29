@@ -2,6 +2,7 @@ package com.geedgenetworks.connectors.clickhouse;
 
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
+import org.apache.flink.configuration.MemorySize;
 
 import java.time.Duration;
 
@@ -25,6 +26,12 @@ public class ClickHouseConnectorOptions {
                     .intType()
                     .defaultValue(100000)
                     .withDescription("The flush max size , over this number of records, will flush data.");
+
+    public static final ConfigOption<MemorySize> BATCH_BYTE_SIZE =
+            ConfigOptions.key("batch.byte.size")
+                    .memoryType()
+                    .defaultValue(MemorySize.parse("200mb"))
+                    .withDescription("The flush max buffer byte size , over this byte size, will flush data.");
 
     public static final ConfigOption<Duration> BATCH_INTERVAL =
             ConfigOptions.key("batch.interval")

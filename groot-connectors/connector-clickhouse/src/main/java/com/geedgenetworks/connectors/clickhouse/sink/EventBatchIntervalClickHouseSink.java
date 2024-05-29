@@ -17,8 +17,8 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
     private Set<String> disabledFields;
     private String simpleName;
 
-    public EventBatchIntervalClickHouseSink(Schema schema, int batchSize, long batchIntervalMs, String host, String table, Properties connInfo) {
-        super(batchSize, batchIntervalMs, host, table, connInfo);
+    public EventBatchIntervalClickHouseSink(Schema schema, int batchSize, int batchByteSize, long batchIntervalMs, String host, String table, Properties connInfo) {
+        super(batchSize, batchByteSize, batchIntervalMs, host, table, connInfo);
         this.schema = schema;
     }
 
@@ -35,7 +35,8 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
     }
 
     @Override
-    boolean addBatch(Block batch, Event event) throws Exception {
+    int addBatch(Block batch, Event event) throws Exception {
+        int writeSize = 0;
         Map<String, Object> map = event.getExtractedFields();
         String columnName;
         Object value;
@@ -44,6 +45,7 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
             if(disabledFields != null && disabledFields.contains(columnName)){
                 value = columnDefaultValues[i];
                 batch.setObject(i, value); // 默认值不用转换
+                writeSize += columnDefaultSizes[i];
                 continue;
             }
 
@@ -52,19 +54,22 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
             if (value == null) {
                 value = columnDefaultValues[i];
                 batch.setObject(i, value); // 默认值不用转换
+                writeSize += columnDefaultSizes[i];
             } else {
                 // int columnIdx = batch.paramIdx2ColumnIdx(i);
                 // batch.setObject(columnIdx, convertToCkDataType(columnTypes[i], value));
                 // batch.setObject(i, convertToCkDataType(dataType, value));
                 try {
-                    batch.setObject(i, columnConverters[i].convert(value));
+                    writeSizeHelper.size = 0;
+                    batch.setObject(i, columnConverters[i].convert(value, writeSizeHelper));
+                    writeSize += writeSizeHelper.size;
                 } catch (Exception e) {
                     throw new RuntimeException(columnNames[i] + "列转换值出错:" + value + ", event data:" + JSON.toJSONString(map), e);
                 }
             }
         }
 
-        return true;
+        return writeSize;
     }
 
     @Override
