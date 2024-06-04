@@ -71,6 +71,7 @@ sinks:
       host: 192.168.44.12:9001
       table: tsg_galaxy_v3.inline_source_test_local
       batch.size: 10
+      batch.byte.size: 200MB
       batch.interval: 1s
       connection.user: e54c9568586180eede1506eecf3574e9
       connection.password: 86cf0e2ffba3f541a6c6761313e5cc7e
