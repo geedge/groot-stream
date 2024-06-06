@@ -9,11 +9,14 @@ import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunctio
 import org.apache.flink.util.Preconditions;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 public class HdfsTextFileSource extends RichParallelSourceFunction<Event> {
+    private static final Logger LOG = LoggerFactory.getLogger(HdfsTextFileSource.class);
     private final DeserializationSchema<Event> deserialization;
     private final String path;
     private final int rowsPerSecond;
@@ -41,6 +44,7 @@ public class HdfsTextFileSource extends RichParallelSourceFunction<Event> {
         final long rowsForSubtask = getRowsForSubTask();
         final long rowsPerSecondForSubtask = getRowsPerSecondForSubTask();
 
+        Event event;
         long rows = 0;
         int batchRows = 0;
         byte[] bytes;
@@ -56,8 +60,15 @@ public class HdfsTextFileSource extends RichParallelSourceFunction<Event> {
                         continue;
                     }
                     bytes = line.getBytes(StandardCharsets.UTF_8);
-                    ctx.collect(deserialization.deserialize(bytes));
-                    rows += 1;
+                    try {
+                        event = deserialization.deserialize(bytes);
+                        event.getExtractedFields().put(Event.INTERNAL_TIMESTAMP_KEY, System.currentTimeMillis());
+                        ctx.collect(event);
+                        rows += 1;
+                    } catch (Exception e) {
+                        LOG.error("deserialize error for:" + line, e);
+                        continue;
+                    }
 
                     if(millisPerRow > 0){
                         Thread.sleep(millisPerRow);

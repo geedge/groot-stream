@@ -3,10 +3,14 @@ package com.geedgenetworks.connectors.file;
 import com.geedgenetworks.common.Event;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 public class MemoryTextFileSource extends RichParallelSourceFunction<Event> {
+    private static final Logger LOG = LoggerFactory.getLogger(MemoryTextFileSource.class);
     private final DeserializationSchema<Event> deserialization;
     private final byte[] lineBytes;
     private final int rowsPerSecond;
@@ -27,6 +31,7 @@ public class MemoryTextFileSource extends RichParallelSourceFunction<Event> {
         final long rowsForSubtask = getRowsForSubTask();
         final long rowsPerSecondForSubtask = getRowsPerSecondForSubTask();
 
+        Event event;
         long rows = 0;
         int batchRows = 0;
         byte[] bytes;
@@ -40,8 +45,15 @@ public class MemoryTextFileSource extends RichParallelSourceFunction<Event> {
                 lineSize = buffer.getInt();
                 bytes = new byte[lineSize];
                 buffer.get(bytes);
-                ctx.collect(deserialization.deserialize(bytes));
-                rows += 1;
+                try {
+                    event = deserialization.deserialize(bytes);
+                    event.getExtractedFields().put(Event.INTERNAL_TIMESTAMP_KEY, System.currentTimeMillis());
+                    ctx.collect(event);
+                    rows += 1;
+                } catch (Exception e) {
+                    LOG.error("deserialize error for:" + new String(bytes, StandardCharsets.UTF_8), e);
+                    continue;
+                }
 
                 if(millisPerRow > 0){
                     Thread.sleep(millisPerRow);
