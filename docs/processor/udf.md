@@ -310,6 +310,18 @@ Example:
           kb_name: tsg_ip_location
           option: IP_TO_DETAIL
 ```
+```yaml
+     - function: GEOIP_LOOKUP
+       lookup_fields: [ server_ip ]
+       output_fields: []
+       parameters:
+         kb_name: tsg_ip_location
+         option: IP_TO_OBJECT
+         geolocation_field_mapping:
+           COUNTRY: server_country
+           PROVINCE: server_super_administrative_area
+           CITY: server_administrative_area
+```
 
 ### JSON Extract
 JSON extract function is used to extract the value from json string.

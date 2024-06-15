@@ -9,6 +9,7 @@ It is very popular in Streaming Data Pipeline. Now support protobuf format in so
 | Format Protobuf | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/format-protobuf/) |
 
 ## Format Options
+> Ensures that the file path is accessible to all nodes in your Flink cluster.
 
 | Name                          | Type     | Required | Default | Description                                                                                                                                                                                                       |
 |-------------------------------|----------|----------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

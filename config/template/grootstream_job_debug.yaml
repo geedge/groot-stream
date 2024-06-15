@@ -93,13 +93,12 @@ processing_pipelines:
     functions: # [array of object] Function List
       - function: GEOIP_LOOKUP
         lookup_fields: [ server_ip ]
-        output_fields: [ server_asn ]
         parameters:
           kb_name: tsg_ip_location
           option: IP_TO_OBJECT
           geolocation_field_mapping:
-              COUNTRY: client_country_region
-              PROVINCE: client_super_admin_area
+            COUNTRY: client_country_region
+            PROVINCE: client_super_admin_area
       - function: ASN_LOOKUP
         lookup_fields: [ server_ip ]
         output_fields: [ server_asn ]
