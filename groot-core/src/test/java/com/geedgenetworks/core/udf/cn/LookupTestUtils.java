@@ -44,8 +44,8 @@ public class LookupTestUtils {
     private static String downloadPath = "testDownloadPath";
 
     private static MockedStatic<AbstractKnowledgeBaseHandler> abstractKnowledgeBaseHandlerMockedStatic = mockStatic(AbstractKnowledgeBaseHandler.class);
-
     private static MockedStatic<AbstractMultipleKnowledgeBaseHandler> abstractMultipleKnowledgeBaseHandlerMockedStatic = mockStatic(AbstractMultipleKnowledgeBaseHandler.class);
+
 
     static RuntimeContext mockRuntimeContext() {
         RuntimeContext runtimeContext = Mockito.mock(RuntimeContext.class);
@@ -84,7 +84,7 @@ public class LookupTestUtils {
         knowLedgeBaseFileMeta.setIsValid(isValid);
         knowLedgeBaseFileMeta.setFormat(format);
         abstractKnowledgeBaseHandlerMockedStatic.when(() -> AbstractKnowledgeBaseHandler.getMetadata(fsType, fsPath, fsFiles.get(0))).thenReturn(knowLedgeBaseFileMeta);
-        abstractKnowledgeBaseHandlerMockedStatic.when(() -> AbstractKnowledgeBaseHandler.downloadFile(downloadPath, 1)).thenReturn(downloadContent.getBytes());
+        abstractKnowledgeBaseHandlerMockedStatic.when(() -> AbstractKnowledgeBaseHandler.readFileFromKnowledgeBase(downloadPath, 1)).thenReturn(downloadContent.getBytes());
     }
 
     static void mockMultipleKnowledgeBaseHandler(String downloadContent) {
@@ -97,7 +97,7 @@ public class LookupTestUtils {
         Map<String, KnowLedgeBaseFileMeta> KnowLedgeBaseFileMetaMap = new HashMap<>();
         KnowLedgeBaseFileMetaMap.put("1", KnowLedgeBaseFileMeta);
         abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.getMetadata(fsPath)).thenReturn(KnowLedgeBaseFileMetaMap);
-        abstractKnowledgeBaseHandlerMockedStatic.when(() -> AbstractKnowledgeBaseHandler.downloadFile(downloadPath, 1)).thenReturn(downloadContent.getBytes());
+        abstractKnowledgeBaseHandlerMockedStatic.when(() -> AbstractKnowledgeBaseHandler.readFileFromKnowledgeBase(downloadPath, 1)).thenReturn(downloadContent.getBytes());
         abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.decodeId(anyString())).thenCallRealMethod();
         abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.encodeId(anyLong())).thenCallRealMethod();
         abstractMultipleKnowledgeBaseHandlerMockedStatic.when(() -> AbstractMultipleKnowledgeBaseHandler.checkId(anyString())).thenCallRealMethod();

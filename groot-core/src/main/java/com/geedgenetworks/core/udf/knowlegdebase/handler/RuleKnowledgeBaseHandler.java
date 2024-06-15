@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,8 +72,8 @@ public class RuleKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
             return;
         }
         if ("local".equals(knowledgeBaseConfig.getFsType())) {
-            byte[] localRuleContent = getFileFromLocal(knowledgeBaseConfig.getFsPath());
-            RuleResponse ruleResponse = JSON.parseObject(new String(localRuleContent), RuleResponse.class);
+            byte[] bytes = readFileFromLocalPath(Paths.get(knowledgeBaseConfig.getFsPath()));
+            RuleResponse ruleResponse = JSON.parseObject(new String(bytes), RuleResponse.class);
             processResponse(ruleResponse);
             return;
         }
