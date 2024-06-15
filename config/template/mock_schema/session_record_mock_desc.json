@@ -1,0 +1,519 @@
+[
+  {
+    "name": "device_id",
+    "type": "String",
+    "options": [
+      "9800165603191151",
+      "9800165603247024",
+      "9800165802621377",
+      "9800165603191148"
+    ]
+  },
+  {
+    "name": "sled_ip",
+    "type": "IpV4",
+    "start": "92.168.40.2",
+    "end": "92.168.40.100"
+  },
+  {
+    "name": "tcp_handshake_latency_ms",
+    "type": "Number",
+    "start": 1,
+    "end": 10000
+  },
+  {
+    "name": "out_link_id",
+    "type": "Number",
+    "start": 1,
+    "end": 65535
+  },
+  {
+    "name": "in_link_id",
+    "type": "Number",
+    "start": 1,
+    "end": 65535
+  },
+  {
+    "name": "address_type",
+    "type": "Number",
+    "options": [
+      4
+    ]
+  },
+  {
+    "name": "vsys_id",
+    "type": "Number",
+    "options": [
+      1
+    ]
+  },
+  {
+    "name": "flags",
+    "type": "Number",
+    "options": [
+      1,
+      8,
+      24,
+      16,
+      72,
+      4120,
+      24882,
+      26254,
+      26314,
+      26378,
+      26444,
+      27912,
+      28681,
+      29010,
+      32560,
+      58090,
+      61064,
+      91784,
+      94344,
+      124104,
+      124650
+    ]
+  },
+  {
+    "name": "device_group",
+    "type": "String",
+    "options": [
+      "OLAP-MOCK-DG-1",
+      "OLAP-MOCK-DG-2",
+      "OLAP-MOCK-DG-3",
+      "OLAP-MOCK-DG-4"
+    ]
+  },
+  {
+    "name": "in_out_fields",
+    "type": "Union",
+    "unionFields": [
+      {
+        "weight": 10,
+        "fields": [
+          {
+            "name": "direction",
+            "type": "String",
+            "options": [
+              "Outbound"
+            ]
+          },
+          {
+            "name": "client_ip",
+            "type": "IpV4",
+            "start": "103.144.108.1",
+            "end": "103.144.108.255"
+          },
+          {
+            "name": "server_ip",
+            "type": "IpV4",
+            "start": "1.0.0.0",
+            "end": "162.105.10.255"
+          },
+          {
+            "name": "c2s_ttl",
+            "type": "Number",
+            "options": [
+              63,
+              127,
+              128
+            ]
+          },
+          {
+            "name": "s2c_ttl",
+            "type": "Number",
+            "options": [
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              53,
+              58,
+              59,
+              60,
+              109,
+              110,
+              111
+            ]
+          }
+        ]
+      },
+      {
+        "weight": 5,
+        "fields": [
+          {
+            "name": "direction",
+            "type": "String",
+            "options": [
+              "Inbound"
+            ]
+          },
+          {
+            "name": "client_ip",
+            "type": "IpV4",
+            "start": "1.0.0.0",
+            "end": "162.105.10.255"
+          },
+          {
+            "name": "server_ip",
+            "type": "IpV4",
+            "start": "103.144.108.1",
+            "end": "103.144.108.255"
+          },
+          {
+            "name": "c2s_ttl",
+            "type": "Number",
+            "options": [
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              53,
+              58,
+              59,
+              60,
+              109,
+              110,
+              111
+            ]
+          },
+          {
+            "name": "s2c_ttl",
+            "type": "Number",
+            "options": [
+              63,
+              127,
+              128
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "client_port",
+    "type": "Number",
+    "start": 50000,
+    "end": 60000
+  },
+  {
+    "name": "server_port",
+    "type": "Number",
+    "start": 22,
+    "end": 30000
+  },
+  {
+    "name": "subscriber_id",
+    "type": "Expression",
+    "expression": "#{Name.name}",
+    "nullRate": 0.5
+  },
+  {
+    "name": "phone_number",
+    "type": "Expression",
+    "expression": "#{PhoneNumber.phoneNumberInternational}",
+    "nullRate": 0.5
+  },
+  {
+    "name": "treatment_as_fields",
+    "type": "Union",
+    "unionFields": [
+      {
+        "weight": 10,
+        "fields": [
+          {
+            "name": "security_action",
+            "type": "String",
+            "options": ["Deny", "Allow"]
+          }, {
+            "name": "security_rule_list",
+            "type": "Number",
+            "array": true,
+            "start": 1,
+            "end": 100,
+            "arrayLenMin":1,
+            "arrayLenMax":3
+          }
+        ]
+      }, {
+        "weight": 20,
+        "fields": [
+           {
+            "name": "monitor_rule_list",
+            "type": "Number",
+            "array": true,
+            "start": 101,
+            "end": 200,
+            "arrayLenMin":1,
+            "arrayLenMax":3
+          }
+        ]
+      },
+      {
+        "weight": 1,
+        "fields": [
+          {
+            "name": "proxy_action",
+            "type": "String",
+            "options": ["Intercept", "No Intercept"]
+          }, {
+            "name": "proxy_rule_list",
+            "type": "Number",
+            "array": true,
+            "start": 201,
+            "end": 300,
+            "arrayLenMin":1,
+            "arrayLenMax":3
+          }
+        ]
+      },
+      {
+        "weight": 70,
+        "fields": [
+        ]
+      }
+    ]
+  },
+  {
+    "name": "decoded_as_fields",
+    "type": "Union",
+    "unionFields": [
+      {
+        "weight": 4,
+        "fields": [
+          {
+            "name": "decoded_as",
+            "type": "String",
+            "options": ["BASE"]
+          },
+          {
+            "name": "app",
+            "type": "String",
+            "options": [
+              "ntp",
+              "stun",
+              "unknown",
+              "teredo",
+              "qq_web_qq",
+              "kugou",
+              "quic"
+            ]
+          },
+          {
+            "name": "ip_protocol",
+            "type": "String",
+            "options": [
+              "tcp",
+              "udp"
+            ]
+          }
+        ]
+      },
+      {
+        "weight": 3,
+        "fields": [
+          {
+            "name": "decoded_as",
+            "type": "String",
+            "options": [
+              "SSL"
+            ]
+          },
+          {
+            "name": "ssl_sni",
+            "type": "Expression",
+            "expression": "#{internet.domainName}",
+            "nullRate": 0.1
+          },
+          {
+            "name": "server_port",
+            "type": "Number",
+            "options": [
+              443
+            ]
+          },
+          {
+            "name": "app",
+            "type": "String",
+            "options": [
+              "https",
+              "ssl",
+              "wps_office",
+              "microsoft",
+              "http2",
+              "anydesk",
+              "meituan",
+              "google",
+              "huawei",
+              "taobao"
+            ]
+          },
+          {
+            "name": "ip_protocol",
+            "type": "String",
+            "options": [
+              "tcp",
+              "udp"
+            ]
+          }
+        ]
+      },
+      {
+        "weight": 1,
+        "fields": [
+          {
+            "name": "decoded_as",
+            "type": "String",
+            "options": [
+              "HTTP"
+            ]
+          },
+          {
+            "name": "http_host",
+            "type": "Expression",
+            "expression": "#{internet.url}",
+            "nullRate": 0.1
+          },
+          {
+            "name": "http_status_code",
+            "type": "Number",
+            "options": [
+              200,
+              201,
+              202
+            ]
+          },
+          {
+            "name": "http_user_agent",
+            "type": "Expression",
+            "expression": "#{internet.botUserAgentAny}"
+          },
+          {
+            "name": "server_port",
+            "type": "Number",
+            "options": [
+              80,
+              8009,
+              8888,
+              18080
+            ]
+          },
+          {
+            "name": "app",
+            "type": "String",
+            "options": [
+              "http",
+              "qq_web",
+              "wps_office",
+              "zhihu",
+              "bilibili",
+              "google",
+              "wecom"
+            ]
+          },
+          {
+            "name": "ip_protocol",
+            "type": "String",
+            "options": [
+              "tcp"
+            ]
+          }
+        ]
+      },
+      {
+        "weight": 1,
+        "fields": [
+          {
+            "name": "decoded_as",
+            "type": "String",
+            "options": [
+              "MAIL"
+            ]
+          },
+          {
+            "name": "mail_account",
+            "type": "Expression",
+            "expression": "#{internet.emailAddress}",
+            "nullRate": 0.7
+          },
+          {
+            "name": "server_port",
+            "type": "Number",
+            "options": [
+              25,
+              143,
+              110
+            ]
+          },
+          {
+            "name": "app",
+            "type": "String",
+            "options": [
+              "imap",
+              "pop3",
+              "smtp"
+            ]
+          },
+          {
+            "name": "ip_protocol",
+            "type": "String",
+            "options": [
+              "tcp"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "sent_pkts",
+    "type": "Number",
+    "start": 1,
+    "end": 150
+  },
+  {
+    "name": "received_pkts",
+    "type": "Number",
+    "start": 1,
+    "end": 100
+  },
+  {
+    "name": "sent_bytes",
+    "type": "Number",
+    "start": 1,
+    "end": 15000
+  },
+  {
+    "name": "received_bytes",
+    "type": "Number",
+    "start": 1,
+    "end": 60000
+  },
+  {
+    "name": "start_timestamp_ms",
+    "type": "Timestamp",
+    "unit":"millis"
+  },
+  {
+    "name": "end_timestamp_ms",
+    "type": "Timestamp",
+    "unit":"millis"
+  },
+  {
+  "name": "duration_ms",
+  "type": "Number",
+  "start": 1,
+  "end": 10000
+ },
+  {
+  "name": "tcp_rtt_ms",
+  "type": "Number",
+  "start": 1,
+  "end": 20
+}
+
+]

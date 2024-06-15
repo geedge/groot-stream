@@ -42,6 +42,13 @@
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
+            <artifactId>connector-mock</artifactId>
+            <version>${project.version}</version>
+            <scope>${scope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
             <artifactId>connector-clickhouse</artifactId>
             <version>${project.version}</version>
             <scope>${scope}</scope>

@@ -60,7 +60,7 @@ public abstract class AbstractTestFlinkContainer extends AbstractTestContainer {
         copyGrootStreamStarterToContainer(jobManager);
         copyGrootStreamStarterLoggingToContainer(jobManager);
 
-        jobManager.setPortBindings(Lists.newArrayList(String.format("%s:%s", 8081, 8084)));
+        jobManager.setPortBindings(Lists.newArrayList(String.format("%s:%s", 8084, 8081)));
 
         taskManager =
                 new GenericContainer<>(dockerImage)

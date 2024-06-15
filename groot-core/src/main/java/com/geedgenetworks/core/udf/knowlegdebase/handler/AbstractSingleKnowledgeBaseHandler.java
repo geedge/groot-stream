@@ -11,6 +11,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Paths;
+
 /**
  * @author gujinkai
  * @version 1.0
@@ -57,18 +59,18 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
      * @return byte[]
      */
     public byte[] downloadFile() {
-        byte[] data;
+        byte[] bytes;
         switch (knowledgeBaseConfig.getFsType()) {
             case "http":
-                data = downloadFile(knowledgeMetedataCache.getPath(), knowledgeMetedataCache.getIsValid());
+                bytes = readFileFromKnowledgeBase(knowledgeMetedataCache.getPath(), knowledgeMetedataCache.getIsValid());
                 break;
             case "local":
-                data = getFileFromLocal(knowledgeBaseConfig.getFsPath() + knowledgeBaseConfig.getFiles().get(0));
+                bytes = readFileFromLocalPath(Paths.get(knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(0)));
                 break;
             default:
                 throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
         }
-        return decrypt(data);
+        return decrypt(bytes);
     }
 
     /**

@@ -29,6 +29,9 @@ The knowledge base is a collection of libraries that can be used in the groot-st
 | files    | Array   | No       | (none)  | The file list of the knowledge base object.                                |                                                                                                                                                                                                                                                            
 
 ### Define the knowledge base file from a local file
+
+> Ensures that the file path is accessible to all nodes in your Flink cluster.
+
 ```yaml
 grootstream: 
   knowledge_base: 

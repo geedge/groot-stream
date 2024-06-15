@@ -2,12 +2,12 @@ grootstream:
   knowledge_base:
     - name: tsg_ip_asn
       fs_type: local
-      fs_path: /Users/darnell/IdeaProjects/groot-stream/groot-core/src/test/resources/
+      fs_path: ./config/dat/
       files:
-        - asn.mmdb
+        - asn_builtin.mmdb
     - name: tsg_ip_location
       fs_type: local
-      fs_path: /Users/darnell/IdeaProjects/groot-stream/groot-core/src/test/resources/
+      fs_path: ./config/dat
       files:
         - ip_builtin.mmdb
   properties:
