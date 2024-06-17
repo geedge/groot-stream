@@ -30,25 +30,25 @@ public class FakerUtils {
         Preconditions.checkNotNull(type, "type is required");
         type = type.trim();
 
-        if ("Number".equals(type)) {
+        if ("Number".equalsIgnoreCase(type)) {
             return wrapFaker(parseNumberFaker(obj), obj);
-        } else if ("Sequence".equals(type)) {
+        } else if ("Sequence".equalsIgnoreCase(type)) {
             return wrapFaker(parseSequenceFaker(obj), obj);
-        } else if ("UniqueSequence".equals(type)) {
+        } else if ("UniqueSequence".equalsIgnoreCase(type)) {
             return wrapFaker(parseUniqueSequenceFaker(obj), obj);
-        } else if ("String".equals(type)) {
+        } else if ("String".equalsIgnoreCase(type)) {
             return wrapFaker(parseStringFaker(obj), obj);
-        } else if ("Timestamp".equals(type)) {
+        } else if ("Timestamp".equalsIgnoreCase(type)) {
             return wrapFaker(parseTimestampFaker(obj), obj);
-        } else if ("FormatTimestamp".equals(type)) {
+        } else if ("FormatTimestamp".equalsIgnoreCase(type)) {
             return wrapFaker(parseFormatTimestampFaker(obj), obj);
-        } else if ("IpV4".equals(type)) {
-            return wrapFaker(parseIpV4Faker(obj), obj);
-        } else if ("Expression".equals(type)) {
+        } else if ("IPv4".equalsIgnoreCase(type)) {
+            return wrapFaker(parseIPv4Faker(obj), obj);
+        } else if ("Expression".equalsIgnoreCase(type)) {
             return wrapFaker(parseExpressionFaker(obj), obj);
-        } else if ("Object".equals(type)) {
+        } else if ("Object".equalsIgnoreCase(type)) {
             return wrapFaker(parseObjectFaker(obj.getJSONArray("fields")), obj);
-        } else if ("Union".equals(type)) {
+        } else if ("Union".equalsIgnoreCase(type)) {
             return wrapFaker(parseUnionFaker(obj), obj);
         }
 
@@ -101,7 +101,7 @@ public class FakerUtils {
         return new ExpressionFaker(expression);
     }
 
-    private static Faker<?> parseIpV4Faker(JSONObject obj) {
+    private static Faker<?> parseIPv4Faker(JSONObject obj) {
         String start = obj.getString("start");
         String end = obj.getString("end");
         if(start == null){
@@ -110,7 +110,7 @@ public class FakerUtils {
         if(end == null){
             start = "255.255.255.255";
         }
-        return new IpV4Faker(IpV4Faker.ipv4ToLong(start), IpV4Faker.ipv4ToLong(end) + 1);
+        return new IPv4Faker(IPv4Faker.ipv4ToLong(start), IPv4Faker.ipv4ToLong(end) + 1);
     }
 
     private static Faker<?> parseFormatTimestampFaker(JSONObject obj) {
@@ -158,8 +158,8 @@ public class FakerUtils {
     }
 
     private static Faker<?> parseNumberFaker(JSONObject obj) {
-        Number start = (Number) obj.get("start");
-        Number end = (Number) obj.get("end");
+        Number start = (Number) obj.get("min");
+        Number end = (Number) obj.get("max");
         JSONArray options = obj.getJSONArray("options");
         boolean random = obj.getBooleanValue("random", true);
 
