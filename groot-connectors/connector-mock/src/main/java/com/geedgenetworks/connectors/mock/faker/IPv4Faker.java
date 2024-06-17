@@ -5,12 +5,12 @@ import org.apache.flink.util.Preconditions;
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class IpV4Faker extends Faker<String> {
+public class IPv4Faker extends Faker<String> {
     private final long start;
     private final long end;
     private StringBuilder sb = new StringBuilder(16);
 
-    public IpV4Faker(long start, long end) {
+    public IPv4Faker(long start, long end) {
         this.start = start;
         this.end = end;
     }

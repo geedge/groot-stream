@@ -73,8 +73,8 @@ The mock data type is used to define the template of the mock data.
 | Mock Type                               | Parameter   | Result Type           | Default             | Description                                                                                                             |
 |-----------------------------------------|-------------|-----------------------|---------------------|-------------------------------------------------------------------------------------------------------------------------|
 | **[Number](#Number)**                   | -           | **int/bigint/double** | -                   | **Randomly generate a number.**                                                                                         |
-| -                                       | start       | number                | 0                   | The minimum value (include).                                                                                            |
-| -                                       | end         | number                | int32.max           | The maximum value (exclusive).                                                                                          |
+| -                                       | min         | number                | 0                   | The minimum value (include).                                                                                            |
+| -                                       | max         | number                | int32.max           | The maximum value (exclusive).                                                                                          |
 | -                                       | options     | array of number       | (none)              | The optional values. If set, the random value will be selected from the options and `start` and `end`  will be ignored. |                               
 | -                                       | random      | boolean               | true                | Default is random mode. If set to false, the value will be generated in order.                                          |                                                                                                                                                                                                                            
 | **[Sequence](#Sequence)**               | -           | **bigint**            | -                   | **Generate a sequence number based on a specific step value .**                                                         |            
@@ -119,11 +119,11 @@ Mock data type supports some common parameters.
 ### Number
 - Randomly generate a integer number between 0 and 10000.
 ```json
-{"name":"int_random","type":"Number","start":0,"end":10000}
+{"name":"int_random","type":"Number","min":0,"max":10000}
 ```
 - Generate a integer number between 0 and 10000, and the value will be generated in order.
 ```json
-{"name":"int_inc","type":"Number","start":0,"end":10000,"random":false}
+{"name":"int_inc","type":"Number","min":0,"max":10000,"random":false}
 ```
 - Randomly generate a integer number from 20, 22, 25, 30.
 ```json
@@ -131,7 +131,7 @@ Mock data type supports some common parameters.
 ```
 - randomly generate a double number between 0 and 10000.
 ```json
-{"name":"double_random","type":"Number","start":0.0,"end":10000.0}
+{"name":"double_random","type":"Number","min":0.0,"max":10000.0}
 ```
 ### Sequence
 
@@ -181,7 +181,7 @@ Mock data type supports some common parameters.
 ### IPv4
 - Generate a IPv4 address between 192.168.20.1 and 192.168.20.255.
 ```json
-{"name":"ip","type":"IpV4","start":"192.168.20.1","end":"192.168.20.255"}
+{"name":"ip","type":"IPv4","start":"192.168.20.1","end":"192.168.20.255"}
 ```
 
 ### Expression

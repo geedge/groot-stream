@@ -11,27 +11,27 @@
   },
   {
     "name": "sled_ip",
-    "type": "IpV4",
+    "type": "IPv4",
     "start": "92.168.40.2",
     "end": "92.168.40.100"
   },
   {
     "name": "tcp_handshake_latency_ms",
     "type": "Number",
-    "start": 1,
-    "end": 10000
+    "min": 1,
+    "max": 10000
   },
   {
     "name": "out_link_id",
     "type": "Number",
-    "start": 1,
-    "end": 65535
+    "min": 1,
+    "max": 65535
   },
   {
     "name": "in_link_id",
     "type": "Number",
-    "start": 1,
-    "end": 65535
+    "min": 1,
+    "max": 65535
   },
   {
     "name": "address_type",
@@ -100,13 +100,13 @@
           },
           {
             "name": "client_ip",
-            "type": "IpV4",
+            "type": "IPv4",
             "start": "103.144.108.1",
             "end": "103.144.108.255"
           },
           {
             "name": "server_ip",
-            "type": "IpV4",
+            "type": "IPv4",
             "start": "1.0.0.0",
             "end": "162.105.10.255"
           },
@@ -152,13 +152,13 @@
           },
           {
             "name": "client_ip",
-            "type": "IpV4",
+            "type": "IPv4",
             "start": "1.0.0.0",
             "end": "162.105.10.255"
           },
           {
             "name": "server_ip",
-            "type": "IpV4",
+            "type": "IPv4",
             "start": "103.144.108.1",
             "end": "103.144.108.255"
           },
@@ -197,14 +197,14 @@
   {
     "name": "client_port",
     "type": "Number",
-    "start": 50000,
-    "end": 60000
+    "min": 50000,
+    "max": 60000
   },
   {
     "name": "server_port",
     "type": "Number",
-    "start": 22,
-    "end": 30000
+    "min": 22,
+    "max": 30000
   },
   {
     "name": "subscriber_id",
@@ -233,8 +233,8 @@
             "name": "security_rule_list",
             "type": "Number",
             "array": true,
-            "start": 1,
-            "end": 100,
+            "min": 1,
+            "max": 100,
             "arrayLenMin":1,
             "arrayLenMax":3
           }
@@ -246,8 +246,8 @@
             "name": "monitor_rule_list",
             "type": "Number",
             "array": true,
-            "start": 101,
-            "end": 200,
+            "min": 101,
+            "max": 200,
             "arrayLenMin":1,
             "arrayLenMax":3
           }
@@ -264,8 +264,8 @@
             "name": "proxy_rule_list",
             "type": "Number",
             "array": true,
-            "start": 201,
-            "end": 300,
+            "min": 201,
+            "max": 300,
             "arrayLenMin":1,
             "arrayLenMax":3
           }
@@ -472,26 +472,26 @@
   {
     "name": "sent_pkts",
     "type": "Number",
-    "start": 1,
-    "end": 150
+    "min": 1,
+    "max": 150
   },
   {
     "name": "received_pkts",
     "type": "Number",
-    "start": 1,
-    "end": 100
+    "min": 1,
+    "max": 100
   },
   {
     "name": "sent_bytes",
     "type": "Number",
-    "start": 1,
-    "end": 15000
+    "min": 1,
+    "max": 15000
   },
   {
     "name": "received_bytes",
     "type": "Number",
-    "start": 1,
-    "end": 60000
+    "min": 1,
+    "max": 60000
   },
   {
     "name": "start_timestamp_ms",
@@ -506,14 +506,14 @@
   {
   "name": "duration_ms",
   "type": "Number",
-  "start": 1,
-  "end": 10000
+  "min": 1,
+  "max": 10000
  },
   {
   "name": "tcp_rtt_ms",
   "type": "Number",
-  "start": 1,
-  "end": 20
+  "min": 1,
+  "max": 20
 }
 
 ]
