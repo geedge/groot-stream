@@ -1,7 +1,10 @@
 package com.geedgenetworks.core.udf;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.UDF;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.googlecode.aviator.Expression;
@@ -17,28 +20,33 @@ public class Flatten implements UDF {
     private String prefix;
     private String delimiter;
     private int depth;
-    private static Set flattenKeys;
-    private static Set jsonStringKeys;
+    private Set<String> flattenKeys;
+    private Set<String> jsonStringKeys;
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         prefix = udfContext.getParameters().getOrDefault("prefix", "").toString();
         delimiter = udfContext.getParameters().getOrDefault("delimiter", ".").toString();
-        flattenKeys = new HashSet();
-        for (String key :udfContext.getLookup_fields()) {
+        flattenKeys = new HashSet<>();
+        for (String key : udfContext.getLookup_fields()) {
             this.flattenKeys.add(prefix.isEmpty() ? key : prefix + delimiter + key);
         }
         depth = Integer.parseInt(udfContext.getParameters().getOrDefault("depth", "5").toString());
         String jsonStringKeys = udfContext.getParameters().getOrDefault("json_string_keys", "").toString();
         this.jsonStringKeys = new HashSet<>();
         if (!jsonStringKeys.isEmpty()) {
-            String cleanedInput = jsonStringKeys.replaceAll("\\[|\\]|\\s+", "").replaceAll("\"", "");
-            for (String key : cleanedInput.split(",")) {
+            List<String> jsonStringKeyList;
+            try {
+                jsonStringKeyList = JSONArray.parseArray(jsonStringKeys, String.class);
+            }
+            catch (Exception e){
+                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The param of json_string_keys is illegal");
+            }
+            for (String key : jsonStringKeyList) {
                 this.jsonStringKeys.add(prefix.isEmpty() ? key : prefix + delimiter + key);
             }
         }
     }
-
 
     @Override
     public Event evaluate(Event event) {
@@ -47,7 +55,7 @@ public class Flatten implements UDF {
         return event;
     }
 
-    public static Map<String, Object> flatten(Map<String, Object> nestedMap, String prefix, int depth, String delimiter) {
+    private  Map<String, Object> flatten(Map<String, Object> nestedMap, String prefix, int depth, String delimiter) {
         Map<String, Object> flattenedMap = new HashMap<>();
         nestedMap.forEach((key, value) -> {
             String fullkey = prefix.isEmpty() ? key : prefix + delimiter + key;
@@ -60,7 +68,7 @@ public class Flatten implements UDF {
         return flattenedMap;
     }
 
-    private static void flattenString(Map<String, Object> flattenedMap, String value,String fullkey, int depth, String delimiter) {
+    private void flattenString(Map<String, Object> flattenedMap, String value,String fullkey, int depth, String delimiter) {
         try {
             Object obj = JSONObject.parseObject(value, Object.class);
             if(obj instanceof List){
@@ -77,7 +85,7 @@ public class Flatten implements UDF {
         }
     }
 
-    private static void flattenList(Map<String, Object> flattenedMap, List<Map<String, Object>> list, String prefixKey, int depth, String delimiter) {
+    private void flattenList(Map<String, Object> flattenedMap, List<Map<String, Object>> list, String prefixKey, int depth, String delimiter) {
         for (int i = 0; i < list.size(); i++) {
             Map<String, Object> map = list.get(i);
             for (Map.Entry<String, Object> entry : map.entrySet()) {
@@ -87,7 +95,7 @@ public class Flatten implements UDF {
         }
     }
 
-    private static void flattenMap(Map<String, Object> flattenedMap, Map<String, Object> map,String prefixKey, int depth, String delimiter) {
+    private void flattenMap(Map<String, Object> flattenedMap, Map<String, Object> map,String prefixKey, int depth, String delimiter) {
         map.forEach((key, value) -> {
             String fullkey = prefixKey + delimiter + key;
             flattenValue(flattenedMap, fullkey, value, depth, delimiter);
@@ -95,7 +103,7 @@ public class Flatten implements UDF {
     }
 
 
-    private static void flattenValue(Map<String, Object> flattenedMap, String fullkey,Object value, int depth, String delimiter) {
+    private void flattenValue(Map<String, Object> flattenedMap, String fullkey,Object value, int depth, String delimiter) {
 
         if (jsonStringKeys.isEmpty() || !jsonStringKeys.contains(fullkey)) {
             if (value instanceof List) {
