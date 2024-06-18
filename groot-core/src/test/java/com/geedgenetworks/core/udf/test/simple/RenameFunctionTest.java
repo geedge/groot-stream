@@ -49,10 +49,9 @@ public class RenameFunctionTest {
     public void testRenameFunctionWithouExpression() {
 
         UDFContext udfContext = new UDFContext();
-        List<String> parent = List.of("k1,k3,k3.k3_1.k3_1_1,k3.k3_1");
         Map<String, Object> rename_fields = Map.of("k1", "k1_rename","k1_1","k1_1_rename","k3_1_1","k3_1_1_rename","k3_1","k3_1_rename","k3_1_1_1","k3_1_1_1_rename","k3_1_2","k3_1_2_rename");
         Map<String, Object> params = new HashMap<>();
-        params.put("parent_fields", parent);
+        params.put("parent_fields", "[\"k1\",\"k3\",\"k3.k3_1.k3_1_1\",\"k3.k3_1\"]");
         params.put("rename_fields", rename_fields);
         udfContext.setParameters(params);
         Rename rename = new Rename();

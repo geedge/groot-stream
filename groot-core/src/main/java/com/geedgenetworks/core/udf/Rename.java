@@ -1,5 +1,6 @@
 package com.geedgenetworks.core.udf;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.UDF;
@@ -29,8 +30,14 @@ public class Rename implements UDF {
         String parentFields = udfContext.getParameters().getOrDefault("parent_fields", "").toString();
         this.parentFields = new HashSet<>();
         if (!parentFields.isEmpty()) {
-            String cleanedInput = parentFields.replaceAll("\\[|\\]|\\s+", "").replaceAll("\"", "");
-            this.parentFields.addAll(List.of(cleanedInput.split(",")));
+            List<String> parentFieldList;
+            try {
+                parentFieldList = JSONArray.parseArray(parentFields, String.class);
+            }
+            catch (Exception e){
+                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The param of parent_fields is illegal");
+            }
+            this.parentFields.addAll(parentFieldList);
         }
         renameFields = (Map<String, String>) udfContext.getParameters().getOrDefault("rename_fields", new HashMap<>());
         renameExpression = udfContext.getParameters().getOrDefault("rename_expression", "").toString();
@@ -45,8 +52,6 @@ public class Rename implements UDF {
 
     @Override
     public Event evaluate(Event event) {
-
-
         Map<String, Object> renamedMap = rename(event.getExtractedFields(), parentFields, renameFields, renameExpression, "");
         event.setExtractedFields(renamedMap);
         return event;
@@ -63,7 +68,7 @@ public class Rename implements UDF {
     }
 
 
-    public static Map<String, Object> rename(Map<String, Object> nestedMap, Set<String> parentFields, Map<String, String> renameFields, String renameExpression, String prefix) {
+    private Map<String, Object> rename(Map<String, Object> nestedMap, Set<String> parentFields, Map<String, String> renameFields, String renameExpression, String prefix) {
         Map<String, Object> renamedMap = new HashMap<>();
         nestedMap.forEach((key, value) -> {
 
@@ -92,7 +97,7 @@ public class Rename implements UDF {
         return renamedMap;
     }
 
-   private static Map<String, Object> renameMap(Map<String, Object> nestedMap, Map<String, String> renameFields, String renameExpression) {
+   private Map<String, Object> renameMap(Map<String, Object> nestedMap, Map<String, String> renameFields, String renameExpression) {
         Map<String, Object> renamedMap = new HashMap<>();
         nestedMap.forEach((key, value) -> {
             key = renameKey(key, renameFields, renameExpression);
@@ -102,7 +107,7 @@ public class Rename implements UDF {
     }
 
 
-    private static String renameKey(String key,Map<String, String> renameFields, String renameExpression) {
+    private String renameKey(String key,Map<String, String> renameFields, String renameExpression) {
 
             String newKey = key;
             if (renameFields.containsKey(key)) {

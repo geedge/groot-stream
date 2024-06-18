@@ -5,7 +5,7 @@ sources:
     type : inline
     fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
     properties:
-      data:  '[{"mail_attachment_name_charset":"GBK","mail_attachment_name":"aGVsbG8=","packet_capture_file":"test","ssl_sni":"www.google.com","decoded_as":"BASE","ssl_san":"www.google.com","__timestamp":1705568517095,"client_ip":"255.255.255.255","server_ip":"2600:1015:b002::"},{"decoded_as":"HTTP","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"DNS","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"SSL","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"}]'
+      data:  '[{"encapsulation":"[{\"tunnels_schema_type\":\"MULTIPATH_ETHERNET\"}]","mail_attachment_name_charset":"GBK","mail_attachment_name":"aGVsbG8=","packet_capture_file":"test","ssl_sni":"www.google.com","decoded_as":"BASE","ssl_san":"www.google.com","__timestamp":1705568517095,"client_ip":"255.255.255.255","server_ip":"2600:1015:b002::"},{"decoded_as":"HTTP","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"DNS","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"SSL","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"}]'
       interval.per.row: 1s # 可选
       repeat.count: 1 # 可选
       format: json
@@ -122,6 +122,24 @@ processing_pipelines:
       - function: GENERATE_STRING_ARRAY
         lookup_fields: [ client_asn,server_asn ]
         output_fields: [ asn_list ]
+      - function: FLATTEN
+        lookup_fields: [ encapsulation ]
+        output_fields: [  ]
+        parameters:
+          #prefix: ""
+          depth:  3
+          # delimiter: "."
+          json_string_keys: [ encapsulation]
+
+      - function: RENAME
+        lookup_fields: [  ]
+        output_fields: [  ]
+        filter:
+        parameters:
+         # parent_fields: [tags]
+          #rename_fields:
+            #  tags: tags
+          rename_expression: key =string.replace_all(key,'encapsulation.0.','');return key;
 
 
 sinks:

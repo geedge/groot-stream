@@ -30,7 +30,7 @@ public class FlattenFunctionTest {
         params.put("prefix", "prefix");
         params.put("depth", "4");
         params.put("delimiter", "_");
-        params.put("json_string_keys", "[parent5_lastName,parent5_firstName,parent6,parent7,parent8]");
+        params.put("json_string_keys", "[\"parent5_lastName\",\"parent5_firstName\",\"parent6\",\"parent7\",\"parent8\"]");
 
         udfContext.setParameters(params);
 

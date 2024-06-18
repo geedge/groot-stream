@@ -1,11 +1,15 @@
 package com.geedgenetworks.core.udf;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CommonConfig;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.UDF;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.common.utils.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -27,25 +31,30 @@ public class PathCombine implements UDF {
         Map<String,String>  propertiesConfig =engineConfig.getPropertiesConfig();
         if (udfContext.getParameters() != null
                 && !udfContext.getParameters().isEmpty()) {
-            String path = udfContext.getParameters().get("path").toString();
-            String cleanedInput = path.replaceAll("\\[|\\]|\\s+", "").replaceAll("\"", "");;
+            String paths = udfContext.getParameters().getOrDefault("path","").toString();
             // 使用逗号分隔项并转换为数组
-            String[] itemArray = cleanedInput.split(",");
-            for (String column : itemArray) {
-                if(column.startsWith("props.")){
-                    String propertiesConfigKey = column.replaceAll("props.","").trim();
-                    if(propertiesConfig.containsKey(propertiesConfigKey)) {
-
-                        pathParameters.put(column,propertiesConfig.get(propertiesConfigKey));//待定义全局变量
+            if (!paths.isEmpty()) {
+                List<String> pathList;
+                try {
+                    pathList = JSONArray.parseArray(paths, String.class);
+                }
+                catch (Exception e){
+                    throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The param of path is illegal");
+                }
+                for (String path : pathList) {
+                    if(path.startsWith(Constants.SYSPROP_GROOTSTREAM_PREFIX)){
+                        String propertiesConfigKey = path.replaceAll(Constants.SYSPROP_GROOTSTREAM_PREFIX,"").trim();
+                        if(propertiesConfig.containsKey(propertiesConfigKey)) {
+                            pathParameters.put(path,propertiesConfig.get(propertiesConfigKey));//待定义全局变量
+                        }
+                        else {
+                            throw new RuntimeException("propertiesConfigKey "+propertiesConfigKey+" not found ");
+                        }
                     }
                     else {
-                        throw new RuntimeException("propertiesConfigKey "+propertiesConfigKey+" not found ");
+                        pathParameters.put(path,"");
                     }
                 }
-                else {
-                    pathParameters.put(column,"");
-                }
-
             }
         }
         this.outputFieldName = udfContext.getOutput_fields().get(0);
@@ -85,7 +94,7 @@ public class PathCombine implements UDF {
 
     }
 
-    public static String joinUrlParts(List<String> parts) {
+    private String joinUrlParts(List<String> parts) {
         StringBuilder url = new StringBuilder();
         for (int i = 0; i < parts.size(); i++) {
             String part = parts.get(i).trim();
