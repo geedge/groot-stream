@@ -2,18 +2,18 @@
 
 ## Modules Overview
 
-| Module Name       | Description                                                                                                |
-|:------------------|:-----------------------------------------------------------------------------------------------------------|
-| groot-bootstrap   | The main module of groot-stream, which is responsible for starting the groot-stream server.                |
-| groot-common      | Common module of groot-stream, which is responsible for providing common functions.                        |
-| groot-core        | Core module of groot-stream, which is responsible for providing core functions.                            |
-| groot-connectors  | Connector module of groot-stream, which is responsible for providing connectors.                           |
-| groot-formats     | Format module of groot-stream, which is responsible for providing the ability of formatting data.          |
-| groot-shade       | Shaded module of groot-stream, which is responsible for providing the ability of solving package conflict. |
-| groot-example     | Example module of groot-stream, which is responsible for providing examples.                               |
-| groot-test        | Test module of groot-stream, which is responsible for providing test cases.                                |
-| groot-docs        | Docs module of groot-stream, which is responsible for providing documents.                                 |
-| groot-release     | Release module of groot-stream, which is responsible for providing release scripts.                        |
+| Module Name      | Description                                                                                                |
+|:-----------------|:-----------------------------------------------------------------------------------------------------------|
+| groot-bootstrap  | The main module of groot-stream, which is responsible for starting the groot-stream server.                |
+| groot-common     | Common module of groot-stream, which is responsible for providing common functions.                        |
+| groot-core       | Core module of groot-stream, which is responsible for providing core functions.                            |
+| groot-connectors | Connector module of groot-stream, which is responsible for providing connectors.                           |
+| groot-formats    | Format module of groot-stream, which is responsible for providing the ability of formatting data.          |
+| groot-shaded     | Shaded module of groot-stream, which is responsible for providing the ability of solving package conflict. |
+| groot-examples   | Example module of groot-stream, which is responsible for providing examples.                               |
+| groot-tests      | Test module of groot-stream, which is responsible for providing test cases.                                |
+| groot-docs       | Docs module of groot-stream, which is responsible for providing documents.                                 |
+| groot-release    | Release module of groot-stream, which is responsible for providing release scripts.                        |
 
 ## How to write a high quality Git commit message
 
