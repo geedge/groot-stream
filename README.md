@@ -21,7 +21,7 @@ Groot Stream is designed to simplify the operation of ETL (Extract, Transform, L
 
 ## Groot Stream Workflow
 
-![Groot Stream Workflow](docs/images/groot_stream_architecture.jpeg)
+![Groot Stream Workflow](docs/images/groot_stream_architecture.jpg)
 
 Configure a job, you'll set up Sources, Filters, Processing Pipeline, and Sinks, and will assemble several built-in functions into a Processing Pipeline. The job will then be deployed to a Flink cluster for execution. 
 - **Source**: The data source of the job, which can be a Kafka topic, a IPFIX Collector, or a file.

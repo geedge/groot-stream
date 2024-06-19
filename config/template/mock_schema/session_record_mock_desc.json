@@ -44,7 +44,7 @@
     "name": "vsys_id",
     "type": "Number",
     "options": [
-      1
+      2048
     ]
   },
   {
