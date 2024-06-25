@@ -1,0 +1,79 @@
+[
+  {"name": "name", "type": "String", "options":["object_statistics"]},
+  {"name": "timestamp_ms", "type": "Timestamp", "unit":"millis"},
+  {"name": "tags", "type": "Object", "fields": [
+    {"name": "object_id", "type":"Number","min":1,"max":100},
+    {"name": "item_id", "type":"Number","min":1,"max":100000},
+    {"name": "object_type", "type":"String","options":["ip","asn","port","url","fqdn","account","subscriberid","keywords","application","fqdn_category"]},
+    {
+      "name": "device_id",
+      "type": "String",
+      "options": [
+        "9800165603191151",
+        "9800165603247024",
+        "9800165802621377",
+        "9800165603191148"
+      ]
+    },
+    {
+      "name": "device_group",
+      "type": "String",
+      "options": [
+        "OLAP-MOCK-DG-1",
+        "OLAP-MOCK-DG-2",
+        "OLAP-MOCK-DG-3",
+        "OLAP-MOCK-DG-4"
+      ]
+    },{
+      "name": "data_center",
+      "type": "String",
+      "options": [
+        "OLAP-MOCK-DC-1",
+        "OLAP-MOCK-DC-2",
+        "OLAP-MOCK-DC-3",
+        "OLAP-MOCK-DC-4"
+      ]
+    },{
+      "name": "vsys_id",
+      "type": "Number",
+      "options": [
+        2048
+      ]
+    }
+  ] },
+  {"name": "fields", "type": "Object", "fields": [
+    {
+      "name": "out_bytes",
+      "type": "Number",
+      "min": 1,
+      "max": 15000
+    },
+    {
+      "name": "in_bytes",
+      "type": "Number",
+      "min": 1,
+      "max": 60000
+    },{
+      "name": "bytes",
+      "type": "Number",
+      "min": 1000,
+      "max": 600000
+    },{
+      "name": "new_in_sessions",
+      "type": "Number",
+      "min": 1,
+      "max": 10
+    },{
+      "name": "new_out_sessions",
+      "type": "Number",
+      "min": 1,
+      "max": 100
+    },{
+      "name": "sessions",
+      "type": "Number",
+      "min": 100,
+      "max": 1000
+    }
+  ] }
+
+]

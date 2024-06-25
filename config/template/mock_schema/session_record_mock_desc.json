@@ -85,6 +85,16 @@
     ]
   },
   {
+    "name": "data_center",
+    "type": "String",
+    "options": [
+      "OLAP-MOCK-DC-1",
+      "OLAP-MOCK-DC-2",
+      "OLAP-MOCK-DC-3",
+      "OLAP-MOCK-DC-4"
+    ]
+  },
+  {
     "name": "in_out_fields",
     "type": "Union",
     "unionFields": [
