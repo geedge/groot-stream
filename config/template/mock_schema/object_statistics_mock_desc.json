@@ -55,9 +55,8 @@
       "max": 60000
     },{
       "name": "bytes",
-      "type": "Number",
-      "min": 1000,
-      "max": 600000
+      "type": "Eval",
+      "expression": "in_bytes+ out_bytes"
     },{
       "name": "new_in_sessions",
       "type": "Number",
@@ -70,9 +69,8 @@
       "max": 100
     },{
       "name": "sessions",
-      "type": "Number",
-      "min": 100,
-      "max": 1000
+      "type": "Eval",
+      "expression": "new_in_sessions+new_out_sessions"
     }
   ] }
 
