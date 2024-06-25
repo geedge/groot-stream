@@ -17,7 +17,7 @@ public class ArrayFaker extends Faker<List<Object>> {
     }
 
     public ArrayFaker(Faker<Object> faker, int minLen, int maxLen, boolean duplicated) {
-        Preconditions.checkArgument(!faker.isUnionFaker());
+        Preconditions.checkArgument(!faker.isUnionFaker() && !faker.isComputeFaker());
         this.faker = faker;
         this.minLen = Math.max(minLen, 0);
         this.maxLen = maxLen;

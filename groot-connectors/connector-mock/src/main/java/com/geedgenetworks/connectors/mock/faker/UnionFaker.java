@@ -6,11 +6,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-public class UnionFaker extends Faker<List<UnionFaker.FieldValue>> {
+public class UnionFaker extends Faker<UnionFaker.FieldValuesAndComputeFieldFakers> {
     private final FieldsFaker[] fieldsFakers;
     private final boolean random;
     private final FieldValue[] fieldValuesTmp;
     private final List<FieldValue> fieldValues;
+    private final FieldValuesAndComputeFieldFakers fieldValuesAndComputeFieldFakers;
     private final int[] weights;
     private final int weightMax;
     private Random r;
@@ -21,6 +22,7 @@ public class UnionFaker extends Faker<List<UnionFaker.FieldValue>> {
         this.random = random;
         this.fieldValuesTmp = new FieldValue[Arrays.stream(fieldsFakers).mapToInt(x -> x.fields.length).max().getAsInt()];
         this.fieldValues = new ArrayList<>();
+        this.fieldValuesAndComputeFieldFakers = new FieldValuesAndComputeFieldFakers();
         this.weights = new int[fieldsFakers.length];
         weights[0] = fieldsFakers[0].weight;
         for (int i = 1; i < fieldsFakers.length; i++) {
@@ -39,11 +41,14 @@ public class UnionFaker extends Faker<List<UnionFaker.FieldValue>> {
             for (ObjectFaker.FieldFaker field : fieldsFaker.fields) {
                 field.faker.init(instanceCount, instanceIndex);
             }
+            for (ObjectFaker.ComputeFieldFaker field : fieldsFaker.computeFields) {
+                field.faker.init(instanceCount, instanceIndex);
+            }
         }
     }
 
     @Override
-    public List<FieldValue> geneValue() throws Exception {
+    public FieldValuesAndComputeFieldFakers geneValue() throws Exception {
         fieldValues.clear();
 
         FieldsFaker fieldsFaker;
@@ -84,13 +89,19 @@ public class UnionFaker extends Faker<List<UnionFaker.FieldValue>> {
             }
         }
 
-        return fieldValues;
+        fieldValuesAndComputeFieldFakers.fieldValues = fieldValues;
+        fieldValuesAndComputeFieldFakers.computeFields = fieldsFaker.computeFields;
+
+        return fieldValuesAndComputeFieldFakers;
     }
 
     @Override
     public void destroy() throws Exception {
         for (FieldsFaker fieldsFaker : fieldsFakers) {
             for (ObjectFaker.FieldFaker field : fieldsFaker.fields) {
+                field.faker.destroy();
+            }
+            for (ObjectFaker.ComputeFieldFaker field : fieldsFaker.computeFields) {
                 field.faker.destroy();
             }
         }
@@ -106,13 +117,21 @@ public class UnionFaker extends Faker<List<UnionFaker.FieldValue>> {
         public Object value;
     }
 
+    public static class FieldValuesAndComputeFieldFakers implements Serializable {
+        public List<FieldValue> fieldValues;
+        public ObjectFaker.ComputeFieldFaker[] computeFields;
+
+    }
+
     public static class FieldsFaker implements Serializable {
         final ObjectFaker.FieldFaker[] fields;
+        final ObjectFaker.ComputeFieldFaker[] computeFields;
         final int weight;
         int weightIndex = 0;
 
         public FieldsFaker(ObjectFaker.FieldFaker[] fields, int weight) {
-            this.fields = fields;
+            this.fields = Arrays.stream(fields).filter(x -> !x.faker.isComputeFaker()).toArray(ObjectFaker.FieldFaker[]::new);
+            this.computeFields = Arrays.stream(fields).filter(x -> x.faker.isComputeFaker()).map(x -> new ObjectFaker.ComputeFieldFaker(x.name, (EvalFaker)x.faker)).toArray(ObjectFaker.ComputeFieldFaker[]::new);
             this.weight = weight;
         }
     }
