@@ -11,4 +11,8 @@ public abstract class Faker<T> implements Serializable {
     public boolean isUnionFaker(){
         return false;
     }
+
+    public boolean isComputeFaker(){
+        return false;
+    }
 }

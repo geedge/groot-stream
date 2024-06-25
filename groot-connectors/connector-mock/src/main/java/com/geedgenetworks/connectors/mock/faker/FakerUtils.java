@@ -50,6 +50,8 @@ public class FakerUtils {
             return wrapFaker(parseObjectFaker(obj.getJSONArray("fields")), obj);
         } else if ("Union".equalsIgnoreCase(type)) {
             return wrapFaker(parseUnionFaker(obj), obj);
+        } else if ("Eval".equalsIgnoreCase(type)) {
+            return parseEvalFaker(obj);
         }
 
         throw new UnsupportedOperationException("not support type:" + type);
@@ -93,6 +95,12 @@ public class FakerUtils {
         }
 
         return new UnionFaker(fieldsFakers, random);
+    }
+
+    private static Faker<?> parseEvalFaker(JSONObject obj) {
+        String expression = obj.getString("expression");
+        Preconditions.checkNotNull(expression);
+        return new EvalFaker(expression);
     }
 
     private static Faker<?> parseExpressionFaker(JSONObject obj) {
