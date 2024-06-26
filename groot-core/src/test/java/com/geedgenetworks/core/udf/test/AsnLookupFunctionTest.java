@@ -72,7 +72,7 @@ public class AsnLookupFunctionTest {
         knowledgeBaseConfig.setProperties(parameters);
         knowledgeBaseConfig.setFsType("local");
         knowledgeBaseConfig.setFsPath("");
-        knowledgeBaseConfig.setFiles(Collections.singletonList("src/test/resources/asn.mmdb"));
+        knowledgeBaseConfig.setFiles(Collections.singletonList("src/test/resources/asn_builtin.mmdb"));
         knowledgeBaseConfigList.add(knowledgeBaseConfig);
         commonConfig.setKnowledgeBaseConfig(knowledgeBaseConfigList);
         KnowledgeBaseUpdateJob.registerKnowledgeBase(AsnKnowledgeBaseHandler.getInstance(), knowledgeBaseConfig);

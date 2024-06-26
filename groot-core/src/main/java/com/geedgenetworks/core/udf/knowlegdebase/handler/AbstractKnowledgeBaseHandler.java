@@ -1,5 +1,6 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
+import cn.hutool.core.io.file.PathUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
@@ -9,6 +10,7 @@ import com.geedgenetworks.core.utils.HttpClientPoolUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -43,26 +45,25 @@ public abstract class AbstractKnowledgeBaseHandler {
     }
 
 
-    public static byte[] downloadFile(String fileUrl, int isValid) {
-        byte[] inputStream = null;
+    public static byte[] readFileFromKnowledgeBase(String fileUrl, int isValid) {
+        byte[] bytes = null;
         if (isValid == 1) {
             try {
                 long start = System.currentTimeMillis();
                 HttpClientPoolUtil httpClientPoolUtil = HttpClientPoolUtil.getInstance();
-                inputStream = httpClientPoolUtil.httpGetByte(fileUrl);
+                bytes = httpClientPoolUtil.httpGetByte(fileUrl);
                 long end = System.currentTimeMillis();
-                log.info(
-                        "download file " + fileUrl + " finished, speed " + (end - start) + " ms");
+                log.info("Download file {} finished, speed {} ms", fileUrl, end - start);
             } catch (Exception e) {
-                log.error("download file " + fileUrl + " error: " + e.getMessage());
+                log.error("Download file {} error: {}", fileUrl, e.getMessage());
             }
         }
-        return inputStream;
+        return bytes;
     }
 
 
-    public static byte[] getFileFromLocal(String filepath) {
-        return FileUtils.getFileFromDir(filepath);
+    public static byte[] readFileFromLocalPath(Path filePath) {
+        return PathUtil.readBytes(filePath);
     }
 
 

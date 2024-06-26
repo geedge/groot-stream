@@ -191,10 +191,10 @@ public class FileUtils {
         return filePath.substring(filePath.lastIndexOf(File.separatorChar) + 1);
     }
 
+    @Deprecated
     public static byte[] getFileFromDir(String filePath) {
         try (BufferedInputStream bis = new BufferedInputStream(Files.newInputStream(Paths.get(filePath)));
              ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-
             byte[] buffer = new byte[1024];
             int bytesRead;
             while ((bytesRead = bis.read(buffer)) != -1) {
@@ -204,7 +204,7 @@ public class FileUtils {
         } catch (Exception e) {
             String errorMsg = String.format("get local file [%s] failed", filePath);
             throw new GrootStreamRuntimeException(
-                    CommonErrorCode.UNSUPPORTED_OPERATION, errorMsg, e);
+                    CommonErrorCode.FILE_OPERATION_ERROR, errorMsg, e);
         }
     }
 }

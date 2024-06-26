@@ -25,6 +25,7 @@ public final class Constants {
 
 
     public static final String SYSPROP_GROOTSTREAM_CONFIG = "grootstream.config";
+    public static final String SYSPROP_GROOTSTREAM_PREFIX = "props.";
     public static final String HAZELCAST_GROOTSTREAM_CONFIG_FILE_PREFIX = "grootstream";
     public static final String HAZELCAST_GROOTSTREAM_CONFIG_DEFAULT = "grootstream.yaml";
 

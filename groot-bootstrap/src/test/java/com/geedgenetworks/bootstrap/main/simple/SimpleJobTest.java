@@ -42,7 +42,6 @@ public class SimpleJobTest {
     @Test
     public void testEtl()  {
 
-
         String[] args ={"--target", "remote", "-c", ".\\grootstream_job_etl_test.yaml"};
         ExecuteCommandArgs executeCommandArgs = CommandLineUtils
                 .parse(args, new ExecuteCommandArgs(), EngineType.FLINK13.getShellName(), true);
@@ -80,9 +79,10 @@ public class SimpleJobTest {
         Assert.assertEquals("6167", CollectSink.values.get(0).getExtractedFields().get("server_asn").toString());
         Assert.assertEquals("美国", CollectSink.values.get(0).getExtractedFields().get("server_country_region").toString());
         Assert.assertTrue(!CollectSink.values.get(0).getExtractedFields().containsKey("client_country_region"));
-        Assert.assertEquals("http://192.168.44.12:8089/traffic_file_bucket/test", CollectSink.values.get(0).getExtractedFields().get("packet_capture_file").toString());
+        Assert.assertEquals("http://192.168.44.12:9098/hos/traffic_file_bucket/test", CollectSink.values.get(0).getExtractedFields().get("packet_capture_file").toString());
         Assert.assertEquals("[2600:1015:b002::,255.255.255.255]", CollectSink.values.get(0).getExtractedFields().get("ip_string").toString());
         Assert.assertEquals("hello", CollectSink.values.get(0).getExtractedFields().get("mail_attachment_name").toString());
+        Assert.assertEquals("MULTIPATH_ETHERNET", CollectSink.values.get(0).getExtractedFields().get("tunnels_schema_type").toString());
         List<String> asn_list = (List<String>) CollectSink.values.get(0).getExtractedFields().get("asn_list");
         Assert.assertEquals("6167", asn_list.get(0));
 

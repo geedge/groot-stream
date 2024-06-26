@@ -106,8 +106,9 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
                         List<String> currentTags = new ArrayList<>(tags);
                         subRangeMap.put(Range.closed(startIpAddress, endIpAddress), currentTags);
                         rangeListMap.forEach((ipAddressRange, ipAddressRangeTags) -> {
-                            ipAddressRangeTags.addAll(tags);
-                            subRangeMap.put(ipAddressRange, ipAddressRangeTags);
+                            List<String> newTags = new ArrayList<>(ipAddressRangeTags);
+                            newTags.addAll(tags);
+                            subRangeMap.put(ipAddressRange, newTags);
                         });
                         newIpTagMap.putAll(subRangeMap);
                     } else if ("Domain".equals(type)) {

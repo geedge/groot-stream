@@ -7,9 +7,9 @@ More details about AviatorScript can be found at [AviatorScript](https://www.yuq
 
 | Name        | Type   | Required | Default | Description                                                                                                                                                                                                        |
 |-------------|--------|----------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| type        | String | Yes      | -       | The type of the filter operator. Now only support `com.geedgenetworks.core.filter.AviatorFilter`.                                                                                                                  |
-| properties  | Map    | Yes      | -       | Filter operator properties.                                                                                                                                                                                        |
-| -expression | String | Yes      | -       | Based on the filter expression, the event will be passed to downstream if the expression is true, otherwise it will be dropped. Build a filter expression need add prefix `event.`, if you want get event field.   |  
+| type        | String | Yes      | (none)  | The type of the filter operator. Now only support `com.geedgenetworks.core.filter.AviatorFilter`.                                                                                                                  |
+| properties  | Map    | Yes      | (none)  | Filter operator properties.                                                                                                                                                                                        |
+| -expression | String | Yes      | (none)  | Based on the filter expression, the event will be passed to downstream if the expression is true, otherwise it will be dropped. Build a filter expression need add prefix `event.`, if you want get event field.   |  
 
 ## Example
 This example read data from inline source and print to console. It will filter the event that `server_ip` is `8.8.8.8` output to console.
@@ -26,7 +26,7 @@ This example read data from inline source and print to console. It will filter t
    filter_operator: # [object] AviatorFilter operator name 
      type: com.geedgenetworks.core.filter.AviatorFilter 
      properties:
-       expression: event.server_ip == '8.8.8.8' # [string] Aviator expression, it return true or false.
+       expression: event.server_ip == '8.8.8.8' || event.decoded_as == 'HTTP' # [string] Aviator expression, it return true or false.
 
  sinks:
    print_sink:

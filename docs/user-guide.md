@@ -38,7 +38,7 @@ preprocessing_pipelines:
     type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
     functions:
       - function: EVAL
-        output_fields: ['additional_field_subdomain']
+        output_fields: [additional_field_subdomain]
         parameters:
           value_expression: fqdn_string
 
@@ -49,11 +49,8 @@ processing_pipelines:
     output_fields: []
     functions: 
       - function: DROP
-        lookup_fields: []
-        output_fields: []
         filter:  event.client_ip == '192.168.10.100'
       - function: SNOWFLAKE_ID
-        lookup_fields: []
         output_fields: [ log_id ]
         
 postprocessing_pipelines:

@@ -9,12 +9,13 @@ It is very popular in Streaming Data Pipeline. Now support protobuf format in so
 | Format Protobuf | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/format-protobuf/) |
 
 ## Format Options
+> Ensures that the file path is accessible to all nodes in your Flink cluster.
 
 | Name                          | Type     | Required | Default | Description                                                                                                                                                                                                       |
 |-------------------------------|----------|----------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| format                        | String   | Yes      | -       | Specify what format to use, here should be 'protobuf'.                                                                                                                                                            |
-| protobuf.descriptor.file.path | String   | Yes      | -       | The descriptor file path.                                                                                                                                                                                         |
-| protobuf.message.name         | String   | Yes      | -       | The protobuf messageName to look for in descriptor file.                                                                                                                                                          |
+| format                        | String   | Yes      | (none)  | Specify what format to use, here should be 'protobuf'.                                                                                                                                                            |
+| protobuf.descriptor.file.path | String   | Yes      | (none)  | The descriptor file path.                                                                                                                                                                                         |
+| protobuf.message.name         | String   | Yes      | (none)  | The protobuf messageName to look for in descriptor file.                                                                                                                                                          |
 | protobuf.ignore.parse.errors  | Boolean  | No       | false   | Protobuf ignore parse errors, otherwise will throw exception.                                                                                                                                                     |
 | protobuf.emit.default.values  | Boolean  | No       | false   | If true, default values will be emitted for missing fields. It is not recommended, because it will cause performance degradation. About basic data type, it is suggested to use `optional` instead of `required`. |
 

@@ -1,6 +1,8 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.file.PathUtil;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.pojo.KnowledgeBaseInfoForIpLookUp;
@@ -8,8 +10,11 @@ import com.geedgenetworks.model.LocationResponse;
 import com.geedgenetworks.utils.IpLookupV2;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 
 import java.io.ByteArrayInputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -86,18 +91,19 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
         for (int i = 0; i < knowledgeBaseConfig.getFiles().size(); i++) {
             try {
-                byte[] fileByte = getFileFromLocal(knowledgeBaseConfig.getFsPath()+knowledgeBaseConfig.getFiles().get(i));
+                byte[] bytes = readFileFromLocalPath(Paths.get(knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(i)));
+
                 switch (i) {
                     case 0:
-                        ipLookupBuilder.loadDataFile(new ByteArrayInputStream(fileByte));
+                        ipLookupBuilder.loadDataFile(new ByteArrayInputStream(bytes));
                         break;
                     case 1:
-                        ipLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
+                        ipLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(bytes));
                         break;
                 }
 
             } catch (Exception e) {
-                log.error("buildKnowledgeBase error " + e.getMessage());
+                log.error("File {} operation failed. {} ", knowledgeBaseConfig.getFiles().get(i), e.getMessage());
                 return false;
             }
 
@@ -109,7 +115,7 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         kbNameWithKbConfigAndFileMetas.put(knowledgeBaseConfig.getName(), kbInfoForIpLookUp);
         return true;
     }
-    private static boolean buildKnowledgeBaseWithMeta(KnowledgeBaseConfig knowledgeBaseConfig) {
+    private boolean buildKnowledgeBaseWithMeta(KnowledgeBaseConfig knowledgeBaseConfig) {
 
         IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
         List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetas = new ArrayList<>();
@@ -125,14 +131,14 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         for (int i = 0; i < knowLedgeBaseFileMetas.size(); i++) {
             try {
                 if (knowLedgeBaseFileMetas.get(i).getName() != null) {
-                    byte[] fileByte = downloadFile(knowLedgeBaseFileMetas.get(i).getPath(), knowLedgeBaseFileMetas.get(i).getIsValid());
-                    if (calculateSHA256(fileByte).equals(knowLedgeBaseFileMetas.get(i).getSha256())) {
+                    byte[] bytes = readFileFromKnowledgeBase(knowLedgeBaseFileMetas.get(i).getPath(), knowLedgeBaseFileMetas.get(i).getIsValid());
+                    if (calculateSHA256(bytes).equals(knowLedgeBaseFileMetas.get(i).getSha256())) {
                         switch (i) {
                             case 0:
-                                ipLookupBuilder.loadDataFile(new ByteArrayInputStream(fileByte));
+                                ipLookupBuilder.loadDataFile(new ByteArrayInputStream(bytes));
                                 break;
                             case 1:
-                                ipLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
+                                ipLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(bytes));
                                 break;
                         }
                     } else {

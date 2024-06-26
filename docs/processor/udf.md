@@ -1,13 +1,15 @@
 # UDF
-> The functions for projection processor
+> The functions for projection processors.
 ## Function of content
 
 - [Asn Lookup](#asn-lookup)
 - [Base64 Decode](#base64-decode)
+- [Base64 Encode](#base64-encode)
 - [Current Unix Timestamp](#current-unix-timestamp)
 - [Domain](#domain)
 - [Drop](#drop)
 - [Eval](#eval)
+- [Flatten](#flatten)
 - [From Unix Timestamp](#from-unix-timestamp)
 - [Generate String Array](#generate-string-array)
 - [GeoIP Lookup](#geoip-lookup)
@@ -62,7 +64,7 @@ Example:
 ### Base64 Decode
 Base64 decode function is used to decode the base64 encoded string.
 
-```BASE64_DECODE(filter, output_fields[, parameters])```
+```BASE64_DECODE_TO_STRING(filter, output_fields[, parameters])```
 - filter: optional
 - lookup_fields: not required
 - output_fields: required
@@ -72,11 +74,29 @@ Base64 decode function is used to decode the base64 encoded string.
 
 Example:
 ```yaml
-      - function: BASE64_DECODE
+      - function: BASE64_DECODE_TO_STRING
         output_fields: [mail_attachment_name]
         parameters:
           value_field: mail_attachment_name
           charset_field: mail_attachment_name_charset
+```
+
+### Base64 Encode
+Base64 encode function is commonly used to encode the binary data to base64 string. Especially when that data need to be stored and transferred over media that are designed to deal with text. This encoding helps to ensure that the data remains intact without modification during transport.
+
+```BASE64_ENCODE_TO_STRING(filter, output_fields[, parameters])```
+- filter: optional
+- lookup_fields: not required
+- output_fields: required
+- parameters: required
+  - value_field: `<String>` required.
+
+Example:
+```yaml
+      - function: BASE64_ENCODE_TO_STRING
+        output_fields: [packet]
+        parameters:
+          value_field: packet
 ```
 
 ### Current Unix Timestamp
@@ -160,6 +180,47 @@ If the value of `direction` is `69`, the value of `internal_ip` will be `client_
         output_fields: [internal_ip]
         parameters:
           value_expression: 'direction=69 ? client_ip : server_ip'
+```
+### Flatten
+Flatten the fields of nested structure to the top level. The new fields name are named using the field name prefixed with the names of the struct fields to reach it, separated by dots as default.
+
+```FLATTEN(filter, lookup_fields, output_fields[, parameters])```
+- filter: optional
+- lookup_fields: optional
+- output_fields: not required
+- parameters: optional
+  - prefix: `<String>` optional. Prefix string for flattened field names. Default is empty.
+  - depth: `<Integer>` optional. Number representing the nested levels to consider for flattening. Minimum 1. Default is `5`.
+  - delimiter: `<String>` optional. The string used to join nested keys Default is `.`. 
+  - json_string_keys: `<Array>` optional. The keys of the json string fields. It indicates keys that contain JSON strings and should be parsed and flattened. Default is empty.  
+
+Example 1:
+
+Flatten the nested structure of fields and tags in Metrics. If lookup_fields is empty, flatten all nested structures.
+
+```yaml
+      - function: FLATTEN
+        lookup_fields: [tags,fields]
+```
+
+Example 2:
+
+Flatten the nested structure of the session record field `encapsulation` (JSON String format), add the prefix `tunnels`, specify the nesting depth as `3`, and use an dot "." as the delimiter.
+```yaml
+      - function: FLATTEN
+        lookup_fields: [encapsulation]
+        parameters:
+          prefix: tunnels
+          depth: 3
+          delimiter: .
+          json_string_keys: [encapsulation]
+```
+Output:
+```json
+{
+  "tunnels.encapsulation.ipv4.client_ip:": "192.168.11.12",
+  "tunnels.encapsulation.ipv4.server_ip": "8.8.8.8"
+}
 ```
 
 ### From Unix Timestamp
@@ -249,6 +310,18 @@ Example:
           kb_name: tsg_ip_location
           option: IP_TO_DETAIL
 ```
+```yaml
+     - function: GEOIP_LOOKUP
+       lookup_fields: [ server_ip ]
+       output_fields: []
+       parameters:
+         kb_name: tsg_ip_location
+         option: IP_TO_OBJECT
+         geolocation_field_mapping:
+           COUNTRY: server_country
+           PROVINCE: server_super_administrative_area
+           CITY: server_administrative_area
+```
 
 ### JSON Extract
 JSON extract function is used to extract the value from json string.
@@ -292,20 +365,48 @@ Example:
 ```
 
 ### Rename
-Rename function is used to rename the field name.
+Rename function is used to rename or reformat(e.g. by replacing character underscores with dots) the field name.
 
-```RENAME(filter, lookup_fields, output_fields)```
+```RENAME(filter, lookup_fields, output_fields, parameters)```
 - filter: optional
-- lookup_fields: required
-- output_fields: required
-- parameters: not required
+- lookup_fields: not required
+- output_fields: not required
+- parameters: required
+  - parent_fields: `<Array>` optional. Specify fields whose children will inherit the Rename fields and Rename expression operations. 
+  - rename_fields: `Map<String, String>` required. The key  is the original field name, and the value is the new field name.
+    - current_field_name: `<String>` required. The original field name.
+    - new_field_name: `<String>` required. The new field name.
+  - rename_expression: `<String>` optional. AviatorScript expression whose returned value will be used to rename fields.  
 
-Example:
+```
+A single Function can include both rename_fields (to rename specified field names) and rename_expression (to globally rename fields). However, the Rename fields strategy will execute first.
+```
+Example 1:
+
+Remove the prefix "tags_" from the field names and rename the field "timestamp_ms" to "recv_time_ms".
+
 ```yaml
       - function: RENAME
-        lookup_fields: [http_domain]
-        output_fields: [server_domain]
+      - parameters:
+          rename_fields:
+            - timestamp_ms: recv_time_ms
+          rename_expression: key=string.replace_all(key,'tags_',''); return key;
+           
 ```
+
+Example 2:
+
+Rename the field `client_ip` to `source_ip`, including the fields under the `encapsulation.ipv4` tunnel.
+
+```yaml
+      - function: RENAME
+      - parameters:
+          parent_fields: [encapsulation.ipv4]
+          rename_fields:
+            - client_ip: source_ip
+           
+```
+Output: `source_ip:192.168.4.1, encapsulation.ipv4.source_ip:192.168.12.12`
 
 
 ### Snowflake ID
@@ -364,12 +465,9 @@ Unix timestamp converter function is used to convert the unix timestamp precisio
 - lookup_fields: required
 - output_fields: required
 - parameters: required
-  - precision: `<String>` required. Enum: `milliseconds`, `seconds`.
-
-Example:
-
-_`__timestamp` Internal field, from source ingestion time or current unix timestamp._
-
+  - precision: `<String>` required. Enum: `milliseconds`, `seconds`, `minutes`. The minutes precision is used to generate Unix timestamp, round it to the minute level, and output it in seconds format.
+  - Example:
+_`__timestamp` Internal field, from source ingestion time or current unix timestamp.
 ```yaml
       - function: UNIX_TIMESTAMP_CONVERTER
         lookup_fields: [__timestamp]
@@ -377,9 +475,6 @@ _`__timestamp` Internal field, from source ingestion time or current unix timest
         parameters:
           precision: seconds
 ```
-
-
-
 
 
  

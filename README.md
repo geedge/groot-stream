@@ -13,7 +13,8 @@ Groot Stream Platform helps you process netflow data - logs, metrics etc. - in r
 
 ## Features
 
-Groot Stream is designed to simplify the operation of ETL (Extract, Transform, Load). It efficiently collects data from multiple sources and processes and enriches it. 
+###### Groot Stream is designed to simplify the operation of ETL (Extract, Transform, Load). It efficiently collects data from multiple sources and processes and enriches it. 
+
 - **Real-time data processing**: Using Flink as the execution engine, it can provide high throughput and low-latency processing capabilities for large-scale data streams.
 - **Designed for extension**: Plugin-based management that support for User-defined Functions, Sources, and Sinks.
 - **Highly Configurable**: Customize data flow through YML templates to swiftly fulfill ETL requirements without development.
@@ -21,7 +22,7 @@ Groot Stream is designed to simplify the operation of ETL (Extract, Transform, L
 
 ## Groot Stream Workflow
 
-![Groot Stream Workflow](docs/images/groot_stream_architecture.jpeg)
+![Groot Stream Workflow](docs/images/groot_stream_architecture.jpg)
 
 Configure a job, you'll set up Sources, Filters, Processing Pipeline, and Sinks, and will assemble several built-in functions into a Processing Pipeline. The job will then be deployed to a Flink cluster for execution. 
 - **Source**: The data source of the job, which can be a Kafka topic, a IPFIX Collector, or a file.
@@ -75,7 +76,7 @@ FLINK_JOB_MANAGER_ADDRESS=${FLINK_JOB_MANAGER_ADDRESS:-localhost:8081}
 YARN_ADDRESS=${YARN_ADDRESS:-yarn-cluster}
 ```
 #### 3. Configure the groot-stream job 
-You need to configure the groot-stream job in `config/template/grootstream_job_template.yaml` file. More information about config please check [config concept](docs/user-guide.md)
+You need to configure the groot-stream job in `config/grootstream_job_example.yaml` file. More information about config please check [config concept](docs/user-guide.md)
 
 #### 4. Submit a job to flink engine
 Can be started by a daemon with `-d`. 
@@ -89,7 +90,7 @@ Can be started by a daemon with `-d`.
 2. Open the `Run/Debug Configurations` window.
 3. Choose -cp `groot-bootstrap`
 4. Choose Main Class `com.geedgenetworks.bootstrap.main.GrootStreamServer`.
-5. Add VM options `--target local -c /...../groot-stream/config/inline_to_print_template.yaml`.
+5. Add VM options `--target local -c /...../groot-stream/config/grootstream_job_example.yaml`.
 6. Click the `Run` button.
 
 #### Running the CLI
@@ -100,13 +101,16 @@ cd "groot-stream-${version}"
 ```
 - Run the following command to start the groot-stream server for Yarn Session Mode:
 ```shell
+# First create a yarn session cluster 
+yarn-session.sh -d  
+# Then start the groot-stream server for Yarn Session Mode. 
 cd "groot-stream-${version}"
 ./bin/start.sh -c ./config/grootstream_job_example.yaml --target yarn-session -Dyarn.application.id=application_XXXX_YY -n inline-to-print-job -d
 ```
 - Run the following command to start the groot-stream server for Yarn Per-job Mode:
 ```shell
 cd "groot-stream-${version}"
-./bin/start.sh -c ./config/grootstream_job_example.yaml --target yarn-per-job -Dyarn.application.name="inline-to-print-job"  -n inline-to-print-job -d
+./bin/start.sh -c ./config/grootstream_job_example.yaml --target yarn-per-job -Dyarn.application.name="inline-to-print-job" Djobmanager.memory.process.size=1024m -Dtaskmanager.memory.process.size=2048m -Dtaskmanager.numberOfTaskSlots=3  -p 6  -n inline-to-print-job -d
 ```
 ### Configuring
 
@@ -118,4 +122,3 @@ See the [Groot Stream Documentation](docs) for more information.
 
 ## Contributors
 All developers see the list of contributors [here](https://git.mesalab.cn/galaxy/platform/groot-stream/-/graphs/develop?ref_type=heads).
-

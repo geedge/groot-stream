@@ -7,9 +7,9 @@ Inline source custom properties. The data will be parsed to Map<String, Object> 
 
 | Name             | Type      | Required | Default | Description                                                                                                              |
 |------------------|-----------|----------|---------|--------------------------------------------------------------------------------------------------------------------------|
-| data             | String    | Yes      | -       | Testing data, support json and protobuf format. If data is json format , it can be parsed multiple events by json array. |
-| format           | String    | Yes      | -       | Data format.  The Optional values are `json`, `protobuf`.                                                                |
-| [format].config  | Map       | No       | -       | Data format properties. Please refer to [Format Options](../formats) for details.                                        |
+| data             | String    | Yes      | (none)  | Testing data, support json and protobuf format. If data is json format , it can be parsed multiple events by json array. |
+| format           | String    | Yes      | (none)  | Data format.  The Optional values are `json`, `protobuf`.                                                                |
+| [format].config  | Map       | No       | (none)  | Data format properties. Please refer to [Format Options](../formats) for details.                                        |
 | interval.per.row | Duration  | No       | 1s      | Interval time in seconds between each row. If it is 0, it will be generated as fast as possible.                         |
 | repeat.count     | Integer   | No       | -1      | Repeat count. If it is -1, it will be generated infinitely.                                                              |
 | type             | String    | No       | string  | Data codec type. The Optional values are `string(UTF-8)`, `hex`, `base64`.                                               |

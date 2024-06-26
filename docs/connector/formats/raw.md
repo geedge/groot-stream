@@ -11,7 +11,7 @@ The Raw format allows to read and write raw (byte based) values as a single colu
 
 | Name                      | Type     | Required | Default | Description                                       |
 |---------------------------|----------|----------|---------|---------------------------------------------------|
-| format                    | String   | Yes      | -       | Specify what format to use, here should be 'raw'. |
+| format                    | String   | Yes      | (none)  | Specify what format to use, here should be 'raw'. |
 
 # How to use
 ## Inline uses example
