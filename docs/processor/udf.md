@@ -465,12 +465,9 @@ Unix timestamp converter function is used to convert the unix timestamp precisio
 - lookup_fields: required
 - output_fields: required
 - parameters: required
-  - precision: `<String>` required. Enum: `milliseconds`, `seconds`.
-
-Example:
-
-_`__timestamp` Internal field, from source ingestion time or current unix timestamp._
-
+  - precision: `<String>` required. Enum: `milliseconds`, `seconds`, `minutes`. The minutes precision is used to generate Unix timestamp, round it to the minute level, and output it in seconds format.
+  - Example:
+_`__timestamp` Internal field, from source ingestion time or current unix timestamp.
 ```yaml
       - function: UNIX_TIMESTAMP_CONVERTER
         lookup_fields: [__timestamp]
@@ -478,9 +475,6 @@ _`__timestamp` Internal field, from source ingestion time or current unix timest
         parameters:
           precision: seconds
 ```
-
-
-
 
 
  

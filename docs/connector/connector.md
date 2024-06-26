@@ -204,6 +204,12 @@ Mock data type supports some common parameters.
 ```json
 {"name":"phoneNumber","type":"Expression","expression":"#{phoneNumber.phoneNumber}"}
 ```
+### Eval
+- Generate a value by using AviatorScript expression. Commonly used for arithmetic operations.
+```json
+{"name": "bytes", "type": "Eval", "expression": "in_bytes + out_bytes"}
+```
+
 ### Object
 
 - Generate a object data structure.
