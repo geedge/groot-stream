@@ -60,8 +60,6 @@ public class GeoIpLookupFunctionTest {
 
     @Test
     public void testGeoIpLookupFunction() throws Exception {
-
-
         CommonConfig commonConfig = new CommonConfig();
         List<KnowledgeBaseConfig> knowledgeBaseConfigList = new ArrayList<>();
         KnowledgeBaseConfig knowledgeBaseConfig = new KnowledgeBaseConfig();

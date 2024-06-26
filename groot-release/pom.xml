@@ -107,6 +107,20 @@
                     <scope>provided</scope>
                 </dependency>
 
+                <dependency>
+                    <groupId>com.geedgenetworks</groupId>
+                    <artifactId>connector-file</artifactId>
+                    <version>${project.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>com.geedgenetworks</groupId>
+                    <artifactId>connector-mock</artifactId>
+                    <version>${project.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+
                 <!--Hbase Jars -->
                 <dependency>
                     <groupId>com.geedgenetworks</groupId>

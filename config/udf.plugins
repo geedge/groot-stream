@@ -1,10 +1,11 @@
 com.geedgenetworks.core.udf.AsnLookup
 com.geedgenetworks.core.udf.CurrentUnixTimestamp
 com.geedgenetworks.core.udf.DecodeBase64
-com.geedgenetworks.core.udf.EncodeBase64
 com.geedgenetworks.core.udf.Domain
 com.geedgenetworks.core.udf.Drop
+com.geedgenetworks.core.udf.EncodeBase64
 com.geedgenetworks.core.udf.Eval
+com.geedgenetworks.core.udf.Flatten
 com.geedgenetworks.core.udf.FromUnixTimestamp
 com.geedgenetworks.core.udf.GenerateStringArray
 com.geedgenetworks.core.udf.GeoIpLookup

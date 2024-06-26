@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -104,18 +105,19 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
         for (int i = 0; i < knowledgeBaseConfig.getFiles().size(); i++) {
             try {
-                byte[] fileByte = getFileFromLocal(knowledgeBaseConfig.getFsPath() + knowledgeBaseConfig.getFiles().get(i));
+                byte[] bytes = readFileFromLocalPath(Paths.get(knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(i)));
+
                 switch (i) {
                     case 0:
-                        asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(fileByte));
+                        asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(bytes));
                         break;
                     case 1:
-                        asnLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(fileByte));
+                        asnLookupBuilder.loadDataFilePrivate(new ByteArrayInputStream(bytes));
                         break;
                 }
 
             } catch (Exception e) {
-                log.error("buildKnowledgeBase error " + e.getMessage());
+                log.error("File {} operation failed. {} ", knowledgeBaseConfig.getFiles().get(i), e.getMessage());
                 return false;
             }
 
@@ -128,7 +130,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         return true;
     }
 
-    private static boolean buildKnowledgeBaseWithMeta(KnowledgeBaseConfig knowledgeBaseConfig) {
+    private boolean buildKnowledgeBaseWithMeta(KnowledgeBaseConfig knowledgeBaseConfig) {
 
         IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
         List<KnowLedgeBaseFileMeta> knowLedgeBaseFileMetas = new ArrayList<>();
@@ -144,7 +146,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         for (int i = 0; i < knowLedgeBaseFileMetas.size(); i++) {
             try {
                 if (knowLedgeBaseFileMetas.get(i).getName() != null) {
-                    byte[] fileByte = downloadFile(knowLedgeBaseFileMetas.get(i).getPath(), knowLedgeBaseFileMetas.get(i).getIsValid());
+                    byte[] fileByte = readFileFromKnowledgeBase(knowLedgeBaseFileMetas.get(i).getPath(), knowLedgeBaseFileMetas.get(i).getIsValid());
                     if (calculateSHA256(fileByte).equals(knowLedgeBaseFileMetas.get(i).getSha256())) {
                         switch (i) {
                             case 0:

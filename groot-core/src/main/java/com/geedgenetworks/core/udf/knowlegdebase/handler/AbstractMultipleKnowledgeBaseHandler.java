@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,10 +62,10 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
 
     protected byte[] downloadFile(Long id) {
         if ("http".equals(knowledgeBaseConfig.getFsType())) {
-            return downloadFile(knowledgeMetedataCacheMap.get(encodeId(id)).getPath(), knowledgeMetedataCacheMap.get(encodeId(id)).getIsValid());
+            return readFileFromKnowledgeBase(knowledgeMetedataCacheMap.get(encodeId(id)).getPath(), knowledgeMetedataCacheMap.get(encodeId(id)).getIsValid());
         }
         if ("local".equals(knowledgeBaseConfig.getFsType())) {
-            return getFileFromLocal(knowledgeBaseConfig.getFsPath() + id);
+            return readFileFromLocalPath(Paths.get(knowledgeBaseConfig.getFsPath(), id.toString()));
         }
         throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
     }

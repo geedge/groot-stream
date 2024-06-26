@@ -1,9 +1,5 @@
 package com.geedgenetworks.test.e2e.kafka;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.TypeReference;
-import com.alibaba.nacos.client.naming.utils.CollectionUtils;
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.types.StructType;
 import com.geedgenetworks.core.types.Types;
 import com.geedgenetworks.formats.json.JsonSerializer;
@@ -12,6 +8,7 @@ import com.geedgenetworks.test.common.TestSuiteBase;
 import com.geedgenetworks.test.common.container.TestContainer;
 import com.geedgenetworks.test.common.container.TestContainerId;
 import com.geedgenetworks.test.common.junit.DisabledOnContainer;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.*;
@@ -19,7 +16,6 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.record.CompressionType;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -31,10 +27,7 @@ import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.containers.Container;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
-import org.testcontainers.lifecycle.Startables;
-import org.testcontainers.shaded.com.google.common.base.CharMatcher;
-import org.testcontainers.shaded.com.google.common.base.Strings;
-import org.testcontainers.shaded.com.google.common.primitives.Chars;
+import org.testcontainers.lifecycle.Startables;;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.DockerLoggerFactory;
 
@@ -43,7 +36,6 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static org.awaitility.Awaitility.await;
@@ -86,25 +78,128 @@ public class KafkaConnectorTest extends TestSuiteBase implements TestResource {
 
 
     @TestTemplate
-    public void testSourceKafkaJsonToConsole(TestContainer container) {
+    public void testKafkaSource(TestContainer container) {
         generateTestData("test_topic_json", 0, 10);
         CompletableFuture.supplyAsync(
                 () -> {
                     try {
-                        return container.executeJob("/kafka_source_to_console.yaml");
+                        return container.executeJob("/kafka_source.yaml");
                     } catch (Exception e) {
                         log.error("Commit task exception :" + e.getMessage());
                         throw new RuntimeException(e);
                     }
                 });
 
-         await().atMost(300000, TimeUnit.MILLISECONDS)
+         await().atMost(60000, TimeUnit.MILLISECONDS)
                 .untilAsserted(
                         () -> {
                             String logs = container.getServerLogs();
                             Assertions.assertEquals(StringUtils.countMatches(logs, "PrintSinkFunction"), 10);
                         });
     }
+
+    @TestTemplate
+    public void testKafkaSourceErrorSchema(TestContainer container) {
+        generateTestData("test_topic_error_json", 0, 10);
+        CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        Container.ExecResult execResult = container.executeJob("/kafka_source_error_schema.yaml");
+                        Assertions.assertEquals(0, execResult.getExitCode(), execResult.getStderr());
+                        return execResult;
+                    } catch (Exception e) {
+                        log.error("Commit task exception :" + e.getMessage());
+                        throw new RuntimeException(e);
+                    }
+                });
+
+        await().atMost(60000, TimeUnit.MILLISECONDS)
+                .untilAsserted(
+                        () -> {
+                            String logs = container.getServerLogs();
+                            Assertions.assertTrue(StringUtils.contains(logs, "NumberFormatException"));
+                        });
+    }
+
+    @TestTemplate
+    public void testKafkaSink(TestContainer container) throws IOException, InterruptedException {
+        CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        Container.ExecResult execResult = container.executeJob("/kafka_sink.yaml");
+                        Assertions.assertEquals(0, execResult.getExitCode(), execResult.getStderr());
+                        return execResult;
+                    } catch (Exception e) {
+                        log.error("Commit task exception :" + e.getMessage());
+                        throw new RuntimeException(e);
+                    }
+                });
+
+
+        List<String> data = Lists.newArrayList();
+        await().atMost(60000, TimeUnit.MILLISECONDS)
+                .untilAsserted(
+                        () -> {
+                            data.addAll(getKafkaConsumerListData("test_sink_topic"));
+                            Assertions.assertEquals(10, data.size()); // Check if all 10 records are consumed
+                        });
+
+    }
+
+    @TestTemplate
+    public void testKafkaSinkHandleErrorJsonFormat(TestContainer container) throws IOException, InterruptedException {
+        CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        Container.ExecResult execResult = container.executeJob("/kafka_sink_handle_error_json_format.yaml");
+                        Assertions.assertEquals(0, execResult.getExitCode(), execResult.getStderr());
+                        return execResult;
+                    } catch (Exception e) {
+                        log.error("Commit task exception :" + e.getMessage());
+                        throw new RuntimeException(e);
+                    }
+                });
+
+
+        List<String> data = Lists.newArrayList();
+        await().atMost(60000, TimeUnit.MILLISECONDS)
+            .untilAsserted(
+                    () -> {
+                        data.addAll(getKafkaConsumerListData("test_handle_error_json_format_topic"));
+                        Assertions.assertTrue(StringUtils.contains(container.getServerLogs(), "UnsupportedOperationException"));
+                        Assertions.assertEquals(0, data.size());
+                    });
+
+
+
+    }
+
+    @TestTemplate
+    public void testKafkaSinkSkipErrorJsonFormat(TestContainer container) throws IOException, InterruptedException {
+        CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        Container.ExecResult execResult = container.executeJob("/kafka_sink_skip_error_json_format.yaml");
+                        Assertions.assertEquals(0, execResult.getExitCode(), execResult.getStderr());
+                        return execResult;
+                    } catch (Exception e) {
+                        log.error("Commit task exception :" + e.getMessage());
+                        throw new RuntimeException(e);
+                    }
+                });
+
+
+        List<String> data = Lists.newArrayList();
+        await().atMost(60000, TimeUnit.MILLISECONDS)
+            .untilAsserted(
+                    () -> {
+                        data.addAll(getKafkaConsumerListData("test_skip_error_json_format_topic"));
+                        Assertions.assertTrue(StringUtils.contains(container.getServerLogs(), "NullPointerException"));
+                        Assertions.assertEquals(0, data.size());
+                    });
+    }
+
+
 
     private void generateTestData(String topic, int start, int end) {
         StructType dataType = Types.parseStructType("id: int, client_ip: string, server_ip: string, flag: string");
@@ -122,14 +217,6 @@ public class KafkaConnectorTest extends TestSuiteBase implements TestResource {
 
     }
 
-
-    @TestTemplate
-    public void testSinkKafka(TestContainer container) throws IOException, InterruptedException {
-        Container.ExecResult execResult = container.executeJob("/kafka_sink_inline_to_kafka.yaml");
-        Assertions.assertEquals(0, execResult.getExitCode(), execResult.getStderr());
-        List<String> data = getKafkaConsumerListData("test_topic");
-        Assertions.assertEquals(10, data.size()); // Check if all 10 records are consumed
-    }
 
     @AfterAll
     @Override
@@ -149,6 +236,7 @@ public class KafkaConnectorTest extends TestSuiteBase implements TestResource {
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
+
         producer = new KafkaProducer<>(properties);
     }
 

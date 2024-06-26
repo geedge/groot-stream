@@ -91,7 +91,12 @@
             <artifactId>flink-table-planner-blink_${scala.version}</artifactId>
             <scope>provided</scope>
         </dependency>
-
+<!--        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-hadoop2-compat</artifactId>
+            <version>2.4.10</version>
+            <scope>compile</scope>
+        </dependency>-->
 
 
     </dependencies>
@@ -114,6 +119,14 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>9</source>
+                    <target>9</target>
+                </configuration>
             </plugin>
 
         </plugins>

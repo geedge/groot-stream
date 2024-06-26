@@ -22,6 +22,7 @@ public class UnixTimestampConverterTest {
         udfContext.setLookup_fields(Arrays.asList("input"));
         udfContext.setOutput_fields(Arrays.asList("output"));
     }
+
     @Test
     public void testUnixTimestampFunctionMstoS() throws Exception {
 
@@ -92,6 +93,24 @@ public class UnixTimestampConverterTest {
         event.setExtractedFields(extractedFields);
         Event result1 = unixTimestampConverter.evaluate(event);
         assertEquals(1577808000000L, result1.getExtractedFields().get("output"));
+
+
+    }
+
+    @Test
+    public void testUnixTimestampFunctionMstoM() throws Exception {
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("precision", "minutes");
+        udfContext.setParameters(parameters);
+        UnixTimestampConverter unixTimestampConverter = new UnixTimestampConverter();
+        unixTimestampConverter.open(null, udfContext);
+        Event event = new Event();
+        Map<String, Object> extractedFields = new HashMap<>();
+        extractedFields.put("input", 1577808100000L);
+        event.setExtractedFields(extractedFields);
+        Event result1 = unixTimestampConverter.evaluate(event);
+        assertEquals(1577808060L, result1.getExtractedFields().get("output"));
 
 
     }
