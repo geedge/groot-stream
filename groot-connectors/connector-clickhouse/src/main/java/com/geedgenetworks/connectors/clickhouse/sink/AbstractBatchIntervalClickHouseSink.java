@@ -392,6 +392,10 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     }
 
     protected ValueConverter makeConverter(IDataType<?, ?> type) {
+        return makeConverter(type, true);
+    }
+
+    protected ValueConverter makeConverter(IDataType<?, ?> type, boolean objectReuse) {
         // put the most common cast at first to avoid `instanceof` test overhead
         if (type instanceof DataTypeString || type instanceof DataTypeFixedString) {
             return makeStringConverter();
@@ -482,11 +486,16 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
 
         if (type instanceof DataTypeArray) {
             IDataType<?, ?> eleDataType = ((DataTypeArray) type).getElemDataType();
-            ValueConverter eleConverter = this.makeConverter(eleDataType);
+            ValueConverter eleConverter = this.makeConverter(eleDataType, false);
             Object defaultValue = new ClickHouseArray(eleDataType, new Object[0]);
             return (obj, sizeHelper) -> {
                 return this.convertArray(obj, eleDataType, eleConverter, defaultValue, sizeHelper);
             };
+        }
+
+        if (type instanceof DataTypeMap) {
+            IDataType<?, ?>[] kvTypes = ((DataTypeMap) type).getNestedTypes();
+            return makeMapConverter(kvTypes, objectReuse);
         }
 
         throw new UnsupportedOperationException("Unsupported type: " + type);
@@ -816,6 +825,42 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         }
 
         throw new ClickHouseSQLException(-1, "require ClickHouseArray for column, but found " + obj.getClass());
+    }
+
+    private ValueConverter makeMapConverter(IDataType<?, ?>[] kvTypes, boolean objectReuse){
+        final ValueConverter keyConverter = this.makeConverter(kvTypes[0]);
+        final ValueConverter valueConverter = this.makeConverter(kvTypes[1], false);
+        return new ValueConverter() {
+            Map<Object, Object> map = objectReuse? new HashMap<>():null;
+            @Override
+            public Object convert(Object obj, SizeHelper sizeHelper) throws ClickHouseSQLException {
+                if (obj == null) {
+                    throw new ClickHouseSQLException(-1, "type doesn't support null value");
+                }
+                if (obj instanceof Map){
+                    Map<?, ?> dataMap = (Map<?, ?>) obj;
+                    if(dataMap.isEmpty()){
+                        return dataMap;
+                    }
+                    Map<Object, Object> result;
+                    if(!objectReuse || dataMap.size() > 100){
+                        result = new HashMap<>();
+                    } else {
+                        result = map;
+                        result.clear();
+                    }
+
+                    for (Map.Entry<?, ?> entry : dataMap.entrySet()) {
+                        Object key = keyConverter.convert(entry.getKey(), sizeHelper);
+                        Object value = valueConverter.convert(entry.getValue(), sizeHelper);
+                        result.put(key, value);
+                    }
+                    return result;
+                }
+
+                throw new ClickHouseSQLException(-1, "require Map for column, but found " + obj.getClass());
+            }
+        };
     }
 
     // copy from org.apache.flink.table.runtime.util.StringUtf8Utils
