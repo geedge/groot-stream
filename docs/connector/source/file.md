@@ -54,4 +54,14 @@ application:
       downstream: [ ]
 ```
 
+put file to hdfs:
+```sh
+# maka dir
+hadoop fs -mkdir hdfs://ns1/test
 
+# put local file to hdfs
+hadoop fs -put logs.json hdfs://ns1/test
+
+# list hdfs dir
+hadoop fs -ls logs.json hdfs://ns1/test
+```

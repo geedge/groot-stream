@@ -23,10 +23,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -122,6 +119,8 @@ public class ClickHouseUtils {
                     if (defaultValue == null && !type.nullable()) {
                         if (type instanceof DataTypeArray) {
                             defaultValue = new ClickHouseArray(((DataTypeArray) type).getElemDataType(), new Object[0]);
+                        } else if (type instanceof DataTypeMap) {
+                            defaultValue = Collections.emptyMap();
                         } else {
                             defaultValue = type.defaultValue();
                         }
@@ -375,6 +374,10 @@ public class ClickHouseUtils {
         }
 
         if (type instanceof DataTypeArray) {
+            return 0;
+        }
+
+        if (type instanceof DataTypeMap) {
             return 0;
         }
 
