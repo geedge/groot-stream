@@ -11,6 +11,33 @@ grootstream:
       files:
         - 64af7077-eb9b-4b8f-80cf-2ceebc89bea9
         - 004390bc-3135-4a6f-a492-3662ecb9e289
+
+  #  - name: tsg_ip_asn
+  #    fs_type: hdfs
+  #    fs_path: /kb
+  #    files:
+  #      - asn_builtin.mmdb
+  #    properties:
+  #      dfs.namenodes: 192.168.44.12
+  #      dfs.replication: 1
+  #      #dfs.port: 9000
+  #      #dfs.user: root
+  #      #dfs.nameservices: ns1
+  #      #dfs.ha.namenodes.ns1: nn1,nn2
+
+  # - name: tsg_ip_location
+  #   fs_type: hdfs
+  #   fs_path: /kb
+  #   files:
+  #     - ip_user_defined.mmdb
+  #     - ip_builtin.mmdb
+  #   properties:
+  #     dfs.namenodes: 192.168.44.12
+  #     dfs.replication: 1
+  #     #dfs.port: 9000
+  #     #dfs.user: root
+  #     #dfs.nameservices: ns1
+  #     #dfs.ha.namenodes.ns1: nn1,nn2
   properties:
     hos.path: http://192.168.44.12:9098/hos
     hos.bucket.name.traffic_file: traffic_file_bucket

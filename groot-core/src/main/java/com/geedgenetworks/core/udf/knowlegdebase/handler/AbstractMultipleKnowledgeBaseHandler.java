@@ -64,10 +64,9 @@ public abstract class AbstractMultipleKnowledgeBaseHandler extends AbstractKnowl
         if ("http".equals(knowledgeBaseConfig.getFsType())) {
             return readFileFromKnowledgeBase(knowledgeMetedataCacheMap.get(encodeId(id)).getPath(), knowledgeMetedataCacheMap.get(encodeId(id)).getIsValid());
         }
-        if ("local".equals(knowledgeBaseConfig.getFsType())) {
-            return readFileFromLocalPath(Paths.get(knowledgeBaseConfig.getFsPath(), id.toString()));
+        else {
+            return readFileFromFileSystem(knowledgeBaseConfig.getProperties(),knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(0),knowledgeBaseConfig.getFsType());
         }
-        throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
     }
 
     protected List<Long> getAllFileIds() {

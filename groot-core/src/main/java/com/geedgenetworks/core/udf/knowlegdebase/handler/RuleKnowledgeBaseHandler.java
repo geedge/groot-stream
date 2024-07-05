@@ -69,15 +69,12 @@ public class RuleKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
     public void updateCache() {
         if ("http".equals(knowledgeBaseConfig.getFsType())) {
             requestApi();
-            return;
         }
-        if ("local".equals(knowledgeBaseConfig.getFsType())) {
-            byte[] bytes = readFileFromLocalPath(Paths.get(knowledgeBaseConfig.getFsPath()));
+        else {
+            byte[] bytes = readFileFromFileSystem(knowledgeBaseConfig.getProperties(), knowledgeBaseConfig.getFsPath(), "", knowledgeBaseConfig.getFsType());
             RuleResponse ruleResponse = JSON.parseObject(new String(bytes), RuleResponse.class);
             processResponse(ruleResponse);
-            return;
         }
-        throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
     }
 
     private void requestApi() {
