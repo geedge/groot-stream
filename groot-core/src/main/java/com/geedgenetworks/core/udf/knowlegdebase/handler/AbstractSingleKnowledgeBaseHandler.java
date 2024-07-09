@@ -60,15 +60,10 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
      */
     public byte[] downloadFile() {
         byte[] bytes;
-        switch (knowledgeBaseConfig.getFsType()) {
-            case "http":
-                bytes = readFileFromKnowledgeBase(knowledgeMetedataCache.getPath(), knowledgeMetedataCache.getIsValid());
-                break;
-            case "local":
-                bytes = readFileFromLocalPath(Paths.get(knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(0)));
-                break;
-            default:
-                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, knowledgeBaseConfig.getFsType() + " is illegal");
+        if (knowledgeBaseConfig.getFsType().equals("http")) {
+            bytes = readFileFromKnowledgeBase(knowledgeMetedataCache.getPath(), knowledgeMetedataCache.getIsValid());
+        } else {
+            bytes = readFileFromFileSystem(knowledgeBaseConfig.getProperties(), knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(0), knowledgeBaseConfig.getFsType());
         }
         return decrypt(bytes);
     }

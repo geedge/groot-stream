@@ -8,6 +8,7 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.utils.HdfsUtils;
 import com.geedgenetworks.core.metrics.InternalMetrics;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.common.udf.UDF;
@@ -54,7 +55,17 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
             List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
             Map<String, String> udfClassReflect = getClassReflect(udfClassNameLists);
             CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
-            KnowledgeBaseScheduler.startSchedulerForKnowledgeBase(Integer.parseInt(commonConfig.getPropertiesConfig().getOrDefault("scheduler.knowledge_base.update.interval.minutes", "5")));
+            KnowledgeBaseScheduler.startSchedulerForKnowledgeBase(Integer.parseInt(commonConfig.getPropertiesConfig().getOrDefault(Constants.SYSPROP_GROOTSTREAM_KB_SCHEDULER_INTERVAL_NAME, "5")));
+
+            for (Map.Entry<String, String> entry : commonConfig.getPropertiesConfig().entrySet()) {
+                Map<String, String> hdfsProp = new HashMap<>();
+                if (entry.getKey().startsWith(Constants.SYSPROP_GROOTSTREAM_HADOOP_PREFIX)) {
+                    hdfsProp.put(entry.getKey().replace(Constants.SYSPROP_GROOTSTREAM_HADOOP_PREFIX, ""), entry.getValue());
+                }
+                if(!hdfsProp.isEmpty()){
+                HdfsUtils.initHdfsUtilInstance(hdfsProp);
+                }
+            }
             for (UDFContext udfContext : udfContexts) {
                 Expression filterExpression = null;
                 UdfEntity udfEntity = new UdfEntity();
@@ -182,24 +193,4 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         super.close();
     }
 
-    public static String convertToCamelCase(String input) {
-        StringBuilder result = new StringBuilder();
-
-        // 分割单词
-        String[] words = input.toLowerCase().split("_");
-
-        for (int i = 0; i < words.length; i++) {
-            String word = words[i];
-
-            // 首字母大写（除了第一个单词）
-            if (i != 0) {
-                char firstChar = Character.toUpperCase(word.charAt(0));
-                word = firstChar + word.substring(1);
-            }
-
-            result.append(word);
-        }
-
-        return result.toString();
-    }
 }

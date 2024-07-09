@@ -4,13 +4,16 @@ import cn.hutool.core.io.file.PathUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
-import com.geedgenetworks.common.utils.FileUtils;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
+import com.geedgenetworks.common.utils.HdfsUtils;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.core.utils.HttpClientPoolUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -65,7 +68,17 @@ public abstract class AbstractKnowledgeBaseHandler {
     public static byte[] readFileFromLocalPath(Path filePath) {
         return PathUtil.readBytes(filePath);
     }
+    public static byte[] readFileFromFileSystem(Map<String, String> knowledgeBaseProp, String filePath,String fileName,String fileSystemType) {
 
+        switch (fileSystemType) {
+            case "hdfs":
+                return HdfsUtils.getHdfsUtilInstance().readBytes(new org.apache.hadoop.fs.Path(filePath, fileName));
+            case "local":
+                return PathUtil.readBytes(Paths.get(filePath, fileName));
+            default:
+                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT,fileSystemType + " is illegal");
+        }
+    }
 
 
     public static List<KnowLedgeBaseFileMeta> getMetadata(String type, String path) {

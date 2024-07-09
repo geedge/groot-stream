@@ -91,8 +91,7 @@ public class GeoIpKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         IpLookupV2.Builder ipLookupBuilder = new IpLookupV2.Builder(false);
         for (int i = 0; i < knowledgeBaseConfig.getFiles().size(); i++) {
             try {
-                byte[] bytes = readFileFromLocalPath(Paths.get(knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(i)));
-
+                byte[] bytes = readFileFromFileSystem(knowledgeBaseConfig.getProperties(),knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(i),knowledgeBaseConfig.getFsType());
                 switch (i) {
                     case 0:
                         ipLookupBuilder.loadDataFile(new ByteArrayInputStream(bytes));
