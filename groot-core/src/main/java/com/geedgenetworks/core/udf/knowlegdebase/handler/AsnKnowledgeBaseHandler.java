@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -105,8 +106,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         IpLookupV2.Builder asnLookupBuilder = new IpLookupV2.Builder(false);
         for (int i = 0; i < knowledgeBaseConfig.getFiles().size(); i++) {
             try {
-                byte[] bytes = readFileFromLocalPath(Paths.get(knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(i)));
-
+                byte[] bytes = readFileFromFileSystem(knowledgeBaseConfig.getProperties(),knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(i),knowledgeBaseConfig.getFsType());
                 switch (i) {
                     case 0:
                         asnLookupBuilder.loadAsnDataFile(new ByteArrayInputStream(bytes));
@@ -129,6 +129,8 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
         kbNameWithKbConfigAndFileMetas.put(knowledgeBaseConfig.getName(), kbInfoForIpLookUp);
         return true;
     }
+
+
 
     private boolean buildKnowledgeBaseWithMeta(KnowledgeBaseConfig knowledgeBaseConfig) {
 
