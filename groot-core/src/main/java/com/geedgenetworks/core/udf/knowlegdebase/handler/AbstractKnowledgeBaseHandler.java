@@ -72,7 +72,7 @@ public abstract class AbstractKnowledgeBaseHandler {
 
         switch (fileSystemType) {
             case "hdfs":
-                return HdfsUtils.getHdfsUtilInstance(knowledgeBaseProp).readBytes(new org.apache.hadoop.fs.Path(filePath, fileName));
+                return HdfsUtils.getHdfsUtilInstance().readBytes(new org.apache.hadoop.fs.Path(filePath, fileName));
             case "local":
                 return PathUtil.readBytes(Paths.get(filePath, fileName));
             default:

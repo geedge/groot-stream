@@ -31,7 +31,6 @@ public class HdfsUtils {
     private HdfsUtils(Map<String, String> hdfsProp)  {
         Configuration config = new Configuration();
         String paths = hdfsProp.getOrDefault("dfs.namenodes","192.168.44.12");
-        String replication = hdfsProp.getOrDefault("dfs.replication","1");
         String port = hdfsProp.getOrDefault("dfs.port","9000");
         String name = hdfsProp.getOrDefault("dfs.user","root");
         List<String> hadoopNameNodes = new ArrayList<>();
@@ -40,14 +39,16 @@ public class HdfsUtils {
             try {
                 hadoopNameNodes= Splitter.on(",").trimResults().splitToList(paths);
             } catch (RuntimeException e) {
-                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The param of hadoop.namenodes is illegal");
+                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The param of dfs.namenodes is illegal");
             }
         }
         if (hadoopNameNodes.size() == 1) {
+            String replication = hdfsProp.getOrDefault("dfs.replication","1");
             defaultFS = "hdfs://" + hadoopNameNodes.get(0) + ":" + port;
             config.set("fs.defaultFS", defaultFS);
             config.set("dfs.replication", replication);
         } else if (hadoopNameNodes.size() > 1) {
+            String replication = hdfsProp.getOrDefault("dfs.replication","2");
             String nameservices = hdfsProp.getOrDefault("dfs.nameservices","ns1");
             String ns1 = hdfsProp.getOrDefault("dfs.ha.namenodes.ns1","nn1,nn2");
             defaultFS = "hdfs://" + nameservices;
@@ -67,13 +68,18 @@ public class HdfsUtils {
         }
     }
 
-    public static HdfsUtils getHdfsUtilInstance(Map<String, String> hdfsProp)  {
+    public static HdfsUtils initHdfsUtilInstance(Map<String, String> hdfsProp)  {
         if (hdfsInstance == null) {
             hdfsInstance = new HdfsUtils(hdfsProp);
         }
         return hdfsInstance;
     }
-
+    public static HdfsUtils getHdfsUtilInstance()  {
+        if (hdfsInstance == null) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "create hdfs fileSystem error");
+        }
+        return hdfsInstance;
+    }
     public byte[] readBytes(Path hdfsPath) {
 
         try {

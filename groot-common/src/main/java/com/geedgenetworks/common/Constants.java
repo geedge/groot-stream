@@ -26,6 +26,9 @@ public final class Constants {
 
     public static final String SYSPROP_GROOTSTREAM_CONFIG = "grootstream.config";
     public static final String SYSPROP_GROOTSTREAM_PREFIX = "props.";
+    public static final String SYSPROP_GROOTSTREAM_HADOOP_PREFIX = "hadoop.";
+    public static final String SYSPROP_GROOTSTREAM_KB_SCHEDULER_INTERVAL_NAME = "scheduler.knowledge_base.update.interval.minutes";
+
     public static final String HAZELCAST_GROOTSTREAM_CONFIG_FILE_PREFIX = "grootstream";
     public static final String HAZELCAST_GROOTSTREAM_CONFIG_DEFAULT = "grootstream.yaml";
 
