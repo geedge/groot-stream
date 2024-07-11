@@ -23,7 +23,7 @@
     </modules>
 
     <properties>
-        <revision>1.4.0</revision>
+        <revision>1.5.0-SNAPSHOT</revision>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -880,9 +880,9 @@
 
     <repositories>
         <repository>
-            <id>nexus</id>
+            <id>nexus3</id>
             <name>Team Nexus Repository</name>
-            <url>http://192.168.40.153:8099/content/groups/public</url>
+            <url>http://192.168.40.153:8081/repository/public/</url>
         </repository>
         <repository>
             <id>cloudera</id>
@@ -893,12 +893,12 @@
     <distributionManagement>
         <repository>
             <id>platform-releases</id>
-            <url>http://192.168.40.153:8099/content/repositories/platform-release</url>
+            <url>http://192.168.40.153:8081/repository/platform-release/</url>
             <uniqueVersion>true</uniqueVersion>
         </repository>
         <snapshotRepository>
             <id>platform-snapshots</id>
-            <url>http://192.168.40.153:8099/content/repositories/platform-snapshot</url>
+            <url>http://192.168.40.153:8081/repository/platform-snapshot/</url>
         </snapshotRepository>
     </distributionManagement>
 
