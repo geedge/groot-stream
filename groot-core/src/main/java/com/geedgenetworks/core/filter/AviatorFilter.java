@@ -22,4 +22,10 @@ public class AviatorFilter implements Filter {
                     .name(FilterConfig.getName());
         }
     }
+
+    @Override
+    public String type() {
+        return "aviator";
+    }
+
 }

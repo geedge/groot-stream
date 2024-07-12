@@ -18,6 +18,7 @@ import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+
 /**
  * Initialize config and execute processor
  */
@@ -27,12 +28,13 @@ public class ProcessingExecutor extends AbstractExecutor<String, ProjectionConfi
     public ProcessingExecutor(List<URL> jarPaths, Config config) {
         super(jarPaths, config);
     }
+
     @Override
     protected Map<String, ProjectionConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, ProjectionConfig> processingConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.PROCESSING_PIPELINES)) {
             Config processors = operatorConfig.getConfig(Constants.PROCESSING_PIPELINES);
-            processors.root().unwrapped().forEach((key,value) -> {
+            processors.root().unwrapped().forEach((key, value) -> {
                 CheckResult result = CheckConfigUtil.checkAllExists(processors.getConfig(key),
                         ProjectionConfigOptions.TYPE.key());
                 if (!result.isSuccess()) {
@@ -66,16 +68,24 @@ public class ProcessingExecutor extends AbstractExecutor<String, ProjectionConfi
     @Override
     public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
 
-        Class cls = null;
-        ProjectionProcessor projectionProcessor = null;
         ProjectionConfig projectionConfig = operatorMap.get(node.getName());
-        try {
-            cls = Class.forName(projectionConfig.getType());
-            projectionProcessor = (ProjectionProcessor) cls.newInstance();
-
-            if (node.getParallelism() > 0) {
-                projectionConfig.setParallelism(node.getParallelism());
+        String className = projectionConfig.getType();
+        ProjectionProcessor projectionProcessor;
+        if (projectionProcessorMap.containsKey(projectionConfig.getType())) {
+            projectionProcessor = projectionProcessorMap.get(projectionConfig.getType());
+        } else {
+            Class cls;
+            try {
+                cls = Class.forName(className);
+                projectionProcessor = (ProjectionProcessor) cls.newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | RuntimeException e) {
+                throw new JobExecuteException("get processing pipeline instance failed!", e);
             }
+        }
+        if (node.getParallelism() > 0) {
+            projectionConfig.setParallelism(node.getParallelism());
+        }
+        try {
             dataStream =
                     projectionProcessor.projectionProcessorFunction(
                             dataStream, projectionConfig);

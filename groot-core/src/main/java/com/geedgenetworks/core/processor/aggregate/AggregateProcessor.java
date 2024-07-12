@@ -11,4 +11,5 @@ public interface AggregateProcessor {
             SingleOutputStreamOperator<Event> singleOutputStreamOperator,
             AggregateConfig aggregateConfig)
             throws Exception;
+    String type();
 }
