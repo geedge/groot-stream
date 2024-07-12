@@ -28,4 +28,9 @@ public class AggregateProcessorImpl implements AggregateProcessor {
         }*/
         return singleOutputStreamOperator;
     }
+
+    @Override
+    public String type() {
+        return "aggregate";
+    }
 }

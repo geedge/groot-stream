@@ -11,4 +11,5 @@ public interface ProjectionProcessor {
             SingleOutputStreamOperator<Event> grootEventSingleOutputStreamOperator,
             ProjectionConfig projectionConfig)
             throws Exception;
+    String type();
 }

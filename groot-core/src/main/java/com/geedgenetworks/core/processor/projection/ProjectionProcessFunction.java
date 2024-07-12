@@ -8,7 +8,7 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.utils.HdfsUtils;
+import com.geedgenetworks.core.utils.HdfsUtils;
 import com.geedgenetworks.core.metrics.InternalMetrics;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.common.udf.UDF;
@@ -21,7 +21,6 @@ import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.metrics.Counter;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
@@ -56,16 +55,6 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
             Map<String, String> udfClassReflect = getClassReflect(udfClassNameLists);
             CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
             KnowledgeBaseScheduler.startSchedulerForKnowledgeBase(Integer.parseInt(commonConfig.getPropertiesConfig().getOrDefault(Constants.SYSPROP_GROOTSTREAM_KB_SCHEDULER_INTERVAL_NAME, "5")));
-
-            for (Map.Entry<String, String> entry : commonConfig.getPropertiesConfig().entrySet()) {
-                Map<String, String> hdfsProp = new HashMap<>();
-                if (entry.getKey().startsWith(Constants.SYSPROP_GROOTSTREAM_HADOOP_PREFIX)) {
-                    hdfsProp.put(entry.getKey().replace(Constants.SYSPROP_GROOTSTREAM_HADOOP_PREFIX, ""), entry.getValue());
-                }
-                if(!hdfsProp.isEmpty()){
-                HdfsUtils.initHdfsUtilInstance(hdfsProp);
-                }
-            }
             for (UDFContext udfContext : udfContexts) {
                 Expression filterExpression = null;
                 UdfEntity udfEntity = new UdfEntity();

@@ -26,15 +26,17 @@ import java.util.Map;
 @Slf4j
 public class PreprocessingExecutor extends AbstractExecutor<String, ProjectionConfig> {
     private static final String PROCESSOR_TYPE = ProcessorType.PREPROCESSING.getType();
+
     public PreprocessingExecutor(List<URL> jarPaths, Config config) {
         super(jarPaths, config);
     }
+
     @Override
     protected Map<String, ProjectionConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, ProjectionConfig> preprocessingConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.PREPROCESSING_PIPELINES)) {
             Config preprocessors = operatorConfig.getConfig(Constants.PREPROCESSING_PIPELINES);
-            preprocessors.root().unwrapped().forEach((key,value) -> {
+            preprocessors.root().unwrapped().forEach((key, value) -> {
                 CheckResult result = CheckConfigUtil.checkAllExists(preprocessors.getConfig(key),
                         ProjectionConfigOptions.TYPE.key());
                 if (!result.isSuccess()) {
@@ -67,21 +69,29 @@ public class PreprocessingExecutor extends AbstractExecutor<String, ProjectionCo
 
     @Override
     public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
-        Class cls = null;
-        ProjectionProcessor projectionProcessor = null;
         ProjectionConfig projectionConfig = operatorMap.get(node.getName());
-        try {
-            cls = Class.forName(projectionConfig.getType());
-            projectionProcessor = (ProjectionProcessor) cls.newInstance();
-
-            if (node.getParallelism() > 0) {
-                projectionConfig.setParallelism(node.getParallelism());
+        String className = projectionConfig.getType();
+        ProjectionProcessor projectionProcessor;
+        if (projectionProcessorMap.containsKey(projectionConfig.getType())) {
+            projectionProcessor = projectionProcessorMap.get(projectionConfig.getType());
+        } else {
+            Class cls;
+            try {
+                cls = Class.forName(className);
+                projectionProcessor = (ProjectionProcessor) cls.newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | RuntimeException e) {
+                throw new JobExecuteException("get preprocessing pipeline instance failed!", e);
             }
+        }
+        if (node.getParallelism() > 0) {
+            projectionConfig.setParallelism(node.getParallelism());
+        }
+        try {
             dataStream =
                     projectionProcessor.projectionProcessorFunction(
                             dataStream, projectionConfig);
         } catch (Exception e) {
-            throw new JobExecuteException("Create preprocessor pipeline instance failed!", e);
+            throw new JobExecuteException("Create preprocessing pipeline instance failed!", e);
         }
         return dataStream;
     }

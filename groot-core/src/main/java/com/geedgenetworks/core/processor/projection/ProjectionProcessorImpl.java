@@ -11,7 +11,7 @@ public class ProjectionProcessorImpl implements ProjectionProcessor {
     public SingleOutputStreamOperator<Event> projectionProcessorFunction(
             SingleOutputStreamOperator<Event> grootEventSingleOutputStreamOperator,
             ProjectionConfig projectionConfig)
-            throws Exception {
+            throws Exception{
 
         if (projectionConfig.getParallelism() != 0) {
             return grootEventSingleOutputStreamOperator
@@ -23,5 +23,10 @@ public class ProjectionProcessorImpl implements ProjectionProcessor {
                     .process(new ProjectionProcessFunction(projectionConfig))
                     .name(projectionConfig.getName());
         }
+    }
+
+    @Override
+    public String type() {
+        return "projection";
     }
 }

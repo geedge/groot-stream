@@ -10,4 +10,5 @@ public interface Filter {
     SingleOutputStreamOperator<Event> filterFunction(
             SingleOutputStreamOperator<Event> singleOutputStreamOperator, FilterConfig FilterConfig)
             throws Exception;
+    String type();
 }

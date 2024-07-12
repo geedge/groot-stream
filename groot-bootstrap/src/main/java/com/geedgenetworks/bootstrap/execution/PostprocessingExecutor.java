@@ -2,7 +2,6 @@ package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.bootstrap.enums.ProcessorType;
-import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CheckConfigUtil;
@@ -12,7 +11,6 @@ import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
 import com.geedgenetworks.core.processor.projection.ProjectionProcessor;
-import com.geedgenetworks.utils.StringUtil;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -30,12 +28,13 @@ public class PostprocessingExecutor extends AbstractExecutor<String, ProjectionC
     public PostprocessingExecutor(List<URL> jarPaths, Config config) {
         super(jarPaths, config);
     }
+
     @Override
     protected Map<String, ProjectionConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, ProjectionConfig> postprocessingConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.POSTPROCESSING_PIPELINES)) {
             Config postprocessors = operatorConfig.getConfig(Constants.POSTPROCESSING_PIPELINES);
-            postprocessors.root().unwrapped().forEach((key,value) -> {
+            postprocessors.root().unwrapped().forEach((key, value) -> {
                 CheckResult result = CheckConfigUtil.checkAllExists(postprocessors.getConfig(key),
                         ProjectionConfigOptions.TYPE.key());
                 if (!result.isSuccess()) {
@@ -68,21 +67,29 @@ public class PostprocessingExecutor extends AbstractExecutor<String, ProjectionC
 
     @Override
     public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
-        Class cls = null;
-        ProjectionProcessor projectionProcessor = null;
         ProjectionConfig projectionConfig = operatorMap.get(node.getName());
-        try {
-            cls = Class.forName(projectionConfig.getType());
-            projectionProcessor = (ProjectionProcessor) cls.newInstance();
-
-            if (node.getParallelism() > 0) {
-                projectionConfig.setParallelism(node.getParallelism());
+        String className = projectionConfig.getType();
+        ProjectionProcessor projectionProcessor;
+        if (projectionProcessorMap.containsKey(projectionConfig.getType())) {
+            projectionProcessor = projectionProcessorMap.get(projectionConfig.getType());
+        } else {
+            Class cls;
+            try {
+                cls = Class.forName(className);
+                projectionProcessor = (ProjectionProcessor) cls.newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | RuntimeException e) {
+                throw new JobExecuteException("get postprocessing pipeline instance failed!", e);
             }
+        }
+        if (node.getParallelism() > 0) {
+            projectionConfig.setParallelism(node.getParallelism());
+        }
+        try {
             dataStream =
                     projectionProcessor.projectionProcessorFunction(
                             dataStream, projectionConfig);
         } catch (Exception e) {
-            throw new JobExecuteException("create postprocessing pipeline operator error", e);
+            throw new JobExecuteException("Create postprocessing pipeline instance failed!", e);
         }
         return dataStream;
     }
