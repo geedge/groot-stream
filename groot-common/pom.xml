@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>groot-common</artifactId>
-    <name>Groot : Common </name>
+    <name>Groot : Common</name>
 
     <properties>
 
@@ -67,8 +67,6 @@
             <artifactId>guava-retrying</artifactId>
         </dependency>
 
-
-
         <dependency>
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast</artifactId>
@@ -77,7 +75,6 @@
             <groupId>com.lmax</groupId>
             <artifactId>disruptor</artifactId>
         </dependency>
-
 
         <!-- flink  -->
         <dependency>

@@ -1,42 +1,47 @@
 # Protobuf
-> Format protobuf
-## Description
-Protocol buffers are Google’s language-neutral, platform-neutral, extensible mechanism for serializing structured data – think XML, but smaller, faster, and simpler.
-It is very popular in Streaming Data Pipeline. Now support protobuf format in source connector.
 
-| Name            | Supported Versions | Maven                                                                                                                          |
+> Format protobuf
+>
+> ## Description
+>
+> Protocol buffers are Google’s language-neutral, platform-neutral, extensible mechanism for serializing structured data – think XML, but smaller, faster, and simpler.
+> It is very popular in Streaming Data Pipeline. Now support protobuf format in source connector.
+
+|      Name       | Supported Versions |                                                             Maven                                                              |
 |-----------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------|
 | Format Protobuf | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/format-protobuf/) |
 
 ## Format Options
+
 > Ensures that the file path is accessible to all nodes in your Flink cluster.
 
-| Name                          | Type     | Required | Default | Description                                                                                                                                                                                                       |
-|-------------------------------|----------|----------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| format                        | String   | Yes      | (none)  | Specify what format to use, here should be 'protobuf'.                                                                                                                                                            |
-| protobuf.descriptor.file.path | String   | Yes      | (none)  | The descriptor file path.                                                                                                                                                                                         |
-| protobuf.message.name         | String   | Yes      | (none)  | The protobuf messageName to look for in descriptor file.                                                                                                                                                          |
-| protobuf.ignore.parse.errors  | Boolean  | No       | false   | Protobuf ignore parse errors, otherwise will throw exception.                                                                                                                                                     |
-| protobuf.emit.default.values  | Boolean  | No       | false   | If true, default values will be emitted for missing fields. It is not recommended, because it will cause performance degradation. About basic data type, it is suggested to use `optional` instead of `required`. |
+|             Name              |  Type   | Required | Default |                                                                                                    Description                                                                                                    |
+|-------------------------------|---------|----------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| format                        | String  | Yes      | (none)  | Specify what format to use, here should be 'protobuf'.                                                                                                                                                            |
+| protobuf.descriptor.file.path | String  | Yes      | (none)  | The descriptor file path.                                                                                                                                                                                         |
+| protobuf.message.name         | String  | Yes      | (none)  | The protobuf messageName to look for in descriptor file.                                                                                                                                                          |
+| protobuf.ignore.parse.errors  | Boolean | No       | false   | Protobuf ignore parse errors, otherwise will throw exception.                                                                                                                                                     |
+| protobuf.emit.default.values  | Boolean | No       | false   | If true, default values will be emitted for missing fields. It is not recommended, because it will cause performance degradation. About basic data type, it is suggested to use `optional` instead of `required`. |
 
 ## Data Type Mapping
 
-| Protobuf Data Type                              | Data Type | Description                                                                                                            |
-|-------------------------------------------------|-----------|------------------------------------------------------------------------------------------------------------------------|
-| int32 / uint32 / sint32 / fixed32 / sfixed32    | int       | Protobuf data type is recommended to use `int32 / sint32`. The data type also support `int / bigint / float / dobule`. |
-| int64 / uint64 / sint64 / fixed64 / sfixed64    | bigint    | Protobuf data type is recommended to use `int64 / sint64`. The data type also support `int / bigint / float / dobule`. |
-| float                                           | float     | Protobuf data type is recommended to use `double`. The data type also support `int / bigint / float / dobule`.         |
-| double                                          | double    | Protobuf data type is recommended to use `double`. The data type also support `int / bigint / float / dobule`.         |
-| bool                                            | boolean   | Protobuf data type is recommended to use `int32`. The data type also support `boolean / int(0:false,1:true) `.         |
-| enum                                            | int       | Protobuf data type is recommended to use `int32`. The data type also support `int`.                                    |
-| string                                          | string    | In data serialization support all data type converted to `String`.                                                     |
-| bytes                                           | binary    | -                                                                                                                      |
-| message                                         | struct    | -                                                                                                                      |
-| repeated                                        | array     | -                                                                                                                      |
-
+|              Protobuf Data Type              | Data Type |                                                      Description                                                       |
+|----------------------------------------------|-----------|------------------------------------------------------------------------------------------------------------------------|
+| int32 / uint32 / sint32 / fixed32 / sfixed32 | int       | Protobuf data type is recommended to use `int32 / sint32`. The data type also support `int / bigint / float / dobule`. |
+| int64 / uint64 / sint64 / fixed64 / sfixed64 | bigint    | Protobuf data type is recommended to use `int64 / sint64`. The data type also support `int / bigint / float / dobule`. |
+| float                                        | float     | Protobuf data type is recommended to use `double`. The data type also support `int / bigint / float / dobule`.         |
+| double                                       | double    | Protobuf data type is recommended to use `double`. The data type also support `int / bigint / float / dobule`.         |
+| bool                                         | boolean   | Protobuf data type is recommended to use `int32`. The data type also support `boolean / int(0:false,1:true) `.         |
+| enum                                         | int       | Protobuf data type is recommended to use `int32`. The data type also support `int`.                                    |
+| string                                       | string    | In data serialization support all data type converted to `String`.                                                     |
+| bytes                                        | binary    | -                                                                                                                      |
+| message                                      | struct    | -                                                                                                                      |
+| repeated                                     | array     | -                                                                                                                      |
 
 # How to use
+
 ## protobuf uses example
+
 ```protobuf
 syntax = "proto3";
  
@@ -272,7 +277,9 @@ message SessionRecord {
   string tunnel_endpoint_b_desc = 223;
 }
 ```
+
 Build protobuf file to binary descriptor file. Only support `proto3` syntax. If data type has null value, need add `optional` keyword. We recommend add `optional` keyword for int and double etc.
+
 ```shell
 protoc --descriptor_set_out=session_record_test.desc session_record_test.proto
 ```
@@ -306,6 +313,4 @@ application:
     - name: print_sink
       downstream: []
 ```
-
-
 

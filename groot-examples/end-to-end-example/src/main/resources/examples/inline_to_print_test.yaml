@@ -30,18 +30,18 @@ sources:
 
 filters:
   filter:
-    type: com.geedgenetworks.core.filter.AviatorFilter
+    type: aviator
     properties:
       expression: event.decoded_as == 'HTTP'
 
 preprocessing_pipelines:
   transform_processor:
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     remove_fields: [client_ip]
 
 processing_pipelines:
   session_record_processor:
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     remove_fields: [device_tag]
     output_fields: [log_id, client_ip, client_geolocation, client_asn, server_domain, server_ip, server_geolocation, server_asn]
     functions:

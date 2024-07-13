@@ -10,7 +10,7 @@ File source connector is used to generate data from a text file(local file or hd
 
 File source custom properties.
 
-| Name                      | Type    | Required | Default | Description                                                                                       |
+|           Name            |  Type   | Required | Default |                                            Description                                            |
 |---------------------------|---------|----------|---------|---------------------------------------------------------------------------------------------------|
 | path                      | String  | Yes      | (none)  | File path, support local path or hdfs path. Example: ./logs/logs.json, hdfs://ns1/test/logs.json. |
 | format                    | String  | Yes      | (none)  | Data format.  The Optional values are `json`, `csv`.                                              |
@@ -23,6 +23,7 @@ File source custom properties.
 ## Example
 
 This example read data of file test source and print to console.
+
 > Ensures that the file path is accessible to all nodes in your Flink cluster.
 
 ```yaml
@@ -54,14 +55,3 @@ application:
       downstream: [ ]
 ```
 
-put file to hdfs:
-```sh
-# maka dir
-hadoop fs -mkdir hdfs://ns1/test
-
-# put local file to hdfs
-hadoop fs -put logs.json hdfs://ns1/test
-
-# list hdfs dir
-hadoop fs -ls logs.json hdfs://ns1/test
-```

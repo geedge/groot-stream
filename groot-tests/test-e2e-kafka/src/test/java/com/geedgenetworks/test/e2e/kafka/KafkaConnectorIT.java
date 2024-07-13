@@ -44,7 +44,7 @@ import static org.awaitility.Awaitility.await;
 @DisabledOnContainer(
         value = {TestContainerId.FLINK_1_17},
         disabledReason = "Override TestSuiteBase @DisabledOnContainer")
-public class KafkaConnectorTest extends TestSuiteBase implements TestResource {
+public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
 
     private KafkaContainer kafkaContainer;
 

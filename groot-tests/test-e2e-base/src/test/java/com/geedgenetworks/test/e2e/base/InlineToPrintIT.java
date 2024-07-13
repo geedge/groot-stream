@@ -24,7 +24,7 @@ import static org.awaitility.Awaitility.await;
         value = {TestContainerId.FLINK_1_17},
         type = {},
         disabledReason = "only flink adjusts the parameter configuration rules")
-public class InlineToPrintTest extends TestSuiteBase {
+public class InlineToPrintIT extends TestSuiteBase {
 
     @TestTemplate
     public void testInlineToPrint(AbstractTestFlinkContainer container) throws IOException, InterruptedException {

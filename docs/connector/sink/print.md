@@ -1,19 +1,25 @@
 # Print
+
 > Print sink connector
-## Description
-Print sink connector is used to print data to console. It is useful for testing.
+>
+> ## Description
+>
+> Print sink connector is used to print data to console. It is useful for testing.
 
 ## Sink Options
+
 Print sink custom properties.
 
-| Name            | Type     | Required | Default | Description                                                                       |
-|-----------------|----------|----------|---------|-----------------------------------------------------------------------------------|
-| format          | String   | Yes      | (none)  | Data format. The Optional values are `json`, `protobuf`.                          |
-| [format].config | Map      | No       | (none)  | Data format properties. Please refer to [Format Options](../formats) for details. |
-| mode            | String   | No       | stdout  | Print mode. The Optional values are `stdout`, `log_info`, `log_warn`, `null`.     |
+|      Name       |  Type  | Required | Default |                                    Description                                    |
+|-----------------|--------|----------|---------|-----------------------------------------------------------------------------------|
+| format          | String | Yes      | (none)  | Data format. The Optional values are `json`, `protobuf`.                          |
+| [format].config | Map    | No       | (none)  | Data format properties. Please refer to [Format Options](../formats) for details. |
+| mode            | String | No       | stdout  | Print mode. The Optional values are `stdout`, `log_info`, `log_warn`, `null`.     |
 
 ## Example
+
 This example read data of inline test source and print to console.
+
 ```yaml
 sources:
   inline_source: 
@@ -44,3 +50,4 @@ application:
     - name: print_sink
       downstream: []
 ```
+

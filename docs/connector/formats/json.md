@@ -1,21 +1,26 @@
 # JSON
-> Format JSON
-## Description
-Event serialization and deserialization format.
 
-| Name        | Supported Versions | Maven                                                                                                                      |
+> Format JSON
+>
+> ## Description
+>
+> Event serialization and deserialization format.
+
+|    Name     | Supported Versions |                                                           Maven                                                            |
 |-------------|--------------------|----------------------------------------------------------------------------------------------------------------------------|
 | Format JSON | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/format-json/) |
 
 ## Format Options
 
-| Name                      | Type     | Required | Default  | Description                                                                                                                                         |
-|---------------------------|----------|----------|----------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| format                    | String   | Yes      | (none)   | Specify what format to use, here should be 'json'.                                                                                                  |
-| json.ignore.parse.errors  | Boolean  | No       | false    | Skip the parsing error or throw an exception. If set to true, the parsing error will be ignored. If set to false, the parsing error will be thrown. |                                            
+|           Name           |  Type   | Required | Default |                                                                     Description                                                                     |
+|--------------------------|---------|----------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| format                   | String  | Yes      | (none)  | Specify what format to use, here should be 'json'.                                                                                                  |
+| json.ignore.parse.errors | Boolean | No       | false   | Skip the parsing error or throw an exception. If set to true, the parsing error will be ignored. If set to false, the parsing error will be thrown. |
 
 # How to use
+
 ## Inline uses example
+
 ```json
 {
   "recv_time": 1705565615,
@@ -134,9 +139,4 @@ application:
       downstream: []
 
 ```
-
-
-
-
-
 

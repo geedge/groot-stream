@@ -1,19 +1,23 @@
 # Raw
-> Format Raw
-## Description
-The Raw format allows to read and write raw (byte based) values as a single column.
 
-| Name         | Supported Versions | Maven                                                                                                                     |
-|--------------|--------------------|---------------------------------------------------------------------------------------------------------------------------|
-| Format Raw   | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/format-raw/) |
+> Format Raw
+>
+> ## Description
+>
+> The Raw format allows to read and write raw (byte based) values as a single column.
+
+|    Name    | Supported Versions |                                                           Maven                                                           |
+|------------|--------------------|---------------------------------------------------------------------------------------------------------------------------|
+| Format Raw | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/format-raw/) |
 
 ## Format Options
 
-| Name                      | Type     | Required | Default | Description                                       |
-|---------------------------|----------|----------|---------|---------------------------------------------------|
-| format                    | String   | Yes      | (none)  | Specify what format to use, here should be 'raw'. |
+|  Name  |  Type  | Required | Default |                    Description                    |
+|--------|--------|----------|---------|---------------------------------------------------|
+| format | String | Yes      | (none)  | Specify what format to use, here should be 'raw'. |
 
 # How to use
+
 ## Inline uses example
 
 ```yaml
@@ -45,9 +49,4 @@ application:
       downstream: []
 
 ```
-
-
-
-
-
 

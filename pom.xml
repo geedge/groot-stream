@@ -29,13 +29,16 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+        <maven-shade-plugin.version>3.3.0</maven-shade-plugin.version>
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-helper-plugin.version>3.2.0</maven-helper-plugin.version>
         <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
         <flatten-maven-plugin.version>1.3.0</flatten-maven-plugin.version>
+        <maven-git-commit-id-plugin.version>4.0.4</maven-git-commit-id-plugin.version>
         <testcontainer.version>1.19.6</testcontainer.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <spotless.version>2.29.0</spotless.version>
+        <spotless.version>2.40.0</spotless.version>
         <slf4j.version>1.7.25</slf4j.version>
         <log4j2.version>2.17.1</log4j2.version>
         <log4j2-disruptor.version>3.4.4</log4j2-disruptor.version>
@@ -66,9 +69,15 @@
         <hazelcast.version>5.1</hazelcast.version>
         <quartz.version>2.3.2</quartz.version>
         <hadoop.version>2.7.1</hadoop.version>
-        <!--Option config-->
+        <!--Option config -->
+        <skipUT>false</skipUT>
+        <!-- skip unit test -->
+        <skipIT>true</skipIT>
+        <!-- skip integration test -->
         <test.dependency.skip>true</test.dependency.skip>
         <skip.spotless>true</skip.spotless>
+        <skip.checkstyle>true</skip.checkstyle>
+        <skip.spotbugs>true</skip.spotbugs>
         <flink.scope>provided</flink.scope>
         <grootstream.shaded.package>com.geedgenetworks.shaded</grootstream.shaded.package>
         <auto-service.version>1.0.1</auto-service.version>
@@ -118,7 +127,6 @@
                 <artifactId>log4j-1.2-api</artifactId>
                 <version>${log4j2.version}</version>
             </dependency>
-
 
             <!-- Exclude the logging bridges via provided scope -->
             <!-- log4j1.x bridge to slf4j
@@ -262,7 +270,6 @@
                 <scope>import</scope>
             </dependency>
 
-
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4</artifactId>
@@ -379,7 +386,6 @@
                 <version>${aviator.version}</version>
             </dependency>
 
-
             <dependency>
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-client</artifactId>
@@ -491,21 +497,226 @@
         </dependency>
         <!-- ***************** slf4j & provider & bridges end ***************** -->
 
-
     </dependencies>
 
     <build>
         <finalName>${project.artifactId}-${project.version}</finalName>
-        <plugins>
+        <pluginManagement>
+            <plugins>
+                <!-- java compiler -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                        <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                    </configuration>
+                </plugin>
 
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.1.2</version>
+                    <configuration>
+                        <skip>${skipUT}</skip>
+                        <systemPropertyVariables>
+                            <jacoco-agent.destfile>${project.build.directory}/jacoco.exec</jacoco-agent.destfile>
+                        </systemPropertyVariables>
+                        <excludes>
+                            <exclude>**/*IT.java</exclude>
+                        </excludes>
+                        <classpathDependencyExcludes>
+                            <!--
+                                The logger provider & bridges declared under 'provided' scope should be explicitly excluded from testing as below.
+                            -->
+                            <classpathDependencyExclude>org.slf4j:slf4j-jdk14</classpathDependencyExclude>
+                            <classpathDependencyExclude>org.slf4j:slf4j-jcl</classpathDependencyExclude>
+                            <classpathDependencyExclude>org.slf4j:slf4j-nop</classpathDependencyExclude>
+                            <classpathDependencyExclude>org.slf4j:slf4j-simple</classpathDependencyExclude>
+                            <classpathDependencyExclude>org.slf4j:slf4j-reload4j</classpathDependencyExclude>
+                            <classpathDependencyExclude>org.slf4j:slf4j-log4j12</classpathDependencyExclude>
+                            <classpathDependencyExclude>org.slf4j:log4j-over-slf4j</classpathDependencyExclude>
+                            <classpathDependencyExclude>commons-logging:commons-logging</classpathDependencyExclude>
+                            <classpathDependencyExclude>log4j:log4j</classpathDependencyExclude>
+                            <classpathDependencyExclude>ch.qos.logback:logback-classic</classpathDependencyExclude>
+                            <classpathDependencyExclude>ch.qos.logback:logback-core</classpathDependencyExclude>
+                            <classpathDependencyExclude>org.apache.logging.log4j:log4j-to-slf4j</classpathDependencyExclude>
+                        </classpathDependencyExcludes>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>3.1.2</version>
+                    <configuration>
+                        <skip>${skipIT}</skip>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${maven-source-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>pl.project13.maven</groupId>
+                    <artifactId>git-commit-id-plugin</artifactId>
+                    <version>${maven-git-commit-id-plugin.version}</version>
+                </plugin>
+
+                <!-- make sure that flatten runs after shaded -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>flatten-maven-plugin</artifactId>
+                    <version>${flatten-maven-plugin.version}</version>
+                    <configuration>
+                        <updatePomFile>true</updatePomFile>
+                        <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>flatten</id>
+                            <goals>
+                                <goal>flatten</goal>
+                            </goals>
+                            <phase>process-resources</phase>
+                        </execution>
+                        <execution>
+                            <id>flatten.clean</id>
+                            <goals>
+                                <goal>clean</goal>
+                            </goals>
+                            <phase>clean</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.0.0-M3</version>
+                    <executions>
+                        <execution>
+                            <id>release-version-check</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireReleaseVersion>
+                                        <message>SNAPSHOT versions ${project.version} are not allowed.</message>
+                                    </requireReleaseVersion>
+                                </rules>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>snapshot-version-check</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireSnapshotVersion>
+                                        <message>Non-SNAPSHOT versions ${project.version} are not allowed.</message>
+                                    </requireSnapshotVersion>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.9.0.2155</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.commonjava.maven.plugins</groupId>
+                    <artifactId>directory-maven-plugin</artifactId>
+                    <version>1.0</version>
+                    <executions>
+                        <execution>
+                            <id>directories</id>
+                            <goals>
+                                <goal>directory-of</goal>
+                            </goals>
+                            <phase>initialize</phase>
+                            <configuration>
+                                <property>rootDir</property>
+                                <project>
+                                    <groupId>com.geedgenetworks</groupId>
+                                    <artifactId>groot-stream</artifactId>
+                                </project>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>3.1.2</version>
+                    <configuration>
+                        <skip>${skip.checkstyle}</skip>
+                        <configLocation>${rootDir}/develop/checkstyle.xml</configLocation>
+                        <suppressionsLocation>${rootDir}/develop/suppressions.xml</suppressionsLocation>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                        <logViolationsToConsole>true</logViolationsToConsole>
+                        <failOnViolation>true</failOnViolation>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>8.40</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>4.4.2.2</version>
+                    <configuration>
+                        <skip>${skip.spotbugs}</skip>
+                        <threshold>Low</threshold>
+                        <effort>default</effort>
+                        <failOnError>true</failOnError>
+                        <xmlOutput>true</xmlOutput>
+                        <excludeFilterFile>${rootDir}/develop/spotbugs-exclude.xml</excludeFilterFile>
+                        <spotbugsXmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsXmlOutputDirectory>
+                    </configuration>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
 
@@ -513,31 +724,19 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>${maven-shade-plugin.version}</version>
                 <configuration>
                     <shadedArtifactAttached>false</shadedArtifactAttached>
                     <createDependencyReducedPom>true</createDependencyReducedPom>
                     <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                     <artifactSet>
                         <excludes>
-                            <exclude>com.google.code.findbugs:jsr305</exclude>
-                            <exclude>org.slf4j:slf4j-api</exclude>
-                            <exclude>org.slf4j:slf4j-jdk14</exclude>
-                            <exclude>org.slf4j:slf4j-jcl</exclude>
-                            <exclude>org.slf4j:slf4j-nop</exclude>
-                            <exclude>org.slf4j:slf4j-simple</exclude>
-                            <exclude>org.slf4j:slf4j-reload4j</exclude>
-                            <exclude>org.slf4j:slf4j-log4j12</exclude>
-                            <exclude>org.slf4j:log4j-over-slf4j</exclude>
-                            <exclude>org.slf4j:jcl-over-slf4j</exclude>
+                            <exclude>com.google.code.findbugs:*</exclude>
+                            <exclude>org.slf4j:*</exclude>
+                            <exclude>ch.qos.logback:*</exclude>
                             <exclude>log4j:*</exclude>
                             <exclude>commons-logging:*</exclude>
-                            <exclude>ch.qos.logback:*</exclude>
-                            <exclude>org.apache.logging.log4j:log4j-api</exclude>
-                            <exclude>org.apache.logging.log4j:log4j-core</exclude>
-                            <exclude>org.apache.logging.log4j:log4j-slf4j-impl</exclude>
-                            <exclude>org.apache.logging.log4j:log4j-1.2-api</exclude>
-                            <exclude>org.apache.logging.log4j:log4j-to-slf4j</exclude>
+                            <exclude>org.apache.logging.log4j:*</exclude>
                         </excludes>
                     </artifactSet>
                     <filters>
@@ -561,8 +760,7 @@
                         <phase>package</phase>
                         <configuration>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
                                 <!--  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                       <mainClass>com.geedgenetworks.bootstrap.main.GrootStreamServer</mainClass>
                                   </transformer>-->
@@ -585,36 +783,103 @@
                 <version>${maven-helper-plugin.version}</version>
             </plugin>
 
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>flatten-maven-plugin</artifactId>
-                <version>${flatten-maven-plugin.version}</version>
-                <configuration>
-                    <updatePomFile>true</updatePomFile>
-                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>flatten</id>
-                        <goals>
-                            <goal>flatten</goal>
-                        </goals>
-                        <phase>process-resources</phase>
-                    </execution>
-                    <execution>
-                        <id>flatten.clean</id>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                        <phase>clean</phase>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>${maven-dependency-plugin.version}</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.commonjava.maven.plugins</groupId>
+                <artifactId>directory-maven-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>findbugs-main</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>compile</phase>
+                    </execution>
+                    <execution>
+                        <id>findbugs-test</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>test-compile</phase>
+                        <configuration>
+                            <includeTests>true</includeTests>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>java-style-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <sourceDirectories>src/main/java</sourceDirectories>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>java-test-style-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>test-compile</phase>
+                        <configuration>
+                            <testSourceDirectories>src/test/java</testSourceDirectories>
+                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.7</version>
+                <executions>
+                    <execution>
+                        <id>default-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
             </plugin>
 
             <plugin>
@@ -628,11 +893,11 @@
                             <exclude>src/main/antlr4/*.*</exclude>
                         </excludes>
                         <googleJavaFormat>
-                            <version>1.7</version>
+                            <version>1.17.0</version>
                             <style>AOSP</style>
                         </googleJavaFormat>
-                        <removeUnusedImports/>
-                        <formatAnnotations/>
+                        <removeUnusedImports />
+                        <formatAnnotations />
                         <importOrder>
                             <order>com.geedgenetworks,org.apache,org,,javax,java,\#</order>
                         </importOrder>
@@ -680,7 +945,7 @@
                             <exclude>**/.github/**/*.md</exclude>
                             <exclude>**/*.json</exclude>
                         </excludes>
-                        <flexmark/>
+                        <flexmark />
                     </markdown>
                     <upToDateChecking>
                         <enabled>true</enabled>
@@ -697,185 +962,8 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.commonjava.maven.plugins</groupId>
-                <artifactId>directory-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>directories</id>
-                        <goals>
-                            <goal>directory-of</goal>
-                        </goals>
-                        <phase>initialize</phase>
-                        <configuration>
-                            <property>rootDir</property>
-                            <project>
-                                <groupId>com.geedgenetworks</groupId>
-                                <artifactId>groot-stream</artifactId>
-                            </project>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>java-style-check</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDirectories>src/main/java</sourceDirectories>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>java-test-style-check</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <testSourceDirectories>src/test/java</testSourceDirectories>
-                            <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>findbugs-main</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>findbugs-test</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                        <configuration>
-                            <includeTests>true</includeTests>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
-                <executions>
-                    <execution>
-                        <id>default-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                        <phase>initialize</phase>
-                    </execution>
-                    <execution>
-                        <id>default-report</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
 
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.1.2</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.commonjava.maven.plugins</groupId>
-                    <artifactId>directory-maven-plugin</artifactId>
-                    <version>1.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.1.2</version>
-                    <configuration>
-                        <skip>true</skip>
-                        <configLocation>${rootDir}/develop/checkstyle.xml</configLocation>
-                        <suppressionsLocation>${rootDir}/develop/suppressions.xml</suppressionsLocation>
-                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        <logViolationsToConsole>true</logViolationsToConsole>
-                        <failOnViolation>true</failOnViolation>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.puppycrawl.tools</groupId>
-                            <artifactId>checkstyle</artifactId>
-                            <version>8.40</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <plugin>
-                    <groupId>com.github.spotbugs</groupId>
-                    <artifactId>spotbugs-maven-plugin</artifactId>
-                    <version>4.4.2.2</version>
-                    <configuration>
-                        <skip>true</skip>
-                        <threshold>Low</threshold>
-                        <effort>default</effort>
-                        <failOnError>true</failOnError>
-                        <xmlOutput>true</xmlOutput>
-                        <excludeFilterFile>${rootDir}/develop/spotbugs-exclude.xml</excludeFilterFile>
-                        <spotbugsXmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsXmlOutputDirectory>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.0.0-M3</version>
-                    <executions>
-                        <execution>
-                            <id>release-version-check</id>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <requireReleaseVersion>
-                                        <message>SNAPSHOT versions ${project.version} are not allowed.</message>
-                                    </requireReleaseVersion>
-                                </rules>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>snapshot-version-check</id>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <requireSnapshotVersion>
-                                        <message>Non-SNAPSHOT versions ${project.version} are not allowed.</message>
-                                    </requireSnapshotVersion>
-                                </rules>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.sonarsource.scanner.maven</groupId>
-                    <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.9.0.2155</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
     </build>
 
     <repositories>
@@ -892,9 +980,9 @@
 
     <distributionManagement>
         <repository>
+            <uniqueVersion>true</uniqueVersion>
             <id>platform-releases</id>
             <url>http://192.168.40.153:8081/repository/platform-release/</url>
-            <uniqueVersion>true</uniqueVersion>
         </repository>
         <snapshotRepository>
             <id>platform-snapshots</id>

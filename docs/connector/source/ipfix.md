@@ -1,17 +1,22 @@
 # IPFIX
-> IPFIX source collector
-## Description
-IPFIX source collector is used to collect IPFIX data from network devices. It supports UDP protocol.
-## Source Options
-In order to use the IPFIX connector, the following dependencies are required. They can be download by Nexus Maven Repository.
 
-| Datasource | Supported Versions | Maven                                                                                                                                    |
+> IPFIX source collector
+>
+> ## Description
+>
+> IPFIX source collector is used to collect IPFIX data from network devices. It supports UDP protocol.
+>
+> ## Source Options
+>
+> In order to use the IPFIX connector, the following dependencies are required. They can be download by Nexus Maven Repository.
+
+| Datasource | Supported Versions |                                                                  Maven                                                                   |
 |------------|--------------------|------------------------------------------------------------------------------------------------------------------------------------------|
 | IPFIX      | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/connector-ipfix-collector/) |
 
 IPFIX source custom properties.
 
-| Name                                    | Type    | Required | Default   | Description                                                                                                                                                   |
+|                  Name                   |  Type   | Required |  Default  |                                                                          Description                                                                          |
 |-----------------------------------------|---------|----------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | port.range                              | String  | Yes      | (none)    | Range of ports such as 3000 -3010                                                                                                                             |
 | max.packet.size                         | Integer | No       | 65535     | The maximum size of packet for UDP                                                                                                                            |
@@ -29,3 +34,4 @@ IPFIX source custom properties.
 | service.discovery.consul.token          | String  | No       | (none)    | Consul token. Need specify `ipfix.service.discovery.registry.mode` to `1(consul)`                                                                             |
 
 ## Example
+

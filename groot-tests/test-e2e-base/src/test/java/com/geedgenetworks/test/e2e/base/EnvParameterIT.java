@@ -28,7 +28,7 @@ import static org.awaitility.Awaitility.await;
         value = {TestContainerId.FLINK_1_17},
         type = {},
         disabledReason = "only flink adjusts the parameter configuration rules")
-public class EnvParameterTest extends TestSuiteBase {
+public class EnvParameterIT extends TestSuiteBase {
     @TestContainerExtension
     protected final ContainerExtendedFactory extendedFactory =
             container -> {

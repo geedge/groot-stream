@@ -16,5 +16,3 @@ grootstream:
     hos.bucket.name.traffic_file: traffic_file_bucket
     hos.bucket.name.troubleshooting_file: troubleshooting_file_bucket
     scheduler.knowledge_base.update.interval.minutes: 5
-    hadoop.dfs.namenodes: 192.168.44.12
-    hadoop.dfs.replication: 1
