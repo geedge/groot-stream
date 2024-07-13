@@ -15,7 +15,6 @@ This is because Maven 3.8.1 has a new feature that blocks all HTTP requests by d
         <mirrorOf>external:dont-match-anything-mate:*</mirrorOf>
         <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
         <url>http://0.0.0.0/</url>
-        <blocked>false</blocked>
     </mirror>
 </mirrors>
 ```
