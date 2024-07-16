@@ -23,7 +23,7 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
     }
 
     @Override
-    void onInit(Configuration parameters) throws Exception {
+    protected void onInit(Configuration parameters) throws Exception {
         super.onInit(parameters);
         simpleName = this.getClass().getSimpleName() + "_" + getRuntimeContext().getIndexOfThisSubtask();
         if(schema != null){
@@ -35,7 +35,7 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
     }
 
     @Override
-    int addBatch(Block batch, Event event) throws Exception {
+    protected int addBatch(Block batch, Event event) throws Exception {
         int writeSize = 0;
         Map<String, Object> map = event.getExtractedFields();
         String columnName;
@@ -80,7 +80,7 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
     }
 
     @Override
-    void onClose() throws Exception {
+    protected void onClose() throws Exception {
         super.onClose();
         if(schema != null && schema.isDynamic()){
             Schema.unregisterSchemaChangeAware(schema, this);

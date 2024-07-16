@@ -26,6 +26,7 @@ import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
@@ -36,6 +37,8 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -56,6 +59,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     // 标准日期时间格式，精确到毫秒：yyyy-MM-dd HH:mm:ss.SSS
     public static final String NORM_DATETIME_MS_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
     public static final DateTimeFormatter NORM_DATETIME_MS_FORMATTER = DateTimeFormatter.ofPattern(NORM_DATETIME_MS_PATTERN);
+    public static final DateTimeFormatter DATETIME_FORMATTER = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm:ss").appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true).toFormatter();
     private final int batchSize;
     private final int batchByteSize;
     private final long batchIntervalMs;
@@ -75,6 +79,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     private int urlIndex;
     private final Properties connInfo;
     private final String table;
+    private final String[] insertColumns;
     private String insertSql;
     protected ZoneId tz;
     protected String[] columnNames;
@@ -85,12 +90,17 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     protected final SizeHelper writeSizeHelper;
 
     public AbstractBatchIntervalClickHouseSink(int batchSize, int batchByteSize, long batchIntervalMs, String host, String table, Properties connInfo) {
+        this(batchSize, batchByteSize, batchIntervalMs, host, table, null, connInfo);
+    }
+
+    public AbstractBatchIntervalClickHouseSink(int batchSize, int batchByteSize, long batchIntervalMs, String host, String table, @Nullable String[] insertColumns, Properties connInfo) {
         this.batchSize = batchSize;
         this.batchByteSize = batchByteSize;
         this.batchIntervalMs = batchIntervalMs;
         this.writeSizeHelper = new SizeHelper();
         this.urls = ClickHouseUtils.buildUrlsFromHost(host);
         this.table = table;
+        this.insertColumns = insertColumns;
         this.connInfo = connInfo;
         if(!this.connInfo.containsKey(SettingKey.connect_timeout.name())){
             this.connInfo.setProperty(SettingKey.connect_timeout.name(), "30");
@@ -152,7 +162,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         urlIndex = getRuntimeContext().getIndexOfThisSubtask() % urls.length;
 
         // 获取要插入的列信息
-        Tuple3<String[], Object[], int[]> columnsAndDefaultValuesAndDefaultSizes = ClickHouseUtils.getInsertColumnsAndDefaultValuesAndDefaultSizesForTable( urls, urlIndex, connInfo, table);
+        Tuple3<String[], Object[], int[]> columnsAndDefaultValuesAndDefaultSizes = ClickHouseUtils.getInsertColumnsAndDefaultValuesAndDefaultSizesForTable(urls, urlIndex, connInfo, table, insertColumns);
         columnNames = columnsAndDefaultValuesAndDefaultSizes.f0;
         columnDefaultValues = columnsAndDefaultValuesAndDefaultSizes.f1;
         columnDefaultSizes = columnsAndDefaultValuesAndDefaultSizes.f2;
@@ -212,10 +222,10 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
         if (flushException != null) throw flushException;
     }
 
-    void onInit(Configuration parameters) throws Exception {}
-    void onClose() throws Exception {}
+    protected void onInit(Configuration parameters) throws Exception {}
+    protected void onClose() throws Exception {}
 
-    abstract int addBatch(Block batch, T data) throws Exception;
+    protected abstract int addBatch(Block batch, T data) throws Exception;
 
     @Override
     public final void invoke(T value, Context context) throws Exception {
@@ -623,6 +633,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 return LocalDateTime.parse(str, NORM_DATETIME_FORMATTER).atZone(tz);
             } else if (str.length() == 23) {
                 return LocalDateTime.parse(str, NORM_DATETIME_MS_FORMATTER).atZone(tz);
+            } else if (str.length() >= 19) {
+                return LocalDateTime.parse(str, DATETIME_FORMATTER).atZone(tz);
             }
         }
 
@@ -650,6 +662,8 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 return LocalDateTime.parse(str, NORM_DATETIME_FORMATTER).atZone(tz);
             } else if (str.length() == 23) {
                 return LocalDateTime.parse(str, NORM_DATETIME_MS_FORMATTER).atZone(tz);
+            } else if (str.length() >= 19) {
+                return LocalDateTime.parse(str, DATETIME_FORMATTER).atZone(tz);
             }
         }
 
