@@ -8,7 +8,6 @@ import com.geedgenetworks.connectors.clickhouse.jdbc.ClickHousePreparedBatchInse
 import com.geedgenetworks.connectors.clickhouse.jdbc.DataTypeStringV2;
 import com.geedgenetworks.connectors.clickhouse.util.BlockColumnsByteSizeInfo;
 import com.geedgenetworks.connectors.clickhouse.util.ClickHouseUtils;
-import com.geedgenetworks.core.metrics.InternalMetrics;
 import com.github.housepower.data.*;
 import com.github.housepower.data.type.*;
 import com.github.housepower.data.type.complex.*;
@@ -64,7 +63,6 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
     private final int batchByteSize;
     private final long batchIntervalMs;
     private transient volatile boolean closed;
-    private transient InternalMetrics internalMetrics;
     private transient Thread outThread;
     private transient ReentrantLock lock;
     private transient Block batch;
@@ -111,7 +109,6 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        initMetric();
         lock = new ReentrantLock();
         outBatchQueue = new LinkedBlockingQueue<>(1);
         freeBatchQueue = new LinkedBlockingQueue<>(2);
@@ -151,10 +148,6 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
             }
         }, threadName);
         outThread.start();
-    }
-
-    private void initMetric() throws Exception {
-        internalMetrics = new InternalMetrics(getRuntimeContext());
     }
 
     private void initClickHouseParams() throws Exception {
@@ -227,10 +220,21 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
 
     protected abstract int addBatch(Block batch, T data) throws Exception;
 
+
+    protected void incInRecords(long n) {}
+
+    protected void incInBytes(long n) {}
+
+    protected void incOutRecords(long n) {}
+
+    protected void incOutBytes(long n) {}
+
+    protected void incErrorRecords(long n) {}
+
     @Override
     public final void invoke(T value, Context context) throws Exception {
         checkFlushException();
-        internalMetrics.incrementInEvents();
+        incInRecords(1);
 
         lock.lock();
         try {
@@ -244,7 +248,7 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 flush();
             }
         } catch (Exception e) {
-            internalMetrics.incrementErrorEvents();
+            incErrorRecords(1);
             LOG.error("转换ck类型异常", e);
         } finally{
             lock.unlock();
@@ -310,15 +314,15 @@ public abstract class AbstractBatchIntervalClickHouseSink<T> extends RichSinkFun
                 ClickHouseUtils.copyInsertBlockColumns(block, stmt.getBlock());
                 stmt.executeBatch();
 
-                internalMetrics.incrementOutEvents(rowCnt);
-                internalMetrics.incrementOutBytes(blockByteSizeInfo.totalSize);
+                incOutRecords(rowCnt);
+                incOutBytes(blockByteSizeInfo.totalSize);
                 LOG.warn("flush " + rowCnt + " end:" + new Timestamp(System.currentTimeMillis()) + "," + (System.currentTimeMillis() - start));
 
                 return;
             } catch (Exception e) {
                 LOG.error("ClickHouseBatchInsertFail url:" + url, e);
                 if (retryCount >= 3) {
-                    internalMetrics.incrementErrorEvents(rowCnt);
+                    incErrorRecords(rowCnt);
                     LOG.error("ClickHouseBatchInsertFinalFail for rowCnt:" + rowCnt);
                     // throw e;
                     return;

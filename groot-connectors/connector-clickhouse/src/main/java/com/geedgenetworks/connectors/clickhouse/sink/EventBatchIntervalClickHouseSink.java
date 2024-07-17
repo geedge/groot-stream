@@ -5,6 +5,7 @@ import com.geedgenetworks.common.Event;
 
 import com.geedgenetworks.core.connector.schema.Schema;
 import com.geedgenetworks.core.connector.schema.SchemaChangeAware;
+import com.geedgenetworks.core.metrics.InternalMetrics;
 import com.geedgenetworks.core.types.StructType;
 import com.github.housepower.data.Block;
 import org.apache.flink.configuration.Configuration;
@@ -13,6 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClickHouseSink<Event> implements SchemaChangeAware {
+    private transient InternalMetrics internalMetrics;
     private Schema schema;
     private Set<String> disabledFields;
     private String simpleName;
@@ -25,6 +27,7 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
     @Override
     protected void onInit(Configuration parameters) throws Exception {
         super.onInit(parameters);
+        initMetric();
         simpleName = this.getClass().getSimpleName() + "_" + getRuntimeContext().getIndexOfThisSubtask();
         if(schema != null){
             updateDisabledFields(schema.getDataType());
@@ -32,6 +35,30 @@ public class EventBatchIntervalClickHouseSink extends AbstractBatchIntervalClick
                 Schema.registerSchemaChangeAware(schema, this);
             }
         }
+    }
+
+    private void initMetric() {
+        internalMetrics = new InternalMetrics(getRuntimeContext());
+    }
+
+    @Override
+    protected void incInRecords(long n) {
+        internalMetrics.incrementInEvents(n);
+    }
+
+    @Override
+    protected void incOutRecords(long n) {
+        internalMetrics.incrementOutEvents(n);
+    }
+
+    @Override
+    protected void incOutBytes(long n) {
+        internalMetrics.incrementOutBytes(n);
+    }
+
+    @Override
+    protected void incErrorRecords(long n) {
+        internalMetrics.incrementErrorEvents(n);
     }
 
     @Override
