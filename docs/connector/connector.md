@@ -19,11 +19,14 @@ sources:
       ${prop_key}: ${prop_value}
 ```
 
-|    Name    |     Type      | Required | Default |                                                       Description                                                        |
-|------------|---------------|----------|---------|--------------------------------------------------------------------------------------------------------------------------|
-| type       | String        | Yes      | (none)  | The type of the source connector. The `SourceTableFactory` will use this value as identifier to create source connector. |
-| schema     | Map           | No       | (none)  | The source table schema, config through fields or local_file or url.                                                     |
-| properties | Map of String | Yes      | (none)  | The source connector customize properties, more details see the [Source](source) documentation.                          |
+| Name                     | Type          | Required | Default | Description                                                                                                              |
+|--------------------------|---------------|----------|---------|--------------------------------------------------------------------------------------------------------------------------|
+| type                     | String        | Yes      | (none)  | The type of the source connector. The `SourceTableFactory` will use this value as identifier to create source connector. |
+| schema                   | Map           | No       | (none)  | The source table schema, config through fields or local_file or url.                                                     |
+| watermark_timestamp      | String        | No       | (none)  | watermark timestamp field name, if need use eventTime.                                                                   |
+| watermark_timestamp_unit | String        | No       | ms      | watermark field timestamp unit, options:ms(milliseconds),s(seconds). is required if watermark_timestamp is not none.     |
+| watermark_lag            | Long          | No       | (none)  | watermark out-of-order milliseconds. is required if watermark_timestamp is not none.                                     |
+| properties               | Map of String | Yes      | (none)  | The source connector customize properties, more details see the [Source](source) documentation.                          |
 
 ## Schema Field Projection
 
