@@ -9,7 +9,7 @@ import com.geedgenetworks.core.udf.knowlegdebase.handler.LinkDirectionKnowledgeB
  * @version 1.0
  * @date 2024/1/17 14:56
  */
-public class LinkDirectionLookup extends AbstractKnowledgeUDF {
+public class LinkDirectionLookup extends AbstractKnowledgeScalarFunction {
 
     private LinkDirectionKnowledgeBaseHandler knowledgeBaseHandler;
 

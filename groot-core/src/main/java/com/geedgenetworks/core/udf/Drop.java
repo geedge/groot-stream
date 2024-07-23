@@ -1,12 +1,12 @@
 package com.geedgenetworks.core.udf;
 
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 
-public class Drop implements UDF {
+public class Drop implements ScalarFunction {
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {

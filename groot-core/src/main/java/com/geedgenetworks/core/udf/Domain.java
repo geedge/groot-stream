@@ -2,10 +2,9 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
@@ -14,7 +13,7 @@ import java.util.List;
 import static com.geedgenetworks.utils.FormatUtils.getTopPrivateDomain;
 
 @Slf4j
-public class Domain implements UDF {
+public class Domain implements ScalarFunction {
 
 
     private String option;

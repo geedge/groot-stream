@@ -3,7 +3,7 @@ package com.geedgenetworks.core.udf;
 import com.alibaba.fastjson2.JSONArray;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.googlecode.aviator.AviatorEvaluator;
@@ -15,7 +15,7 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.util.*;
 @Slf4j
-public class Rename implements UDF {
+public class Rename implements ScalarFunction {
 
     private static Expression compiledExp;
     private Set<String> parentFields;

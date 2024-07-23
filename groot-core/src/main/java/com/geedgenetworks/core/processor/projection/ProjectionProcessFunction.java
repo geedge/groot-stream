@@ -8,10 +8,9 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.utils.HdfsUtils;
 import com.geedgenetworks.core.metrics.InternalMetrics;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseScheduler;
 import com.google.common.collect.Lists;
 import com.googlecode.aviator.AviatorEvaluator;
@@ -24,11 +23,12 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import static com.geedgenetworks.core.utils.UDFUtils.filterExecute;
+import static com.geedgenetworks.core.utils.UDFUtils.getClassReflect;
 
 @Slf4j
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
@@ -61,8 +61,8 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
                     Class<?> cls = Class.forName(udfClassReflect.get(udfContext.getFunction()));
-                    UDF udf = (UDF) cls.getConstructor().newInstance();
-                    udf.open(getRuntimeContext(), udfContext);
+                    ScalarFunction scalarFunction = (ScalarFunction) cls.getConstructor().newInstance();
+                    scalarFunction.open(getRuntimeContext(), udfContext);
                     // 函数如果包含filter,对表达式进行编译
                     if (udfContext.getFilter() != null) {
                         AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
@@ -71,7 +71,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                         instance.setFunctionMissing(null);
                         filterExpression = instance.compile(udfContext.getFilter(), true);
                     }
-                    udfEntity.setUdfFunction(udf);
+                    udfEntity.setScalarFunction(scalarFunction);
                     udfEntity.setFilterExpression(filterExpression);
                     udfEntity.setName(udfContext.getFunction());
                     udfEntity.setClassName(udfClassReflect.get(udfContext.getFunction()));
@@ -101,7 +101,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                 } else {
                     boolean result = udfEntity.getFilterExpression() != null ? filterExecute(udfEntity.getFilterExpression(), udfEntity.getFilterExpression().newEnv("event", event.getExtractedFields())) : true;
                     if (result) {
-                        udfEntity.getUdfFunction().evaluate(event);
+                        udfEntity.getScalarFunction().evaluate(event);
                     }
                 }
             } catch (ExpressionRuntimeException ignore) {
@@ -137,43 +137,11 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
         }
     }
 
-    public static Map<String, String> getClassReflect(List<String> plugins) {
-
-        Map<String, String> classReflect = new HashMap<>();
-
-        for (String classPath : plugins) {
-
-            Class cls = null;
-            try {
-                cls = Class.forName(classPath);
-                Method method = cls.getMethod("functionName");
-                Object object = cls.newInstance();
-                String result = (String) method.invoke(object);
-                classReflect.put(result, classPath);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return classReflect;
-    }
-
-    public static Boolean filterExecute(Expression expression, Map<String, Object> map) {
-
-        boolean result;
-        Object object = expression.execute(map);
-        if (object != null) {
-            result = (Boolean) object;
-        } else {
-            throw new ExpressionRuntimeException();
-        }
-        return result;
-    }
-
     @Override
     public void close() throws Exception {
 
         for (UdfEntity udfEntity : functions) {
-            udfEntity.getUdfFunction().close();
+            udfEntity.getScalarFunction().close();
         }
         KnowledgeBaseScheduler.decrement();
         if(KnowledgeBaseScheduler.getCount()<=0) {
