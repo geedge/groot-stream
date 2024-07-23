@@ -6,7 +6,7 @@ import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.AsnKnowledgeBaseHandler;
@@ -17,7 +17,7 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 
 @Slf4j
-public class AsnLookup implements UDF {
+public class AsnLookup implements ScalarFunction {
 
     private String kbName;
     private String option;

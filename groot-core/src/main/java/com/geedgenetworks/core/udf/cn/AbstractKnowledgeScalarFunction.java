@@ -3,7 +3,7 @@ package com.geedgenetworks.core.udf.cn;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.udf.UDFContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2024/1/19 9:33
  */
-public abstract class AbstractKnowledgeUDF implements UDF {
+public abstract class AbstractKnowledgeScalarFunction implements ScalarFunction {
 
     protected String lookupFieldName;
 

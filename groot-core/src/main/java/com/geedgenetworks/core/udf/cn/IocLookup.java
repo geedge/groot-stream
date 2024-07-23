@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * @version 1.0
  * @date 2024/1/22 14:45
  */
-public class IocLookup extends AbstractKnowledgeWithRuleUDF {
+public class IocLookup extends AbstractKnowledgeWithRuleScalarFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(IocLookup.class);
 

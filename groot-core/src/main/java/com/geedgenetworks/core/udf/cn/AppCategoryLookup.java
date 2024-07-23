@@ -15,7 +15,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2024/1/22 14:14
  */
-public class AppCategoryLookup extends AbstractKnowledgeUDF {
+public class AppCategoryLookup extends AbstractKnowledgeScalarFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(AppCategoryLookup.class);
 

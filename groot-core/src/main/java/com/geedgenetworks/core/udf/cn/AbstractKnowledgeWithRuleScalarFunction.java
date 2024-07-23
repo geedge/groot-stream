@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2024/1/22 18:15
  */
-public abstract class AbstractKnowledgeWithRuleUDF extends AbstractKnowledgeUDF {
+public abstract class AbstractKnowledgeWithRuleScalarFunction extends AbstractKnowledgeScalarFunction {
 
     protected List<KnowledgeBaseConfig> ruleConfigs;
 

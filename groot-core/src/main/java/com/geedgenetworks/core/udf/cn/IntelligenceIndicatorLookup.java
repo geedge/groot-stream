@@ -15,7 +15,7 @@ import java.util.List;
  * @version 1.0
  * @date 2024/4/7 14:15
  */
-public class IntelligenceIndicatorLookup extends AbstractKnowledgeUDF {
+public class IntelligenceIndicatorLookup extends AbstractKnowledgeScalarFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(IntelligenceIndicatorLookup.class);
 

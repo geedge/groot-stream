@@ -6,10 +6,9 @@ import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.common.utils.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -17,7 +16,7 @@ import org.apache.flink.configuration.Configuration;
 import java.util.*;
 
 @Slf4j
-public class PathCombine implements UDF {
+public class PathCombine implements ScalarFunction {
 
     private final Map<String, String> pathParameters = new LinkedHashMap<>();
     private String outputFieldName;

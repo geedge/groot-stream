@@ -11,7 +11,7 @@ import java.util.List;
  * @version 1.0
  * @date 2024/1/18 16:21
  */
-public class DnsServerInfoLookup extends AbstractKnowledgeUDF {
+public class DnsServerInfoLookup extends AbstractKnowledgeScalarFunction {
 
     private DnsServerInfoKnowledgeBaseHandler knowledgeBaseHandler;
 

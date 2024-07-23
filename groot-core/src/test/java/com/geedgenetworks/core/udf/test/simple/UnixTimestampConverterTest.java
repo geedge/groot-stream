@@ -28,12 +28,13 @@ public class UnixTimestampConverterTest {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("precision", "seconds");
+        parameters.put("interval", "600");
         udfContext.setParameters(parameters);
         UnixTimestampConverter unixTimestampConverter = new UnixTimestampConverter();
         unixTimestampConverter.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
-        extractedFields.put("input", 1577808000000L);
+        extractedFields.put("input", 1577808090000L);
         event.setExtractedFields(extractedFields);
         Event result1 = unixTimestampConverter.evaluate(event);
         assertEquals(1577808000L, result1.getExtractedFields().get("output"));
@@ -46,12 +47,13 @@ public class UnixTimestampConverterTest {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("precision", "milliseconds");
+        parameters.put("interval", "60000");
         udfContext.setParameters(parameters);
         UnixTimestampConverter unixTimestampConverter = new UnixTimestampConverter();
         unixTimestampConverter.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
-        extractedFields.put("input", 1577808000L);
+        extractedFields.put("input", 1577808030L);
         event.setExtractedFields(extractedFields);
         Event result1 = unixTimestampConverter.evaluate(event);
         assertEquals(1577808000000L, result1.getExtractedFields().get("output"));
@@ -65,12 +67,13 @@ public class UnixTimestampConverterTest {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("precision", "seconds");
+        parameters.put("interval", "60");
         udfContext.setParameters(parameters);
         UnixTimestampConverter unixTimestampConverter = new UnixTimestampConverter();
         unixTimestampConverter.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
-        extractedFields.put("input", 1577808000L);
+        extractedFields.put("input", 1577808001L);
         event.setExtractedFields(extractedFields);
         Event result1 = unixTimestampConverter.evaluate(event);
         assertEquals(1577808000L, result1.getExtractedFields().get("output"));
@@ -84,12 +87,13 @@ public class UnixTimestampConverterTest {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("precision", "milliseconds");
+        parameters.put("interval", "60000");
         udfContext.setParameters(parameters);
         UnixTimestampConverter unixTimestampConverter = new UnixTimestampConverter();
         unixTimestampConverter.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
-        extractedFields.put("input", 1577808000000L);
+        extractedFields.put("input", 1577808001100L);
         event.setExtractedFields(extractedFields);
         Event result1 = unixTimestampConverter.evaluate(event);
         assertEquals(1577808000000L, result1.getExtractedFields().get("output"));
@@ -102,15 +106,16 @@ public class UnixTimestampConverterTest {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("precision", "minutes");
+        parameters.put("interval", "5");
         udfContext.setParameters(parameters);
         UnixTimestampConverter unixTimestampConverter = new UnixTimestampConverter();
         unixTimestampConverter.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
-        extractedFields.put("input", 1577808100000L);
+        extractedFields.put("input", 1577808101001L);
         event.setExtractedFields(extractedFields);
         Event result1 = unixTimestampConverter.evaluate(event);
-        assertEquals(1577808060L, result1.getExtractedFields().get("output"));
+        assertEquals(1577808000L, result1.getExtractedFields().get("output"));
 
 
     }

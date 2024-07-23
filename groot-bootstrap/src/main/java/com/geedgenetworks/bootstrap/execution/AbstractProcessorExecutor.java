@@ -1,0 +1,168 @@
+package com.geedgenetworks.bootstrap.execution;
+
+import com.alibaba.fastjson.JSONObject;
+import com.geedgenetworks.bootstrap.exception.JobExecuteException;
+import com.geedgenetworks.common.config.AggregateConfigOptions;
+import com.geedgenetworks.common.config.CheckConfigUtil;
+import com.geedgenetworks.common.config.CheckResult;
+import com.geedgenetworks.common.config.ProjectionConfigOptions;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.ConfigValidationException;
+import com.geedgenetworks.core.pojo.AggregateConfig;
+import com.geedgenetworks.core.pojo.ProcessorConfig;
+import com.geedgenetworks.core.pojo.ProjectionConfig;
+import com.geedgenetworks.core.processor.aggregate.AggregateProcessor;
+import com.geedgenetworks.core.processor.projection.ProjectionProcessor;
+import com.typesafe.config.Config;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+
+public abstract class AbstractProcessorExecutor extends AbstractExecutor<String, ProcessorConfig> {
+
+
+    protected AbstractProcessorExecutor(List<URL> jarPaths, Config operatorConfig) {
+        super(jarPaths, operatorConfig);
+    }
+
+    @Override
+    public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
+
+        ProcessorConfig processorConfig = operatorMap.get(node.getName());
+        switch (processorConfig.getType()) {
+            case "aggregate":
+                dataStream = executeAggregateProcessor(dataStream, node, (AggregateConfig) processorConfig);
+                break;
+            case "projection":
+                dataStream = executeProjectionProcessor(dataStream, node, (ProjectionConfig) processorConfig);
+                break;
+            default:// 兼容历史版本
+                dataStream = executeProjectionProcessor(dataStream, node, (ProjectionConfig) processorConfig);
+        }
+        return dataStream;
+    }
+
+    protected SingleOutputStreamOperator executeAggregateProcessor(SingleOutputStreamOperator dataStream, Node node, AggregateConfig aggregateConfig) throws JobExecuteException {
+
+        AggregateProcessor aggregateProcessor;
+        if (aggregateProcessorMap.containsKey(aggregateConfig.getType())) {
+            aggregateProcessor = aggregateProcessorMap.get(aggregateConfig.getType());
+        } else {
+            Class cls;
+            try {
+                cls = Class.forName(aggregateConfig.getType());
+                aggregateProcessor = (AggregateProcessor) cls.newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | RuntimeException e) {
+                throw new JobExecuteException("get processing pipeline instance failed!", e);
+            }
+        }
+        if (node.getParallelism() > 0) {
+            aggregateConfig.setParallelism(node.getParallelism());
+        }
+        try {
+            dataStream =
+                    aggregateProcessor.aggregateProcessorFunction(
+                            dataStream, aggregateConfig, jobRuntimeEnvironment.getStreamExecutionEnvironment().getConfig());
+        } catch (Exception e) {
+            throw new JobExecuteException("Create aggregate pipeline instance failed!", e);
+        }
+        return dataStream;
+    }
+
+    protected SingleOutputStreamOperator executeProjectionProcessor(SingleOutputStreamOperator dataStream, Node node, ProjectionConfig projectionConfig) throws JobExecuteException {
+
+        ProjectionProcessor projectionProcessor;
+        if (projectionProcessorMap.containsKey(projectionConfig.getType())) {
+            projectionProcessor = projectionProcessorMap.get(projectionConfig.getType());
+        } else {
+            Class cls;
+            try {
+                cls = Class.forName(projectionConfig.getType());
+                projectionProcessor = (ProjectionProcessor) cls.newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | RuntimeException e) {
+                throw new JobExecuteException("get processing pipeline instance failed!", e);
+            }
+        }
+        if (node.getParallelism() > 0) {
+            projectionConfig.setParallelism(node.getParallelism());
+        }
+        try {
+            dataStream =
+                    projectionProcessor.projectionProcessorFunction(
+                            dataStream, projectionConfig);
+        } catch (Exception e) {
+            throw new JobExecuteException("Create processing pipeline instance failed!", e);
+        }
+        return dataStream;
+    }
+
+    protected ProcessorConfig checkProcessorConfig(String key, Map<String, Object> value, Config processorsConfig) {
+        ProcessorConfig projectionConfig;
+        CheckResult result = CheckConfigUtil.checkAllExists(processorsConfig.getConfig(key),
+                ProjectionConfigOptions.TYPE.key());
+        if (!result.isSuccess()) {
+            throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
+                    "Postprocessor: %s, Message: %s",
+                    key, result.getMsg()));
+        }
+        switch ((String) value.getOrDefault("type", "")) {
+            case "projection":
+                projectionConfig = checkProjectionProcessorConfig(key, value, processorsConfig);
+                break;
+            case "aggregate":
+                projectionConfig = checkAggregateProcessorConfig(key, value, processorsConfig);
+                break;
+            default://兼容历史版本
+                projectionConfig = checkProjectionProcessorConfig(key, value, processorsConfig);
+        }
+        return projectionConfig;
+    }
+
+    protected ProcessorConfig checkProjectionProcessorConfig(String key, Map<String, Object> value, Config projectionProcessors) {
+
+        CheckResult result = CheckConfigUtil.checkAtLeastOneExists(projectionProcessors.getConfig(key),
+                ProjectionConfigOptions.OUTPUT_FIELDS.key(),
+                ProjectionConfigOptions.REMOVE_FIELDS.key(),
+                ProjectionConfigOptions.FUNCTIONS.key());
+        if (!result.isSuccess()) {
+            throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
+                    "Processor: %s, At least one of [%s] should be specified.",
+                    key, String.join(",",
+                            ProjectionConfigOptions.OUTPUT_FIELDS.key(),
+                            ProjectionConfigOptions.REMOVE_FIELDS.key(),
+                            ProjectionConfigOptions.FUNCTIONS.key())));
+        }
+
+        ProjectionConfig projectionConfig = new JSONObject(value).toJavaObject(ProjectionConfig.class);
+        projectionConfig.setName(key);
+
+        return projectionConfig;
+    }
+
+
+    protected AggregateConfig checkAggregateProcessorConfig(String key, Map<String, Object> value, Config aggregateProcessorsConfig) {
+
+
+        CheckResult result = CheckConfigUtil.checkAllExists(aggregateProcessorsConfig.getConfig(key),
+                AggregateConfigOptions.GROUP_BY_FIELDS.key(),
+                AggregateConfigOptions.WINDOW_TYPE.key(),
+                AggregateConfigOptions.FUNCTIONS.key(),
+                AggregateConfigOptions.WINDOW_SIZE.key());
+        if (!result.isSuccess()) {
+            throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
+                    "Aggregate processor: %s, At least one of [%s] should be specified.",
+                    key, String.join(",",
+                            AggregateConfigOptions.OUTPUT_FIELDS.key(),
+                            AggregateConfigOptions.REMOVE_FIELDS.key(),
+                            AggregateConfigOptions.FUNCTIONS.key())));
+        }
+
+        AggregateConfig aggregateConfig = new JSONObject(value).toJavaObject(AggregateConfig.class);
+        aggregateConfig.setName(key);
+        return aggregateConfig;
+    }
+
+
+}
