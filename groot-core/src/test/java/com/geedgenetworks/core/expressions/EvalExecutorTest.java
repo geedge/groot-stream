@@ -1,13 +1,9 @@
-package com.geedgenetworks.core.udf.test.eval.codegen;
+package com.geedgenetworks.core.expressions;
 
-import com.geedgenetworks.core.expressions.Calc;
-import com.geedgenetworks.core.expressions.InvalidProgramException;
-import com.geedgenetworks.core.expressions.SyntaxErrorException;
-import com.geedgenetworks.core.expressions.codegen.CalcCodeConvertor;
+import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +11,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class CalcCodeConvertorTest {
+class EvalExecutorTest {
 
     private static Map<String, Object> origin;
 
@@ -44,18 +40,15 @@ class CalcCodeConvertorTest {
     @Test
     public void testValueExpression() throws Exception {
         // constant
-        assertEquals(CalcCodeConvertor.convert("'name'").eval(origin), "name");
-        assertEquals(CalcCodeConvertor.convert("5").eval(origin), 5);
-        assertEquals(CalcCodeConvertor.convert("5L").eval(origin), 5L);
-        assertEquals(CalcCodeConvertor.convert("5D").eval(origin), (double) 5L);
-        assertEquals(CalcCodeConvertor.convert("5BD").eval(origin), BigDecimal.valueOf(5));
-        assertEquals(CalcCodeConvertor.convert("TRUE").eval(origin), true);
-        assertEquals(CalcCodeConvertor.convert("FALSE").eval(origin), false);
+        assertEquals(new EvalExecutor("'name'").eval(origin), "name");
+        assertEquals(new EvalExecutor("5").eval(origin), 5L);
+        assertEquals(new EvalExecutor("true").eval(origin), true);
+        assertEquals(new EvalExecutor("false").eval(origin), false);
 
         // variable
-        assertEquals(CalcCodeConvertor.convert("common_client_ip").eval(origin),
+        assertEquals(new EvalExecutor("common_client_ip").eval(origin),
                 origin.get("common_client_ip"));
-        assertEquals(CalcCodeConvertor.convert("common_client_port").eval(origin),
+        assertEquals(new EvalExecutor("common_client_port").eval(origin),
                 origin.get("common_client_port"));
     }
 
@@ -68,15 +61,15 @@ class CalcCodeConvertorTest {
         int commonC2sByteNum = (int) origin.get("common_c2s_byte_num");
         int commonS2cByteNum = (int) origin.get("common_s2c_byte_num");
         assertEquals(
-                CalcCodeConvertor.convert("common_client_port > common_server_port " +
+                new EvalExecutor("common_client_port > common_server_port " +
                         "? common_c2s_pkt_num : common_s2c_pkt_num").eval(origin),
                 commonClientPort > commonServerPort ? commonC2sPktNum : commonS2cPktNum);
         assertEquals(
-                CalcCodeConvertor.convert("common_client_port > common_server_port " +
+                new EvalExecutor("common_client_port > common_server_port " +
                         "? 'C2S:' + common_c2s_pkt_num : 'S2C:' + common_s2c_pkt_num").eval(origin),
                 commonClientPort > commonServerPort ? "C2S:" + commonC2sPktNum : "S2C:" + commonS2cPktNum);
         assertEquals(
-                CalcCodeConvertor.convert("common_c2s_pkt_num > common_s2c_pkt_num " +
+                new EvalExecutor("common_c2s_pkt_num > common_s2c_pkt_num " +
                         "&& common_c2s_byte_num > common_s2c_byte_num ? common_client_port : common_server_port").eval(origin),
                 commonC2sPktNum > commonS2cPktNum
                         && commonC2sByteNum > commonS2cByteNum ? commonClientPort : commonServerPort
@@ -88,53 +81,60 @@ class CalcCodeConvertorTest {
     public void testArithmeticExpression() throws Exception {
         final Map<String, Object> map = Collections.emptyMap();
         assertEquals(
-                1, CalcCodeConvertor.convert("5 & 3").eval(map));
+                1L, new EvalExecutor("5 & 3").eval(map));
         assertEquals(
-                7, CalcCodeConvertor.convert("5 | 3").eval(map));
+                7L, new EvalExecutor("5 | 3").eval(map));
         assertEquals(
-                20, CalcCodeConvertor.convert("5 << 2").eval(map));
+                20L, new EvalExecutor("5 << 2").eval(map));
         assertEquals(
-                1, CalcCodeConvertor.convert("5 >> 2").eval(map));
+                1L, new EvalExecutor("5 >> 2").eval(map));
         assertEquals(
-                8, CalcCodeConvertor.convert("5 + 3").eval(map));
+                8L, new EvalExecutor("5 + 3").eval(map));
         assertEquals(
-                2, CalcCodeConvertor.convert("5 - 3").eval(map));
+                2L, new EvalExecutor("5 - 3").eval(map));
         assertEquals(
-                15, CalcCodeConvertor.convert("5 * 3").eval(map));
+                15L, new EvalExecutor("5 * 3").eval(map));
         assertEquals(
-                2, CalcCodeConvertor.convert("5 / 2").eval(map));
+                2L, new EvalExecutor("5 / 2").eval(map));
         assertEquals(
-                2, CalcCodeConvertor.convert("5 % 3").eval(map));
+                2L, new EvalExecutor("5 % 3").eval(map));
 
 
         final Map<String, Object> map1 = new HashMap<>();
         map1.put("flags", 8);
 
         assertEquals("B",
-                CalcCodeConvertor.convert(" flags & 8 == 9 ? 'A' : 'B'").eval(map1));
+                new EvalExecutor(" ( flags & 8 ) == 9 ? 'A' : 'B'").eval(map1));
         assertEquals("A",
-                CalcCodeConvertor.convert(" 5 | flags == 13 ? 'A' : 'B'").eval(map1));
+                new EvalExecutor(" ( 5 | flags ) == 13 ? 'A' : 'B'").eval(map1));
     }
 
     @Test
     public void testFieldArithmeticExpression() throws Exception {
-        assertEquals(1,
-                CalcCodeConvertor.convert("common_c2s_pkt_num - common_s2c_pkt_num").eval(origin));
+        assertEquals(1L,
+                new EvalExecutor("common_c2s_pkt_num - common_s2c_pkt_num").eval(origin));
 
-        assertEquals(17, CalcCodeConvertor.convert("common_c2s_pkt_num + 10 + 1D").eval(origin));
+        assertEquals(17L, new EvalExecutor("common_c2s_pkt_num + 10 + 1").eval(origin));
 
+    }
+
+    @Test
+    public void testNullField() {
+        var evalExecutor = new EvalExecutor("( a > nil ? a : 0 ) + ( b > nil ? b : 10 )");
+        assertEquals(10L, evalExecutor.eval(origin));
     }
 
     @Test
     public void testError() {
         assertThrows(SyntaxErrorException.class,
-                () -> CalcCodeConvertor.convert("common_c2s_pkt_num > common_s2c_pkt_num"));
+                () -> new EvalExecutor("1L"));
         assertThrows(SyntaxErrorException.class,
-                () -> CalcCodeConvertor.convert("2 = 3"));
+                () -> new EvalExecutor("2 = 3"));
 
         final Map<String, Object> map = new HashMap<>(origin);
         map.put("has_address", true);
-        Calc convert = CalcCodeConvertor.convert("common_c2s_pkt_num + has_address");
-        assertThrows(InvalidProgramException.class, () -> convert.eval(map));
+        var convert = new EvalExecutor("common_c2s_pkt_num + has_address");
+        assertThrows(ExpressionRuntimeException.class, () -> convert.eval(map));
     }
+
 }
