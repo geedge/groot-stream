@@ -4,11 +4,12 @@ import com.geedgenetworks.common.udf.UDFContext;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class AggregateConfig extends ProcessorConfig{
+public class AggregateConfig extends ProcessorConfig   {
 
 
     private List<String> group_by_fields;
@@ -18,6 +19,5 @@ public class AggregateConfig extends ProcessorConfig{
     private Integer max_out_of_orderness;
     private Integer window_slide;
     private List<UDFContext> functions;
-    private String[] output_fields;
 
 }
