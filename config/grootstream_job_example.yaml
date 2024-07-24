@@ -30,6 +30,22 @@ processing_pipelines:
       - function: NUMBER_SUM
         lookup_fields: [ sent_pkts ]
         output_fields: [ sent_pkts_sum ]
+      - function: NUMBER_SUM
+        lookup_fields: [ sent_bytes ]
+        output_fields: [ sent_bytes_sum ]
+      - function: COLLECT_LIST
+        lookup_fields: [ client_port ]
+        output_fields: [ client_port_list ]
+      - function: COLLECT_SET
+        lookup_fields: [ client_ip ]
+        output_fields: [ client_ip_set ]
+      - function: LONG_COUNT
+        output_fields: [ sessions ]
+      - function: MEAN
+        lookup_fields: [ received_pkts ]
+        output_fields: [ received_pkts_mean ]
+        parameters:
+          precision: 1
 sinks:
   print_sink:
     type: print

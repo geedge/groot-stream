@@ -2,6 +2,8 @@ package com.geedgenetworks.core.udf.udaf;
 
 import com.geedgenetworks.common.Accumulator;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.AggregateFunction;
 import com.geedgenetworks.common.udf.UDFContext;
 
@@ -13,6 +15,9 @@ public class NumberSum implements AggregateFunction {
 
     @Override
     public Accumulator open(UDFContext udfContext,Accumulator acc){
+        if(udfContext.getLookup_fields()==null ){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
+        }
         lookupField  = udfContext.getLookup_fields().get(0);
         if(!udfContext.getOutput_fields().isEmpty()) {
             outputField = udfContext.getOutput_fields().get(0);
