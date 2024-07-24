@@ -28,8 +28,8 @@ public class KeySelector implements org.apache.flink.api.java.functions.KeySelec
             }else {
                 stringBuilder.append(",");
             }
-            keybyEntity.setKeysToString(stringBuilder.toString());
         }
+        keybyEntity.setKeysToString(stringBuilder.toString());
         return  keybyEntity;
     }
 }
