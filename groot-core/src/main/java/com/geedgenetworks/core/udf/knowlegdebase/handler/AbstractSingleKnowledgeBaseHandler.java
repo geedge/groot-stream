@@ -1,17 +1,13 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
-import com.geedgenetworks.common.exception.CommonErrorCode;
-import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
 import com.geedgenetworks.crypt.AESUtil;
+import com.geedgenetworks.shaded.org.apache.http.impl.client.CloseableHttpClient;
+import com.geedgenetworks.shaded.org.apache.http.impl.client.HttpClients;
 import lombok.Data;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.file.Paths;
 
 /**
  * @author gujinkai

@@ -2,15 +2,13 @@ package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
-import com.geedgenetworks.common.exception.CommonErrorCode;
-import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
+import com.geedgenetworks.shaded.org.apache.http.HttpEntity;
+import com.geedgenetworks.shaded.org.apache.http.client.methods.CloseableHttpResponse;
+import com.geedgenetworks.shaded.org.apache.http.client.methods.HttpGet;
+import com.geedgenetworks.shaded.org.apache.http.impl.client.CloseableHttpClient;
+import com.geedgenetworks.shaded.org.apache.http.impl.client.HttpClients;
+import com.geedgenetworks.shaded.org.apache.http.util.EntityUtils;
 import lombok.Data;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
