@@ -51,8 +51,8 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
     private static final String KAFKA_IMAGE_NAME = "confluentinc/cp-kafka:7.4.0";
     private static final String KAFKA_HOST = "kafkaCluster";
     private KafkaProducer<byte[], byte[]> producer;
-
     private static final String DEFAULT_TEST_TOPIC_SOURCE = "test_topic_source";
+    private static final String DEFAULT_TEST_TOPIC_CONSUME_GROUP = "test-consume-group";
 
     @Override
     @BeforeAll
@@ -63,7 +63,6 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
                 .withLogConsumer(new Slf4jLogConsumer(DockerLoggerFactory.getLogger(KAFKA_IMAGE_NAME)));
         Startables.deepStart(Stream.of(kafkaContainer)).join();
         log.info("Kafka container started successfully");
-
         Awaitility.given()
                 .ignoreExceptions()
                 .atLeast(100, TimeUnit.MILLISECONDS)
@@ -73,9 +72,9 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
 
         log.info("Write 100 records to topic test_topic_source");
         generateTestData(DEFAULT_TEST_TOPIC_SOURCE,0, 100);
+        executeShell("kafka-topics --create --topic SESSION-RECORD-QUOTA-TEST --bootstrap-server kafkaCluster:9092 --partitions 3 --replication-factor 1");
+
     }
-
-
 
     @TestTemplate
     public void testKafkaSource(TestContainer container) {
@@ -147,8 +146,35 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
     }
 
     @TestTemplate
-    public void testKafkaSinkHandleErrorJsonFormat(TestContainer container) throws IOException, InterruptedException {
+    public void testKafkaProducerQuota(TestContainer container) throws IOException, InterruptedException {
+
         CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        Container.ExecResult execResult = container.executeJob("/kafka_producer_quota.yaml");
+                        Assertions.assertEquals(0, execResult.getExitCode(), execResult.getStderr());
+                        return execResult;
+                    } catch (Exception e) {
+                        log.error("Commit task exception :" + e.getMessage());
+                        throw new RuntimeException(e);
+                    }
+                });
+
+        List<String> data = Lists.newArrayList();
+            await().atMost(300000, TimeUnit.MILLISECONDS)
+                .untilAsserted(
+                        () -> {
+                            data.addAll(getKafkaConsumerListData("SESSION-RECORD-QUOTA-TEST"));
+                            Assertions.assertTrue(data.size()>10); // Check if all records are consumed
+                        });
+
+    }
+
+
+
+    @TestTemplate
+    public void testKafkaSinkHandleErrorJsonFormat(TestContainer container) throws IOException, InterruptedException {
+        CompletableFuture.  supplyAsync(
                 () -> {
                     try {
                         Container.ExecResult execResult = container.executeJob("/kafka_sink_handle_error_json_format.yaml");
@@ -236,14 +262,13 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
-
         producer = new KafkaProducer<>(properties);
     }
 
-    private Properties kafkaConsumerConfig() {
+    private Properties kafkaConsumerConfig(String consumeGroup) {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "test-consume-group");
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, consumeGroup);
         props.put(
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
                 OffsetResetStrategy.EARLIEST.toString().toLowerCase());
@@ -270,7 +295,7 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
 
     private Map<String, String> getKafkaConsumerData(String topicName) {
         Map<String, String> data = new HashMap<>();
-        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConsumerConfig())) {
+        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConsumerConfig(DEFAULT_TEST_TOPIC_CONSUME_GROUP))) {
             consumer.subscribe(Arrays.asList(topicName));
             Map<TopicPartition, Long> offsets =
                     consumer.endOffsets(Arrays.asList(new TopicPartition(topicName, 0)));
@@ -292,7 +317,7 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
 
     private List<String> getKafkaConsumerListData(String topicName) {
         List<String> data = new ArrayList<>();
-        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConsumerConfig())) {
+        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConsumerConfig(DEFAULT_TEST_TOPIC_CONSUME_GROUP))) {
             consumer.subscribe(Arrays.asList(topicName));
             Map<TopicPartition, Long> offsets =
                     consumer.endOffsets(Arrays.asList(new TopicPartition(topicName, 0)));
@@ -310,6 +335,16 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
             } while (lastProcessedOffset < endOffset - 1);
         }
         return data;
+    }
+
+    private void executeShell(String command) {
+        try {
+            Container.ExecResult result =  kafkaContainer.execInContainer("/bin/sh", "-c", command);
+            log.info("Execute shell command result: {}", result.getStdout());
+            log.info("Execute shell command error: {}", result.getStderr());
+        } catch (Exception e) {
+            log.error("Execute shell command error: {}", e.getMessage());
+        }
     }
 
 

@@ -1,0 +1,117 @@
+sources: # [object] Define connector source
+  mock_source:
+    type: mock
+    properties:
+      mock.desc.file.path: /tmp/grootstream/config/template/mock_schema/session_record_mock_desc.json
+      rows.per.second: 100
+
+processing_pipelines:
+  etl_processor:
+    type: projection
+    functions:
+      - function: SNOWFLAKE_ID
+        lookup_fields: ['']
+        output_fields: [log_id]
+        parameters:
+          data_center_id_num: 1
+      - function: UNIX_TIMESTAMP_CONVERTER
+        lookup_fields: [ __timestamp ]
+        output_fields: [ recv_time ]
+        parameters:
+          precision: seconds
+      - function: SNOWFLAKE_ID
+        lookup_fields: [ '' ]
+        output_fields: [ session_id ]
+        parameters:
+          data_center_id_num: 2
+      - function: EVAL
+        output_fields: [ ingestion_time ]
+        parameters:
+          value_expression: recv_time
+
+      - function: DOMAIN
+        lookup_fields: [ http_host, ssl_sni, dtls_sni, quic_sni ]
+        output_fields: [ server_domain ]
+        parameters:
+          option: FIRST_SIGNIFICANT_SUBDOMAIN
+
+      - function: ASN_LOOKUP
+        lookup_fields: [ client_ip ]
+        output_fields: [ client_asn ]
+        parameters:
+          kb_name: tsg_ip_asn
+          option: IP_TO_ASN
+
+      - function: ASN_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: [ server_asn ]
+        parameters:
+          kb_name: tsg_ip_asn
+          option: IP_TO_ASN
+
+      - function: GEOIP_LOOKUP
+        lookup_fields: [ client_ip ]
+        output_fields: []
+        parameters:
+          kb_name: tsg_ip_location
+          option: IP_TO_OBJECT
+          geolocation_field_mapping:
+            COUNTRY: client_country
+            PROVINCE: client_super_administrative_area
+            CITY: client_administrative_area
+
+      - function: GEOIP_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: []
+        parameters:
+          kb_name: tsg_ip_location
+          option: IP_TO_OBJECT
+          geolocation_field_mapping:
+            COUNTRY: server_country
+            PROVINCE: server_super_administrative_area
+            CITY: server_administrative_area
+
+
+      - function: CURRENT_UNIX_TIMESTAMP
+        output_fields: [ processing_time ]
+        parameters:
+          precision: seconds
+
+
+sinks:
+  print_sink:
+    type: print
+    properties:
+      mode: log_info
+      format: json
+
+  kafka_sink:
+    type: kafka
+    properties:
+      topic: SESSION-RECORD-QUOTA-TEST
+      kafka.bootstrap.servers: kafkaCluster:9092
+      kafka.retries: 0
+      kafka.linger.ms: 10
+      kafka.request.timeout.ms: 30000
+      kafka.batch.size: 262144
+      kafka.buffer.memory: 134217728
+      kafka.max.request.size: 10485760
+      kafka.compression.type: snappy
+      format: json
+      json.ignore.parse.errors: false
+      log.failures.only: true
+
+application:  # [object] Define job configuration
+  env:
+    name: kafka_producer_quota
+    parallelism: 3
+    shade.identifier: default
+    pipeline:
+      object-reuse: true
+  topology:
+    - name: mock_source
+      downstream: [ etl_processor ]
+    - name: etl_processor
+      downstream: [ kafka_sink ]
+    - name: kafka_sink
+      downstream: []
