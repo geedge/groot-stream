@@ -3,7 +3,9 @@ package com.geedgenetworks.core.processor.aggregate;
 import com.geedgenetworks.common.Accumulator;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.KeybyEntity;
+import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.core.metrics.InternalMetrics;
+import com.geedgenetworks.core.pojo.AggregateConfig;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
@@ -17,8 +19,13 @@ public class ProcessWindowFunctionImpl extends org.apache.flink.streaming.api.fu
         Event,  // 输出类型
         KeybyEntity,                         // 键类型
         TimeWindow> {
-
+    private final AggregateConfig aggregateConfig;
     private transient InternalMetrics internalMetrics;
+
+    public ProcessWindowFunctionImpl(AggregateConfig aggregateConfig) {
+        this.aggregateConfig = aggregateConfig;
+    }
+
 
     @Override
     public void open(Configuration parameters) throws Exception {
@@ -37,6 +44,20 @@ public class ProcessWindowFunctionImpl extends org.apache.flink.streaming.api.fu
         internalMetrics.incrementOutEvents();
         internalMetrics.incrementErrorEvents(accumulator.getErrorCount());
         internalMetrics.incrementInEvents(accumulator.getInEvents());
+
+        if (aggregateConfig.getOutput_fields() != null
+                && !aggregateConfig.getOutput_fields().isEmpty()) {
+            event.setExtractedFields(
+                    ColumnUtil.columnSelector(
+                            event.getExtractedFields(), aggregateConfig.getOutput_fields()));
+        }
+        if (aggregateConfig.getRemove_fields() != null
+                && !aggregateConfig.getRemove_fields().isEmpty()) {
+            event.setExtractedFields(
+                    ColumnUtil.columnRemover(
+                            event.getExtractedFields(), aggregateConfig.getRemove_fields()));
+        }
+
         out.collect(event);
     }
 }
