@@ -11,11 +11,14 @@ import com.geedgenetworks.test.common.junit.DisabledOnContainer;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.config.SaslConfigs;
+import org.apache.kafka.common.security.auth.SecurityProtocol;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -30,6 +33,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.lifecycle.Startables;;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.DockerLoggerFactory;
+import org.testcontainers.utility.MountableFile;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -51,8 +55,8 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
     private static final String KAFKA_IMAGE_NAME = "confluentinc/cp-kafka:7.4.0";
     private static final String KAFKA_HOST = "kafkaCluster";
     private KafkaProducer<byte[], byte[]> producer;
-
     private static final String DEFAULT_TEST_TOPIC_SOURCE = "test_topic_source";
+    private static final String DEFAULT_TEST_TOPIC_CONSUME_GROUP = "test-consume-group";
 
     @Override
     @BeforeAll
@@ -60,10 +64,20 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
         kafkaContainer = new KafkaContainer(DockerImageName.parse(KAFKA_IMAGE_NAME))
                 .withNetwork(NETWORK)
                 .withNetworkAliases(KAFKA_HOST)
+                .withEnv("KAFKA_AUTO_CREATE_TOPICS_ENABLE", "true")
+                .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
+                .withEnv("KAFKA_LISTENER_SECURITY_PROTOCOL_MAP", "PLAINTEXT:SASL_PLAINTEXT,BROKER:SASL_PLAINTEXT")
+                .withEnv("KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL", "PLAIN")
+                .withEnv("KAFKA_LISTENER_NAME_PLAINTEXT_SASL_ENABLED_MECHANISMS", "PLAIN")
+                .withEnv("KAFKA_LISTENER_NAME_BROKER_SASL_ENABLED_MECHANISMS", "PLAIN")
+               // .withEnv("KAFKA_AUTHORIZER_CLASS_NAME", "kafka.security.authorizer.AclAuthorizer")
+                .withEnv("KAFKA_SUPER_USERS", "User:admin")
+                .withEnv("KAFKA_OPTS", "-Djava.security.auth.login.config=/etc/kafka/kafka_server_jaas.conf")
+                .withCopyFileToContainer(MountableFile.forClasspathResource("kafka_server_jaas.conf"), "/etc/kafka/kafka_server_jaas.conf")
+                .withCopyFileToContainer(MountableFile.forClasspathResource("kafka_client_jass_cli.properties"), "/etc/kafka/kafka_client_jass_cli.properties")
                 .withLogConsumer(new Slf4jLogConsumer(DockerLoggerFactory.getLogger(KAFKA_IMAGE_NAME)));
         Startables.deepStart(Stream.of(kafkaContainer)).join();
         log.info("Kafka container started successfully");
-
         Awaitility.given()
                 .ignoreExceptions()
                 .atLeast(100, TimeUnit.MILLISECONDS)
@@ -73,12 +87,12 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
 
         log.info("Write 100 records to topic test_topic_source");
         generateTestData(DEFAULT_TEST_TOPIC_SOURCE,0, 100);
+
+
     }
 
-
-
     @TestTemplate
-    public void testKafkaSource(TestContainer container) {
+    public void testKafkaAsSourceConsume(TestContainer container) {
         generateTestData("test_topic_json", 0, 10);
         CompletableFuture.supplyAsync(
                 () -> {
@@ -99,7 +113,7 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
     }
 
     @TestTemplate
-    public void testKafkaSourceErrorSchema(TestContainer container) {
+    public void testKafkaAsSourceConsumeErrorSchema(TestContainer container) {
         generateTestData("test_topic_error_json", 0, 10);
         CompletableFuture.supplyAsync(
                 () -> {
@@ -122,7 +136,7 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
     }
 
     @TestTemplate
-    public void testKafkaSink(TestContainer container) throws IOException, InterruptedException {
+    public void testKafkaAsSink(TestContainer container) throws IOException, InterruptedException {
         CompletableFuture.supplyAsync(
                 () -> {
                     try {
@@ -147,8 +161,39 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
     }
 
     @TestTemplate
-    public void testKafkaSinkHandleErrorJsonFormat(TestContainer container) throws IOException, InterruptedException {
+    public void testKafkaAsSinkProducerQuota(TestContainer container) throws IOException, InterruptedException {
+        //Create topic with 3 partitions
+        executeShell("kafka-topics --create --topic SESSION-RECORD-QUOTA-TEST --bootstrap-server kafkaCluster:9092 --partitions 3 --replication-factor 1 --command-config /etc/kafka/kafka_client_jass_cli.properties");
+        //Set producer quota to 5KB/s
+        executeShell("kafka-configs --bootstrap-server kafkaCluster:9092 --alter --add-config 'producer_byte_rate=5120' --entity-type users --entity-name admin --entity-type clients --entity-name SESSION-RECORD-QUOTA-TEST --command-config /etc/kafka/kafka_client_jass_cli.properties ");
+
         CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        Container.ExecResult execResult = container.executeJob("/kafka_producer_quota.yaml");
+                        Assertions.assertEquals(0, execResult.getExitCode(), execResult.getStderr());
+                        return execResult;
+                    } catch (Exception e) {
+                        log.error("Commit task exception :" + e.getMessage());
+                        throw new RuntimeException(e);
+                    }
+                });
+
+        List<String> data = Lists.newArrayList();
+            await().atMost(300000, TimeUnit.MILLISECONDS)
+                .untilAsserted(
+                        () -> {
+                           data.addAll(getKafkaConsumerListData("SESSION-RECORD-QUOTA-TEST"));
+                           Assertions.assertTrue(StringUtils.contains(container.getServerLogs(), "TimeoutException") && data.size()>1000);
+                        });
+
+    }
+
+
+
+    @TestTemplate
+    public void testKafkaAsSinkHandleErrorJsonFormat(TestContainer container) throws IOException, InterruptedException {
+        CompletableFuture.  supplyAsync(
                 () -> {
                     try {
                         Container.ExecResult execResult = container.executeJob("/kafka_sink_handle_error_json_format.yaml");
@@ -236,20 +281,25 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
-
+        properties.put(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
+        properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
+        properties.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"admin\" password=\"admin\";");
         producer = new KafkaProducer<>(properties);
     }
 
-    private Properties kafkaConsumerConfig() {
-        Properties props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "test-consume-group");
-        props.put(
+    private Properties kafkaConsumerConfig(String consumeGroup) {
+        Properties properties = new Properties();
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers());
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, consumeGroup);
+        properties.put(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
+        properties.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
+        properties.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"admin\" password=\"admin\";");
+        properties.put(
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
                 OffsetResetStrategy.EARLIEST.toString().toLowerCase());
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        return props;
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        return properties;
     }
 
     private Properties kafkaByteConsumerConfig() {
@@ -270,7 +320,7 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
 
     private Map<String, String> getKafkaConsumerData(String topicName) {
         Map<String, String> data = new HashMap<>();
-        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConsumerConfig())) {
+        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConsumerConfig(DEFAULT_TEST_TOPIC_CONSUME_GROUP))) {
             consumer.subscribe(Arrays.asList(topicName));
             Map<TopicPartition, Long> offsets =
                     consumer.endOffsets(Arrays.asList(new TopicPartition(topicName, 0)));
@@ -292,7 +342,7 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
 
     private List<String> getKafkaConsumerListData(String topicName) {
         List<String> data = new ArrayList<>();
-        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConsumerConfig())) {
+        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConsumerConfig(DEFAULT_TEST_TOPIC_CONSUME_GROUP))) {
             consumer.subscribe(Arrays.asList(topicName));
             Map<TopicPartition, Long> offsets =
                     consumer.endOffsets(Arrays.asList(new TopicPartition(topicName, 0)));
@@ -312,5 +362,14 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
         return data;
     }
 
+    private void executeShell(String command) {
+        try {
+            Container.ExecResult result =  kafkaContainer.execInContainer("/bin/sh", "-c", command);
+            log.info("Execute shell command result: {},{}", result.getStdout(), result.getStderr());
+
+        } catch (Exception e) {
+            log.error("Execute shell command error: {}", e.getMessage());
+        }
+    }
 
 }

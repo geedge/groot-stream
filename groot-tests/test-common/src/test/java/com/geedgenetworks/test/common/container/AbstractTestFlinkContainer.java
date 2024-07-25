@@ -7,6 +7,7 @@ import org.testcontainers.containers.Container;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+import org.testcontainers.images.PullPolicy;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.utility.DockerLoggerFactory;
 
@@ -54,7 +55,8 @@ public abstract class AbstractTestFlinkContainer extends AbstractTestContainer {
                         .waitingFor(
                                 new LogMessageWaitStrategy()
                                         .withRegEx(".*Starting the resource manager.*")
-                                        .withStartupTimeout(Duration.ofMinutes(2)));
+                                        .withStartupTimeout(Duration.ofMinutes(2)))
+                        ;
 
         // Copy groot-stream bootstrap and some other files to the container
         copyGrootStreamStarterToContainer(jobManager);

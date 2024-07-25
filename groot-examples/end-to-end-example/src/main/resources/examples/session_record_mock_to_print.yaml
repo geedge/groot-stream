@@ -115,7 +115,7 @@ application:  # [object] Define job configuration
       object-reuse: true
   topology:
     - name: mock_source
-      downstream: [ print_sink ]
+      downstream: [ etl_processor ]
     - name: etl_processor
       downstream: [ print_sink ]
     - name: print_sink

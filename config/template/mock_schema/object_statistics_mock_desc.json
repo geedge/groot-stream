@@ -56,7 +56,7 @@
     },{
       "name": "bytes",
       "type": "Eval",
-      "expression": "in_bytes+ out_bytes"
+      "expression": "in_bytes+out_bytes"
     },{
       "name": "new_in_sessions",
       "type": "Number",
