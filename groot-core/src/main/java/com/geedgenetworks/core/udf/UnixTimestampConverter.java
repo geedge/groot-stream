@@ -2,7 +2,7 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +11,14 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import java.time.Instant;
 
 @Slf4j
-public class UnixTimestampConverter implements UDF {
+public class UnixTimestampConverter implements ScalarFunction {
 
     private UDFContext udfContext;
     private String precision;
     private String lookupFieldName;
     private String outputFieldName;
+
+    private long interval;
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
@@ -46,6 +48,12 @@ public class UnixTimestampConverter implements UDF {
                 this.precision =udfContext.getParameters().get("precision").toString();
             }
         }
+        if(!udfContext.getParameters().containsKey("interval")){
+            this.interval = 1L;
+        }
+        else{
+            this.interval = Long.parseLong(udfContext.getParameters().get("interval").toString());
+        }
         this.lookupFieldName = udfContext.getLookup_fields().get(0);
         this.outputFieldName = udfContext.getOutput_fields().get(0);
 
@@ -69,13 +77,13 @@ public class UnixTimestampConverter implements UDF {
             }
             switch (precision) {
                 case "seconds":
-                    timestamp = instant.getEpochSecond();
+                    timestamp = instant.getEpochSecond()/interval*interval;
                     break;
                 case "milliseconds":
-                    timestamp = instant.toEpochMilli();
+                    timestamp = instant.toEpochMilli()/interval*interval;
                     break;
                 case "minutes":
-                    timestamp = instant.getEpochSecond()/60*60;
+                    timestamp = instant.getEpochSecond()/(interval*60)*(interval*60);
                     break;
             }
             event.getExtractedFields().put(outputFieldName, timestamp);

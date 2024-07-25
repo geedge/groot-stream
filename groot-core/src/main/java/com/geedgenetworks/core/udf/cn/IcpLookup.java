@@ -9,7 +9,7 @@ import com.geedgenetworks.core.udf.knowlegdebase.handler.FqdnIcpKnowledgeBaseHan
  * @version 1.0
  * @date 2024/1/22 10:27
  */
-public class IcpLookup extends AbstractKnowledgeUDF {
+public class IcpLookup extends AbstractKnowledgeScalarFunction {
 
     private FqdnIcpKnowledgeBaseHandler knowledgeBaseHandler;
 

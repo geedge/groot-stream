@@ -40,6 +40,10 @@ sinks:
     properties:
       topic: test_sink_topic
       kafka.bootstrap.servers: kafkaCluster:9092
+      kafka.client.id: test_sink_topic
+      kafka.security.protocol: SASL_PLAINTEXT
+      kafka.sasl.mechanism: PLAIN
+      kafka.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin";
       kafka.retries: 0
       kafka.linger.ms: 10
       kafka.request.timeout.ms: 30000

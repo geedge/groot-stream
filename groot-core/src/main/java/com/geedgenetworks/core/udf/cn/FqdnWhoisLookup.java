@@ -9,7 +9,7 @@ import com.geedgenetworks.core.udf.knowlegdebase.handler.FqdnWhoisKnowledgeBaseH
  * @version 1.0
  * @date 2024/1/22 13:59
  */
-public class FqdnWhoisLookup extends AbstractKnowledgeUDF {
+public class FqdnWhoisLookup extends AbstractKnowledgeScalarFunction {
 
     private FqdnWhoisKnowledgeBaseHandler knowledgeBaseHandler;
 

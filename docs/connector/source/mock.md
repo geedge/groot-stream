@@ -4,18 +4,18 @@
 
 ## Description
 
-Mock source connector used to randomly generate the number of rows according to the user-defined schema. This connector helps you test the functionality of your system without relying on real data. 
+Mock source connector used to randomly generate the number of rows according to the user-defined schema. This connector helps you test the functionality of your system without relying on real data.
 
 ## Source Options
 
 Mock source custom properties.
 
-| Name                | Type    | Required | Default | Description                                                                                         |
-|---------------------|---------|----------|---------|-----------------------------------------------------------------------------------------------------|
-| mock.desc.file.path | String  | Yes      | (none)  | The path of the mock data structure file.                                                           |                                                                          
-| rows.per.second     | Integer | No       | 1000    | The number of rows per second that connector generated.                                             |
-| number.of.rows      | Long    | No       | -1      | The total number of rows data generated. By default, the source is unbounded.                       |
-| millis.per.row      | Long    | No       | 0       | The interval(mills) between each row. If greater than 0, then `rows.per.second` will be ignored.    |
+|        Name         |  Type   | Required | Default |                                           Description                                            |
+|---------------------|---------|----------|---------|--------------------------------------------------------------------------------------------------|
+| mock.desc.file.path | String  | Yes      | (none)  | The path of the mock data structure file.                                                        |
+| rows.per.second     | Integer | No       | 1000    | The number of rows per second that connector generated.                                          |
+| number.of.rows      | Long    | No       | -1      | The total number of rows data generated. By default, the source is unbounded.                    |
+| millis.per.row      | Long    | No       | 0       | The interval(mills) between each row. If greater than 0, then `rows.per.second` will be ignored. |
 
 ## Example
 
@@ -47,5 +47,4 @@ application:
     - name: print_sink
       downstream: [ ]
 ```
-
 

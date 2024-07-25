@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.udf.cn;
 
 import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.udf.UDFContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @date 2024/1/23 11:14
  */
-public class ArrayElementsPrepend implements UDF {
+public class ArrayElementsPrepend implements ScalarFunction {
 
     private String prefix;
 

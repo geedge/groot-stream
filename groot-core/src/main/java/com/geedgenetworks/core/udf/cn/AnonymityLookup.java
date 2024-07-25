@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * @version 1.0
  * @date 2024/1/22 14:25
  */
-public class AnonymityLookup extends AbstractKnowledgeWithRuleUDF {
+public class AnonymityLookup extends AbstractKnowledgeWithRuleScalarFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(AnonymityLookup.class);
 

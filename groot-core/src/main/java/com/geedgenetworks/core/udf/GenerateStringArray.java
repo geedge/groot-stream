@@ -3,14 +3,14 @@ package com.geedgenetworks.core.udf;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.udf.UDFContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class GenerateStringArray implements UDF {
+public class GenerateStringArray implements ScalarFunction {
 
     private List<String> lookupFieldNames;
     private String outputFieldName;

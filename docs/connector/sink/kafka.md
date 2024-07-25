@@ -1,37 +1,43 @@
 # Kafka
+
 > Kafka sink connector
-## Description
-Sink connector for Apache Kafka. Write data to Kafka topic. More details about producer configs can be found [here](https://docs.confluent.io/platform/current/installation/configuration/producer-configs.htmls).
+>
+> ## Description
+>
+> Sink connector for Apache Kafka. Write data to Kafka topic. More details about producer configs can be found [here](https://docs.confluent.io/platform/current/installation/configuration/producer-configs.htmls).
 
 ## Key Features
 
 - [x] [Rate Limiting](../../connector/connector.md)
 
 ## Sink Options
+
 In order to use the Kafka connector, the following dependencies are required. They can be download by Nexus Maven Repository.
 
-| Datasource | Supported Versions | Maven                                                                                                                          |
+| Datasource | Supported Versions |                                                             Maven                                                              |
 |------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------|
 | Kafka      | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/connector-kafka/) |
 
 Kafka sink custom properties. if properties belongs to Kafka Producer Config, you can use `kafka.` prefix to set.
 
-| Name                                 | Type    | Required | Default  | Description                                                                                                                                                                                                                                            |
-|--------------------------------------|---------|----------|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| topic                                | String  | Yes      | (none)   | Topic name is required. It used to write data to kafka.                                                                                                                                                                                                |                                             
-| kafka.bootstrap.servers              | String  | Yes      | (none)   | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. This list should be in the form `host1:port1,host2:port2,...`.                                                                                          |
-| log.failures.only                    | Boolean | No       | true     | Defines whether the producer should fail on errors, or only log them. If this is set to true, then exceptions will be only logged, if set to false, exceptions will be eventually thrown and cause the streaming program to fail (and enter recovery). |
-| format                               | String  | No       | json     | Data format. The default value is `json`. The Optional values are `json`, `protobuf`.                                                                                                                                                                  |
-| [format].config                      | /       | No       | (none)   | Data format properties. Please refer to [Format Options](../formats) for details.                                                                                                                                                                      |
-| rate.limiting.strategy               | String  | No       | (none)   | The rate limiting strategy to use. The Optional values are `none`, `sliding_window`.                                                                                                                                                                   |
-| rate.limiting.window.size            | Integer | No       | 5        | The window size of the rate limiting. For example, limit rate less than 10Mbps in 5 seconds time interval.                                                                                                                                             |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
-| rate.limiting.limit.rate             | String  | No       | 10Mbps   | A maximum rate of traffic that can be transmitted over a network or between networks. The units of the bytes rate are Mbps, Kbps,and bps. For example, 10Mbps, 100Kbps, 1000bps.                                                                       |
-| rate.limiting.block.duration         | String  | No       | 5min     | If the rate limit is exceeded, the data will be blocked for the specified duration.  The units of the duration are seconds, minutes, and hours. For example, 10s, 1m, 1h.                                                                              | 
-| rate.limiting.block.reset.duration   | String  | No	      | 30s	     | The time interval for resetting the rate limit. The units of the duration are seconds, minutes, and hours. For example, 10s, 1m, 1h.                                                                                                                   |	                                                                                                               
-| kafka.config                         | /       | No       | (none)   | Kafka producer properties. Please refer to [Kafka Producer Config](https://kafka.apache.org/documentation/#producerconfigs) for details.                                                                                                               |
+|                Name                |  Type   | Required | Default |                                                                                                                      Description                                                                                                                       |
+|------------------------------------|---------|----------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| topic                              | String  | Yes      | (none)  | Topic name is required. It used to write data to kafka.                                                                                                                                                                                                |
+| kafka.bootstrap.servers            | String  | Yes      | (none)  | A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. This list should be in the form `host1:port1,host2:port2,...`.                                                                                          |
+| log.failures.only                  | Boolean | No       | true    | Defines whether the producer should fail on errors, or only log them. If this is set to true, then exceptions will be only logged, if set to false, exceptions will be eventually thrown and cause the streaming program to fail (and enter recovery). |
+| format                             | String  | No       | json    | Data format. The default value is `json`. The Optional values are `json`, `protobuf`.                                                                                                                                                                  |
+| [format].config                    | /       | No       | (none)  | Data format properties. Please refer to [Format Options](../formats) for details.                                                                                                                                                                      |
+| rate.limiting.strategy             | String  | No       | (none)  | The rate limiting strategy to use. The Optional values are `none`, `sliding_window`.                                                                                                                                                                   |
+| rate.limiting.window.size          | Integer | No       | 5       | The window size of the rate limiting. For example, limit rate less than 10Mbps in 5 seconds time interval.                                                                                                                                             |
+| rate.limiting.limit.rate           | String  | No       | 10Mbps  | A maximum rate of traffic that can be transmitted over a network or between networks. The units of the bytes rate are Mbps, Kbps,and bps. For example, 10Mbps, 100Kbps, 1000bps.                                                                       |
+| rate.limiting.block.duration       | String  | No       | 5min    | If the rate limit is exceeded, the data will be blocked for the specified duration.  The units of the duration are seconds, minutes, and hours. For example, 10s, 1m, 1h.                                                                              |
+| rate.limiting.block.reset.duration | String  | No       | 30s     | The time interval for resetting the rate limit. The units of the duration are seconds, minutes, and hours. For example, 10s, 1m, 1h.                                                                                                                   |
+| kafka.config                       | /       | No       | (none)  | Kafka producer properties. Please refer to [Kafka Producer Config](https://kafka.apache.org/documentation/#producerconfigs) for details.                                                                                                               |
 
 ## Example
+
 This example read data of inline test source and write to kafka topic `SESSION-RECORD-TEST`.
+
 ```yaml
 sources: # [object] Define connector source
   inline_source:
@@ -93,3 +99,4 @@ application:  # [object] Define job configuration
     - name: connector_kafka
       downstream: []
 ```
+

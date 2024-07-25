@@ -3,17 +3,15 @@ package com.geedgenetworks.core.udf;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
 @Slf4j
-public class EncodeBase64 implements UDF {
+public class EncodeBase64 implements ScalarFunction {
 
     private String valueField;
     private String outputFieldName;

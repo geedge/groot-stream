@@ -72,13 +72,6 @@ public final class ContainerUtil {
 
 
         // copy libs
-        String hbaseClientJar = "hbase-client-shaded-" + getProjectVersion() + ".jar";
-        Path hbaseClientJarPath =
-                Paths.get(PROJECT_ROOT_PATH, "groot-shaded/hbase-client-shaded", "target", hbaseClientJar);
-        container.withCopyFileToContainer(
-                MountableFile.forHostPath(hbaseClientJarPath),
-                Paths.get(GrootStreamHomeInContainer, "lib", hbaseClientJar).toString());
-
 
         String formatJsonJar = "format-json-" + getProjectVersion() + ".jar";
         Path formatJsonJarPath =
@@ -94,12 +87,31 @@ public final class ContainerUtil {
                 MountableFile.forHostPath(formatProtobufJarPath),
                 Paths.get(GrootStreamHomeInContainer, "lib", formatProtobufJar).toString());
 
+       String formatMsgpackJar = "format-msgpack-" + getProjectVersion() + ".jar";
+        Path formatMsgpackJarPath =
+                Paths.get(PROJECT_ROOT_PATH, "groot-formats/format-msgpack", "target", formatMsgpackJar);
+        container.withCopyFileToContainer( MountableFile.forHostPath(formatMsgpackJarPath),
+                Paths.get(GrootStreamHomeInContainer, "lib", formatMsgpackJar).toString());
+
+        String formatRawJar = "format-raw-" + getProjectVersion() + ".jar";
+        Path formatRawJarPath =
+                Paths.get(PROJECT_ROOT_PATH, "groot-formats/format-raw", "target", formatRawJar);
+        container.withCopyFileToContainer( MountableFile.forHostPath(formatRawJarPath),
+                Paths.get(GrootStreamHomeInContainer, "lib", formatRawJar).toString());
+
 
         //copy system config
         final String configPath = PROJECT_ROOT_PATH + "/config";
         checkPathExist(configPath);
         container.withCopyFileToContainer(MountableFile.forHostPath(configPath),
                 Paths.get(GrootStreamHomeInContainer, "config").toString());
+
+        // copy grootstream.yaml
+        final String grootTestsCommonPath = PROJECT_ROOT_PATH + "/groot-tests/test-common/src/test/resources";
+        checkPathExist(grootTestsCommonPath);
+        container.withCopyFileToContainer(
+                MountableFile.forHostPath(grootTestsCommonPath + "/grootstream.yaml"),
+                Paths.get(GrootStreamHomeInContainer, "config", "grootstream.yaml").toString());
 
 
         // copy bin

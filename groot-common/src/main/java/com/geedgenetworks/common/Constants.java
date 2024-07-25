@@ -26,6 +26,8 @@ public final class Constants {
 
     public static final String SYSPROP_GROOTSTREAM_CONFIG = "grootstream.config";
     public static final String SYSPROP_GROOTSTREAM_PREFIX = "props.";
+    public static final String SYSPROP_GROOTSTREAM_KB_SCHEDULER_INTERVAL_NAME = "scheduler.knowledge_base.update.interval.minutes";
+
     public static final String HAZELCAST_GROOTSTREAM_CONFIG_FILE_PREFIX = "grootstream";
     public static final String HAZELCAST_GROOTSTREAM_CONFIG_DEFAULT = "grootstream.yaml";
 
@@ -41,10 +43,10 @@ public final class Constants {
     public static final String HAZELCAST_UDF_PLUGIN_CONFIG_FILE_PREFIX = "udf";
     public static final String HAZELCAST_UDF_PLUGIN_CONFIG_DEFAULT = "udf.plugins";
 
-
-
-
-
+    public static final String TUMBLING_PROCESSING_TIME = "tumbling_processing_time";
+    public static final String TUMBLING_EVENT_TIME = "tumbling_event_time";
+    public static final String SLIDING_PROCESSING_TIME = "sliding_processing_time";
+    public static final String SLIDING_EVENT_TIME = "sliding_event_time";
 
 
 

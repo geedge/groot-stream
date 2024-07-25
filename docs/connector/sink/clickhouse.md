@@ -1,7 +1,10 @@
 # ClickHouse
+
 > ClickHouse sink connector
-## Description
-Sink connector for ClickHouse, write data to ClickHouse. You need to know following concepts before using ClickHouse connector.
+>
+> ## Description
+>
+> Sink connector for ClickHouse, write data to ClickHouse. You need to know following concepts before using ClickHouse connector.
 > 1. ClickHouse is a column-oriented database management system (DBMS) for online analytical processing of queries (OLAP).
 > 2. The Sink Table must be created before using the ClickHouse connector.
 > 3. When writing data to sink table, you don't need to specify its schema, because the connector will automatically query current table's schema information using `DESCRIBE TABLE` command.
@@ -10,10 +13,9 @@ Sink connector for ClickHouse, write data to ClickHouse. You need to know follow
 
 - [ ] [Rate Limiting](../../connector/connector.md)
 
-
 ## Data Type Mapping
 
-| Event Data Type | Clickhouse Data Type                                                               |
+| Event Data Type |                                Clickhouse Data Type                                |
 |-----------------|------------------------------------------------------------------------------------|
 | STRING          | String / Int128 / UInt128 / Int256 / UInt256 / Point / Ring / Polygon MultiPolygon |
 | INT             | Int8 / UInt8 / Int16 / UInt16 / Int32                                              |
@@ -27,18 +29,17 @@ Sink connector for ClickHouse, write data to ClickHouse. You need to know follow
 | MAP             | Map                                                                                |
 | Byte[]          | Binary                                                                             |
 
-
 ## Sink Options
+
 In order to use the ClickHouse connector, the following dependencies are required. They can be download by Nexus Maven Repository.
 
-| Datasource | Supported Versions | Maven                                                                                                                               |
+| Datasource | Supported Versions |                                                                Maven                                                                |
 |------------|--------------------|-------------------------------------------------------------------------------------------------------------------------------------|
 | ClickHouse | Universal          | [Download](http://192.168.40.153:8099/service/local/repositories/platform-release/content/com/geedgenetworks/connector-clickhouse/) |
 
-
 ClickHouse sink custom properties. If properties belongs to ClickHouse JDBC Config, you can use `connection.` prefix to set.
 
-| Name                | Type     | Required | Default | Description                                                                                                                                                                                                                                                                                                 |
+|        Name         |   Type   | Required | Default |                                                                                                                                                 Description                                                                                                                                                 |
 |---------------------|----------|----------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | host                | String   | Yes      | (none)  | `ClickHouse` cluster address, the format is `host:port` , allowing multiple `hosts` to be specified. Such as `"host1:8123,host2:8123"`.                                                                                                                                                                     |
 | connection.database | String   | Yes      | (none)  | The `ClickHouse` database.                                                                                                                                                                                                                                                                                  |
@@ -51,6 +52,7 @@ ClickHouse sink custom properties. If properties belongs to ClickHouse JDBC Conf
 | connection.config   | Map      | No       | (none)  | In addition to the above mandatory parameters that must be specified by `clickhouse-jdbc` , users can also specify multiple optional parameters, which cover all the [parameters](https://github.com/ClickHouse/clickhouse-jdbc/tree/master/clickhouse-client#configuration) provided by `clickhouse-jdbc`. |
 
 ## Example
+
 This example read data of inline test source and write to ClickHouse table `test`.
 
 ```yaml

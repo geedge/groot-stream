@@ -15,3 +15,10 @@ com.geedgenetworks.core.udf.Rename
 com.geedgenetworks.core.udf.SnowflakeId
 com.geedgenetworks.core.udf.StringJoiner
 com.geedgenetworks.core.udf.UnixTimestampConverter
+com.geedgenetworks.core.udf.udaf.NumberSum
+com.geedgenetworks.core.udf.udaf.CollectList
+com.geedgenetworks.core.udf.udaf.CollectSet
+com.geedgenetworks.core.udf.udaf.LongCount
+com.geedgenetworks.core.udf.udaf.Mean
+com.geedgenetworks.core.udf.udaf.LastValue
+com.geedgenetworks.core.udf.udaf.FirstValue

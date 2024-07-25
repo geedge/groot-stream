@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.udf;
 
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
@@ -10,7 +10,7 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.io.Serializable;
 
-public class SnowflakeId implements Serializable, UDF {
+public class SnowflakeId implements Serializable, ScalarFunction {
 
     private String outputFieldName;
     private SnowflakeIdUtils snowflakeIdUtils;

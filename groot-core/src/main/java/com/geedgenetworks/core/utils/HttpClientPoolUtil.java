@@ -1,6 +1,8 @@
 package com.geedgenetworks.core.utils;
 
-import com.geedgenetworks.shaded.org.apache.http.*;
+import com.geedgenetworks.shaded.org.apache.http.Header;
+import com.geedgenetworks.shaded.org.apache.http.HttpEntity;
+import com.geedgenetworks.shaded.org.apache.http.HttpStatus;
 import com.geedgenetworks.shaded.org.apache.http.client.methods.CloseableHttpResponse;
 import com.geedgenetworks.shaded.org.apache.http.client.methods.HttpGet;
 import com.geedgenetworks.shaded.org.apache.http.config.Registry;

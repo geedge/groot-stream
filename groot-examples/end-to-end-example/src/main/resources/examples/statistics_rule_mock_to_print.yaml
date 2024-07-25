@@ -7,7 +7,7 @@ sources: # [object] Define connector source
 
 processing_pipelines:
   etl_processor:
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     functions:
       - function: UNIX_TIMESTAMP_CONVERTER
         lookup_fields: [ __timestamp ]
@@ -49,7 +49,7 @@ sinks:
 
 application:  # [object] Define job configuration
   env:
-    name: mock_to_print
+    name: statistics_rule_mock_data_to_kafka
     parallelism: 3
     shade.identifier: aes
     pipeline:

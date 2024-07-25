@@ -128,7 +128,7 @@ sources: # [object] Define connector source
 #
 filters: # [object] Define filter operator
   filter_operator: # [object] AviatorFilter operator name, must be unique.
-    type: com.geedgenetworks.core.filter.AviatorFilter
+    type: aviator  # [string] Filter Type
     properties:
       expression: event.server_ip != '12.12.12.12'  # [string] Aviator expression, it return true or false.
 
@@ -139,7 +139,7 @@ filters: # [object] Define filter operator
 #
 preprocessing_pipelines: # [object] Define Processors for preprocessing pipelines.
   preprocessor:  # [object] Define projection processor name, must be unique.
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection  # [string] Processor Type
     functions:  # [array of object] Define UDFs
       - function: DROP # [string] Define DROP function for filter event
         lookup_fields: []
@@ -152,7 +152,7 @@ preprocessing_pipelines: # [object] Define Processors for preprocessing pipeline
 #
 processing_pipelines: # [object] Define Processors for processing pipelines.
   processor: # [object] Define projection processor name, must be unique.
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection  # [string] Processor Type
     remove_fields:
     output_fields:
     functions: # [array of object] Function List
@@ -277,7 +277,7 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
         output_fields: [ asn_list ]
 
   metrics_processor: # [object] metrics processing Pipeline
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     output_fields:
     properties:
       key: value
@@ -325,7 +325,7 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
 
 postprocessing_pipelines: # [object] Define Processors for postprocessing pipelines.
   postprocessor: # [object] Define projection processor name, must be unique.
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     remove_fields: [log_id, device_tag, dup_traffic_flag]
 
 #

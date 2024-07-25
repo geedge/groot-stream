@@ -2,13 +2,13 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.common.utils.JsonPathUtil;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
-public class JsonExtract implements UDF {
+public class JsonExtract implements ScalarFunction {
 
     private String lookupFieldName;
     private String outputFieldName;

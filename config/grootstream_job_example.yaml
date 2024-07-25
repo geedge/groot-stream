@@ -8,18 +8,44 @@ sources:
 
 filters:
   filter_operator:
-    type: com.geedgenetworks.core.filter.AviatorFilter
+    type: aviator
     properties:
       expression: event.server_ip != '12.12.12.12'
 
 processing_pipelines:
   projection_processor:
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     remove_fields: [http_request_line, http_response_line, http_response_content_type]
     functions:
       - function: DROP
         filter:  event.server_ip == '4.4.4.4'
-
+  aggregate_processor:
+    type: aggregate
+    output_fields:
+    group_by_fields: [server_ip,server_port]
+    window_type: tumbling_processing_time  # tumbling_event_time,sliding_processing_time,sliding_event_time
+    window_size: 60
+    window_slide: 10 #滑动窗口步长
+    functions:
+      - function: NUMBER_SUM
+        lookup_fields: [ sent_pkts ]
+        output_fields: [ sent_pkts_sum ]
+      - function: NUMBER_SUM
+        lookup_fields: [ sent_bytes ]
+        output_fields: [ sent_bytes_sum ]
+      - function: COLLECT_LIST
+        lookup_fields: [ client_port ]
+        output_fields: [ client_port_list ]
+      - function: COLLECT_SET
+        lookup_fields: [ client_ip ]
+        output_fields: [ client_ip_set ]
+      - function: LONG_COUNT
+        output_fields: [ sessions ]
+      - function: MEAN
+        lookup_fields: [ received_pkts ]
+        output_fields: [ received_pkts_mean ]
+        parameters:
+          precision: 1
 sinks:
   print_sink:
     type: print
