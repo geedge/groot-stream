@@ -4,6 +4,9 @@ sources:
     properties: # [object] Kafka source properties
       topic: test_topic_error_json
       kafka.bootstrap.servers: kafkaCluster:9092
+      kafka.security.protocol: SASL_PLAINTEXT
+      kafka.sasl.mechanism: PLAIN
+      kafka.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin";
       kafka.session.timeout.ms: 60000
       kafka.max.poll.records: 3000
       kafka.max.partition.fetch.bytes: 31457280

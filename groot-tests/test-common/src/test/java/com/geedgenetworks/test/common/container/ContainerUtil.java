@@ -106,6 +106,13 @@ public final class ContainerUtil {
         container.withCopyFileToContainer(MountableFile.forHostPath(configPath),
                 Paths.get(GrootStreamHomeInContainer, "config").toString());
 
+        // copy grootstream.yaml
+        final String grootTestsCommonPath = PROJECT_ROOT_PATH + "/groot-tests/test-common/src/test/resources";
+        checkPathExist(grootTestsCommonPath);
+        container.withCopyFileToContainer(
+                MountableFile.forHostPath(grootTestsCommonPath + "/grootstream.yaml"),
+                Paths.get(GrootStreamHomeInContainer, "config", "grootstream.yaml").toString());
+
 
         // copy bin
         final String startBinPath = startModulePath + File.separator + "src/main/bin/";

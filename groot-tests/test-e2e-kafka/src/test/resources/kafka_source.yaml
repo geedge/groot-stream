@@ -13,6 +13,9 @@ sources:
       kafka.session.timeout.ms: 60000
       kafka.max.poll.records: 3000
       kafka.max.partition.fetch.bytes: 31457280
+      kafka.security.protocol: SASL_PLAINTEXT
+      kafka.sasl.mechanism: PLAIN
+      kafka.sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin";
       kafka.group.id: test_topic_json_group
       kafka.auto.offset.reset: earliest
       format: json
@@ -28,6 +31,7 @@ application: # [object] Define job configuration
   env:
     name: example-kafka-to-print
     parallelism: 1
+    shade.identifier: default
     pipeline:
       object-reuse: true
   topology:
