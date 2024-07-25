@@ -19,7 +19,7 @@ public class NumberSum implements AggregateFunction {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
         lookupField  = udfContext.getLookup_fields().get(0);
-        if(!udfContext.getOutput_fields().isEmpty()) {
+        if(udfContext.getOutput_fields()!=null && !udfContext.getOutput_fields().isEmpty()) {
             outputField = udfContext.getOutput_fields().get(0);
         }
         else {
