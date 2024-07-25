@@ -14,3 +14,8 @@ com.geedgenetworks.core.udf.SnowflakeId
 com.geedgenetworks.core.udf.StringJoiner
 com.geedgenetworks.core.udf.UnixTimestampConverter
 com.geedgenetworks.core.udf.Flatten
+com.geedgenetworks.core.udf.udaf.NumberSum
+com.geedgenetworks.core.udf.udaf.CollectList
+com.geedgenetworks.core.udf.udaf.CollectSet
+com.geedgenetworks.core.udf.udaf.LongCount
+com.geedgenetworks.core.udf.udaf.Mean

@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * @version 1.0
  * @date 2024/1/19 10:40
  */
-public class VpnLookup extends AbstractKnowledgeUDF {
+public class VpnLookup extends AbstractKnowledgeScalarFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(VpnLookup.class);
 

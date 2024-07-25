@@ -59,6 +59,7 @@ Run the following Maven command to build the project modules and Skip Tests:
 ```shell 
 ./mvnw clean install -DskipTests
 ```
+
 ### Deploying
 #### 1.Download the release package
 Download the latest release package from the [Releases](https://git.mesalab.cn/galaxy/platform/groot-stream/-/releases).

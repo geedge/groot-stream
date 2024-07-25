@@ -2,7 +2,7 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +11,7 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 @Slf4j
-public class FromUnixTimestamp implements UDF {
+public class FromUnixTimestamp implements ScalarFunction {
     private String precision;
     private String outputFieldName;
     private String lookupFieldName;

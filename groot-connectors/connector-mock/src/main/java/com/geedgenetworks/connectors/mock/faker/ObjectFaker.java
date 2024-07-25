@@ -48,8 +48,8 @@ public class ObjectFaker extends Faker<Map<String, Object>> {
                     map.put(fieldValue.name, fieldValue.value);
                 }
 
-                len = fieldValuesAndComputeFieldFakers.computeFields.length;
-                for (int j = 0; j < len; j++) {
+                final int length = fieldValuesAndComputeFieldFakers.computeFields.length;
+                for (int j = 0; j < length; j++) {
                     computeFieldFaker = fieldValuesAndComputeFieldFakers.computeFields[j];
                     value = computeFieldFaker.faker.geneValue(map);
                     if(value == null){

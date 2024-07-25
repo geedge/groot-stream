@@ -5,9 +5,8 @@ import com.alibaba.fastjson2.JSONObject;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.googlecode.aviator.Expression;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
@@ -15,7 +14,7 @@ import java.util.*;
 
 
 @Slf4j
-public class Flatten implements UDF {
+public class Flatten implements ScalarFunction {
 
     private String prefix;
     private String delimiter;

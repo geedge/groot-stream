@@ -1,9 +1,12 @@
 # Introduction
 
-  GrootStream is a real-time ETL platform based on the concepts of flow-based programing. Groot provides a template to quickly build a data flow job. It includes sources, filters, processing pipelines and sinks etc. 
+GrootStream is a real-time ETL platform based on the concepts of flow-based programing. Groot provides a template to quickly build a data flow job. It includes sources, filters, processing pipelines and sinks etc.
 The main format of the config template file is `yaml`, for more details of this format type you can refer to [YAML-GUIDE](https://yaml.org/spec/1.2/spec.html).
+
 # Job Config
+
 ## Config file structure
+
 ```yaml
 sources:
   inline_source:
@@ -88,7 +91,9 @@ application:
 ```
 
 ## Schema Structure
+
 Some sources are not strongly limited schema, so you need use `fields` to define the field name and type. The source can customize the schema. Like `Kafka` `Inline` source etc.
+
 ```yaml
 Schema:
     fields:   
@@ -105,6 +110,7 @@ Schema:
           - name: decoded_as
             type: string
 ```
+
 `name` The name of the field. `type` The data type of the field.
 
 | Data type | Value type in Java              | Description                                                                                                                                                          |
@@ -119,29 +125,35 @@ Schema:
 | struct    | `java.util.Map<String, Object>` | A Map is an object that maps keys to values. The  value type includes all types. example: struct<id:int, client_ip:string, data:struct<id:int, name:string>>.        |
 | array     | `List<Object>`                  | A array is a data type that represents a collection of elements. The element type includes all types. example: array<int>,  array<struct<id:int, client_ip:string>>. |
 
-
 ## Sources
+
 Source is used to define where GrootStream needs to ingest data. Multiple sources can be defined in a job. The supported sources are listed in [Source Connectors](connector/source). Each source has its own specific parameters to define how to fetch data, and GrootStream also extracts the properties that each source will use, such as the `topic` and `kafka.bootstrap.servers` of the `Kafka` source.
 
 ## Filters
+
 Filter operator is used to define the conditions for filtering data. Multiple filters can be defined in a job. The supported filters are listed in [Filters](filter). Each filter has its own specific parameters to define how to filter data, and GrootStream also extracts the properties that each filter will use, such as the `expression` of the `Aviator` filter.
 Based on the filter expression, the event will be passed to downstream if the expression is true, otherwise it will be dropped.
 
 ## Processing Pipelines
+
 Processing pipelines are used to define the event processing logic of the job. It can be categorized by functionality into stateless and stateful processors. Based processing order, it can be categorized into pre-processing pipeline, processing pipeline and post-processing pipeline. Each processor can assemble `UDFs`(User-defined functions) into a pipeline. The detail of processor is listed in [Processor](processor).
 
 ## Sinks
+
 Sink is used to define where GrootStream needs to output data. Multiple sinks can be defined in a job. The supported sinks are listed in [Sink Connectors](connector/sink). Each sink has its own specific parameters to define how to output data, and GrootStream also extracts the properties that each sink will use, such as the `topic` and `kafka.bootstrap.servers` of the `Kafka` sink.
 
 ## Application
+
 Used to define some common parameters of the job and the topology of the job. such as the name of the job, the parallelism of the job, etc. The following configuration parameters are supported.
 
 ### ENV
+
 Used to define job environment configuration information. For more details, you can refer to the documentation [JobEnvConfig](./env-config.md).
 
-
 # Command
+
 ## Run a job by CLI
+
 ```bash
 Usage: start.sh [options]
 Options:
@@ -161,4 +173,6 @@ Options:
 ```
 
 
+
+```
 

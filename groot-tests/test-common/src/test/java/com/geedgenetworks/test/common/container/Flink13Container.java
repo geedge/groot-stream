@@ -40,7 +40,7 @@ public class Flink13Container extends AbstractTestFlinkContainer {
 
     @Override
     protected String getDockerImage() {
-        return "flink:1.13.1-scala_2.11-java11";
+        return "192.168.40.153:8082/common/flink:1.13.1-scala_2.11-java11";
     }
 
 

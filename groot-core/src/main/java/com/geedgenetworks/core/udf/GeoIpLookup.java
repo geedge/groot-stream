@@ -5,7 +5,7 @@ import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.GeoIpKnowledgeBaseHandler;
@@ -20,7 +20,7 @@ import org.apache.flink.configuration.Configuration;
 import java.util.Map;
 
 @Slf4j
-public class GeoIpLookup implements UDF {
+public class GeoIpLookup implements ScalarFunction {
 
     private String kbName;
     private String option;
@@ -48,7 +48,7 @@ public class GeoIpLookup implements UDF {
         if (GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().containsKey(kbName) && GeoIpKnowledgeBaseHandler.getKbNameWithKbConfigAndFileMetas().get(kbName).getIpLookupV2() != null) {
             log.debug("Init function GeoIpLookup success ");
         } else {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Init function GeoIpLookup error ");
+            log.error("GeoIpLookup init KnowledgeBase error ");
         }
         this.lookupFieldName = udfContext.getLookup_fields().get(0);
         if(udfContext.getOutput_fields()!=null && !udfContext.getOutput_fields().isEmpty()){

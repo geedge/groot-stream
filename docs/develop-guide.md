@@ -29,26 +29,44 @@
 > - Description: The most important part of a commit message is that it should be clear and meaningful.
 > - JIRA Issue ID: Integrating JIRA is used for issue tracking.
 
-## How to throw an exception in Groot Stream Platform
-When throwing an exception with a hint message and ensure that the exception has a smaller scope. You can create a custom exception class that include error code and message parameter in its constructor. For example, if you encounters a checked exception `ClassNotFoundException` while dynamic class loading，a reasonable approach would be to the following:
- 
+## How to write a high quality code
+
+1. When throwing an exception with a hint message and ensure that the exception has a smaller scope. You can create a custom exception class that include error code and message parameter in its constructor. For example, if you encounters a checked exception `ClassNotFoundException` while dynamic class loading，a reasonable approach would be to the following:
+
 ```
-   try {
-       // Class.forname
-   } catch (ClassNotFoundException e) {
-       throw GrootStreamBootstrapException("Missing class or incorrect classpath", e);
-   }
+try {
+    // Class.forname
+} catch (ClassNotFoundException e) {
+    throw GrootStreamBootstrapException("Missing class or incorrect classpath", e);
+}
 ```
+
+2. Before you submit a merge request, you should ensure that the code will not cause any compilation errors, and the code should be formatted correctly. You can use the following commands to package and check the code:
+
+```shell
+# multi threads compile
+./mvnw -T 1C clean verify
+# single thread compile
+./mvnw clean verify
+# run all modules integration test. Need set up a Docker environment and compile using a single thread
+./mvnw clean verify -DskipIT=false
+# check code style
+./mvnw clean compile -B -Dskip.spotless=false -e
+```
+
+3. Before submitting a merge request, do a full unit test and integration test locally to ensure that the code is correct. You can use the  `groot-examples` module's ability to run the example to verify the correctness of the code.
 
 ## Design Principles
 
 1. Package structure: `com.geedgenetworks.[module].[sub-module]`. `groot-stream` is the parent module, and other modules are dependent on it.
 2. Module naming: `groot-[module]`. e.g. `groot-common`, `groot-core`, `groot-connectors`, `groot-bootstrap`, `groot-examples`, etc.
-3. For unchecked exception (RuntimeException) within the 'groot-common' module, a global exception handling class named 'GrootRuntimeException' is defined. 
+3. For unchecked exception (RuntimeException) within the 'groot-common' module, a global exception handling class named 'GrootRuntimeException' is defined.
 
 ## Run a job example
+
 All examples are in module `end-to-end-examples`-. You can run the example [ running or debugging a job in IDEA].
 e.g. we use `end-to-end-examples/src/main/java/com/geedgenetworks/example/GrootStreamExample.java` as the example, when you produce some sample data in `Inline` and you could see the result in console. as follows:
+
 ```json
 {"log_id":155652727148914688,"decoded_as":"BASE","recv_time":111,"fqdn_string":"baidu.com","server_ip":"120.233.20.242","additional_field_subdomain":"baidu.com","client_ip":"192.168.0.1"}
 ```

@@ -9,7 +9,7 @@ import com.geedgenetworks.common.config.CheckResult;
 import com.geedgenetworks.common.config.FilterConfigOptions;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
-import com.geedgenetworks.core.filter.AviatorFilter;
+import com.geedgenetworks.core.filter.Filter;
 import com.geedgenetworks.core.pojo.FilterConfig;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
@@ -21,20 +21,22 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  Initialize config and execute filter operator
+ * Initialize config and execute filter operator
  */
 @Slf4j
 public class FilterExecutor extends AbstractExecutor<String, FilterConfig> {
     private static final String PROCESSOR_TYPE = ProcessorType.FILTER.getType();
+
     public FilterExecutor(List<URL> jarPaths, Config config) {
         super(jarPaths, config);
     }
+
     @Override
     protected Map<String, FilterConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, FilterConfig> filterConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.FILTERS)) {
             Config filters = operatorConfig.getConfig(Constants.FILTERS);
-            filters.root().unwrapped().forEach((key,value) -> {
+            filters.root().unwrapped().forEach((key, value) -> {
                 CheckResult result = CheckConfigUtil.checkAllExists(filters.getConfig(key),
                         FilterConfigOptions.TYPE.key(), FilterConfigOptions.PROPERTIES.key());
                 if (!result.isSuccess()) {
@@ -55,22 +57,29 @@ public class FilterExecutor extends AbstractExecutor<String, FilterConfig> {
     public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
         FilterConfig filterConfig = operatorMap.get(node.getName());
         String className = filterConfig.getType();
-        Class cls = null;
-        AviatorFilter aviatorFilter = null;
-        try {
-            cls = Class.forName(className);
-            aviatorFilter = (AviatorFilter) cls.newInstance();
-            if (node.getParallelism() > 0) {
-                filterConfig.setParallelism(node.getParallelism());
-            }
+        Filter filter;
+        if (filterMap.containsKey(filterConfig.getType())) {
 
+            filter = filterMap.get(filterConfig.getType());
+        } else {
+            Class cls;
+            try {
+                cls = Class.forName(className);
+                filter = (Filter) cls.newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | RuntimeException e) {
+                throw new JobExecuteException("get filter instance failed!", e);
+            }
+        }
+        if (node.getParallelism() > 0) {
+            filterConfig.setParallelism(node.getParallelism());
+        }
+        try {
             dataStream =
-                    aviatorFilter.filterFunction(
+                    filter.filterFunction(
                             dataStream, filterConfig);
         } catch (Exception e) {
             throw new JobExecuteException("Create filter instance failed!", e);
         }
-
         return dataStream;
     }
 }

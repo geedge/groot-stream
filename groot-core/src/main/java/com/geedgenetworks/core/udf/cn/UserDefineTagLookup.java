@@ -15,7 +15,7 @@ import java.util.List;
  * @version 1.0
  * @date 2024/1/22 15:02
  */
-public class UserDefineTagLookup extends AbstractKnowledgeWithRuleUDF {
+public class UserDefineTagLookup extends AbstractKnowledgeWithRuleScalarFunction {
 
     private String option;
 

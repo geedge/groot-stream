@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>http-client-shaded</artifactId>
-    <name>Groot : Shaded : httpclient-shaded</name>
+    <name>Groot : Shaded : Http-client </name>
 
 
     <properties>
@@ -42,7 +42,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <finalName>http-client-shaded</finalName>
+                            <finalName>http-client-shaded-${httpclient.version}</finalName>
                             <createSourcesJar>true</createSourcesJar>
                             <shadeSourcesContent>true</shadeSourcesContent>
                             <shadedArtifactAttached>false</shadedArtifactAttached>
@@ -85,7 +85,7 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${basedir}/target/http-client-shaded.jar</file>
+                                    <file>${basedir}/target/http-client-shaded-${httpclient.version}.jar</file>
                                     <type>jar</type>
                                     <classifier>optional</classifier>
                                 </artifact>

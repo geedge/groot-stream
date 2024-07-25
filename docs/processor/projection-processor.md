@@ -1,20 +1,26 @@
 # Projection Processor
+
 > Processing pipelines for projection processor
+
 ## Description
+
 Projection processor is used to project the data from source to sink. It can be used to filter, remove, and transform fields.
 It is a part of the processing pipeline. It can be used in the pre-processing, processing, and post-processing pipeline. Each processor can assemble UDFs(User-defined functions) into a pipeline.
 Within the pipeline, events are processed by each Function in order, top‑>down. The UDF usage detail can be found in [UDF](udf.md).
+
 ## Options
 
-| name           | type    | required | default value                                                                                                  |
-|----------------|---------|----------|----------------------------------------------------------------------------------------------------------------|
-| type           | String  | Yes      | The type of the processor, now only support `com.geedgenetworks.core.processor.projection.ProjectionProcessor` |
-| output_fields  | Array   | No       | Array of String. The list of fields that need to be kept. Fields not in the list will be removed.              |
-| remove_fields  | Array   | No       | Array of String. The list of fields that need to be removed.                                                   |
-| functions      | Array   | No       | Array of Object. The list of functions that need to be applied to the data.                                    |
+|     name      |  type  | required |                                                 default value                                                  |
+|---------------|--------|----------|----------------------------------------------------------------------------------------------------------------|
+| type          | String | Yes      | The type of the processor, now only support `com.geedgenetworks.core.processor.projection.ProjectionProcessor` |
+| output_fields | Array  | No       | Array of String. The list of fields that need to be kept. Fields not in the list will be removed.              |
+| remove_fields | Array  | No       | Array of String. The list of fields that need to be removed.                                                   |
+| functions     | Array  | No       | Array of Object. The list of functions that need to be applied to the data.                                    |
 
 ## Usage Example
+
 This example use projection processor to remove the fields `http_request_line`, `http_response_line`, `http_response_content_type` and using DROP function filter all event that `server_ip` is `4.4.4.4`.
+
 ```yaml
 sources:
   inline_source:
@@ -63,5 +69,4 @@ application:
     - name: print_sink
       downstream: []
 ```
-
 

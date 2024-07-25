@@ -2,7 +2,7 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.utils.StringUtil;
@@ -14,7 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
 @Slf4j
-public class DecodeBase64 implements UDF {
+public class DecodeBase64 implements ScalarFunction {
 
     private String valueField;
     private String charsetField;

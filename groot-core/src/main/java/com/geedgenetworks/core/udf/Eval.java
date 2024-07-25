@@ -2,17 +2,17 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDF;
+import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.expressions.Calc;
-import com.geedgenetworks.core.expressions.codegen.CalcCodeConvertor;
+import com.geedgenetworks.core.expressions.EvalExecutor;
 import com.geedgenetworks.common.Event;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.util.List;
 import java.util.Map;
 
-public class Eval implements UDF {
+public class Eval implements ScalarFunction {
 
     private String output;
 
@@ -30,7 +30,7 @@ public class Eval implements UDF {
         String expr = (String) udfContext.getParameters().get("value_expression");
         List<String> outputField = udfContext.getOutput_fields();
         output = outputField.get(0);
-        calc = CalcCodeConvertor.convert(expr);
+        calc = new EvalExecutor(expr);
     }
 
     @Override

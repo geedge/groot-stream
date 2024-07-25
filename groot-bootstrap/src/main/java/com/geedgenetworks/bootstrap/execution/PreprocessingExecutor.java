@@ -1,16 +1,9 @@
 package com.geedgenetworks.bootstrap.execution;
 
-import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.CheckConfigUtil;
-import com.geedgenetworks.common.config.CheckResult;
-import com.geedgenetworks.common.config.ProjectionConfigOptions;
-import com.geedgenetworks.common.exception.CommonErrorCode;
-import com.geedgenetworks.common.exception.ConfigValidationException;
-import com.geedgenetworks.core.pojo.ProjectionConfig;
-import com.geedgenetworks.core.processor.projection.ProjectionProcessor;
+import com.geedgenetworks.core.pojo.ProcessorConfig;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
@@ -24,65 +17,28 @@ import java.util.Map;
  * Initialize config and execute preprocessor
  */
 @Slf4j
-public class PreprocessingExecutor extends AbstractExecutor<String, ProjectionConfig> {
+public class PreprocessingExecutor extends AbstractProcessorExecutor {
     private static final String PROCESSOR_TYPE = ProcessorType.PREPROCESSING.getType();
+
     public PreprocessingExecutor(List<URL> jarPaths, Config config) {
         super(jarPaths, config);
     }
+
     @Override
-    protected Map<String, ProjectionConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
-        Map<String, ProjectionConfig> preprocessingConfigMap = Maps.newHashMap();
+    protected Map<String, ProcessorConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
+        Map<String, ProcessorConfig> preprocessingConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.PREPROCESSING_PIPELINES)) {
             Config preprocessors = operatorConfig.getConfig(Constants.PREPROCESSING_PIPELINES);
-            preprocessors.root().unwrapped().forEach((key,value) -> {
-                CheckResult result = CheckConfigUtil.checkAllExists(preprocessors.getConfig(key),
-                        ProjectionConfigOptions.TYPE.key());
-                if (!result.isSuccess()) {
-                    throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
-                            "Preprocessor: %s, Message: %s",
-                            key, result.getMsg()));
-                }
-
-                result = CheckConfigUtil.checkAtLeastOneExists(preprocessors.getConfig(key),
-                        ProjectionConfigOptions.OUTPUT_FIELDS.key(),
-                        ProjectionConfigOptions.REMOVE_FIELDS.key(),
-                        ProjectionConfigOptions.FUNCTIONS.key());
-                if (!result.isSuccess()) {
-                    throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
-                            "Preprocessor: %s, At least one of [%s] should be specified.",
-                            key, String.join(",",
-                                    ProjectionConfigOptions.OUTPUT_FIELDS.key(),
-                                    ProjectionConfigOptions.REMOVE_FIELDS.key(),
-                                    ProjectionConfigOptions.FUNCTIONS.key())));
-                }
-
-                ProjectionConfig projectionConfig = new JSONObject((Map<String, Object>) value).toJavaObject(ProjectionConfig.class);
-                projectionConfig.setName(key);
-                preprocessingConfigMap.put(key, projectionConfig);
+            preprocessors.root().unwrapped().forEach((key, value) -> {
+                preprocessingConfigMap.put(key, checkProcessorConfig(key, (Map<String, Object>) value, preprocessors));
             });
         }
-
         return preprocessingConfigMap;
     }
 
     @Override
     public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
-        Class cls = null;
-        ProjectionProcessor projectionProcessor = null;
-        ProjectionConfig projectionConfig = operatorMap.get(node.getName());
-        try {
-            cls = Class.forName(projectionConfig.getType());
-            projectionProcessor = (ProjectionProcessor) cls.newInstance();
+        return super.execute(dataStream, node);
 
-            if (node.getParallelism() > 0) {
-                projectionConfig.setParallelism(node.getParallelism());
-            }
-            dataStream =
-                    projectionProcessor.projectionProcessorFunction(
-                            dataStream, projectionConfig);
-        } catch (Exception e) {
-            throw new JobExecuteException("Create preprocessor pipeline instance failed!", e);
-        }
-        return dataStream;
     }
 }

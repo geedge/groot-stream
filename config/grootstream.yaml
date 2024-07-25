@@ -1,10 +1,10 @@
 grootstream:
   knowledge_base:
     - name: tsg_ip_asn
-      fs_type: http
-      fs_path: http://192.168.44.12:9999/v1/knowledge_base
+      fs_type: http #hdfs,local
+      fs_path: http://192.168.44.12:9999/v1/knowledge_base #单机模式hdfs://192.168.44.12:9000/kb，集群模式hdfs://ns1/kb
       files:
-        - f9f6bc91-2142-4673-8249-e097c00fe1ea
+        - f9f6bc91-2142-4673-8249-e097c00fe1ea  #文件系统中文件名asn_builtin.mmdb
     - name: tsg_ip_location
       fs_type: http
       fs_path: http://192.168.44.12:9999/v1/knowledge_base

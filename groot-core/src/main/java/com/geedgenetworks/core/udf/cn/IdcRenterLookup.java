@@ -9,7 +9,7 @@ import com.geedgenetworks.core.udf.knowlegdebase.handler.IdcRenterKnowledgeBaseH
  * @version 1.0
  * @date 2024/1/18 11:45
  */
-public class IdcRenterLookup extends AbstractKnowledgeUDF {
+public class IdcRenterLookup extends AbstractKnowledgeScalarFunction {
 
     private IdcRenterKnowledgeBaseHandler knowledgeBaseHandler;
 

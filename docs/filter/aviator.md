@@ -1,18 +1,24 @@
 # Aviator
-> Filter data by AviatorFilter. The event whether drop or pass downstream is based on the Aviator expression.
-## Description
-AviatorScript is a lightweight, high performance scripting language hosted on the JVM. It uses filter operator that uses the Aviator expression to filter data.
-More details about AviatorScript can be found at [AviatorScript](https://www.yuque.com/boyan-avfmj/aviatorscript).
-## Options
 
-| Name        | Type   | Required | Default | Description                                                                                                                                                                                                        |
-|-------------|--------|----------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| type        | String | Yes      | (none)  | The type of the filter operator. Now only support `com.geedgenetworks.core.filter.AviatorFilter`.                                                                                                                  |
-| properties  | Map    | Yes      | (none)  | Filter operator properties.                                                                                                                                                                                        |
-| -expression | String | Yes      | (none)  | Based on the filter expression, the event will be passed to downstream if the expression is true, otherwise it will be dropped. Build a filter expression need add prefix `event.`, if you want get event field.   |  
+> Filter data by AviatorFilter. The event whether drop or pass downstream is based on the Aviator expression.
+>
+> ## Description
+>
+> AviatorScript is a lightweight, high performance scripting language hosted on the JVM. It uses filter operator that uses the Aviator expression to filter data.
+> More details about AviatorScript can be found at [AviatorScript](https://www.yuque.com/boyan-avfmj/aviatorscript).
+>
+  ## Options
+
+|    Name     |  Type  | Required | Default |                                                                                                   Description                                                                                                    |
+|-------------|--------|----------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| type        | String | Yes      | (none)  | The type of the filter operator. Now only support `com.geedgenetworks.core.filter.AviatorFilter`.                                                                                                                |
+| properties  | Map    | Yes      | (none)  | Filter operator properties.                                                                                                                                                                                      |
+| -expression | String | Yes      | (none)  | Based on the filter expression, the event will be passed to downstream if the expression is true, otherwise it will be dropped. Build a filter expression need add prefix `event.`, if you want get event field. |
 
 ## Example
+
 This example read data from inline source and print to console. It will filter the event that `server_ip` is `8.8.8.8` output to console.
+
 ```yaml
  sources:
    inline_source:
@@ -49,7 +55,4 @@ This example read data from inline source and print to console. It will filter t
      - name: print_sink
        downstream: []
 ```
-
-
-
 

@@ -15,7 +15,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2024/1/19 10:22
  */
-public class FqdnCategoryLookup extends AbstractKnowledgeUDF {
+public class FqdnCategoryLookup extends AbstractKnowledgeScalarFunction {
 
     private static final Logger logger = LoggerFactory.getLogger(FqdnCategoryLookup.class);
 

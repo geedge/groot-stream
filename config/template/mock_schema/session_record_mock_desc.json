@@ -12,8 +12,8 @@
   {
     "name": "sled_ip",
     "type": "IPv4",
-    "start": "92.168.40.2",
-    "end": "92.168.40.100"
+    "start": "192.168.40.2",
+    "end": "192.168.40.100"
   },
   {
     "name": "tcp_handshake_latency_ms",
@@ -99,7 +99,7 @@
     "type": "Union",
     "unionFields": [
       {
-        "weight": 10,
+        "weight": 8,
         "fields": [
           {
             "name": "direction",
@@ -151,7 +151,7 @@
         ]
       },
       {
-        "weight": 5,
+        "weight": 2,
         "fields": [
           {
             "name": "direction",

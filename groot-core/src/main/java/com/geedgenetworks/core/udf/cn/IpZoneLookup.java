@@ -12,7 +12,7 @@ import com.geedgenetworks.core.udf.knowlegdebase.handler.InternalIpKnowledgeBase
  * 如果知识库配置为空,则只根据内网网段判断是否为内部IP
  * 该函数优先级应该置于地理位置判断和flag字段判断之后
  */
-public class IpZoneLookup extends AbstractKnowledgeUDF {
+public class IpZoneLookup extends AbstractKnowledgeScalarFunction {
 
     private InternalIpKnowledgeBaseHandler knowledgeBaseHandler;
 

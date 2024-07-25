@@ -8,13 +8,13 @@ sources:
 
 filters:
   filter_operator:
-    type: com.geedgenetworks.core.filter.AviatorFilter
+    type: aviator
     properties:
       expression: event.server_ip != '12.12.12.12'
 
 processing_pipelines:
   projection_processor:
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     remove_fields: [http_request_line, http_response_line, http_response_content_type]
     functions:
       - function: DROP
