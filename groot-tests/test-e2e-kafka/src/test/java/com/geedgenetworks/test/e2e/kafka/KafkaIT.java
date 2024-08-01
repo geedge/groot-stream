@@ -18,7 +18,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.SaslConfigs;
-import org.apache.kafka.common.security.auth.SecurityProtocol;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -48,7 +47,7 @@ import static org.awaitility.Awaitility.await;
 @DisabledOnContainer(
         value = {TestContainerId.FLINK_1_17},
         disabledReason = "Override TestSuiteBase @DisabledOnContainer")
-public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
+public class KafkaIT extends TestSuiteBase implements TestResource {
 
     private KafkaContainer kafkaContainer;
 
@@ -243,8 +242,6 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
                         Assertions.assertEquals(0, data.size());
                     });
     }
-
-
 
     private void generateTestData(String topic, int start, int end) {
         StructType dataType = Types.parseStructType("id: int, client_ip: string, server_ip: string, flag: string");

@@ -16,6 +16,7 @@
         <module>test-common</module>
         <module>test-e2e-base</module>
        <module>test-e2e-kafka</module>
+        <module>test-e2e-clickhouse</module>
     </modules>
 
     <properties>
