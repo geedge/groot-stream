@@ -41,6 +41,7 @@ public class MeanTest {
         Integer[] intArr2 = new Integer[]{1, 6, 3};
         excute(intArr1, 0);
         excute2(intArr2, 2);
+        excute3(intArr1);
     }
 
     private static void excute(Number[] arr,int precision) throws ParseException {
@@ -93,5 +94,26 @@ public class MeanTest {
         assertEquals(NumberFormat.getInstance().parse((result.getMetricsFields().get("field_mean").toString())),NumberFormat.getInstance().parse("3.33"));
     }
 
+    private static void excute3(Number[] arr) throws ParseException {
 
+        UDFContext udfContext = new UDFContext();
+        udfContext.setLookup_fields(List.of("field"));
+        udfContext.setOutput_fields(Collections.singletonList("field_mean"));
+        Mean mean = new Mean();
+        Map<String, Object> metricsFields = new HashMap<>();
+        Accumulator accumulator = new Accumulator();
+        accumulator.setMetricsFields(metricsFields);
+        Accumulator agg = mean.open(udfContext,accumulator);
+
+        for (Number o : arr) {
+            Event event = new Event();
+            Map<String, Object> extractedFields = new HashMap<>();
+            extractedFields.put("field", o);
+            event.setExtractedFields(extractedFields);
+            agg = mean.add(event, agg);
+
+        }
+        Accumulator result = mean.getResult(agg);
+        assertEquals(NumberFormat.getInstance().parse((result.getMetricsFields().get("field_mean").toString())),NumberFormat.getInstance().parse("2.5"));
+    }
 }
