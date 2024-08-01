@@ -13,10 +13,9 @@ public class AggregateConfig extends ProcessorConfig   {
 
 
     private List<String> group_by_fields;
-    private String timestamp_field;
+    private String window_timestamp_field;
     private String window_type;
     private Integer window_size;
-    private Integer max_out_of_orderness;
     private Integer window_slide;
     private List<UDFContext> functions;
 
