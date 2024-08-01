@@ -32,9 +32,6 @@ public class UnixTimestampConverter implements ScalarFunction {
         if(udfContext.getLookup_fields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
-        if(udfContext.getParameters() == null){
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function must contain parameters");
-        }
         if(!udfContext.getParameters().containsKey("precision")){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey precision");
         }
