@@ -5,6 +5,8 @@ import com.geedgenetworks.common.udf.UDFContext;
 
 import java.util.List;
 
+import static com.geedgenetworks.common.Event.WINDOW_START_TIMESTAMP;
+
 public interface AggregateConfigOptions {
     Option<String> TYPE = Options.key("type")
             .stringType()
@@ -46,4 +48,8 @@ public interface AggregateConfigOptions {
             .noDefaultValue()
             .withDescription("The size of sliding window.");
 
+    Option<String> WINDOW_TIMESTAMP_FIELD = Options.key("window_timestamp_field")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("which field to be set the start time of window.");
 }
