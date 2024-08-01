@@ -84,6 +84,30 @@
 
     </properties>
 
+    <repositories>
+        <repository>
+            <id>nexus3</id>
+            <name>Team Nexus Repository</name>
+            <url>http://192.168.40.153:8081/repository/public/</url>
+        </repository>
+        <repository>
+            <id>cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <repository>
+            <uniqueVersion>true</uniqueVersion>
+            <id>platform-releases</id>
+            <url>http://192.168.40.153:8081/repository/platform-release/</url>
+        </repository>
+        <snapshotRepository>
+            <id>platform-snapshots</id>
+            <url>http://192.168.40.153:8081/repository/platform-snapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -967,28 +991,6 @@
 
     </build>
 
-    <repositories>
-        <repository>
-            <id>nexus3</id>
-            <name>Team Nexus Repository</name>
-            <url>http://192.168.40.153:8081/repository/public/</url>
-        </repository>
-        <repository>
-            <id>cloudera</id>
-            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
-        </repository>
-    </repositories>
 
-    <distributionManagement>
-        <repository>
-            <uniqueVersion>true</uniqueVersion>
-            <id>platform-releases</id>
-            <url>http://192.168.40.153:8081/repository/platform-release/</url>
-        </repository>
-        <snapshotRepository>
-            <id>platform-snapshots</id>
-            <url>http://192.168.40.153:8081/repository/platform-snapshot/</url>
-        </snapshotRepository>
-    </distributionManagement>
 
 </project>
