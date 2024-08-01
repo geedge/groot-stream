@@ -19,3 +19,5 @@ com.geedgenetworks.core.udf.udaf.CollectList
 com.geedgenetworks.core.udf.udaf.CollectSet
 com.geedgenetworks.core.udf.udaf.LongCount
 com.geedgenetworks.core.udf.udaf.Mean
+com.geedgenetworks.core.udf.udaf.LastValue
+com.geedgenetworks.core.udf.udaf.FirstValue
