@@ -29,7 +29,7 @@ public class Mean implements AggregateFunction {
         else {
             outputField = lookupField;
         }
-        if(!udfContext.getParameters().isEmpty()) {
+        if(udfContext.getParameters()!= null && !udfContext.getParameters().isEmpty()) {
             precision = Integer.parseInt(udfContext.getParameters().getOrDefault("precision", "-1").toString());
             if (precision > 0) {
                 StringBuilder pattern = new StringBuilder("#.");
