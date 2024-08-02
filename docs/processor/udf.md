@@ -1,7 +1,7 @@
 # UDF
 
 > The functions for projection processors.
->
+
   ## Function of content
 
 - [Asn Lookup](#asn-lookup)
@@ -40,7 +40,7 @@ A UDF includes the following parts: name, event(processing data), context, evalu
 - open function: Initialize the resources used by the function.
 - close function: Release the resources used by the function.
 
-### Functions
+## Functions
 
 Function define common parameters: `filter`, `lookup_fields`, `output_fields`, `parameters`, and will return a Map<String, Object> value of the event.
 ``` FUNCTION_NAME(filter, lookup_fields, output_fields[, parameters])```
@@ -54,8 +54,8 @@ Asn lookup function is used to lookup the asn information by ip address. You nee
 - lookup_fields: required
 - output_fields: required
 - parameters: required
-- kb_name: required. The name of the knowledge base.
-- option: required. Now only support `IP_TO_ASN`.
+  - kb_name: required. The name of the knowledge base.
+  - option: required. Now only support `IP_TO_ASN`.
 
 Example:
 
@@ -77,8 +77,8 @@ Base64 decode function is used to decode the base64 encoded string.
 - lookup_fields: not required
 - output_fields: required
 - parameters: required
-- value_field: `<String>` required.
-- charset_field:`<String>` optional. Default is `UTF-8`.
+  - value_field: `<String>` required.
+  - charset_field:`<String>` optional. Default is `UTF-8`.
 
 Example:
 
@@ -99,7 +99,7 @@ Base64 encode function is commonly used to encode the binary data to base64 stri
 - lookup_fields: not required
 - output_fields: required
 - parameters: required
-- value_field: `<String>` required.
+  - value_field: `<String>` required.
 
 Example:
 
@@ -119,7 +119,7 @@ Current unix timestamp function is used to get the current unix timestamp.
 - lookup_fields: not required
 - output_fields: required
 - parameters: optional
-- precision: `<String>` optional. Default is `seconds`. Enum: `milliseconds`, `seconds`.
+  - precision: `<String>` optional. Default is `seconds`. Enum: `milliseconds`, `seconds`.
 
 Example:
 
@@ -139,7 +139,7 @@ Domain function is used to extract the domain from the url.
 - lookup_fields: required. Support more than one fields. All fields will be processed from left to right, and the result will be overwritten if the field processed value is not null.
 - output_fields: required
 - parameters: required
-- option: `<String>` required. Enum: `TOP_LEVEL_DOMAIN`, `FIRST_SIGNIFICANT_SUBDOMAIN`.
+  - option: `<String>` required. Enum: `TOP_LEVEL_DOMAIN`, `FIRST_SIGNIFICANT_SUBDOMAIN`.
 
 #### Option
 
@@ -182,7 +182,7 @@ Eval function is used to adds or removes fields from events by evaluating an val
 - lookup_fields: not required
 - output_fields: required
 - parameters: required
-- value_expression: `<String>` required. Enter a value expression to set the field’s value – this can be a constant.
+  - value_expression: `<String>` required. Enter a value expression to set the field’s value – this can be a constant.
 
 Example 1:
 Add a field `ingestion_time` with value `recv_time`:
@@ -213,10 +213,10 @@ Flatten the fields of nested structure to the top level. The new fields name are
 - lookup_fields: optional
 - output_fields: not required
 - parameters: optional
-- prefix: `<String>` optional. Prefix string for flattened field names. Default is empty.
-- depth: `<Integer>` optional. Number representing the nested levels to consider for flattening. Minimum 1. Default is `5`.
-- delimiter: `<String>` optional. The string used to join nested keys Default is `.`.
-- json_string_keys: `<Array>` optional. The keys of the json string fields. It indicates keys that contain JSON strings and should be parsed and flattened. Default is empty.
+  - prefix: `<String>` optional. Prefix string for flattened field names. Default is empty.
+  - depth: `<Integer>` optional. Number representing the nested levels to consider for flattening. Minimum 1. Default is `5`.
+  - delimiter: `<String>` optional. The string used to join nested keys Default is `.`.
+  - json_string_keys: `<Array>` optional. The keys of the json string fields. It indicates keys that contain JSON strings and should be parsed and flattened. Default is empty.
 
 Example 1:
 
@@ -259,7 +259,7 @@ From unix timestamp function is used to convert the unix timestamp to date time 
 - lookup_fields: required
 - output_fields: required
 - parameters: optional
-- precision: `<String>` optional. Default is `seconds`. Enum: `milliseconds`, `seconds`.
+  - precision: `<String>` optional. Default is `seconds`. Enum: `milliseconds`, `seconds`.
 
 #### Precision
 
@@ -303,16 +303,16 @@ GeoIP lookup function is used to lookup the geoip information by ip address. You
 - lookup_fields: required
 - output_fields: optional
 - parameters: required
-- kb_name: `<String>` required. The name of the knowledge base.
-- option: `<String>` required. Enum: `IP_TO_COUNTRY`, `IP_TO_PROVINCE`, `IP_TO_CITY`, `IP_TO_SUBDIVISION_ADDR`, `IP_TO_DETAIL`, `IP_TO_LATLNG`, `IP_TO_PROVIDER`, `IP_TO_JSON`, `IP_TO_OBJECT`.
-- geolocation_field_mapping : `<Map<String, String>>` optional. The option is required when the option is `IP_TO_OBJECT`. The mapping of the geolocation fields. The key is the field name of the knowledge base , and the value is the field name of the event.
-- COUNTRY: `<String>` optional.
-- PROVINCE: `<String>` optional.
-- CITY: `<String>` optional.
-- LONGITUDE: `<String>` optional.
-- LATITUDE: `<String>` optional.
-- ISP: `<String>` optional.
-- ORGANIZATION: `<String>` optional.
+  - kb_name: `<String>` required. The name of the knowledge base.
+  - option: `<String>` required. Enum: `IP_TO_COUNTRY`, `IP_TO_PROVINCE`, `IP_TO_CITY`, `IP_TO_SUBDIVISION_ADDR`, `IP_TO_DETAIL`, `IP_TO_LATLNG`, `IP_TO_PROVIDER`, `IP_TO_JSON`, `IP_TO_OBJECT`.
+  - geolocation_field_mapping : `<Map<String, String>>` optional. The option is required when the option is `IP_TO_OBJECT`. The mapping of the geolocation fields. The key is the field name of the knowledge base , and the value is the field name of the event.
+    - COUNTRY: `<String>` optional.
+    - PROVINCE: `<String>` optional.
+    - CITY: `<String>` optional.
+    - LONGITUDE: `<String>` optional.
+    - LATITUDE: `<String>` optional.
+    - ISP: `<String>` optional.
+    - ORGANIZATION: `<String>` optional.
 
 #### Option
 
@@ -369,7 +369,7 @@ JSON extract function is used to extract the value from json string.
 - lookup_fields: required
 - output_fields: required
 - parameters: required
-- value_expression: `<String>` required. The json path expression.
+  - value_expression: `<String>` required. The json path expression.
 
 Example:
 
@@ -390,7 +390,7 @@ Path combine function is used to combine the file path. The path value can be co
 - lookup_fields: required
 - output_fields: required
 - parameters: required
-- path: `<Array>` required.
+  - path: `<Array>` required.
 
 Example:
 
@@ -411,11 +411,11 @@ Rename function is used to rename or reformat(e.g. by replacing character unders
 - lookup_fields: not required
 - output_fields: not required
 - parameters: required
-- parent_fields: `<Array>` optional. Specify fields whose children will inherit the Rename fields and Rename expression operations.
-- rename_fields: `Map<String, String>` required. The key  is the original field name, and the value is the new field name.
-- current_field_name: `<String>` required. The original field name.
-- new_field_name: `<String>` required. The new field name.
-- rename_expression: `<String>` optional. AviatorScript expression whose returned value will be used to rename fields.
+  - parent_fields: `<Array>` optional. Specify fields whose children will inherit the Rename fields and Rename expression operations.
+  - rename_fields: `Map<String, String>` required. The key  is the original field name, and the value is the new field name.
+  - current_field_name: `<String>` required. The original field name.
+  - new_field_name: `<String>` required. The new field name.
+  - rename_expression: `<String>` optional. AviatorScript expression whose returned value will be used to rename fields.
 
 ```
 A single Function can include both rename_fields (to rename specified field names) and rename_expression (to globally rename fields). However, the Rename fields strategy will execute first.
@@ -462,7 +462,7 @@ Snowflake ID function is used to generate the snowflake id. The snowflake id is 
 - lookup_fields: not required
 - output_fields: required
 - parameters: optional
-- data_center_id_num: `<Integer>` optional. Default is `0`, range is `0-31`.
+  - data_center_id_num: `<Integer>` optional. Default is `0`, range is `0-31`.
 
 Example:
 
@@ -482,9 +482,9 @@ String joiner function joins multiple string fields using a delimiter, prefix, a
 - lookup_fields: required. Support more than one fields.
 - output_fields: required
 - parameters: optional
-- delimiter: `<String>` optional. Default is `,`.
-- prefix: `<String>` optional. Default is empty string.
-- suffix: `<String>` optional. Default is empty string.
+  - delimiter: `<String>` optional. Default is `,`.
+  - prefix: `<String>` optional. Default is empty string.
+  - suffix: `<String>` optional. Default is empty string.
 
 Example:
 
@@ -507,7 +507,7 @@ Unix timestamp converter function is used to convert the unix timestamp precisio
 - lookup_fields: required
 - output_fields: required
 - parameters: required
-- precision: `<String>` required. Enum: `milliseconds`, `seconds`, `minutes`. The minutes precision is used to generate Unix timestamp, round it to the minute level, and output it in seconds format.
+  - precision: `<String>` required. Enum: `milliseconds`, `seconds`, `minutes`. The minutes precision is used to generate Unix timestamp, round it to the minute level, and output it in seconds format.
 - Example:
 _`__timestamp` Internal field, from source ingestion time or current unix timestamp.
 

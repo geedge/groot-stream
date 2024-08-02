@@ -30,7 +30,7 @@ This example read data from inline source and print to console. It will filter t
 
  filters:  # [object] Define filter operator
    filter_operator: # [object] AviatorFilter operator name 
-     type: com.geedgenetworks.core.filter.AviatorFilter 
+     type: aviator
      properties:
        expression: event.server_ip == '8.8.8.8' || event.decoded_as == 'HTTP' # [string] Aviator expression, it return true or false.
 
