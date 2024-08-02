@@ -51,8 +51,7 @@ public class ClickHouseIT extends TestSuiteBase implements TestResource {
     private static final Config CONFIG = getInitClickhouseConfig();
     private ClickHouseContainer clickHouseContainer;
     private Connection connection;
-    private static final List<Object[]>TEST_DATASET =
-            generateTestDataSet();
+    private static final List<Object[]>TEST_DATASET = generateTestDataSet();
     private static final String[] default_columns = new String[] {
                 "id",
                 "c_map",
