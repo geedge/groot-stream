@@ -24,6 +24,9 @@ public class Flatten implements ScalarFunction {
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
+        if(udfContext.getParameters()==null){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
+        }
         prefix = udfContext.getParameters().getOrDefault("prefix", "").toString();
         delimiter = udfContext.getParameters().getOrDefault("delimiter", ".").toString();
         flattenKeys = new HashSet<>();

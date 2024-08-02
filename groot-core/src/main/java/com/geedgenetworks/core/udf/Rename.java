@@ -26,7 +26,9 @@ public class Rename implements ScalarFunction {
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
-
+        if(udfContext.getParameters()==null ){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
+        }
         String parentFields = udfContext.getParameters().getOrDefault("parent_fields", "").toString();
         this.parentFields = new HashSet<>();
         if (!parentFields.isEmpty()) {
