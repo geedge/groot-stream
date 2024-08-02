@@ -2,6 +2,7 @@ package com.geedgenetworks.bootstrap.execution;
 
 import com.geedgenetworks.common.utils.ReflectionUtils;
 import com.geedgenetworks.core.filter.Filter;
+import com.geedgenetworks.core.processor.Processor;
 import com.geedgenetworks.core.processor.aggregate.AggregateProcessor;
 import com.geedgenetworks.core.processor.projection.ProjectionProcessor;
 import com.typesafe.config.Config;
@@ -20,8 +21,7 @@ public abstract  class AbstractExecutor<K, V>
     protected final Config operatorConfig;
     protected final Map<K,V> operatorMap;
     protected final Map<String,Filter> filterMap = new HashMap<>();
-    protected final Map<String,ProjectionProcessor> projectionProcessorMap = new HashMap<>();
-    protected final Map<String, AggregateProcessor> aggregateProcessorMap = new HashMap<>();
+    protected final Map<String, Processor> processorMap = new HashMap<>();
 
     protected AbstractExecutor(List<URL> jarPaths, Config operatorConfig) {
         this.operatorConfig = operatorConfig;
@@ -30,13 +30,9 @@ public abstract  class AbstractExecutor<K, V>
         for (Filter filter : filters) {
             this.filterMap.put(filter.type(), filter);
         }
-        ServiceLoader<ProjectionProcessor> projectionProcessors = ServiceLoader.load(ProjectionProcessor.class);
-        for (ProjectionProcessor projectionProcessor : projectionProcessors) {
-            this.projectionProcessorMap.put(projectionProcessor.type(), projectionProcessor);
-        }
-        ServiceLoader<AggregateProcessor> aggregateProcessors = ServiceLoader.load(AggregateProcessor.class);
-        for (AggregateProcessor aggregateProcessor : aggregateProcessors) {
-            this.aggregateProcessorMap.put(aggregateProcessor.type(), aggregateProcessor);
+        ServiceLoader<Processor> processors = ServiceLoader.load(Processor.class);
+        for (Processor processor : processors) {
+            this.processorMap.put(processor.type(), processor);
         }
     }
 
