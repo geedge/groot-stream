@@ -1,1 +1,2 @@
+com.geedgenetworks.core.processor.aggregate.AggregateProcessorImpl
 com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
