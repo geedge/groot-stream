@@ -31,7 +31,6 @@ public class PathCombine implements ScalarFunction {
         if (udfContext.getParameters() != null
                 && !udfContext.getParameters().isEmpty()) {
             String paths = udfContext.getParameters().getOrDefault("path","").toString();
-            // 使用逗号分隔项并转换为数组
             if (!paths.isEmpty()) {
                 List<String> pathList;
                 try {
