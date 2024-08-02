@@ -47,8 +47,8 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
     protected SingleOutputStreamOperator executeAggregateProcessor(SingleOutputStreamOperator dataStream, Node node, AggregateConfig aggregateConfig) throws JobExecuteException {
 
         AggregateProcessor aggregateProcessor;
-        if (aggregateProcessorMap.containsKey(aggregateConfig.getType())) {
-            aggregateProcessor = aggregateProcessorMap.get(aggregateConfig.getType());
+        if (processorMap.containsKey(aggregateConfig.getType())) {
+            aggregateProcessor = (AggregateProcessor) processorMap.get(aggregateConfig.getType());
         } else {
             Class cls;
             try {
@@ -63,7 +63,7 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
         }
         try {
             dataStream =
-                    aggregateProcessor.aggregateProcessorFunction(
+                    aggregateProcessor.processorFunction(
                             dataStream, aggregateConfig, jobRuntimeEnvironment.getStreamExecutionEnvironment().getConfig());
         } catch (Exception e) {
             throw new JobExecuteException("Create aggregate pipeline instance failed!", e);
@@ -74,8 +74,8 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
     protected SingleOutputStreamOperator executeProjectionProcessor(SingleOutputStreamOperator dataStream, Node node, ProjectionConfig projectionConfig) throws JobExecuteException {
 
         ProjectionProcessor projectionProcessor;
-        if (projectionProcessorMap.containsKey(projectionConfig.getType())) {
-            projectionProcessor = projectionProcessorMap.get(projectionConfig.getType());
+        if (processorMap.containsKey(projectionConfig.getType())) {
+            projectionProcessor = (ProjectionProcessor) processorMap.get(projectionConfig.getType());
         } else {
             Class cls;
             try {
@@ -90,8 +90,8 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
         }
         try {
             dataStream =
-                    projectionProcessor.projectionProcessorFunction(
-                            dataStream, projectionConfig);
+                    projectionProcessor.processorFunction(
+                            dataStream, projectionConfig,jobRuntimeEnvironment.getStreamExecutionEnvironment().getConfig());
         } catch (Exception e) {
             throw new JobExecuteException("Create processing pipeline instance failed!", e);
         }

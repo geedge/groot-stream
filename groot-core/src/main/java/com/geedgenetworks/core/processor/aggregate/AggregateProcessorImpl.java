@@ -11,17 +11,12 @@ import org.apache.flink.streaming.api.windowing.assigners.SlidingProcessingTimeW
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-
 import static com.geedgenetworks.common.Constants.*;
 
-public class AggregateProcessorImpl implements AggregateProcessor {
+public class AggregateProcessorImpl implements AggregateProcessor  {
 
     @Override
-    public SingleOutputStreamOperator<Event> aggregateProcessorFunction(
-            SingleOutputStreamOperator<Event> grootEventSingleOutputStreamOperator,
-            AggregateConfig aggregateConfig, ExecutionConfig config)
-            throws Exception {
-
+    public SingleOutputStreamOperator<Event> processorFunction(SingleOutputStreamOperator<Event> grootEventSingleOutputStreamOperator, AggregateConfig aggregateConfig, ExecutionConfig config) throws Exception {
         if (aggregateConfig.getParallelism() != 0) {
             switch (aggregateConfig.getWindow_type()) {
                 case TUMBLING_PROCESSING_TIME:
