@@ -3,6 +3,7 @@ package com.geedgenetworks.core.processor.projection;
 import com.geedgenetworks.common.udf.AggregateFunction;
 import com.geedgenetworks.common.udf.ScalarFunction;
 
+import com.geedgenetworks.common.udf.UDFContext;
 import com.googlecode.aviator.Expression;
 import lombok.Data;
 
@@ -15,4 +16,5 @@ public class UdfEntity implements Serializable {
     private Expression filterExpression;
     private String name;
     private String className;
+    private UDFContext udfContext;
 }
