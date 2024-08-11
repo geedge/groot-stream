@@ -1,11 +1,13 @@
 package com.geedgenetworks.test.e2e.clickhouse;
 
+import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.test.common.TestResource;
 import com.geedgenetworks.test.common.TestSuiteBase;
 import com.geedgenetworks.test.common.container.ContainerUtil;
 import com.geedgenetworks.test.common.container.TestContainer;
 import com.geedgenetworks.test.common.container.TestContainerId;
 import com.geedgenetworks.test.common.junit.DisabledOnContainer;
+import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +17,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.TestTemplate;
 import org.testcontainers.containers.ClickHouseContainer;
+import org.testcontainers.containers.Container;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.lifecycle.Startables;
 import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import org.testcontainers.utility.DockerLoggerFactory;
+import org.testcontainers.utility.MountableFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,13 +30,13 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @DisabledOnContainer(
@@ -41,7 +45,7 @@ import java.util.stream.Stream;
 public class ClickHouseIT extends TestSuiteBase implements TestResource {
     private static final String CLICKHOUSE_DOCKER_IMAGE = "clickhouse/clickhouse-server:23.3.19.32";
     private static final String DRIVER_CLASS = "com.clickhouse.jdbc.ClickHouseDriver";
-    private static final String INIT_CLICKHOUSE_PATH = "/init/clickhouse_init.conf";
+    private static final String INIT_CLICKHOUSE_PATH = "/init/clickhouse_test_sql.conf";
     private static final String DATABASE = "default";
     private static final String SOURCE_TABLE = "source_table";
     private static final String SINK_TABLE = "sink_table";
@@ -51,39 +55,27 @@ public class ClickHouseIT extends TestSuiteBase implements TestResource {
     private static final Config CONFIG = getInitClickhouseConfig();
     private ClickHouseContainer clickHouseContainer;
     private Connection connection;
-    private static final List<Object[]>TEST_DATASET = generateTestDataSet();
     private static final String[] default_columns = new String[] {
-                "id",
-                "c_map",
-                "c_array_string",
-                "c_array_short",
-                "c_array_int",
-                "c_array_long",
-                "c_array_float",
-                "c_array_double",
-                "c_string",
-                "c_boolean",
-                "c_int8",
-                "c_int16",
-                "c_int32",
-                "c_int64",
-                "c_float32",
-                "c_float64",
-                "c_decimal",
-                "c_date",
-                "c_datetime",
-                "c_nullable",
-                "c_lowcardinality",
-                "c_nested.int",
-                "c_nested.double",
-                "c_nested.string",
-                "c_int128",
-                "c_uint128",
-                "c_int256",
-                "c_uint256",
-                "c_point",
-                "c_ring"
+            "id",
+            "c_array_string",
+            "c_array_short",
+            "c_array_int",
+            "c_array_long",
+            "c_array_float",
+            "c_array_double",
+            "c_string",
+            "c_int8",
+            "c_int16",
+            "c_int32",
+            "c_int64",
+            "c_float32",
+            "c_float64",
+            "c_decimal",
+            "c_nullable",
+            "c_lowcardinality"
     };
+    private static final List<Map<String, Object>>TEST_DATASET = generateTestDataSet();
+
 
     @BeforeAll
     @Override
@@ -92,10 +84,17 @@ public class ClickHouseIT extends TestSuiteBase implements TestResource {
                 new ClickHouseContainer(CLICKHOUSE_DOCKER_IMAGE)
                         .withNetwork(NETWORK)
                         .withNetworkAliases(HOST)
+                        .withCopyFileToContainer(MountableFile.forClasspathResource("init/users.xml"), "/etc/clickhouse-server/users.xml")
+                        .withCopyFileToContainer(MountableFile.forClasspathResource("init/init-clickhouse.sql"), "/docker-entrypoint-initdb.d/init-clickhouse.sql")
                         .withLogConsumer(
                                 new Slf4jLogConsumer(
                                         DockerLoggerFactory.getLogger(CLICKHOUSE_DOCKER_IMAGE)));
+
         Startables.deepStart(Stream.of(this.clickHouseContainer)).join();
+        System.out.println("Clickhouse JDBC URL: " + this.clickHouseContainer.getJdbcUrl());
+        System.out.println("Clickhouse username: " + this.clickHouseContainer.getUsername());
+        System.out.println("Clickhouse password: " + this.clickHouseContainer.getPassword());
+
         log.info("Clickhouse container started");
         Awaitility.given()
                 .ignoreExceptions()
@@ -104,19 +103,50 @@ public class ClickHouseIT extends TestSuiteBase implements TestResource {
                 .untilAsserted(this::initConnection);
         this.initializeClickhouseTable();
         this.batchInsertData();
+        log.info(JSON.toJSONString(TEST_DATASET));
 
     }
 
+    private void initConnection()
+            throws SQLException, ClassNotFoundException, InstantiationException,
+            IllegalAccessException {
+        final Properties info = new Properties();
+        info.put("user", this.clickHouseContainer.getUsername());
+        info.put("password",  this.clickHouseContainer.getPassword());
+        this.connection =
+                ((Driver) Class.forName(DRIVER_CLASS).newInstance())
+                        .connect(this.clickHouseContainer.getJdbcUrl(), info);
+
+    }
 
     @TestTemplate
-    public void testClickhouse(TestContainer container) throws Exception {
+    public void testClickHouse(TestContainer container) throws Exception {
         assertHasData(SOURCE_TABLE);
-
-        //assertHasData(SINK_TABLE);
-        //compareResult();
-        //clearSinkTable();
-
+        clearTable(SOURCE_TABLE);
     }
+
+    @TestTemplate
+    public void testClickHouseDataTypeSinkTable(TestContainer container) throws Exception {
+        CompletableFuture.supplyAsync(
+                () -> {
+                    try {
+                        Container.ExecResult execResult = container.executeJob("/clickhouse_data_type_sink.yaml");
+                        Assertions.assertEquals(0, execResult.getExitCode(), execResult.getStderr());
+                        return execResult;
+                    } catch (Exception e) {
+                        log.error("Commit task exception:" + e.getMessage());
+                        throw new RuntimeException(e);
+                    }
+                });
+
+        await().atMost(300000, TimeUnit.MILLISECONDS)
+                .untilAsserted(
+                        () -> {
+                            assertHasData(SINK_TABLE);
+                            clearTable(SINK_TABLE);
+                        });
+    }
+
 
     private void assertHasData(String table) {
         try (Statement statement = connection.createStatement()) {
@@ -128,9 +158,9 @@ public class ClickHouseIT extends TestSuiteBase implements TestResource {
         }
     }
 
-    private void clearSinkTable() {
+    private void clearTable(String table) {
         try (Statement statement = connection.createStatement()) {
-            statement.execute(String.format("truncate table %s.%s", DATABASE, SINK_TABLE));
+            statement.execute(String.format("truncate table %s.%s", DATABASE, table));
         } catch (SQLException e) {
             throw new RuntimeException("Test clickhouse server image error", e);
         }
@@ -187,38 +217,24 @@ public class ClickHouseIT extends TestSuiteBase implements TestResource {
         try {
             this.connection.setAutoCommit(true);
             preparedStatement = this.connection.prepareStatement(sql);
-            for (Object[] row : TEST_DATASET) {
-                preparedStatement.setLong(1, (Long) row[0]);
-                preparedStatement.setObject(2, row[1]);
-                preparedStatement.setArray(3, toSqlArray(row[2]));
-                preparedStatement.setArray(4, toSqlArray(row[3]));
-                preparedStatement.setArray(5, toSqlArray(row[4]));
-                preparedStatement.setArray(6, toSqlArray(row[5]));
-                preparedStatement.setArray(7, toSqlArray(row[6]));
-                preparedStatement.setArray(8, toSqlArray(row[7]));
-                preparedStatement.setString(9, (String) row[8]);
-                preparedStatement.setBoolean(10, (Boolean) row[9]);
-                preparedStatement.setByte(11, (Byte) row[10]);
-                preparedStatement.setShort(12, (Short) row[11]);
-                preparedStatement.setInt(13, (Integer) row[12]);
-                preparedStatement.setLong(14, (Long) row[13]);
-                preparedStatement.setFloat(15, (Float) row[14]);
-                preparedStatement.setDouble(16, (Double) row[15]);
-                preparedStatement.setBigDecimal(17, (BigDecimal) row[16]);
-                preparedStatement.setDate(18, Date.valueOf((LocalDate) row[17]));
-                preparedStatement.setTimestamp(
-                        19, Timestamp.valueOf((LocalDateTime) row[18]));
-                preparedStatement.setInt(20, (Integer) row[19]);
-                    preparedStatement.setString(21, (String) row[20]);
-                preparedStatement.setArray(22, toSqlArray(row[21]));
-                preparedStatement.setArray(23, toSqlArray(row[22]));
-                preparedStatement.setArray(24, toSqlArray(row[23]));
-                preparedStatement.setObject(25, row[24]);
-                preparedStatement.setObject(26, row[25]);
-                preparedStatement.setObject(27, row[26]);
-                preparedStatement.setObject(28, row[27]);
-                preparedStatement.setObject(29, row[28]);
-                preparedStatement.setObject(30, row[29]);
+            for (Map<String, Object> row : TEST_DATASET) {
+                preparedStatement.setLong(1, (Long) row.get(default_columns[0]));
+                preparedStatement.setArray(2, toSqlArray(row.get(default_columns[1])));
+                preparedStatement.setArray(3, toSqlArray(row.get(default_columns[2])));
+                preparedStatement.setArray(4, toSqlArray(row.get(default_columns[3])));
+                preparedStatement.setArray(5, toSqlArray(row.get(default_columns[4])));
+                preparedStatement.setArray(6, toSqlArray(row.get(default_columns[5])));
+                preparedStatement.setArray(7, toSqlArray(row.get(default_columns[6])));
+                preparedStatement.setString(8, (String) row.get(default_columns[7]));
+                preparedStatement.setByte(9, (Byte) row.get(default_columns[8]));
+                preparedStatement.setShort(10, (Short) row.get(default_columns[9]));
+                preparedStatement.setInt(11, (Integer) row.get(default_columns[10]));
+                preparedStatement.setLong(12, (Long) row.get(default_columns[11]));
+                preparedStatement.setFloat(13, (Float) row.get(default_columns[12]));
+                preparedStatement.setDouble(14, (Double) row.get(default_columns[13]));
+                preparedStatement.setBigDecimal(15, (BigDecimal) row.get(default_columns[14]));
+                preparedStatement.setInt(16, (Integer) row.get(default_columns[15]));
+                preparedStatement.setString(17, (String) row.get(default_columns[16]));
                 preparedStatement.addBatch();
             }
 
@@ -277,56 +293,33 @@ public class ClickHouseIT extends TestSuiteBase implements TestResource {
         return connection.createArrayOf(sqlType, elements);
     }
 
-    private static List<Object[]> generateTestDataSet() {
-        List<Object[]> rows = new ArrayList<>();
+    private static List<Map<String, Object>> generateTestDataSet() {
+        List<Map<String, Object>> rows = new ArrayList<>();
         for (int i = 0; i < 100; ++i) {
-            Object[] row = new Object[] {
-                                (long) i,
-                                Collections.singletonMap("key", Integer.parseInt("1")),
-                                new String[] {"string"},
-                                new Short[] {Short.parseShort("1")},
-                                new Integer[] {Integer.parseInt("1")},
-                                new Long[] {Long.parseLong("1")},
-                                new Float[] {Float.parseFloat("1.1")},
-                                new Double[] {Double.parseDouble("1.1")},
-                                "string",
-                                Boolean.FALSE,
-                                Byte.parseByte("1"),
-                                Short.parseShort("1"),
-                                Integer.parseInt("1"),
-                                Long.parseLong("1"),
-                                Float.parseFloat("1.1"),
-                                Double.parseDouble("1.1"),
-                                BigDecimal.valueOf(11L, 1),
-                                LocalDate.now(),
-                                LocalDateTime.now(),
-                                i,
-                                "string",
-                                new Integer[] {Integer.parseInt("1")},
-                                new Double[] {Double.parseDouble("1.1")},
-                                new String[] {"1"},
-                                "170141183460469231731687303715884105727",
-                                "340282366920938463463374607431768211455",
-                                "57896044618658097711785492504343953926634992332820282019728792003956564819967",
-                                "115792089237316195423570985008687907853269984665640564039457584007913129639935",
-                                new double[] {1, 2},
-                                new double[][] {{2, 3}, {4, 5}}
-                            };
+            Map<String, Object> row = Maps.newLinkedHashMap();
+            row.put(default_columns[0], (long) i);
+            row.put(default_columns[1], new String[] {"string"});
+            row.put(default_columns[2], new Short[] {Short.parseShort("1")});
+            row.put(default_columns[3], new Integer[] {Integer.parseInt("1")});
+            row.put(default_columns[4], new Long[] {Long.parseLong("1")});
+            row.put(default_columns[5], new Float[] {Float.parseFloat("1.1")});
+            row.put(default_columns[6], new Double[] {Double.parseDouble("1.1")});
+            row.put(default_columns[7], "string");
+            row.put(default_columns[8], Byte.parseByte("1"));
+            row.put(default_columns[9], Short.parseShort("1"));
+            row.put(default_columns[10], Integer.parseInt("1"));
+            row.put(default_columns[11], Long.parseLong("1"));
+            row.put(default_columns[12], Float.parseFloat("1.1"));
+            row.put(default_columns[13], Double.parseDouble("1.1"));
+            row.put(default_columns[14], BigDecimal.valueOf(11L, 1));
+            row.put(default_columns[15], i);
+            row.put(default_columns[16], "string");
             rows.add(row);
         }
         return rows;
     }
 
-    private void initConnection()
-            throws SQLException, ClassNotFoundException, InstantiationException,
-            IllegalAccessException {
-        final Properties info = new Properties();
-        info.put("user", this.clickHouseContainer.getUsername());
-        info.put("password", this.clickHouseContainer.getPassword());
-        this.connection =
-                ((Driver) Class.forName(DRIVER_CLASS).newInstance())
-                        .connect(this.clickHouseContainer.getJdbcUrl(), info);
-    }
+
 
     private void initializeClickhouseTable() {
         try {
