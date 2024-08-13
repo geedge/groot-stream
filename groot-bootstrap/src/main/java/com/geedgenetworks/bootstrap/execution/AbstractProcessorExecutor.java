@@ -2,15 +2,14 @@ package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
-import com.geedgenetworks.common.config.AggregateConfigOptions;
-import com.geedgenetworks.common.config.CheckConfigUtil;
-import com.geedgenetworks.common.config.CheckResult;
-import com.geedgenetworks.common.config.ProjectionConfigOptions;
+import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.core.pojo.AggregateConfig;
 import com.geedgenetworks.core.pojo.ProcessorConfig;
 import com.geedgenetworks.core.pojo.ProjectionConfig;
+import com.geedgenetworks.core.pojo.TableConfig;
+import com.geedgenetworks.core.processor.table.TableProcessor;
 import com.geedgenetworks.core.processor.aggregate.AggregateProcessor;
 import com.geedgenetworks.core.processor.projection.ProjectionProcessor;
 import com.typesafe.config.Config;
@@ -35,6 +34,9 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
             case "aggregate":
                 dataStream = executeAggregateProcessor(dataStream, node, (AggregateConfig) processorConfig);
                 break;
+            case "table":
+                dataStream = executeTableProcessor(dataStream, node, (TableConfig) processorConfig);
+                break;
             case "projection":
                 dataStream = executeProjectionProcessor(dataStream, node, (ProjectionConfig) processorConfig);
                 break;
@@ -43,7 +45,32 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
         }
         return dataStream;
     }
+    protected SingleOutputStreamOperator executeTableProcessor(SingleOutputStreamOperator dataStream, Node node, TableConfig tableConfig) throws JobExecuteException {
 
+        TableProcessor tableProcessor;
+        if (processorMap.containsKey(tableConfig.getType())) {
+            tableProcessor = (TableProcessor) processorMap.get(tableConfig.getType());
+        } else {
+            Class cls;
+            try {
+                cls = Class.forName(tableConfig.getType());
+                tableProcessor = (TableProcessor) cls.newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | RuntimeException e) {
+                throw new JobExecuteException("get processing pipeline instance failed!", e);
+            }
+        }
+        if (node.getParallelism() > 0) {
+            tableConfig.setParallelism(node.getParallelism());
+        }
+        try {
+            dataStream =
+                    tableProcessor.processorFunction(
+                            dataStream, tableConfig, jobRuntimeEnvironment.getStreamExecutionEnvironment().getConfig());
+        } catch (Exception e) {
+            throw new JobExecuteException("Create orderby pipeline instance failed!", e);
+        }
+        return dataStream;
+    }
     protected SingleOutputStreamOperator executeAggregateProcessor(SingleOutputStreamOperator dataStream, Node node, AggregateConfig aggregateConfig) throws JobExecuteException {
 
         AggregateProcessor aggregateProcessor;
@@ -114,6 +141,9 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
             case "aggregate":
                 projectionConfig = checkAggregateProcessorConfig(key, value, processorsConfig);
                 break;
+            case "table":
+                projectionConfig = checkTableProcessorConfig(key, value, processorsConfig);
+                break;
             default://兼容历史版本
                 projectionConfig = checkProjectionProcessorConfig(key, value, processorsConfig);
         }
@@ -164,5 +194,24 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
         return aggregateConfig;
     }
 
+    protected TableConfig checkTableProcessorConfig(String key, Map<String, Object> value, Config config) {
 
+
+        CheckResult result = CheckConfigUtil.checkAtLeastOneExists(config.getConfig(key),
+                TableConfigOptions.OUTPUT_FIELDS.key(),
+                TableConfigOptions.REMOVE_FIELDS.key(),
+                TableConfigOptions.FUNCTIONS.key());
+        if (!result.isSuccess()) {
+            throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
+                    "Table processor: %s, At least one of [%s] should be specified.",
+                    key, String.join(",",
+                            TableConfigOptions.OUTPUT_FIELDS.key(),
+                            TableConfigOptions.REMOVE_FIELDS.key(),
+                            TableConfigOptions.FUNCTIONS.key())));
+        }
+
+        TableConfig tableConfig = new JSONObject(value).toJavaObject(TableConfig.class);
+        tableConfig.setName(key);
+        return tableConfig;
+    }
 }
