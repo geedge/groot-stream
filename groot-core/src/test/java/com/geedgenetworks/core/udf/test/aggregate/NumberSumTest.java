@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class NumberSumTest {
 
     @Test
-    public void testNumberSumTest() throws ParseException {
+    public void test() throws ParseException {
 
         Integer[] intArr = new Integer[]{1, 2, 3, 4};
         Long[] longArr = new Long[]{1L, 2L, 3L, 4L};
@@ -52,8 +52,8 @@ public class NumberSumTest {
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(metricsFields);
-        Accumulator agg = numberSum.open(udfContext,accumulator);
-
+        numberSum.open(udfContext);
+        Accumulator agg = numberSum.initAccumulator(accumulator);
         for (Number o : arr) {
             Event event = new Event();
             Map<String, Object> extractedFields = new HashMap<>();

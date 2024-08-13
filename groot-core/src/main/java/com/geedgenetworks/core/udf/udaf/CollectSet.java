@@ -8,6 +8,7 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.AggregateFunction;
 import com.geedgenetworks.common.udf.UDFContext;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ public class CollectSet implements AggregateFunction {
 
 
     @Override
-    public Accumulator open(UDFContext udfContext,Accumulator acc) {
+    public void open(UDFContext udfContext) {
         if(udfContext.getLookup_fields()==null ){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
@@ -32,10 +33,12 @@ public class CollectSet implements AggregateFunction {
         else {
             outputField = lookupField;
         }
+    }
+    @Override
+    public Accumulator initAccumulator(Accumulator acc) {
         acc.getMetricsFields().put(outputField, new HashSet<>());
         return acc;
     }
-
 
     @Override
     public Accumulator add(Event event, Accumulator acc) {
@@ -58,8 +61,5 @@ public class CollectSet implements AggregateFunction {
         return acc;
     }
 
-    @Override
-    public void close() {
 
-    }
 }

@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class MeanTest {
 
     @Test
-    public void testNumberSumTest() throws ParseException {
+    public void test() throws ParseException {
 
         Integer[] intArr1 = new Integer[]{1, 2, 3, 4};
         Integer[] intArr2 = new Integer[]{1, 6, 3};
@@ -55,8 +55,8 @@ public class MeanTest {
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(metricsFields);
-        Accumulator agg = mean.open(udfContext,accumulator);
-
+        mean.open(udfContext);
+        Accumulator agg = mean.initAccumulator(accumulator);
         for (Number o : arr) {
             Event event = new Event();
             Map<String, Object> extractedFields = new HashMap<>();
@@ -80,8 +80,8 @@ public class MeanTest {
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(metricsFields);
-        Accumulator agg = mean.open(udfContext,accumulator);
-
+        mean.open(udfContext);
+        Accumulator agg = mean.initAccumulator(accumulator);
         for (Number o : arr) {
             Event event = new Event();
             Map<String, Object> extractedFields = new HashMap<>();
@@ -103,8 +103,8 @@ public class MeanTest {
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(metricsFields);
-        Accumulator agg = mean.open(udfContext,accumulator);
-
+        mean.open(udfContext);
+        Accumulator agg = mean.initAccumulator(accumulator);
         for (Number o : arr) {
             Event event = new Event();
             Map<String, Object> extractedFields = new HashMap<>();

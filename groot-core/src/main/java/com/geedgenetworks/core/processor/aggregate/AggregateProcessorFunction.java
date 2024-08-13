@@ -71,23 +71,24 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
                 }
 
             }
+            for (UdfEntity udfEntity : functions) {
+                udfEntity.getAggregateFunction().open(udfEntity.getUdfContext());
+            }
         } catch (Exception e) {
             throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Initialization UDAF failed!", e);
 
         }
     }
-
     @Override
     public Accumulator createAccumulator() {
         Map<String, Object> map = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(map);
         for (UdfEntity udfEntity : functions) {
-            udfEntity.getAggregateFunction().open(udfEntity.getUdfContext(), accumulator);
+            udfEntity.getAggregateFunction().initAccumulator(accumulator);
         }
         return accumulator;
     }
-
     @Override
     public Accumulator add(Event event, Accumulator accumulator) {
 
