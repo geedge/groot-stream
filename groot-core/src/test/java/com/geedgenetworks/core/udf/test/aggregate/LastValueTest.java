@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class LastValueTest {
 
     @Test
-    public void testNumberSumTest() throws ParseException {
+    public void test() throws ParseException {
 
         List<String> arr = List.of("192.168.1.1", "192.168.1.2", "192.168.1.3", "192.168.1.4","192.168.1.4");
         excute(arr);
@@ -50,8 +50,8 @@ public class LastValueTest {
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(metricsFields);
-        Accumulator agg = lastValue.open(udfContext,accumulator);
-
+        lastValue.open(udfContext);
+        Accumulator agg = lastValue.initAccumulator(accumulator);
         for (String o : arr) {
             Event event = new Event();
             Map<String, Object> extractedFields = new HashMap<>();

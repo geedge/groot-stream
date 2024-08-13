@@ -13,15 +13,16 @@ public class LongCount implements AggregateFunction {
 
 
     @Override
-    public Accumulator open(UDFContext udfContext,Accumulator acc){
+    public void open(UDFContext udfContext){
         if(udfContext.getOutput_fields()==null ){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
         outputField = udfContext.getOutput_fields().get(0);
+    }
+    @Override
+    public Accumulator initAccumulator(Accumulator acc) {
         return acc;
     }
-
-
     @Override
     public Accumulator add(Event event, Accumulator acc) {
 
@@ -39,9 +40,5 @@ public class LongCount implements AggregateFunction {
         return acc;
     }
 
-    @Override
-    public void close() {
-
-    }
 
 }

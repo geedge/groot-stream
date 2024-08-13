@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class CollectListTest {
 
     @Test
-    public void testNumberSumTest() throws ParseException {
+    public void test() throws ParseException {
 
         List<String> arr = List.of("192.168.1.1", "192.168.1.2", "192.168.1.3", "192.168.1.4");
         excute(arr);
@@ -49,7 +49,8 @@ public class CollectListTest {
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(metricsFields);
-        Accumulator agg = collectList.open(udfContext,accumulator);
+        collectList.open(udfContext);
+        Accumulator agg = collectList.initAccumulator(accumulator);
 
         for (String o : arr) {
             Event event = new Event();

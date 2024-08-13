@@ -6,6 +6,7 @@ import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.AggregateFunction;
 import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.core.pojo.OnlineStatistics;
 
 
 public class NumberSum implements AggregateFunction {
@@ -14,7 +15,7 @@ public class NumberSum implements AggregateFunction {
 
 
     @Override
-    public Accumulator open(UDFContext udfContext,Accumulator acc){
+    public void open(UDFContext udfContext){
         if(udfContext.getLookup_fields()==null ){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
@@ -25,10 +26,12 @@ public class NumberSum implements AggregateFunction {
         else {
             outputField = lookupField;
         }
-        return acc;
     }
 
-
+    @Override
+    public Accumulator initAccumulator(Accumulator acc) {
+        return acc;
+    }
     @Override
     public Accumulator add(Event event, Accumulator acc) {
 
