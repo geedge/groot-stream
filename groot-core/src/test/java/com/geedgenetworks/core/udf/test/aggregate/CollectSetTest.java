@@ -47,8 +47,8 @@ public class CollectSetTest {
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(metricsFields);
-        Accumulator agg = collectSet.open(udfContext,accumulator);
-
+        collectSet.open(udfContext);
+        Accumulator agg = collectSet.initAccumulator(accumulator);
         for (String o : arr) {
             Event event = new Event();
             Map<String, Object> extractedFields = new HashMap<>();

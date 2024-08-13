@@ -7,7 +7,9 @@ import java.io.Serializable;
 
 public interface AggregateFunction extends Serializable {
 
-    Accumulator open(UDFContext udfContext,Accumulator acc);
+    void open(UDFContext udfContext);
+
+    Accumulator initAccumulator(Accumulator acc);
 
     Accumulator add(Event val, Accumulator acc);
 
@@ -15,6 +17,5 @@ public interface AggregateFunction extends Serializable {
 
     Accumulator getResult(Accumulator acc);
 
-    void close();
-
+    default void close(){};
 }

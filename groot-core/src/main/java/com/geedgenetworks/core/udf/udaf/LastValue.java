@@ -36,7 +36,7 @@ public class LastValue implements AggregateFunction {
 
 
     @Override
-    public Accumulator open(UDFContext udfContext,Accumulator acc) {
+    public void open(UDFContext udfContext) {
         if(udfContext.getLookup_fields()==null ){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
@@ -47,9 +47,11 @@ public class LastValue implements AggregateFunction {
         else {
             outputField = lookupField;
         }
+    }
+    @Override
+    public Accumulator initAccumulator(Accumulator acc) {
         return acc;
     }
-
 
     @Override
     public Accumulator add(Event event, Accumulator acc) {
@@ -69,8 +71,4 @@ public class LastValue implements AggregateFunction {
         return acc;
     }
 
-    @Override
-    public void close() {
-
-    }
 }

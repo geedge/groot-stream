@@ -17,7 +17,7 @@ public class Mean implements AggregateFunction {
     private Integer precision;
     private DecimalFormat df;
     @Override
-    public Accumulator open(UDFContext udfContext,Accumulator acc){
+    public void open(UDFContext udfContext){
 
         if(udfContext.getLookup_fields()==null ){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
@@ -41,10 +41,13 @@ public class Mean implements AggregateFunction {
         }else {
             precision = -1;
         }
+
+    }
+    @Override
+    public Accumulator initAccumulator(Accumulator acc) {
         acc.getMetricsFields().put(outputField,new OnlineStatistics());
         return acc;
     }
-
 
     @Override
     public Accumulator add(Event event, Accumulator acc) {
@@ -74,11 +77,6 @@ public class Mean implements AggregateFunction {
             acc.getMetricsFields().put(outputField,(long)aggregate.mean());
         }
         return acc;
-    }
-
-    @Override
-    public void close() {
-
     }
 
 }
