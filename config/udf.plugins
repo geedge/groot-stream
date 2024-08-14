@@ -22,4 +22,4 @@ com.geedgenetworks.core.udf.udaf.LongCount
 com.geedgenetworks.core.udf.udaf.Mean
 com.geedgenetworks.core.udf.udaf.LastValue
 com.geedgenetworks.core.udf.udaf.FirstValue
-com.geedgenetworks.core.udf.udtf.UnRoll
+com.geedgenetworks.core.udf.udtf.Unroll

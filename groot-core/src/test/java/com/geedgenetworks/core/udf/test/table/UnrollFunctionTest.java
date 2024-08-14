@@ -2,7 +2,7 @@ package com.geedgenetworks.core.udf.test.table;
 
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.udf.udtf.UnRoll;
+import com.geedgenetworks.core.udf.udtf.Unroll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class UnRollFunctionTest {
+public class UnrollFunctionTest {
 
     private static Map<String, Object> nestedMap;
     @BeforeAll
@@ -51,7 +51,7 @@ public class UnRollFunctionTest {
         Map<String, Object> params = new HashMap<>();
         params.put("path", "");
         udfContext.setParameters(params);
-        UnRoll unroll = new UnRoll();
+        Unroll unroll = new Unroll();
         unroll.open(null, udfContext);
         Event event = new Event();
         event.setExtractedFields(nestedMap);
@@ -69,7 +69,7 @@ public class UnRollFunctionTest {
     @Test
     public void testUnrollFunction2() {
         UDFContext udfContext = new UDFContext();
-        UnRoll unroll = new UnRoll();
+        Unroll unroll = new Unroll();
         Event event = new Event();
         event.setExtractedFields(nestedMap);
         udfContext.setLookup_fields(List.of("k3"));
@@ -117,7 +117,7 @@ public class UnRollFunctionTest {
 
 
         UDFContext udfContext = new UDFContext();
-        UnRoll unroll = new UnRoll();
+        Unroll unroll = new Unroll();
         Event event = new Event();
         Map<String, Object> params = new HashMap<>();
         udfContext.setParameters(params);

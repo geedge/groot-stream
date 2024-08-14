@@ -18,7 +18,7 @@ import java.util.*;
 
 
 @Slf4j
-public class UnRoll implements TableFunction {
+public class Unroll implements TableFunction {
 
     private String lookupFieldName;
     private String outputFieldName;
