@@ -2,6 +2,8 @@ package com.geedgenetworks.common.utils;
 
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONPath;
 import com.alibaba.fastjson2.JSONReader;
 
@@ -41,5 +43,36 @@ public class JsonPathUtil {
                             + e.getMessage());
         }
         return flattenResult;
+    }
+    public static Object get(JSONObject jsonObject, String expr) {
+        Object Result = "";
+        try {
+            Result = jsonObject.getByPath(expr);
+        } catch (Exception e) {
+            logger.error(
+                    "The label resolution exception or [expr] analytic expression error"
+                            + e.getMessage());
+        }
+        return Result;
+    }
+    public static JSONObject set(JSONObject jsonObject, String expr,Object value) {
+        try {
+            JSONPath.set(jsonObject, expr, value);
+        } catch (Exception e) {
+            logger.error(
+                    "JSONObject set value exception or [expr] expression error"
+                            + e.getMessage());
+        }
+        return jsonObject;
+    }
+    public static JSONObject remove(JSONObject jsonObject, String expr) {
+        try {
+            JSONPath.remove(jsonObject, expr);
+        } catch (Exception e) {
+            logger.error(
+                    "JSONObject remove value exception or [expr] expression error"
+                            + e.getMessage());
+        }
+        return jsonObject;
     }
 }
