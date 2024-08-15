@@ -1,11 +1,11 @@
 # Aggregate Processor
 
-> Processing pipelines for aggregate processor
+> Processing pipelines for aggregate processors using UDAFs
 
 ## Description
 
 Aggregate processor is used to aggregate the data from source to sink. It is a part of the processing pipeline. It can be used in the pre-processing, processing, and post-processing pipeline. Each processor can assemble UDAFs(User-defined Aggregate functions) into a pipeline.
-Within the pipeline, events are processed by each Function in order, top‑>down. The UDAF usage detail can be found in [UDAF](udaf.md).
+Within the pipeline, events are processed by each Function in order, top‑>down. More details can be found in user-defined aggregate functions [(UDAFs)](udaf.md).
 
 ## Options
 Note：Default will output internal fields `__window_start_timestamp` and `__window_end_timestamp` if not set output_fields.
