@@ -46,6 +46,10 @@ public class FakerUtils {
             return wrapFaker(parseIPv4Faker(obj), obj);
         } else if ("Expression".equalsIgnoreCase(type)) {
             return wrapFaker(parseExpressionFaker(obj), obj);
+        } else if ("Hlld".equalsIgnoreCase(type)) {
+            return wrapFaker(parseHlldFaker(obj), obj);
+        } else if ("HdrHistogram".equalsIgnoreCase(type)) {
+            return wrapFaker(parseHdrHistogramFaker(obj), obj);
         } else if ("Object".equalsIgnoreCase(type)) {
             return wrapFaker(parseObjectFaker(obj.getJSONArray("fields")), obj);
         } else if ("Union".equalsIgnoreCase(type)) {
@@ -107,6 +111,20 @@ public class FakerUtils {
         String expression = obj.getString("expression");
         Preconditions.checkNotNull(expression);
         return new ExpressionFaker(expression);
+    }
+
+    private static Faker<?> parseHlldFaker(JSONObject obj) {
+        long itemCount = obj.getLongValue("itemCount", 1000000L);
+        int batchCount = obj.getIntValue("batchCount", 10000);
+        int precision = obj.getIntValue("precision", 12);
+        return new HlldFaker(itemCount, batchCount, precision);
+    }
+
+    private static Faker<?> parseHdrHistogramFaker(JSONObject obj) {
+        int max = obj.getIntValue("max", 100000);
+        int batchCount = obj.getIntValue("batchCount", 1000);
+        int numberOfSignificantValueDigits = obj.getIntValue("numberOfSignificantValueDigits", 1);
+        return new HdrHistogramFaker(max, batchCount, numberOfSignificantValueDigits);
     }
 
     private static Faker<?> parseIPv4Faker(JSONObject obj) {
