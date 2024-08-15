@@ -1,6 +1,6 @@
 # UDF
 
-> The functions for projection processors.
+> The functions for projection processors. 
 
   ## Function of content
 
@@ -24,7 +24,7 @@
 
 ## Description
 
-UDF(User Defined Function) is used to extend the functions of projection processor. The UDF is a part of the processing pipeline. It can be used in the pre-processing pipeline, processing pipeline, and post-processing pipeline.
+Scalar UDF(User Defined Function) is used to extend the functions of projection processor. The UDF is a part of the processing pipeline. It can be used in the pre-processing pipeline, processing pipeline, and post-processing pipeline.
 
 ## UDF Definition
 

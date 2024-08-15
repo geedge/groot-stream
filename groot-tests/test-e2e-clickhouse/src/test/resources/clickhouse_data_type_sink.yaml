@@ -57,7 +57,8 @@ sinks:
     type: clickhouse
     properties:
       host: clickhouse:9000
-      table: default.sink_table
+      table: sink_table
+      connection.database: default
       batch.size: 10
       batch.byte.size: 200MB
       batch.interval: 1s

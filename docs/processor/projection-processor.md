@@ -1,12 +1,12 @@
 # Projection Processor
 
-> Processing pipelines for projection processor
+> Processing pipelines for projection processors using scalar UDFs
 
 ## Description
 
 Projection processor is used to project the data from source to sink. It can be used to filter, remove, and transform fields.
 It is a part of the processing pipeline. It can be used in the pre-processing, processing, and post-processing pipeline. Each processor can assemble UDFs(User-defined functions) into a pipeline.
-Within the pipeline, events are processed by each Function in order, top‑>down. The UDF usage detail can be found in [UDF](udf.md).
+Within the pipeline, events are processed by each Function in order, top‑>down. More details can be found in User Defined Functions [(UDFs)](udf.md).
 
 ## Options
 
