@@ -143,15 +143,16 @@ public class ClickHouseIT extends TestSuiteBase implements TestResource {
                 .untilAsserted(
                         () -> {
                             assertHasData(SINK_TABLE);
+                            compareResult();
                             clearTable(SINK_TABLE);
                         });
     }
 
 
     private void assertHasData(String table) {
-        try (Statement statement = connection.createStatement()) {
-            String sql = String.format("select * from %s.%s limit 1", DATABASE, table);
-            ResultSet source = statement.executeQuery(sql);
+        String sql = String.format("select * from %s.%s limit 1", DATABASE, table);
+        try (Statement statement = connection.createStatement();
+                ResultSet source = statement.executeQuery(sql);) {
             Assertions.assertTrue(source.next());
         } catch (SQLException e) {
             throw new RuntimeException("test clickhouse server image error", e);
@@ -167,43 +168,42 @@ public class ClickHouseIT extends TestSuiteBase implements TestResource {
     }
 
     private void compareResult() throws SQLException, IOException {
-        String sourceSql = "select * from " + SOURCE_TABLE + " order by id";
+        String sourceSql = "select * from " + SOURCE_TABLE + " order by id ";
         String sinkSql = "select * from " + SINK_TABLE + " order by id";
-        List<String> columnList =
-                Arrays.stream(default_columns).collect(Collectors.toList());
-        Statement sourceStatement = connection.createStatement();
-        Statement sinkStatement = connection.createStatement();
-        ResultSet sourceResultSet = sourceStatement.executeQuery(sourceSql);
-        ResultSet sinkResultSet = sinkStatement.executeQuery(sinkSql);
-        Assertions.assertEquals(
-                sourceResultSet.getMetaData().getColumnCount(),
-                sinkResultSet.getMetaData().getColumnCount());
-        while (sourceResultSet.next()) {
-            if (sinkResultSet.next()) {
-                for (String column : columnList) {
-                    Object source = sourceResultSet.getObject(column);
-                    Object sink = sinkResultSet.getObject(column);
-                    if (!Objects.deepEquals(source, sink)) {
-                        InputStream sourceAsciiStream = sourceResultSet.getBinaryStream(column);
-                        InputStream sinkAsciiStream = sinkResultSet.getBinaryStream(column);
-                        String sourceValue =
-                                IOUtils.toString(sourceAsciiStream, StandardCharsets.UTF_8);
-                        String sinkValue =
-                                IOUtils.toString(sinkAsciiStream, StandardCharsets.UTF_8);
-                        Assertions.assertEquals(sourceValue, sinkValue);
-                    }
-                    Assertions.assertTrue(true);
+        try (Statement sourceStatement = connection.createStatement();
+             Statement sinkStatement = connection.createStatement();
+             ResultSet sourceResultSet = sourceStatement.executeQuery(sourceSql);
+             ResultSet sinkResultSet = sinkStatement.executeQuery(sinkSql)) {
+            Assertions.assertEquals(
+                    sourceResultSet.getMetaData().getColumnCount(),
+                    sinkResultSet.getMetaData().getColumnCount());
+            String columns = String.join(",", default_columns);
+            Assertions.assertTrue(
+                    compare(String.format(CONFIG.getString(COMPARE_SQL), columns, columns)));
+        }
+
+        sourceSql = "select count(distinct id) as count from " + SOURCE_TABLE;
+        sinkSql = "select count(distinct id) as count  from " + SINK_TABLE;
+
+        try (Statement sourceStatement = connection.createStatement();
+             Statement sinkStatement = connection.createStatement();
+             ResultSet sourceResultSet = sourceStatement.executeQuery(sourceSql);
+             ResultSet sinkResultSet = sinkStatement.executeQuery(sinkSql)) {
+            while (sourceResultSet.next()) {
+                if (sinkResultSet.next()) {
+                   int sinkUniqueIds = sinkResultSet.getInt("count");
+                   int sourceUniqueIds = sourceResultSet.getInt("count");
+                   Assertions.assertEquals(sinkUniqueIds, sourceUniqueIds);
                 }
             }
         }
-        String columns = String.join(",", default_columns);
-        Assertions.assertTrue(
-                compare(String.format(CONFIG.getString(COMPARE_SQL), columns, columns)));
+
+
     }
 
     private Boolean compare(String sql) {
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(sql);
+        try (Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(sql);) {
             return !resultSet.next();
         } catch (SQLException e) {
             throw new RuntimeException("result compare error", e);

@@ -151,7 +151,7 @@ preprocessing_pipelines: # [object] Define Processors for preprocessing pipeline
 # It will be accomplished the common processing for the event by the user-defined functions.
 #
 processing_pipelines: # [object] Define Processors for processing pipelines.
-  processor: # [object] Define projection processor name, must be unique.
+  projection_processor: # [object] Define projection processor name, must be unique.
     type: projection  # [string] Processor Type
     remove_fields:
     output_fields:
@@ -276,7 +276,7 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
         lookup_fields: [ client_asn,server_asn ]
         output_fields: [ asn_list ]
 
-  metrics_processor: # [object] metrics processing Pipeline
+  projection_metrics_processor: # [object] metrics processing Pipeline
     type: projection
     output_fields:
     properties:
@@ -322,6 +322,38 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
         filter:
         parameters:
           data_center_id_num: 1
+
+  aggregate_processor: # [object] Define aggregate processor name, must be unique.
+    type: aggregate
+    group_by_fields: [ recv_time, sled_ip ] # [array of string] Group By Fields
+    window_type: tumbling_processing_time # [string] Window Type, tumbling_processing_time, tumbling_event_time, sliding_processing_time, sliding_event_time
+    window_size: 60
+    functions:
+      - function: NUMBER_SUM
+        lookup_fields: [ received_bytes, sent_bytes ]
+        output_fields: [ received_bytes_sum ]
+
+      - function: LONG_COUNT
+        lookup_fields: [ received_bytes ]
+        output_fields: [ sessions ]
+
+      - function: MEAN
+        lookup_fields: [ received_bytes ]
+        output_fields: [ received_bytes_mean ]
+        parameters:
+          precision: 2
+
+      - function: FIRST_VALUE
+        lookup_fields: [ received_bytes ]
+        output_fields: [ received_bytes_first ]
+
+      - function: LAST_VALUE
+        lookup_fields: [ received_bytes ]
+        output_fields: [ received_bytes_last ]
+
+      - function: COLLECT_LIST
+        lookup_fields: [ received_bytes ]
+        output_fields: [ received_bytes_set ]
 
 postprocessing_pipelines: # [object] Define Processors for postprocessing pipelines.
   postprocessor: # [object] Define projection processor name, must be unique.

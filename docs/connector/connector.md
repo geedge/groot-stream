@@ -85,41 +85,49 @@ schema:
 
 The mock data type is used to define the template of the mock data.
 
-|                Mock Type                |  Parameter  |      Result Type      |       Default       |                                                                 Description                                                                 |
-|-----------------------------------------|-------------|-----------------------|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| **[Number](#Number)**                   | -           | **int/bigint/double** | -                   | **Randomly generate a number.**                                                                                                             |
-| -                                       | min         | number                | 0                   | The minimum value (include).                                                                                                                |
-| -                                       | max         | number                | int32.max           | The maximum value (exclusive).                                                                                                              |
-| -                                       | options     | array of number       | (none)              | The optional values. If set, the random value will be selected from the options and `start` and `end`  will be ignored.                     |
-| -                                       | random      | boolean               | true                | Default is random mode. If set to false, the value will be generated in order.                                                              |
-| **[Sequence](#Sequence)**               | -           | **bigint**            | -                   | **Generate a sequence number based on a specific step value .**                                                                             |
-| -                                       | start       | bigint                | 0                   | The first number in the sequence (include).                                                                                                 |
-| -                                       | step        | bigint                | 1                   | The number to add to each subsequent value.                                                                                                 |
-| **[UniqueSequence](#UniqueSequence)**   | -           | **bigint**            | -                   | **Generate a global unique sequence number.**                                                                                               |
-| -                                       | start       | bigint                | 0                   | The first number in the sequence (include).                                                                                                 |
-| **[String](#String)**                   | -           | string                | -                   | **Randomly generate a string.**                                                                                                             |
-| -                                       | regex       | string                | [a-zA-Z]{0,5}       | The regular expression.                                                                                                                     |
-| -                                       | options     | array of string       | (none)              | The optional values. If set, the random value will be selected from the options and `regex` will be ignored.                                |
-| -                                       | random      | boolean               | true                | Default is random mode. If set to false, the options value will be generated in order.                                                      |
-| **[Timestamp](#Timestamp)**             | -           | **bigint**            | -                   | **Generate a unix timestamp in milliseconds or seconds.**                                                                                   |
-| -                                       | unit        | string                | second              | The unit of the timestamp. The optional values are `second`, `millis`.                                                                      |
-| **[FormatTimestamp](#FormatTimestamp)** | -           | **string**            | -                   | **Generate a formatted timestamp.**                                                                                                         |
-| -                                       | format      | string                | yyyy-MM-dd HH:mm:ss | The format to output.                                                                                                                       |
-| -                                       | utc         | boolean               | false               | Default is local time. If set to true, the time will be converted to UTC time.                                                              |
-| **[IPv4](#IPv4)**                       | -           | **string**            | -                   | **Randomly generate a IPv4 address.**                                                                                                       |
-| -                                       | start       | string                | 0.0.0.0             | The minimum value of the IPv4 address(include).                                                                                             |
-| -                                       | end         | string                | 255.255.255.255     | The maximum value of the IPv4 address(include).                                                                                             |
-| **[Expression](#Expression)**           | -           | string                | -                   | **Use library  [Datafaker](https://www.datafaker.net/documentation/expressions/) expressions to generate fake data.**                       |
-| -                                       | expression  | string                | (none)              | The datafaker expression used  #{expression}.                                                                                               |
-| **[Eval](#Eval)**                       | -           | **string**            | -                   | **Use AviatorScript value expression to generate data.**                                                                                    |
-| -                                       | expression  | string                | (none)              | Support basic arithmetic operations and function calls. More details sess [AviatorScript](https://www.yuque.com/boyan-avfmj/aviatorscript). |
-| **[Object](#Object)**                   | -           | **struct/object**     | -                   | **Generate a object data structure. It used to define the nested structure of the mock data.**                                              |
-| -                                       | fields      | array of object       | (none)              | The fields of the object.                                                                                                                   |
-| **[Union](#Union)**                     | -           | -                     | -                   | **Generate a union data structure with multiple mock data type fields.**                                                                    |
-| -                                       | unionFields | array of object       | (none)              | The fields of the object.                                                                                                                   |
-| -                                       | - fields    | - array of object     | (none)              |                                                                                                                                             |
-| -                                       | - weight    | - int                 | 0                   | The weight of the generated object.                                                                                                         |
-|                                         | random      | boolean               | true                | Default is random mode. If set to false, the options value will be generated in order.                                                      |
+| Mock Type                               | Parameter                       | Result Type           | Default             | Description                                                                                                                                                   |
+|-----------------------------------------|---------------------------------|-----------------------|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **[Number](#Number)**                   | -                               | **int/bigint/double** | -                   | **Randomly generate a number.**                                                                                                                               |
+|                                         | min                             | number                | 0                   | The minimum value (inclusive).                                                                                                                                |
+|                                         | max                             | number                | int32.max           | The maximum value (exclusive).                                                                                                                                |
+|                                         | options                         | array of number       | (none)              | The optional values. If set, the random value will be selected from the options and `min` and `max` will be ignored.                                          |
+|                                         | random                          | boolean               | true                | Default is random mode. If set to false, the value will be generated in order.                                                                                |
+| **[Sequence](#Sequence)**               | -                               | **bigint**            | -                   | **Generate a sequence number based on a specific step value.**                                                                                                |
+|                                         | start                           | bigint                | 0                   | The first number in the sequence (inclusive).                                                                                                                 |
+|                                         | step                            | bigint                | 1                   | The number to add to each subsequent value.                                                                                                                   |
+| **[UniqueSequence](#UniqueSequence)**   | -                               | **bigint**            | -                   | **Generate a globally unique sequence number.**                                                                                                               |
+|                                         | start                           | bigint                | 0                   | The first number in the sequence (inclusive).                                                                                                                 |
+| **[String](#String)**                   | -                               | string                | -                   | **Randomly generate a string.**                                                                                                                               |
+|                                         | regex                           | string                | [a-zA-Z]{0,5}       | The regular expression used to generate the string.                                                                                                           |
+|                                         | options                         | array of string       | (none)              | The optional values. If set, the random value will be selected from the options and `regex` will be ignored.                                                  |
+|                                         | random                          | boolean               | true                | Default is random mode. If set to false, the options value will be generated in order.                                                                        |
+| **[Timestamp](#Timestamp)**             | -                               | **bigint**            | -                   | **Generate a Unix timestamp in milliseconds or seconds.**                                                                                                     |
+|                                         | unit                            | string                | second              | The unit of the timestamp. Options are `second` or `millis`.                                                                                                  |
+| **[FormatTimestamp](#FormatTimestamp)** | -                               | **string**            | -                   | **Generate a formatted timestamp.**                                                                                                                           |
+|                                         | format                          | string                | yyyy-MM-dd HH:mm:ss | The format to output the timestamp in.                                                                                                                        |
+|                                         | utc                             | boolean               | false               | Default is local time. If set to true, the time will be converted to UTC time.                                                                                |
+| **[IPv4](#IPv4)**                       | -                               | **string**            | -                   | **Randomly generate an IPv4 address.**                                                                                                                        |
+|                                         | start                           | string                | 0.0.0.0             | The minimum value of the IPv4 address (inclusive).                                                                                                            |
+|                                         | end                             | string                | 255.255.255.255     | The maximum value of the IPv4 address (inclusive).                                                                                                            |
+| **[Expression](#Expression)**           | -                               | string                | -                   | **Use library [Datafaker](https://www.datafaker.net/documentation/expressions/) expressions to generate fake data.**                                          |
+|                                         | expression                      | string                | (none)              | The Datafaker expression to use, in the format `#{expression}`.                                                                                               |
+| **[Hlld](#HLLD)**                       | -                               | **string**            | -                   | **Generate a IP Address HyperLogLog data structure and store it as a base64 string. Use library [HLLD](https://github.com/armon/hlld).**                      |                                                              
+|                                         | itemCount                       | bigint                | 1000000             | The total number of items.                                                                                                                                    |
+|                                         | batchCount                      | int                   | 10000               | The number of items in each batch.                                                                                                                            | 
+|                                         | precision                       | int                   | 12                  | The precision of the HyperLogLog data structure. Allowed range is [4, 18].                                                                                    |
+| **[HdrHistogram](#HdrHistogram)**       | -                               | **string**            | -                   | **Generate a Latency HdrHistogram data structure and store it as a base64 string. Use library [HdrHistogram](https://github.com/HdrHistogram/HdrHistogram).** |
+|                                         | max                             | bigint                | 100000              | The maximum value of the histogram.                                                                                                                           |
+|                                         | batchCount                      | int                   | 1000                | The random number of items in each batch.                                                                                                                     |
+|                                         | numberOfSignificantValueDigits  | int                   | 1                   | The precision of the histogram data structure. Allowed range is [1, 5].                                                                                       |
+| **[Eval](#Eval)**                       | -                               | **string**            | -                   | **Use AviatorScript value expression to generate data.**                                                                                                      |
+|                                         | expression                      | string                | (none)              | Support basic arithmetic operations and function calls. More details in [AviatorScript](https://www.yuque.com/boyan-avfmj/aviatorscript).                     |
+| **[Object](#Object)**                   | -                               | **struct/object**     | -                   | **Generate an object data structure. Used to define the nested structure of the mock data.**                                                                  |
+|                                         | fields                          | array of object       | (none)              | The fields of the object.                                                                                                                                     |
+| **[Union](#Union)**                     | -                               | -                     | -                   | **Generate a union data structure with multiple mock data type fields.**                                                                                      |
+|                                         | unionFields                     | array of object       | (none)              | The fields of the union.                                                                                                                                      |
+|                                         | weight                          | int                   | 0                   | The weight of the generated object.                                                                                                                           |
+|                                         | random                          | boolean               | true                | Default is random mode. If set to false, the options value will be generated in order.                                                                        |
+
 
 ### Common Parameters
 
@@ -248,6 +256,22 @@ Mock data type supports some common parameters.
 
 ```json
 {"name":"phoneNumber","type":"Expression","expression":"#{phoneNumber.phoneNumber}"}
+```
+
+### HLLD
+
+- Generate a IP Address HyperLogLog data structure, stored as a base64 string. At most 1000 IP addresses are generated in each batch.
+
+```json
+{"name":"hll","type":"Hlld","itemCount":1000000,"batchCount":1000,"precision":12}
+```
+
+### HdrHistogram
+
+- Generate a Latency HdrHistogram data structure, stored as a base64 string. The maximum value of the histogram is 100000, and at most 1000 items are generated in each batch.
+
+```json
+{"name":"distribution","type":"HdrHistogram","max":100000,"batchCount":1000,"numberOfSignificantValueDigits":1}
 ```
 
 ### Eval

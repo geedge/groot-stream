@@ -13,12 +13,12 @@ import java.nio.file.Paths;
 
 public class GrootStreamExample {
     public static void main(String[] args) throws FileNotFoundException, URISyntaxException {
-        String configPath = args.length > 0 ? args[0] : "/examples/inline_to_kafka.yaml";
+        String configPath = args.length > 0 ? args[0] : "/examples/inline_to_print_with_aggregation.yaml";
         String configFile = getTestConfigFile(configPath);
         ExecuteCommandArgs executeCommandArgs = new ExecuteCommandArgs();
         executeCommandArgs.setConfigFile(configFile);
         executeCommandArgs.setCheckConfig(false);
-        executeCommandArgs.setEncrypt(true);
+        executeCommandArgs.setEncrypt(false);
         executeCommandArgs.setDecrypt(false);
         executeCommandArgs.setVersion(false);
         executeCommandArgs.setDeployMode(DeployMode.RUN);

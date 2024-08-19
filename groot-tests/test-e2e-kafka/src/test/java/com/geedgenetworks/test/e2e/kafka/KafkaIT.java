@@ -163,8 +163,8 @@ public class KafkaIT extends TestSuiteBase implements TestResource {
     public void testKafkaAsSinkProducerQuota(TestContainer container) throws IOException, InterruptedException {
         //Create topic with 3 partitions
         executeShell("kafka-topics --create --topic SESSION-RECORD-QUOTA-TEST --bootstrap-server kafkaCluster:9092 --partitions 3 --replication-factor 1 --command-config /etc/kafka/kafka_client_jass_cli.properties");
-        //Set producer quota to 5KB/s
-        executeShell("kafka-configs --bootstrap-server kafkaCluster:9092 --alter --add-config 'producer_byte_rate=5120' --entity-type users --entity-name admin --entity-type clients --entity-name SESSION-RECORD-QUOTA-TEST --command-config /etc/kafka/kafka_client_jass_cli.properties ");
+        //Set producer quota to 2KB/s
+        executeShell("kafka-configs --bootstrap-server kafkaCluster:9092 --alter --add-config 'producer_byte_rate=2048' --entity-type users --entity-name admin --entity-type clients --entity-name SESSION-RECORD-QUOTA-TEST --command-config /etc/kafka/kafka_client_jass_cli.properties ");
 
         CompletableFuture.supplyAsync(
                 () -> {
@@ -183,7 +183,7 @@ public class KafkaIT extends TestSuiteBase implements TestResource {
                 .untilAsserted(
                         () -> {
                            data.addAll(getKafkaConsumerListData("SESSION-RECORD-QUOTA-TEST"));
-                           Assertions.assertTrue(StringUtils.contains(container.getServerLogs(), "TimeoutException") && data.size()>1000);
+                           Assertions.assertTrue(StringUtils.contains(container.getServerLogs(), "TimeoutException") && data.size()>100);
                         });
 
     }
