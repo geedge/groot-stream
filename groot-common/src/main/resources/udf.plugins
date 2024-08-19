@@ -21,10 +21,10 @@ com.geedgenetworks.core.udf.udaf.LongCount
 com.geedgenetworks.core.udf.udaf.Mean
 com.geedgenetworks.core.udf.udaf.LastValue
 com.geedgenetworks.core.udf.udaf.FirstValue
-com.geedgenetworks.core.udf.udtf.JsonUnroll
-com.geedgenetworks.core.udf.udtf.Unroll
 com.geedgenetworks.core.udf.udaf.hlld.Hlld
 com.geedgenetworks.core.udf.udaf.hlld.HlldApproxCountDistinct
 com.geedgenetworks.core.udf.udaf.HdrHistogram.HdrHistogram
 com.geedgenetworks.core.udf.udaf.HdrHistogram.HdrHistogramQuantile
 com.geedgenetworks.core.udf.udaf.HdrHistogram.HdrHistogramQuantiles
+com.geedgenetworks.core.udf.udtf.JsonUnroll
+com.geedgenetworks.core.udf.udtf.Unroll
