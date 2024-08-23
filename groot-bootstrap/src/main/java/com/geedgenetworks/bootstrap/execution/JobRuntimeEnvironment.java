@@ -25,9 +25,7 @@ import org.apache.flink.util.TernaryBoolean;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,6 +35,8 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
     private GrootStreamConfig grootStreamConfig;
     private StreamExecutionEnvironment environment;
     private String jobName = Constants.DEFAULT_JOB_NAME;
+    private Set<String> splitSet = new HashSet<>();
+
 
     private JobRuntimeEnvironment(Config config, GrootStreamConfig grootStreamConfig) {
         this.grootStreamConfig = grootStreamConfig;
@@ -197,6 +197,14 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         }
     }
 
+    public Set<String> getSplitSet() {
+        return splitSet;
+    }
+
+    public void setSplitSet(Set<String> splitSet) {
+        this.splitSet = splitSet;
+    }
+
     private void setCheckpoint() {
         long interval = 0;
         if (envConfig.hasPath(ExecutionConfigKeyName.CHECKPOINTING_INTERVAL)) {
@@ -269,6 +277,7 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
                 checkpointConfig.setTolerableCheckpointFailureNumber(failNum);
             }
         }
+
 
 
 

@@ -3,6 +3,7 @@ package com.geedgenetworks.bootstrap.enums;
 public enum ProcessorType {
     SOURCE("source"),
     FILTER("filter"),
+    SPLIT("split"),
     PREPROCESSING("preprocessing"),
     PROCESSING("processing"),
     POSTPROCESSING("postprocessing"),

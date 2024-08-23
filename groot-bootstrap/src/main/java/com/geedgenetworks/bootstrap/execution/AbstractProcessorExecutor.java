@@ -2,6 +2,7 @@ package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
@@ -13,6 +14,7 @@ import com.geedgenetworks.core.processor.table.TableProcessor;
 import com.geedgenetworks.core.processor.aggregate.AggregateProcessor;
 import com.geedgenetworks.core.processor.projection.ProjectionProcessor;
 import com.typesafe.config.Config;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.net.URL;
@@ -27,7 +29,7 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
+    public DataStream<Event> execute(DataStream<Event> dataStream, Node node) throws JobExecuteException {
 
         ProcessorConfig processorConfig = operatorMap.get(node.getName());
         switch (processorConfig.getType()) {
@@ -45,7 +47,7 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
         }
         return dataStream;
     }
-    protected SingleOutputStreamOperator executeTableProcessor(SingleOutputStreamOperator dataStream, Node node, TableConfig tableConfig) throws JobExecuteException {
+    protected DataStream<Event> executeTableProcessor(DataStream<Event> dataStream, Node node, TableConfig tableConfig) throws JobExecuteException {
 
         TableProcessor tableProcessor;
         if (processorMap.containsKey(tableConfig.getType())) {
@@ -63,15 +65,15 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
             tableConfig.setParallelism(node.getParallelism());
         }
         try {
-            dataStream =
-                    tableProcessor.processorFunction(
-                            dataStream, tableConfig, jobRuntimeEnvironment.getStreamExecutionEnvironment().getConfig());
+
+            dataStream = tableProcessor.processorFunction(
+                        dataStream, tableConfig, jobRuntimeEnvironment.getStreamExecutionEnvironment().getConfig());
         } catch (Exception e) {
             throw new JobExecuteException("Create orderby pipeline instance failed!", e);
         }
         return dataStream;
     }
-    protected SingleOutputStreamOperator executeAggregateProcessor(SingleOutputStreamOperator dataStream, Node node, AggregateConfig aggregateConfig) throws JobExecuteException {
+    protected DataStream<Event> executeAggregateProcessor(DataStream<Event> dataStream, Node node, AggregateConfig aggregateConfig) throws JobExecuteException {
 
         AggregateProcessor aggregateProcessor;
         if (processorMap.containsKey(aggregateConfig.getType())) {
@@ -98,7 +100,7 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
         return dataStream;
     }
 
-    protected SingleOutputStreamOperator executeProjectionProcessor(SingleOutputStreamOperator dataStream, Node node, ProjectionConfig projectionConfig) throws JobExecuteException {
+    protected DataStream<Event> executeProjectionProcessor(DataStream<Event> dataStream, Node node, ProjectionConfig projectionConfig) throws JobExecuteException {
 
         ProjectionProcessor projectionProcessor;
         if (processorMap.containsKey(projectionConfig.getType())) {

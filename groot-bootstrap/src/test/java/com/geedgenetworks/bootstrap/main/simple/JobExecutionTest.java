@@ -16,7 +16,9 @@ import com.typesafe.config.ConfigUtil;
 import com.typesafe.config.ConfigValueFactory;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.util.OutputTag;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -33,12 +35,13 @@ import java.util.stream.Stream;
 public class JobExecutionTest {
 
     protected final JobRuntimeEnvironment jobRuntimeEnvironment;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> sourceExecuteProcessor;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> filterExecuteProcessor;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> preprocessingExecuteProcessor;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> processingExecuteProcessor;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> postprocessingExecuteProcessor;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> sinkExecuteProcessor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> sourceExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> filterExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> preprocessingExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> splitExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> processingExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> postprocessingExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> sinkExecutor;
 
     private final List<Node> nodes;
 
@@ -66,21 +69,22 @@ public class JobExecutionTest {
         }
         registerPlugin(config.getConfig(Constants.APPLICATION));
 
-        this.sourceExecuteProcessor = new SourceExecutor(jarPaths, config);
-        this.sinkExecuteProcessor = new SinkExecutor(jarPaths, config);
-        this.filterExecuteProcessor = new FilterExecutor(jarPaths, config);
-        this.preprocessingExecuteProcessor = new PreprocessingExecutor(jarPaths, config);
-        this.processingExecuteProcessor = new ProcessingExecutor(jarPaths, config);
-        this.postprocessingExecuteProcessor = new PostprocessingExecutor(jarPaths, config);
+        this.sourceExecutor = new SourceExecutor(jarPaths, config);
+        this.sinkExecutor = new SinkExecutor(jarPaths, config);
+        this.splitExecutor = new SplitExecutor(jarPaths, config);
+        this.filterExecutor = new FilterExecutor(jarPaths, config);
+        this.preprocessingExecutor = new PreprocessingExecutor(jarPaths, config);
+        this.processingExecutor = new ProcessingExecutor(jarPaths, config);
+        this.postprocessingExecutor = new PostprocessingExecutor(jarPaths, config);
         this.jobRuntimeEnvironment =
                 JobRuntimeEnvironment.getInstance(this.registerPlugin(config, jarPaths), grootStreamConfig);
-
-        this.sourceExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.sinkExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.filterExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.preprocessingExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.processingExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.postprocessingExecuteProcessor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.splitExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.sourceExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.sinkExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.filterExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.preprocessingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.processingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.postprocessingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.nodes = buildJobNode(config);
 
     }
@@ -173,6 +177,7 @@ public class JobExecutionTest {
         Map<String, Object> sources = Maps.newHashMap();
         Map<String, Object> sinks =Maps.newHashMap();
         Map<String, Object> filters = Maps.newHashMap();
+        Map<String, Object> splits = Maps.newHashMap();
         Map<String, Object> preprocessingPipelines = Maps.newHashMap();
         Map<String, Object> processingPipelines = Maps.newHashMap();
         Map<String, Object> postprocessingPipelines = Maps.newHashMap();
@@ -185,6 +190,9 @@ public class JobExecutionTest {
         }
         if (config.hasPath(Constants.FILTERS)) {
             filters = config.getConfig(Constants.FILTERS).root().unwrapped();
+        }
+        if (config.hasPath(Constants.SPLITS)) {
+            splits = config.getConfig(Constants.SPLITS).root().unwrapped();
         }
         if (config.hasPath(Constants.PREPROCESSING_PIPELINES)) {
             preprocessingPipelines = config.getConfig(Constants.PREPROCESSING_PIPELINES).root().unwrapped();
@@ -210,6 +218,8 @@ public class JobExecutionTest {
                 node.setType(ProcessorType.SOURCE);
             } else if (sinks.containsKey(node.getName())) {
                 node.setType(ProcessorType.SINK);
+            } else if (splits.containsKey(node.getName())) {
+                node.setType(ProcessorType.SPLIT);
             } else if (filters.containsKey(node.getName())) {
                 node.setType(ProcessorType.FILTER);
             } else if (preprocessingPipelines.containsKey(node.getName())) {
@@ -228,15 +238,15 @@ public class JobExecutionTest {
     }
 
 
-    public SingleOutputStreamOperator<Event> getSingleOutputStreamOperator() throws JobExecuteException {
+    public DataStream<Event> getSingleOutputStreamOperator() throws JobExecuteException {
 
         List<Node> sourceNodes = nodes
                 .stream().filter(v -> v.getType().name().equals(ProcessorType.SOURCE.name())).collect(Collectors.toList());
 
-        SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
+        DataStream<Event> singleOutputStreamOperator = null;
 
         for(Node sourceNode : sourceNodes) {
-            singleOutputStreamOperator = sourceExecuteProcessor.execute(singleOutputStreamOperator, sourceNode);
+            singleOutputStreamOperator = sourceExecutor.execute(singleOutputStreamOperator, sourceNode);
             for (String nodeName : sourceNode.getDownstream()) {
                 buildJobGraph(singleOutputStreamOperator, nodeName);
             }
@@ -247,27 +257,55 @@ public class JobExecutionTest {
 
     }
 
-    private void buildJobGraph(SingleOutputStreamOperator<Event> singleOutputStreamOperator, String downstreamNodeName) {
+    private void buildJobGraph(DataStream<Event> dataStream, String downstreamNodeName) {
         Node node = getNode(downstreamNodeName).orElseGet(() -> {
             throw new JobExecuteException("can't find downstream node " + downstreamNodeName);
         });
         if (node.getType().name().equals(ProcessorType.FILTER.name())) {
-            singleOutputStreamOperator = filterExecuteProcessor.execute(singleOutputStreamOperator, node);
+            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+                dataStream = filterExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
+                }), node);
+            } else {
+                dataStream = filterExecutor.execute(dataStream, node);
+            }
+        } else if (node.getType().name().equals(ProcessorType.SPLIT.name())) {
+            dataStream = splitExecutor.execute(dataStream, node);
+
         } else if (node.getType().name().equals(ProcessorType.PREPROCESSING.name())) {
-            singleOutputStreamOperator = preprocessingExecuteProcessor.execute(singleOutputStreamOperator, node);
+            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+                dataStream = preprocessingExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
+                }), node);
+            } else {
+                dataStream = preprocessingExecutor.execute(dataStream, node);
+            }
         } else if (node.getType().name().equals(ProcessorType.PROCESSING.name())) {
-            singleOutputStreamOperator = processingExecuteProcessor.execute(singleOutputStreamOperator, node);
+            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+                dataStream = processingExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
+                }), node);
+            } else {
+                dataStream = processingExecutor.execute(dataStream, node);
+            }
         } else if (node.getType().name().equals(ProcessorType.POSTPROCESSING.name())) {
-            singleOutputStreamOperator = postprocessingExecuteProcessor.execute(singleOutputStreamOperator, node);
+            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+                dataStream = postprocessingExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
+                }), node);
+            } else {
+                dataStream = postprocessingExecutor.execute(dataStream, node);
+            }
         } else if (node.getType().name().equals(ProcessorType.SINK.name())) {
-            singleOutputStreamOperator = sinkExecuteProcessor.execute(singleOutputStreamOperator, node);
-        }  else {
+            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+                dataStream = sinkExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
+                }), node);
+            } else {
+                dataStream = sinkExecutor.execute(dataStream, node);
+            }
+        } else {
             throw new JobExecuteException("unsupported process type " + node.getType().name());
         }
 
 
         for (String nodeName : node.getDownstream()) {
-            buildJobGraph(singleOutputStreamOperator, nodeName);
+            buildJobGraph(dataStream, nodeName);
         }
 
 
