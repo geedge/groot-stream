@@ -6,7 +6,7 @@ import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.config.CheckConfigUtil;
 import com.geedgenetworks.common.config.CheckResult;
-import com.geedgenetworks.common.config.RouteConfigOptions;
+import com.geedgenetworks.common.config.SplitConfigOptions;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.common.udf.RuleContext;
@@ -14,16 +14,12 @@ import com.geedgenetworks.core.pojo.SplitConfig;
 import com.geedgenetworks.core.split.Split;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.net.URL;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -39,12 +35,12 @@ public class SplitExecutor extends AbstractExecutor<String, SplitConfig> {
 
     @Override
     protected Map<String, SplitConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
-        Map<String, SplitConfig> routeConfigMap = Maps.newHashMap();
+        Map<String, SplitConfig> splitConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.SPLITS)) {
             Config routes = operatorConfig.getConfig(Constants.SPLITS);
             routes.root().unwrapped().forEach((key, value) -> {
                 CheckResult result = CheckConfigUtil.checkAllExists(routes.getConfig(key),
-                        RouteConfigOptions.TYPE.key());
+                        SplitConfigOptions.TYPE.key());
                 if (!result.isSuccess()) {
                     throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
                             "split: %s, Message: %s",
@@ -52,11 +48,11 @@ public class SplitExecutor extends AbstractExecutor<String, SplitConfig> {
                 }
                 SplitConfig splitConfig = new JSONObject((Map<String, Object>) value).toJavaObject(SplitConfig.class);
                 splitConfig.setName(key);
-                routeConfigMap.put(key, splitConfig);
+                splitConfigMap.put(key, splitConfig);
             });
         }
 
-        return routeConfigMap;
+        return splitConfigMap;
     }
 
     @Override

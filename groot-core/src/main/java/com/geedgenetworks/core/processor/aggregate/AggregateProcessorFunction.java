@@ -31,8 +31,7 @@ import static com.geedgenetworks.core.utils.UDFUtils.getClassReflect;
 public class AggregateProcessorFunction implements org.apache.flink.api.common.functions.AggregateFunction<Event, Accumulator, Accumulator> {
     private final List<UDFContext> udfContexts;
     private final List<String> udfClassNameLists;
-    private final List<String> groupByFields;
-    private LinkedList<UdfEntity> functions;
+    private final LinkedList<UdfEntity> functions;
 
     public AggregateProcessorFunction(AggregateConfig aggregateConfig, ExecutionConfig config) {
         udfClassNameLists = JSON.parseObject(config.getGlobalJobParameters().toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
@@ -40,7 +39,6 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
         if (udfContexts == null || udfContexts.isEmpty()) {
             throw new RuntimeException();
         }
-        groupByFields = aggregateConfig.getGroup_by_fields();
         functions = Lists.newLinkedList();
         Map<String, String> udfClassReflect = getClassReflect(udfClassNameLists);
         try {

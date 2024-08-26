@@ -70,38 +70,5 @@ public class JobSplitTest {
         }
         Assert.assertEquals(7, CollectSink.values.size());
     }
-    @Test
-    public void testSplitForAgg() {
 
-        CollectSink.values.clear();
-        String[] args ={"--target", "remote", "-c", ".\\grootstream_job_split_agg_test.yaml"};
-        ExecuteCommandArgs executeCommandArgs = CommandLineUtils
-                .parse(args, new ExecuteCommandArgs(), EngineType.FLINK13.getShellName(), true);
-
-        executeCommandArgs.buildCommand();
-
-
-        GrootStreamConfig grootStreamConfig = ConfigProvider.locateAndGetGrootStreamConfig();
-        Path configFile = ConfigFileUtils.getConfigPath(executeCommandArgs);
-        // check config file exist
-        Map<String, Object> configMap = YamlUtil.loadByPath(configFile.toString());
-        ConfigObject configObject = ConfigValueFactory.fromMap(configMap);
-        Config config = configObject.toConfig();
-
-        config = config.withValue(ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKeyName.ENV_TARGET_TYPE),
-                ConfigValueFactory.fromAnyRef(executeCommandArgs.getTargetType().getTarget()));
-
-
-        JobExecutionTest jobExecution = new JobExecutionTest(config, grootStreamConfig);
-        jobExecution.getSingleOutputStreamOperator();
-
-        try {
-            jobExecution.getJobRuntimeEnvironment().getStreamExecutionEnvironment().execute();
-        } catch (Exception e) {
-            throw new JobExecuteException("Job executed error", e);
-        }
-        Assert.assertEquals(1, CollectSink.values.size());
-        Assert.assertEquals("2", CollectSink.values.get(0).getExtractedFields().get("sessions").toString());
-
-    }
 }

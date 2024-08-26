@@ -60,7 +60,7 @@ postprocessing_pipelines:
     type: aggregate
     group_by_fields: [decoded_as]
     window_type: tumbling_processing_time  # tumbling_event_time,sliding_processing_time,sliding_event_time
-    window_size: 3
+    window_size: 5
     window_timestamp_field: test_time
     functions:
       - function: NUMBER_SUM

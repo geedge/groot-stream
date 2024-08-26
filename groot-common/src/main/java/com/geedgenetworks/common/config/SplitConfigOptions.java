@@ -4,7 +4,7 @@ import com.alibaba.fastjson2.TypeReference;
 import com.geedgenetworks.common.udf.RuleContext;
 import java.util.List;
 
-public interface RouteConfigOptions {
+public interface SplitConfigOptions {
     Option<String> TYPE = Options.key("type")
             .stringType()
             .noDefaultValue()

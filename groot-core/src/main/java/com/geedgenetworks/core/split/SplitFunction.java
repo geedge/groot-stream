@@ -21,8 +21,8 @@ import java.util.Map;
 
 @Slf4j
 public class SplitFunction extends ProcessFunction<Event, Event> {
-    private SplitConfig splitConfig;
-    private List<RuleContext> routes;
+    private final SplitConfig splitConfig;
+    private List<RuleContext> rules;
     private transient InternalMetrics internalMetrics;
 
     public SplitFunction(SplitConfig splitConfig) {
@@ -34,8 +34,8 @@ public class SplitFunction extends ProcessFunction<Event, Event> {
     public void open(Configuration parameters) throws Exception {
 
         this.internalMetrics = new InternalMetrics(getRuntimeContext());
-        this.routes = splitConfig.getRules();
-        for(RuleContext rule :routes){
+        this.rules = splitConfig.getRules();
+        for(RuleContext rule : rules){
             String expression = rule.getExpression();
             AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
             instance.setCachedExpressionByDefault(true);
@@ -53,7 +53,7 @@ public class SplitFunction extends ProcessFunction<Event, Event> {
     public void processElement(Event event, ProcessFunction<Event, Event>.Context ctx, Collector<Event> out) throws Exception {
         try {
             internalMetrics.incrementInEvents();
-            for (RuleContext route :routes){
+            for (RuleContext route : rules){
                 boolean result = route.getExpression() != null ? (filterExecute(route.getCompiledExpression(), route.getCompiledExpression().newEnv("event", event.getExtractedFields()))) : true;
                 if (result) {
                     ctx.output(route.getOutputTag(), event);
