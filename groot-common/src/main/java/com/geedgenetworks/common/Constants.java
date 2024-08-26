@@ -11,7 +11,7 @@ public final class Constants {
     public static final String SINKS = "sinks";
     public static final int SYSTEM_EXIT_CODE = 2618;
     public static final String APPLICATION = "application";
-
+    public static final String SPLITS = "splits";
     public static final String APPLICATION_ENV ="env";
     public static final String APPLICATION_TOPOLOGY = "topology";
     public static final String JOB_NAME = "name";

@@ -5,15 +5,17 @@ import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.main.GrootStreamRunner;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.GrootStreamConfig;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.config.GrootStreamConfig;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigUtil;
 import com.typesafe.config.ConfigValueFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
+import org.apache.flink.util.OutputTag;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -27,17 +29,18 @@ import java.util.stream.Stream;
 public class JobExecution {
 
     private final JobRuntimeEnvironment jobRuntimeEnvironment;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> sourceExecutor;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> sinkExecutor;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> filterExecutor;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> preprocessingExecutor;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> processingExecutor;
-    private final Executor<SingleOutputStreamOperator, JobRuntimeEnvironment> postprocessingExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> sourceExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> sinkExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> filterExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> splitExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> preprocessingExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> processingExecutor;
+    private final Executor<DataStream<Event>, JobRuntimeEnvironment> postprocessingExecutor;
     private final List<Node> nodes;
-
     private final List<URL> jarPaths;
+
     public JobExecution(Config config, GrootStreamConfig grootStreamConfig) {
-       try {
+        try {
             jarPaths = new ArrayList<>(Collections.singletonList(new File(StartBuilder.appBootstrapDir()
                     .resolve(GrootStreamRunner.APP_JAR_NAME).toString())
                     .toURI().toURL()));
@@ -50,6 +53,7 @@ public class JobExecution {
         this.sourceExecutor = new SourceExecutor(jarPaths, config);
         this.sinkExecutor = new SinkExecutor(jarPaths, config);
         this.filterExecutor = new FilterExecutor(jarPaths, config);
+        this.splitExecutor = new SplitExecutor(jarPaths, config);
         this.preprocessingExecutor = new PreprocessingExecutor(jarPaths, config);
         this.processingExecutor = new ProcessingExecutor(jarPaths, config);
         this.postprocessingExecutor = new PostprocessingExecutor(jarPaths, config);
@@ -59,6 +63,7 @@ public class JobExecution {
         this.sourceExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.sinkExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.filterExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
+        this.splitExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.preprocessingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.processingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.postprocessingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
@@ -69,7 +74,7 @@ public class JobExecution {
     private void registerPlugin(Config appConfig) {
         List<Path> thirdPartyJars = new ArrayList<>();
         Config envConfig = appConfig.getConfig(Constants.APPLICATION_ENV);
-        if(envConfig.hasPath(ExecutionConfigKeyName.JARS)) {
+        if (envConfig.hasPath(ExecutionConfigKeyName.JARS)) {
             thirdPartyJars = new ArrayList<>(StartBuilder
                     .getThirdPartyJars(envConfig.getString(ExecutionConfigKeyName.JARS)));
         }
@@ -81,7 +86,7 @@ public class JobExecution {
                 .map(uri -> {
                     try {
                         return uri.toURL();
-                    }catch (MalformedURLException e){
+                    } catch (MalformedURLException e) {
                         throw new RuntimeException("the uri of jar illegal: " + uri, e);
                     }
                 }).collect(Collectors.toList());
@@ -93,10 +98,10 @@ public class JobExecution {
     }
 
 
-    private Config registerPlugin(Config config , List<URL> jars) {
-       config = this.injectJarsToConfig(
-               config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKeyName.PIPELINE_JARS), jars);
-       return  this.injectJarsToConfig(
+    private Config registerPlugin(Config config, List<URL> jars) {
+        config = this.injectJarsToConfig(
+                config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKeyName.PIPELINE_JARS), jars);
+        return this.injectJarsToConfig(
                 config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKeyName.PIPELINE_CLASSPATHS), jars);
     }
 
@@ -127,7 +132,7 @@ public class JobExecution {
                             .collect(Collectors.toSet());
             paths.addAll(validJars);
 
-            config =  config.withValue(
+            config = config.withValue(
                     path,
                     ConfigValueFactory.fromAnyRef(
                             paths.stream()
@@ -150,8 +155,9 @@ public class JobExecution {
     private List<Node> buildJobNode(Config config) {
 
         Map<String, Object> sources = Maps.newHashMap();
-        Map<String, Object> sinks =Maps.newHashMap();
+        Map<String, Object> sinks = Maps.newHashMap();
         Map<String, Object> filters = Maps.newHashMap();
+        Map<String, Object> splits = Maps.newHashMap();
         Map<String, Object> preprocessingPipelines = Maps.newHashMap();
         Map<String, Object> processingPipelines = Maps.newHashMap();
         Map<String, Object> postprocessingPipelines = Maps.newHashMap();
@@ -160,10 +166,13 @@ public class JobExecution {
             sources = config.getConfig(Constants.SOURCES).root().unwrapped();
         }
         if (config.hasPath(Constants.SINKS)) {
-            sinks =config.getConfig(Constants.SINKS).root().unwrapped();
+            sinks = config.getConfig(Constants.SINKS).root().unwrapped();
         }
         if (config.hasPath(Constants.FILTERS)) {
             filters = config.getConfig(Constants.FILTERS).root().unwrapped();
+        }
+        if (config.hasPath(Constants.SPLITS)) {
+            splits = config.getConfig(Constants.SPLITS).root().unwrapped();
         }
         if (config.hasPath(Constants.PREPROCESSING_PIPELINES)) {
             preprocessingPipelines = config.getConfig(Constants.PREPROCESSING_PIPELINES).root().unwrapped();
@@ -184,13 +193,15 @@ public class JobExecution {
             nodes.add(node);
         });
 
-        for(Node node : nodes) {
+        for (Node node : nodes) {
             if (sources.containsKey(node.getName())) {
                 node.setType(ProcessorType.SOURCE);
             } else if (sinks.containsKey(node.getName())) {
                 node.setType(ProcessorType.SINK);
             } else if (filters.containsKey(node.getName())) {
                 node.setType(ProcessorType.FILTER);
+            } else if (splits.containsKey(node.getName())) {
+                node.setType(ProcessorType.SPLIT);
             } else if (preprocessingPipelines.containsKey(node.getName())) {
                 node.setType(ProcessorType.PREPROCESSING);
             } else if (processingPipelines.containsKey(node.getName())) {
@@ -214,12 +225,12 @@ public class JobExecution {
         List<Node> sourceNodes = nodes
                 .stream().filter(v -> v.getType().name().equals(ProcessorType.SOURCE.name())).collect(Collectors.toList());
 
-        SingleOutputStreamOperator<Event> singleOutputStreamOperator = null;
+        DataStream<Event> dataStream = null;
 
-        for(Node sourceNode : sourceNodes) {
-            singleOutputStreamOperator = sourceExecutor.execute(singleOutputStreamOperator, sourceNode);
+        for (Node sourceNode : sourceNodes) {
+            dataStream = sourceExecutor.execute(dataStream, sourceNode);
             for (String nodeName : sourceNode.getDownstream()) {
-                buildJobGraph(singleOutputStreamOperator, nodeName);
+                buildJobGraph(dataStream, nodeName);
             }
         }
 
@@ -230,7 +241,7 @@ public class JobExecution {
             log.info("Execution Job: {}", jobRuntimeEnvironment.getJobName());
             jobRuntimeEnvironment.getStreamExecutionEnvironment().execute(jobRuntimeEnvironment.getJobName());
             final long jobEndTime = System.currentTimeMillis();
-            log.info("Job finished, execution duration: {} ms", jobEndTime-jobStartTime);
+            log.info("Job finished, execution duration: {} ms", jobEndTime - jobStartTime);
 
         } catch (Exception e) {
             throw new JobExecuteException("Execute job error", e);
@@ -238,34 +249,62 @@ public class JobExecution {
 
     }
 
-    private void buildJobGraph(SingleOutputStreamOperator<Event> singleOutputStreamOperator, String downstreamNodeName) {
+    private void buildJobGraph(DataStream<Event> dataStream, String downstreamNodeName) {
         Node node = getNode(downstreamNodeName).orElseGet(() -> {
             throw new JobExecuteException("can't find downstream node " + downstreamNodeName);
         });
         if (node.getType().name().equals(ProcessorType.FILTER.name())) {
-            singleOutputStreamOperator = filterExecutor.execute(singleOutputStreamOperator, node);
+            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+                dataStream = filterExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
+                }), node);
+            } else {
+                dataStream = filterExecutor.execute(dataStream, node);
+            }
+        } else if (node.getType().name().equals(ProcessorType.SPLIT.name())) {
+            dataStream = splitExecutor.execute(dataStream, node);
+
         } else if (node.getType().name().equals(ProcessorType.PREPROCESSING.name())) {
-            singleOutputStreamOperator = preprocessingExecutor.execute(singleOutputStreamOperator, node);
+            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+                dataStream = preprocessingExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
+                }), node);
+            } else {
+                dataStream = preprocessingExecutor.execute(dataStream, node);
+            }
         } else if (node.getType().name().equals(ProcessorType.PROCESSING.name())) {
-            singleOutputStreamOperator = processingExecutor.execute(singleOutputStreamOperator, node);
+            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+                dataStream = processingExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
+                }), node);
+            } else {
+                dataStream = processingExecutor.execute(dataStream, node);
+            }
         } else if (node.getType().name().equals(ProcessorType.POSTPROCESSING.name())) {
-            singleOutputStreamOperator = postprocessingExecutor.execute(singleOutputStreamOperator, node);
+            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+                dataStream = postprocessingExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
+                }), node);
+            } else {
+                dataStream = postprocessingExecutor.execute(dataStream, node);
+            }
         } else if (node.getType().name().equals(ProcessorType.SINK.name())) {
-            singleOutputStreamOperator = sinkExecutor.execute(singleOutputStreamOperator, node);
+            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+                dataStream = sinkExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
+                }), node);
+            } else {
+                dataStream = sinkExecutor.execute(dataStream, node);
+            }
         } else {
             throw new JobExecuteException("unsupported process type " + node.getType().name());
         }
 
 
         for (String nodeName : node.getDownstream()) {
-            buildJobGraph(singleOutputStreamOperator, nodeName);
+            buildJobGraph(dataStream, nodeName);
         }
 
 
     }
 
     private Optional<Node> getNode(String name) {
-        return nodes.stream().filter(v-> v.getName().equals(name)).findFirst();
+        return nodes.stream().filter(v -> v.getName().equals(name)).findFirst();
     }
 
 

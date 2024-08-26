@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.eventtime.SerializableTimestampAssigner;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.net.URL;
@@ -67,7 +68,7 @@ public class SourceExecutor extends AbstractExecutor<String, SourceConfig> {
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator outputStreamOperator, Node node) throws JobExecuteException {
+    public DataStream<Event> execute(DataStream<Event> outputStreamOperator, Node node) throws JobExecuteException {
         SourceConfig sourceConfig = operatorMap.get(node.getName());
         SingleOutputStreamOperator sourceSingleOutputStreamOperator;
         try {
@@ -152,4 +153,5 @@ public class SourceExecutor extends AbstractExecutor<String, SourceConfig> {
             return 0;
         }
     }
+
 }

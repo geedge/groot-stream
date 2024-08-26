@@ -5,6 +5,7 @@ import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.utils.SchemaConfigParse;
 import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.config.CheckConfigUtil;
 import com.geedgenetworks.common.config.CheckResult;
 import com.geedgenetworks.common.config.SinkConfigOptions;
@@ -20,6 +21,7 @@ import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
@@ -63,7 +65,7 @@ public class SinkExecutor extends AbstractExecutor<String, SinkConfig> {
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
+    public DataStream<Event> execute(DataStream<Event> dataStream, Node node) throws JobExecuteException {
         SinkConfig sinkConfig = operatorMap.get(node.getName());
         try {
             SinkTableFactory sinkTableFactory = FactoryUtil.discoverTableFactory(SinkTableFactory.class, sinkConfig.getType());
