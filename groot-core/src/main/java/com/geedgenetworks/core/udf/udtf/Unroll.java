@@ -1,0 +1,107 @@
+package com.geedgenetworks.core.udf.udtf;
+
+import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
+import com.geedgenetworks.common.udf.TableFunction;
+import com.geedgenetworks.common.udf.UDFContext;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.api.common.functions.RuntimeContext;
+
+import java.util.*;
+
+
+@Slf4j
+public class Unroll implements TableFunction {
+
+    private String lookupFieldName;
+    private String outputFieldName;
+    private String regex;
+
+
+    @Override
+    public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
+        if(udfContext.getLookup_fields()==null ){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
+        }
+        this.lookupFieldName  = udfContext.getLookup_fields().get(0);
+        if(udfContext.getOutput_fields()!=null && !udfContext.getOutput_fields().isEmpty()) {
+            this.outputFieldName = udfContext.getOutput_fields().get(0);
+        }
+        else {
+            outputFieldName = lookupFieldName;
+        }
+        if(udfContext.getParameters()==null ){
+            regex="";
+        }
+        else {
+            this.regex=udfContext.getParameters().getOrDefault("regex", "").toString().trim();
+        }
+    }
+
+    @Override
+    public List<Event> evaluate(Event event) {
+        try {
+            if(event.getExtractedFields().containsKey(lookupFieldName)) {
+
+                if(regex.isEmpty()){
+                    if (event.getExtractedFields().get(lookupFieldName) instanceof List  ) {
+                        return parseList(event.getExtractedFields().get(lookupFieldName), event);
+                    } else if(event.getExtractedFields().get(lookupFieldName) instanceof Object[]){
+                        return parseArray(event.getExtractedFields().get(lookupFieldName), event);
+                    }else {
+                        log.error("Invalid unroll ! Object is not instance of list or array. expression=" + regex);
+                    }
+                }
+                else {
+                    if (event.getExtractedFields().get(lookupFieldName) instanceof String) {
+                        String[] array =((String) event.getExtractedFields().get(lookupFieldName)).split(regex);
+                        return parseArray(array, event);
+                    }else {
+                        log.error("Invalid unroll ! Object is not instance of String. expression=" + regex);
+                    }
+                }
+            }
+        }catch (Exception e) {
+            log.error("Invalid parseObject ! expression=" +regex + " Exception :" + e.getMessage());
+        }
+        return Collections.singletonList(event);
+    }
+
+    private List<Event> parseList(Object object,Event event) {
+        List list = (List) object;
+        List<Event> eventList = new ArrayList<>();
+        for (Object obj : list) {
+            Event newEvent = new Event();
+            newEvent.setExtractedFields(new HashMap<>());
+            newEvent.getExtractedFields().putAll(event.getExtractedFields());
+            newEvent.getExtractedFields().remove(lookupFieldName);
+            newEvent.getExtractedFields().put(outputFieldName, obj);
+            eventList.add(newEvent);
+        }
+        return eventList;
+    }
+    private List<Event> parseArray(Object object, Event event) {
+        List<Event> eventList = new ArrayList<>();
+        Object[] objects = (Object[]) object;
+        for (Object obj : objects) {
+            Event newEvent = new Event();
+            newEvent.setExtractedFields(new HashMap<>());
+            newEvent.getExtractedFields().putAll(event.getExtractedFields());
+            newEvent.getExtractedFields().remove(lookupFieldName);
+            newEvent.getExtractedFields().put(outputFieldName, obj);
+            eventList.add(newEvent);
+        }
+        return eventList;
+    }
+    @Override
+    public String functionName() {
+        return "UNROLL";
+    }
+
+    @Override
+    public void close() {
+
+    }
+
+}

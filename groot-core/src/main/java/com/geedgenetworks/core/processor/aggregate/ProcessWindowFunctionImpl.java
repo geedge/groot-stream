@@ -44,7 +44,9 @@ public class ProcessWindowFunctionImpl extends org.apache.flink.streaming.api.fu
         internalMetrics.incrementOutEvents();
         internalMetrics.incrementErrorEvents(accumulator.getErrorCount());
         internalMetrics.incrementInEvents(accumulator.getInEvents());
-
+        if (aggregateConfig.getWindow_timestamp_field() != null) {
+            event.getExtractedFields().put(aggregateConfig.getWindow_timestamp_field(), context.window().getStart());
+        }
         if (aggregateConfig.getOutput_fields() != null
                 && !aggregateConfig.getOutput_fields().isEmpty()) {
             event.setExtractedFields(

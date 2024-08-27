@@ -137,7 +137,7 @@ Based on the filter expression, the event will be passed to downstream if the ex
 ## Processing Pipelines
 
 Processing pipelines are used to define the event processing logic of the job. It can be categorized by functionality into stateless and stateful processors. Based processing order, it can be categorized into pre-processing pipeline, processing pipeline and post-processing pipeline. Each processor can assemble `UDFs`(User-defined functions) into a pipeline. The detail of processor is listed in [Processor](processor).
-
+UDF supports [scalar UDFs](processor/udf.md) , user-defined aggregate functions [(UDAFs)](processor/udaf.md), and user-defined table functions (UDTFs). 
 ## Sinks
 
 Sink is used to define where GrootStream needs to output data. Multiple sinks can be defined in a job. The supported sinks are listed in [Sink Connectors](connector/sink). Each sink has its own specific parameters to define how to output data, and GrootStream also extracts the properties that each sink will use, such as the `topic` and `kafka.bootstrap.servers` of the `Kafka` sink.

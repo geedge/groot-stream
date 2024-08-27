@@ -1,0 +1,167 @@
+sources: # [object] Define connector source
+  mock_source:
+    type: mock
+    #watermark_timestamp: __timestamp
+    #watermark_timestamp_unit: s
+    #watermark_lag: 10000
+    properties:
+      mock.desc.file.path: ./config/template/mock_schema/session_record_mock_desc.json
+      rows.per.second: 10
+
+preprocessing_pipelines:
+  etl_processor:
+    type: projection
+    functions:
+      - function: SNOWFLAKE_ID
+        lookup_fields: ['']
+        output_fields: [log_id]
+        parameters:
+          data_center_id_num: 1
+      - function: UNIX_TIMESTAMP_CONVERTER
+        lookup_fields: [ __timestamp ]
+        output_fields: [ recv_time ]
+        parameters:
+          precision: seconds
+      - function: SNOWFLAKE_ID
+        lookup_fields: [ '' ]
+        output_fields: [ session_id ]
+        parameters:
+          data_center_id_num: 2
+      - function: EVAL
+        output_fields: [ ingestion_time ]
+        parameters:
+          value_expression: recv_time
+
+      - function: DOMAIN
+        lookup_fields: [ http_host, ssl_sni, dtls_sni, quic_sni ]
+        output_fields: [ server_domain ]
+        parameters:
+          option: FIRST_SIGNIFICANT_SUBDOMAIN
+
+
+      - function: ASN_LOOKUP
+        lookup_fields: [ client_ip ]
+        output_fields: [ client_asn ]
+        parameters:
+          kb_name: tsg_ip_asn
+          option: IP_TO_ASN
+
+      - function: ASN_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: [ server_asn ]
+        parameters:
+          kb_name: tsg_ip_asn
+          option: IP_TO_ASN
+
+      - function: GEOIP_LOOKUP
+        lookup_fields: [ client_ip ]
+        output_fields: []
+        parameters:
+          kb_name: tsg_ip_location
+          option: IP_TO_OBJECT
+          geolocation_field_mapping:
+            COUNTRY: client_country
+            PROVINCE: client_super_administrative_area
+            CITY: client_administrative_area
+
+      - function: GEOIP_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: []
+        parameters:
+          kb_name: tsg_ip_location
+          option: IP_TO_OBJECT
+          geolocation_field_mapping:
+            COUNTRY: server_country
+            PROVINCE: server_super_administrative_area
+            CITY: server_administrative_area
+
+      - function: CURRENT_UNIX_TIMESTAMP
+        output_fields: [ processing_time ]
+        parameters:
+          precision: seconds
+
+      - function: UNIX_TIMESTAMP_CONVERTER
+        lookup_fields: [recv_time]
+        output_fields: [recv_time]
+        parameters:
+          precision: seconds
+          interval: 60
+
+
+processing_pipelines:
+  aggregate_processor:
+    type: aggregate
+    group_by_fields: [recv_time, sled_ip]
+    window_type: tumbling_processing_time
+    window_size: 60
+    functions:
+      - function: NUMBER_SUM
+        lookup_fields: [received_bytes, sent_bytes]
+        output_fields: [received_bytes_sum]
+
+      - function: LONG_COUNT
+        lookup_fields: [received_bytes]
+        output_fields: [sessions]
+
+      - function: MEAN
+        lookup_fields: [received_bytes]
+        output_fields: [received_bytes_mean]
+        parameters:
+          precision: 2
+
+      - function: FIRST_VALUE
+        lookup_fields: [ received_bytes ]
+        output_fields: [ received_bytes_first ]
+
+      - function: LAST_VALUE
+        lookup_fields: [ received_bytes ]
+        output_fields: [ received_bytes_last ]
+
+      - function: COLLECT_LIST
+        lookup_fields: [received_bytes]
+        output_fields: [received_bytes_set]
+
+
+sinks:
+  print_sink:
+    type: print
+    properties:
+      mode: log_info
+      format: json
+
+  kafka_sink:
+    type: kafka
+    properties:
+      topic: SESSION-RECORD
+      kafka.bootstrap.servers: 192.168.44.12:9094
+      kafka.retries: 0
+      kafka.linger.ms: 10
+      kafka.request.timeout.ms: 30000
+      kafka.batch.size: 262144
+      kafka.buffer.memory: 134217728
+      kafka.max.request.size: 10485760
+      kafka.compression.type: snappy
+      kafka.security.protocol: SASL_PLAINTEXT
+      kafka.sasl.mechanism: PLAIN
+      kafka.sasl.jaas.config: 454f65ea6eef1256e3067104f82730e737b68959560966b811e7ff364116b03124917eb2b0f3596f14733aa29ebad9352644ce1a5c85991c6f01ba8a5e8f177a7ff0b2d3889a424249967b3870b50993d9644f239f0de82cdb13bdb502959e16afadffa49ef1e1d2b9c9b5113e619817
+      format: json
+      json.ignore.parse.errors: false
+      log.failures.only: true
+
+
+application:  # [object] Define job configuration
+  env:
+    name: session_record_mock_to_print_with_aggregation
+    parallelism: 3
+    shade.identifier: aes
+    pipeline:
+      object-reuse: true
+  topology:
+    - name: mock_source
+      downstream: [ etl_processor ]
+    - name: etl_processor
+      downstream: [ aggregate_processor ]
+    - name: aggregate_processor
+      downstream: [ print_sink ]
+    - name: print_sink
+      downstream: []

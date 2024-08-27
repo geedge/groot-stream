@@ -37,19 +37,11 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
     public AggregateProcessorFunction(AggregateConfig aggregateConfig, ExecutionConfig config) {
         udfClassNameLists = JSON.parseObject(config.getGlobalJobParameters().toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
         udfContexts = aggregateConfig.getFunctions();
-        groupByFields = aggregateConfig.getGroup_by_fields();
-    }
-
-    @Override
-    public Accumulator createAccumulator() {
-
-        functions = Lists.newLinkedList();
         if (udfContexts == null || udfContexts.isEmpty()) {
             throw new RuntimeException();
         }
-        Map<String, Object> map = new HashMap<>();
-        Accumulator accumulator = new Accumulator();
-        accumulator.setMetricsFields(map);
+        groupByFields = aggregateConfig.getGroup_by_fields();
+        functions = Lists.newLinkedList();
         Map<String, String> udfClassReflect = getClassReflect(udfClassNameLists);
         try {
             for (UDFContext udfContext : udfContexts) {
@@ -59,7 +51,6 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
                     Class<?> cls = Class.forName(udfClassReflect.get(udfContext.getFunction()));
                     AggregateFunction aggregateFunction = (AggregateFunction) cls.getConstructor().newInstance();
-                    aggregateFunction.open(udfContext, accumulator);
                     // 函数如果包含filter,对表达式进行编译
                     if (udfContext.getFilter() != null) {
                         AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
@@ -72,6 +63,7 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
                     udfEntity.setFilterExpression(filterExpression);
                     udfEntity.setName(udfContext.getFunction());
                     udfEntity.setClassName(udfClassReflect.get(udfContext.getFunction()));
+                    udfEntity.setUdfContext(udfContext);
                     functions.add(udfEntity);
                 } else {
                     throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION,
@@ -79,14 +71,24 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
                 }
 
             }
+            for (UdfEntity udfEntity : functions) {
+                udfEntity.getAggregateFunction().open(udfEntity.getUdfContext());
+            }
         } catch (Exception e) {
             throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Initialization UDAF failed!", e);
 
         }
-
+    }
+    @Override
+    public Accumulator createAccumulator() {
+        Map<String, Object> map = new HashMap<>();
+        Accumulator accumulator = new Accumulator();
+        accumulator.setMetricsFields(map);
+        for (UdfEntity udfEntity : functions) {
+            udfEntity.getAggregateFunction().initAccumulator(accumulator);
+        }
         return accumulator;
     }
-
     @Override
     public Accumulator add(Event event, Accumulator accumulator) {
 

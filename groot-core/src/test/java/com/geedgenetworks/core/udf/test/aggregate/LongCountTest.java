@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class LongCountTest {
 
     @Test
-    public void testNumberSumTest() throws ParseException {
+    public void test() throws ParseException {
 
         Long[] longArr = new Long[]{1L, 2L, 3L, 4L};
         excute(longArr);
@@ -49,8 +49,8 @@ public class LongCountTest {
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(metricsFields);
-        Accumulator agg = longCount.open(udfContext,accumulator);
-
+        longCount.open(udfContext);
+        Accumulator agg = longCount.initAccumulator(accumulator);
         for (Number o : arr) {
             Event event = new Event();
             Map<String, Object> extractedFields = new HashMap<>();

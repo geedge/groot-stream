@@ -66,6 +66,11 @@
         </dependency>
 
         <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>sketches</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.alibaba.nacos</groupId>
             <artifactId>nacos-client</artifactId>
             <exclusions>

@@ -18,7 +18,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.SaslConfigs;
-import org.apache.kafka.common.security.auth.SecurityProtocol;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -48,7 +47,7 @@ import static org.awaitility.Awaitility.await;
 @DisabledOnContainer(
         value = {TestContainerId.FLINK_1_17},
         disabledReason = "Override TestSuiteBase @DisabledOnContainer")
-public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
+public class KafkaIT extends TestSuiteBase implements TestResource {
 
     private KafkaContainer kafkaContainer;
 
@@ -164,8 +163,8 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
     public void testKafkaAsSinkProducerQuota(TestContainer container) throws IOException, InterruptedException {
         //Create topic with 3 partitions
         executeShell("kafka-topics --create --topic SESSION-RECORD-QUOTA-TEST --bootstrap-server kafkaCluster:9092 --partitions 3 --replication-factor 1 --command-config /etc/kafka/kafka_client_jass_cli.properties");
-        //Set producer quota to 5KB/s
-        executeShell("kafka-configs --bootstrap-server kafkaCluster:9092 --alter --add-config 'producer_byte_rate=5120' --entity-type users --entity-name admin --entity-type clients --entity-name SESSION-RECORD-QUOTA-TEST --command-config /etc/kafka/kafka_client_jass_cli.properties ");
+        //Set producer quota to 2KB/s
+        executeShell("kafka-configs --bootstrap-server kafkaCluster:9092 --alter --add-config 'producer_byte_rate=2048' --entity-type users --entity-name admin --entity-type clients --entity-name SESSION-RECORD-QUOTA-TEST --command-config /etc/kafka/kafka_client_jass_cli.properties ");
 
         CompletableFuture.supplyAsync(
                 () -> {
@@ -184,7 +183,7 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
                 .untilAsserted(
                         () -> {
                            data.addAll(getKafkaConsumerListData("SESSION-RECORD-QUOTA-TEST"));
-                           Assertions.assertTrue(StringUtils.contains(container.getServerLogs(), "TimeoutException") && data.size()>1000);
+                           Assertions.assertTrue(StringUtils.contains(container.getServerLogs(), "TimeoutException") && data.size()>100);
                         });
 
     }
@@ -243,8 +242,6 @@ public class KafkaConnectorIT extends TestSuiteBase implements TestResource {
                         Assertions.assertEquals(0, data.size());
                     });
     }
-
-
 
     private void generateTestData(String topic, int start, int end) {
         StructType dataType = Types.parseStructType("id: int, client_ip: string, server_ip: string, flag: string");
