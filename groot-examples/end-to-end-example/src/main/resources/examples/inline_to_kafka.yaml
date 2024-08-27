@@ -46,7 +46,7 @@ sinks:
       kafka.compression.type: snappy
       kafka.security.protocol: SASL_PLAINTEXT
       kafka.sasl.mechanism: PLAIN
-      kafka.sasl.jaas.config: 454f65ea6eef1256e3067104f82730e737b68959560966b811e7ff364116b03124917eb2b0f3596f14733aa29ebad9352644ce1a5c85991c6f01ba8a5e8f177a80bea937958aaa485c2acc2b475603495a23eb59f055e037c0b186acb22886bd0275ca91f1633441d9943e7962942252
+      kafka.sasl.jaas.config: f76480be84a8ee1b009504c6c56a5bed48239c348a468f94b4029a6a3148f51530b025d6dfa140af93b4c7c6fe0e3dce543773e779d272b5579555fbd3271e7fdbee088673a901b3f3b28e914a25f30a4a859d97594c5ea7d7c1dcefe8c62560baea32b6da0b767232ed8aca17af2dc6
       format: json
       log.failures.only: true
 
@@ -64,7 +64,7 @@ sinks:
       kafka.compression.type: snappy
       kafka.security.protocol: SASL_PLAINTEXT
       kafka.sasl.mechanism: PLAIN
-      kafka.sasl.jaas.config: 454f65ea6eef1256e3067104f82730e737b68959560966b811e7ff364116b03124917eb2b0f3596f14733aa29ebad9352644ce1a5c85991c6f01ba8a5e8f177a7ff0b2d3889a424249967b3870b50993d9644f239f0de82cdb13bdb502959e16afadffa49ef1e1d2b9c9b5113e619817
+      kafka.sasl.jaas.config: f76480be84a8ee1b009504c6c56a5bed48239c348a468f94b4029a6a3148f51530b025d6dfa140af93b4c7c6fe0e3dce543773e779d272b5579555fbd3271e7fdbee088673a901b3f3b28e914a25f30a4a859d97594c5ea7d7c1dcefe8c62560baea32b6da0b767232ed8aca17af2dc6
       format: json
       log.failures.only: true
 
@@ -72,7 +72,7 @@ application:  # [object] Define job configuration
   env:
     name: example-inline-to-kafka
     parallelism: 3
-    shade.identifier: aes
+    shade.identifier: sm4
     pipeline:
       object-reuse: true
   topology:
