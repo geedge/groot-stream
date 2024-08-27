@@ -151,7 +151,7 @@ preprocessing_pipelines: # [object] Define Processors for preprocessing pipeline
 # It will be accomplished the common processing for the event by the user-defined functions.
 #
 processing_pipelines: # [object] Define Processors for processing pipelines.
-  projection_processor: # [object] Define projection processor name, must be unique.
+  z: # [object] Define projection processor name, must be unique.
     type: projection  # [string] Processor Type
     remove_fields:
     output_fields:
