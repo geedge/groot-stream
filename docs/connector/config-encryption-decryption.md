@@ -6,14 +6,14 @@ In production environments, sensitive configuration items such as passwords are 
 
 ## How to use
 
-Groot Stream default support base64 and AES encryption and decryption.
+Groot Stream support base64, AES and SM4 encryption and decryption.
 
 Base64 encryption support encrypt the following parameters:
 - username
 - password
 - auth
 
-AES encryption support encrypt the following parameters:
+AES/SM4 encryption support encrypt the following parameters:
 - username
 - password
 - auth
