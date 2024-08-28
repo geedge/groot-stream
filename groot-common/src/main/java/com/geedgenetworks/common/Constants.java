@@ -11,6 +11,8 @@ public final class Constants {
     public static final String SINKS = "sinks";
     public static final int SYSTEM_EXIT_CODE = 2618;
     public static final String APPLICATION = "application";
+
+    public static final String PROPERTIES = "properties";
     public static final String SPLITS = "splits";
     public static final String APPLICATION_ENV ="env";
     public static final String APPLICATION_TOPOLOGY = "topology";
@@ -23,6 +25,7 @@ public final class Constants {
             "  \\____||_|   \\___/  \\___/  \\__|     |____/  \\__||_|   \\___| \\__,_||_| |_| |_|\n" +
             "                                                                              \n";
 
+    public static final String SYSPROP_GROOTSTREAM_TASK_PROPERTIES = "grootstream.task.properties";
 
     public static final String SYSPROP_GROOTSTREAM_CONFIG = "grootstream.config";
     public static final String SYSPROP_GROOTSTREAM_PREFIX = "props.";

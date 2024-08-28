@@ -13,12 +13,15 @@ import java.util.List;
 public interface RuntimeEnvironment {
     RuntimeEnvironment setEnvConfig(Config envConfig);
     Config getEnvConfig();
-
+    RuntimeEnvironment initTaskProperties(Config taskProperties);
     CheckResult checkConfig();
     RuntimeEnvironment prepare();
 
     void registerPlugin(List<URL> pluginPaths);
     default void initialize(Config config) {
+        if (config.getConfig(Constants.APPLICATION).hasPath(Constants.PROPERTIES)) {
+            this.initTaskProperties(config.getConfig(ConfigUtil.joinPath(Constants.APPLICATION, Constants.PROPERTIES)));
+        }
         this.setEnvConfig(config.getConfig(ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV))).prepare();
     }
 }

@@ -22,8 +22,6 @@ import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.TernaryBoolean;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,6 +35,7 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
     private String jobName = Constants.DEFAULT_JOB_NAME;
     private Set<String> splitSet = new HashSet<>();
 
+    private final Map<String, String> taskProperties= new HashMap<>();
 
     private JobRuntimeEnvironment(Config config, GrootStreamConfig grootStreamConfig) {
         this.grootStreamConfig = grootStreamConfig;
@@ -63,6 +62,14 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
     @Override
     public Config getEnvConfig() {
         return envConfig;
+    }
+
+    @Override
+    public RuntimeEnvironment initTaskProperties(Config taskProperties) {
+        this.taskProperties.putAll(taskProperties.root().unwrapped().entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, entry -> String.valueOf(entry.getValue()))));
+        return this;
     }
 
     @Override
@@ -137,6 +144,7 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         }
         configuration.setString(Constants.SYSPROP_UDF_PLUGIN_CONFIG, JSON.toJSONString(grootStreamConfig.getUDFPluginConfig()));
         configuration.setString(Constants.SYSPROP_GROOTSTREAM_CONFIG, JSON.toJSONString(grootStreamConfig.getCommonConfig()));
+        configuration.setString(Constants.SYSPROP_GROOTSTREAM_TASK_PROPERTIES, JSON.toJSONString(taskProperties));
         environment.getConfig().setGlobalJobParameters(configuration);
         setTimeCharacteristic();
         setCheckpoint();
