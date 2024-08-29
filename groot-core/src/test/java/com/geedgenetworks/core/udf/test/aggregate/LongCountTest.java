@@ -19,6 +19,7 @@ package com.geedgenetworks.core.udf.test.aggregate;
 import com.geedgenetworks.common.Accumulator;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.core.udf.udaf.LastValue;
 import com.geedgenetworks.core.udf.udaf.LongCount;
 import com.geedgenetworks.core.udf.udaf.NumberSum;
 import com.ibm.icu.text.NumberFormat;
@@ -38,10 +39,46 @@ public class LongCountTest {
     public void test() throws ParseException {
 
         Long[] longArr = new Long[]{1L, 2L, 3L, 4L};
-        excute(longArr);
+        Long[] longArr2 = new Long[]{1L, 2L, 3L, 4L};
+        testMerge(longArr,longArr2);
+        testGetResult(longArr);
     }
+    private void testMerge(Number[] arr,Number[] arr2) {
 
-    private static void excute(Number[] arr) throws ParseException {
+        UDFContext udfContext = new UDFContext();
+        udfContext.setLookup_fields(List.of("field"));
+        udfContext.setOutput_fields(Collections.singletonList("count"));
+        LongCount longCount = new LongCount();
+        Map<String, Object> metricsFields = new HashMap<>();
+        Accumulator accumulator = new Accumulator();
+        accumulator.setMetricsFields(metricsFields);
+        longCount.open(udfContext);
+        Accumulator result1 = getMiddleResult(udfContext,arr);
+        Accumulator result2 = getMiddleResult(udfContext,arr2);
+        Accumulator result = longCount.getResult(longCount.merge(result1,result2));
+        assertEquals(Integer.parseInt((result.getMetricsFields().get("count").toString())),8);
+
+    }
+    private Accumulator getMiddleResult(UDFContext udfContext,Number[] arr) {
+
+
+        LongCount longCount = new LongCount();
+        Map<String, Object> metricsFields = new HashMap<>();
+        Accumulator accumulator = new Accumulator();
+        accumulator.setMetricsFields(metricsFields);
+        longCount.open(udfContext);
+        Accumulator agg = longCount.initAccumulator(accumulator);
+        for (Number o : arr) {
+            Event event = new Event();
+            Map<String, Object> extractedFields = new HashMap<>();
+            extractedFields.put("field", o);
+            event.setExtractedFields(extractedFields);
+            agg = longCount.add(event, agg);
+
+        }
+        return longCount.getMiddleResult(agg);
+    }
+    private static void testGetResult(Number[] arr) throws ParseException {
 
         UDFContext udfContext = new UDFContext();
         udfContext.setOutput_fields(Collections.singletonList("count"));

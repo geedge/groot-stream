@@ -65,8 +65,10 @@ public class JobSplitWithAggTest {
         } catch (Exception e) {
             throw new JobExecuteException("Job executed error", e);
         }
-        Assert.assertEquals(1, CollectSink.values.size());
+
+        Assert.assertEquals(2, CollectSink.values.size());
         Assert.assertEquals("2", CollectSink.values.get(0).getExtractedFields().get("sessions").toString());
+        Assert.assertEquals("1.5", CollectSink.values.get(0).getExtractedFields().get("pkts").toString());
 
     }
 }

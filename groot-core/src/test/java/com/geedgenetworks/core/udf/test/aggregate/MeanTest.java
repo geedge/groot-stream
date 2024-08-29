@@ -39,12 +39,52 @@ public class MeanTest {
 
         Integer[] intArr1 = new Integer[]{1, 2, 3, 4};
         Integer[] intArr2 = new Integer[]{1, 6, 3};
-        excute(intArr1, 0);
-        excute2(intArr2, 2);
-        excute3(intArr1);
+        testInt(intArr1, 0);
+        testDouble(intArr2, 2);
+        testNoPrecision(intArr1);
+        testMerge(intArr1,intArr2,2);
+    }
+    private void testMerge(Number[] arr1,Number[] arr2,int precision) throws ParseException {
+        UDFContext udfContext = new UDFContext();
+        udfContext.setLookup_fields(List.of("field"));
+        udfContext.setOutput_fields(Collections.singletonList("field_mean"));
+        udfContext.setParameters(new HashMap<>());
+        udfContext.getParameters().put("precision", precision);
+        Mean mean = new Mean();
+        Map<String, Object> metricsFields = new HashMap<>();
+        Accumulator accumulator = new Accumulator();
+        accumulator.setMetricsFields(metricsFields);
+        mean.open(udfContext);
+        Accumulator result1 = getMiddleResult(arr1,precision);
+        Accumulator result2 = getMiddleResult(arr2,precision);
+        Accumulator result = mean.getResult(mean.merge(result1,result2));
+        assertEquals(NumberFormat.getInstance().parse((result.getMetricsFields().get("field_mean").toString())),NumberFormat.getInstance().parse("2.86"));
+    }
+    private Accumulator getMiddleResult(Number[] arr,int precision) throws ParseException {
+        UDFContext udfContext = new UDFContext();
+        udfContext.setLookup_fields(List.of("field"));
+        udfContext.setOutput_fields(Collections.singletonList("field_mean"));
+        udfContext.setParameters(new HashMap<>());
+        udfContext.getParameters().put("precision", precision);
+        Mean mean = new Mean();
+        Map<String, Object> metricsFields = new HashMap<>();
+        Accumulator accumulator = new Accumulator();
+        accumulator.setMetricsFields(metricsFields);
+        mean.open(udfContext);
+        Accumulator agg = mean.initAccumulator(accumulator);
+        for (Number o : arr) {
+            Event event = new Event();
+            Map<String, Object> extractedFields = new HashMap<>();
+            extractedFields.put("field", o);
+            event.setExtractedFields(extractedFields);
+            agg = mean.add(event, agg);
+
+        }
+        return mean.getMiddleResult(agg);
     }
 
-    private static void excute(Number[] arr,int precision) throws ParseException {
+
+        private void testInt(Number[] arr,int precision) throws ParseException {
 
         UDFContext udfContext = new UDFContext();
         udfContext.setLookup_fields(List.of("field"));
@@ -65,11 +105,12 @@ public class MeanTest {
             agg = mean.add(event, agg);
 
         }
+
         Accumulator result = mean.getResult(agg);
         assertEquals(NumberFormat.getInstance().parse((result.getMetricsFields().get("field_mean").toString())),NumberFormat.getInstance().parse("2"));
     }
 
-    private static void excute2(Number[] arr,int precision) throws ParseException {
+    private  void testDouble(Number[] arr,int precision) throws ParseException {
 
         UDFContext udfContext = new UDFContext();
         udfContext.setLookup_fields(List.of("field"));
@@ -94,7 +135,7 @@ public class MeanTest {
         assertEquals(NumberFormat.getInstance().parse((result.getMetricsFields().get("field_mean").toString())),NumberFormat.getInstance().parse("3.33"));
     }
 
-    private static void excute3(Number[] arr) throws ParseException {
+    private void testNoPrecision(Number[] arr) throws ParseException {
 
         UDFContext udfContext = new UDFContext();
         udfContext.setLookup_fields(List.of("field"));

@@ -13,20 +13,22 @@ public class LongCount implements AggregateFunction {
 
 
     @Override
-    public void open(UDFContext udfContext){
-        if(udfContext.getOutput_fields()==null ){
+    public void open(UDFContext udfContext) {
+        if (udfContext.getOutput_fields() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
         outputField = udfContext.getOutput_fields().get(0);
     }
+
     @Override
     public Accumulator initAccumulator(Accumulator acc) {
         return acc;
     }
+
     @Override
     public Accumulator add(Event event, Accumulator acc) {
 
-        acc.getMetricsFields().compute(outputField, (k, v) -> (v == null) ? 1L : (long)v + 1L);
+        acc.getMetricsFields().compute(outputField, (k, v) -> (v == null) ? 1L : (long) v + 1L);
         return acc;
     }
 
@@ -40,5 +42,18 @@ public class LongCount implements AggregateFunction {
         return acc;
     }
 
+    @Override
+    public Accumulator merge(Accumulator firstAcc, Accumulator secondAcc) {
+        if (firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
 
+            long firstValue = (long) firstAcc.getMetricsFields().get(outputField);
+            long secondValue = (long) secondAcc.getMetricsFields().get(outputField);
+            firstValue = firstValue + secondValue;
+            firstAcc.getMetricsFields().put(outputField, firstValue);
+        } else if (!firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
+            Number secondValue = (Number) secondAcc.getMetricsFields().get(outputField);
+            firstAcc.getMetricsFields().put(outputField, secondValue);
+        }
+        return firstAcc;
+    }
 }

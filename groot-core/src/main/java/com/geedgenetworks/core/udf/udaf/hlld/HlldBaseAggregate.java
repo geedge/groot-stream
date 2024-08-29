@@ -92,7 +92,10 @@ public abstract class HlldBaseAggregate implements AggregateFunction {
         Hll hll = HllUtils.deserializeHll(value);
         hllUnion.update(hll);
     }
-
+    @Override
+    public Accumulator merge(Accumulator a, Accumulator b) {
+        return null;
+    }
     @Override
     public void close() {}
 }

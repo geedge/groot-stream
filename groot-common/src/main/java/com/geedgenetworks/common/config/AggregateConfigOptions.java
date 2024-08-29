@@ -5,8 +5,6 @@ import com.geedgenetworks.common.udf.UDFContext;
 
 import java.util.List;
 
-import static com.geedgenetworks.common.Event.WINDOW_START_TIMESTAMP;
-
 public interface AggregateConfigOptions {
     Option<String> TYPE = Options.key("type")
             .stringType()
@@ -42,7 +40,10 @@ public interface AggregateConfigOptions {
             .intType()
             .noDefaultValue()
             .withDescription("The size of window.");
-
+    Option<Boolean> MINI_BATCH = Options.key("mini_batch")
+            .booleanType()
+            .defaultValue(false)
+            .withDescription("The label of pre_aggrergate.");
     Option<Integer> WINDOW_SLIDE = Options.key("window_slide")
             .intType()
             .noDefaultValue()

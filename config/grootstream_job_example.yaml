@@ -34,6 +34,7 @@ processing_pipelines:
     window_timestamp_field: recv_time
     window_size: 6
     window_slide: 10 #滑动窗口步长
+    mini_batch: true
     functions:
       - function: NUMBER_SUM
         lookup_fields: [ sent_pkts ]

@@ -95,7 +95,10 @@ public abstract class HdrHistogramBaseAggregate implements AggregateFunction {
 
         his.merge(h);
     }
-
+    @Override
+    public Accumulator merge(Accumulator a, Accumulator b) {
+        return null;
+    }
     @Override
     public void close() {}
 }
