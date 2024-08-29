@@ -78,7 +78,7 @@ public class CollectListTest {
             agg = collectList.add(event, agg);
 
         }
-        return collectList.getMiddleResult(agg);
+        return agg;
     }
     private void testGetResult(List<String> arr) throws ParseException {
 

@@ -76,7 +76,7 @@ public class LongCountTest {
             agg = longCount.add(event, agg);
 
         }
-        return longCount.getMiddleResult(agg);
+        return agg;
     }
     private static void testGetResult(Number[] arr) throws ParseException {
 

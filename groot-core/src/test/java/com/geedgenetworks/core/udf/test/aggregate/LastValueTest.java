@@ -76,7 +76,7 @@ public class LastValueTest {
             agg = lastValue.add(event, agg);
 
         }
-        return lastValue.getMiddleResult(agg);
+        return agg;
     }
     private static void testGetResult(List<String> arr) throws ParseException {
 

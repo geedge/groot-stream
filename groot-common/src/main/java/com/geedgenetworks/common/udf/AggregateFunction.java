@@ -11,7 +11,6 @@ public interface AggregateFunction extends Serializable {
     Accumulator initAccumulator(Accumulator acc);
     Accumulator add(Event val, Accumulator acc);
     String functionName();
-    default Accumulator getMiddleResult(Accumulator acc){return acc;}
     Accumulator getResult(Accumulator acc);
     Accumulator merge(Accumulator a, Accumulator b);
     default void close(){};

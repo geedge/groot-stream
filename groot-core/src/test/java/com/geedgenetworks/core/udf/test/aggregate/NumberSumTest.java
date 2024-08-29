@@ -78,7 +78,7 @@ public class NumberSumTest {
             agg = numberSum.add(event, agg);
 
         }
-        return numberSum.getMiddleResult(agg);
+        return agg;
     }
     private static void excute(Number[] arr, Class<? extends Number> clazz) throws ParseException {
 

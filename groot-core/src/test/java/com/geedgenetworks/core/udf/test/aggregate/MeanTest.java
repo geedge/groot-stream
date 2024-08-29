@@ -80,7 +80,7 @@ public class MeanTest {
             agg = mean.add(event, agg);
 
         }
-        return mean.getMiddleResult(agg);
+        return agg;
     }
 
 
