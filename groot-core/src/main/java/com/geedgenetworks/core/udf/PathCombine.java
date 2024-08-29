@@ -26,12 +26,8 @@ public class PathCombine implements ScalarFunction {
 
         Configuration configuration = (Configuration) runtimeContext
                 .getExecutionConfig().getGlobalJobParameters();
-        Map<String, String> taskProperties = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_TASK_PROPERTIES), Map.class);
         CommonConfig engineConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
-        Map<String, String> propertiesConfig = new HashMap<>(engineConfig.getPropertiesConfig());
-        if(taskProperties!=null){
-            propertiesConfig.putAll(taskProperties);
-        }
+        Map<String,String>  propertiesConfig =engineConfig.getPropertiesConfig();
         if (udfContext.getParameters() != null
                 && !udfContext.getParameters().isEmpty()) {
             String paths = udfContext.getParameters().getOrDefault("path","").toString();

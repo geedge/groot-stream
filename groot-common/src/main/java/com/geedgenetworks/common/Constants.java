@@ -25,8 +25,6 @@ public final class Constants {
             "  \\____||_|   \\___/  \\___/  \\__|     |____/  \\__||_|   \\___| \\__,_||_| |_| |_|\n" +
             "                                                                              \n";
 
-    public static final String SYSPROP_GROOTSTREAM_TASK_PROPERTIES = "grootstream.task.properties";
-
     public static final String SYSPROP_GROOTSTREAM_CONFIG = "grootstream.config";
     public static final String SYSPROP_GROOTSTREAM_PREFIX = "props.";
     public static final String SYSPROP_GROOTSTREAM_KB_SCHEDULER_INTERVAL_NAME = "scheduler.knowledge_base.update.interval.minutes";
