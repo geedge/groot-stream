@@ -1,5 +1,6 @@
 package com.geedgenetworks.core.processor.aggregate;
 
+import cn.hutool.crypto.SecureUtil;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.KeybyEntity;
 
@@ -20,16 +21,17 @@ public class KeySelector implements org.apache.flink.api.java.functions.KeySelec
 
         KeybyEntity keybyEntity = new KeybyEntity(new HashMap<>());
         StringBuilder stringBuilder = new StringBuilder();
-        for(String key: keys){
+        for (String key : keys) {
 
-            if(value.getExtractedFields().containsKey(key)){
-                keybyEntity.getKeys().put(key,value.getExtractedFields().get(key));
+            if (value.getExtractedFields().containsKey(key)) {
+                keybyEntity.getKeys().put(key, value.getExtractedFields().get(key));
                 stringBuilder.append(value.getExtractedFields().get(key).toString());
-            }else {
+            } else {
                 stringBuilder.append(",");
             }
         }
-        keybyEntity.setKeysToString(stringBuilder.toString());
-        return  keybyEntity;
+        String hashedKey = SecureUtil.md5(stringBuilder.toString());
+        keybyEntity.setKeysToString(hashedKey);
+        return keybyEntity;
     }
 }

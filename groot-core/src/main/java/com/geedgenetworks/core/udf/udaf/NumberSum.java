@@ -6,7 +6,6 @@ import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.AggregateFunction;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.pojo.OnlineStatistics;
 
 
 public class NumberSum implements AggregateFunction {
@@ -15,15 +14,14 @@ public class NumberSum implements AggregateFunction {
 
 
     @Override
-    public void open(UDFContext udfContext){
-        if(udfContext.getLookup_fields()==null ){
+    public void open(UDFContext udfContext) {
+        if (udfContext.getLookup_fields() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        lookupField  = udfContext.getLookup_fields().get(0);
-        if(udfContext.getOutput_fields()!=null && !udfContext.getOutput_fields().isEmpty()) {
+        lookupField = udfContext.getLookup_fields().get(0);
+        if (udfContext.getOutput_fields() != null && !udfContext.getOutput_fields().isEmpty()) {
             outputField = udfContext.getOutput_fields().get(0);
-        }
-        else {
+        } else {
             outputField = lookupField;
         }
     }
@@ -32,22 +30,23 @@ public class NumberSum implements AggregateFunction {
     public Accumulator initAccumulator(Accumulator acc) {
         return acc;
     }
+
     @Override
     public Accumulator add(Event event, Accumulator acc) {
 
-            if(event.getExtractedFields().containsKey(lookupField)){
-                Number val = (Number) event.getExtractedFields().get(lookupField);
-                Number aggregate = (Number) acc.getMetricsFields().getOrDefault(outputField, 0L);
-                if (aggregate instanceof Long && ( val instanceof Integer|| val instanceof Long)) {
-                    aggregate = aggregate.longValue() + val.longValue();
-                } else if (aggregate instanceof Float || val instanceof Float) {
-                    aggregate = aggregate.floatValue() + val.floatValue();
-                } else if (aggregate instanceof Double || val instanceof Double) {
-                    aggregate = aggregate.doubleValue() + val.doubleValue();
-                }
-                acc.getMetricsFields().put(outputField, aggregate);
+        if (event.getExtractedFields().containsKey(lookupField)) {
+            Number val = (Number) event.getExtractedFields().get(lookupField);
+            Number aggregate = (Number) acc.getMetricsFields().getOrDefault(outputField, 0L);
+            if (aggregate instanceof Long && (val instanceof Integer || val instanceof Long)) {
+                aggregate = aggregate.longValue() + val.longValue();
+            } else if (aggregate instanceof Float || val instanceof Float) {
+                aggregate = aggregate.floatValue() + val.floatValue();
+            } else if (aggregate instanceof Double || val instanceof Double) {
+                aggregate = aggregate.doubleValue() + val.doubleValue();
             }
-            return acc;
+            acc.getMetricsFields().put(outputField, aggregate);
+        }
+        return acc;
     }
 
     @Override
@@ -65,4 +64,24 @@ public class NumberSum implements AggregateFunction {
 
     }
 
+    @Override
+    public Accumulator merge(Accumulator firstAcc, Accumulator secondAcc) {
+        if (firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
+
+            Number firstValue = (Number) firstAcc.getMetricsFields().get(outputField);
+            Number secondValue = (Number) secondAcc.getMetricsFields().get(outputField);
+            if (firstValue instanceof Long && (secondValue instanceof Integer || secondValue instanceof Long)) {
+                firstValue = firstValue.longValue() + secondValue.longValue();
+            } else if (firstValue instanceof Float || secondValue instanceof Float) {
+                firstValue = firstValue.floatValue() + secondValue.floatValue();
+            } else if (firstValue instanceof Double || secondValue instanceof Double) {
+                firstValue = firstValue.doubleValue() + secondValue.doubleValue();
+            }
+            firstAcc.getMetricsFields().put(outputField, firstValue);
+        } else if (!firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
+            Number secondValue = (Number) secondAcc.getMetricsFields().get(outputField);
+            firstAcc.getMetricsFields().put(outputField, secondValue);
+        }
+        return firstAcc;
+    }
 }

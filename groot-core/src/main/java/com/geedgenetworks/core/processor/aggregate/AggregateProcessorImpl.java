@@ -12,42 +12,83 @@ import org.apache.flink.streaming.api.windowing.assigners.SlidingProcessingTimeW
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.util.OutputTag;
 
 import static com.geedgenetworks.common.Constants.*;
 
-public class AggregateProcessorImpl implements AggregateProcessor  {
+public class AggregateProcessorImpl implements AggregateProcessor {
 
     @Override
-    public DataStream<Event> processorFunction(DataStream<Event> grootEventDataStream, AggregateConfig aggregateConfig, ExecutionConfig config) throws Exception {
+    public DataStream<Event> processorFunction(DataStream<Event> grootEventSingleOutputStreamOperator, AggregateConfig aggregateConfig, ExecutionConfig config) throws Exception {
 
-        if (aggregateConfig.getParallelism() != 0) {
+        SingleOutputStreamOperator<Event> singleOutputStreamOperator;
+        if (aggregateConfig.getMini_batch()) {
             switch (aggregateConfig.getWindow_type()) {
                 case TUMBLING_PROCESSING_TIME:
-                    return grootEventDataStream.keyBy(new KeySelector(aggregateConfig.getGroup_by_fields())).window(TumblingProcessingTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()))).aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig)).setParallelism(aggregateConfig.getParallelism()).name(aggregateConfig.getName());
+                    singleOutputStreamOperator = grootEventSingleOutputStreamOperator
+                            .process(new FirstAggregationProcessingTime(aggregateConfig, aggregateConfig.getWindow_size()))
+                            .keyBy(new PreKeySelector(aggregateConfig.getGroup_by_fields()))
+                            .window(TumblingProcessingTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size())))
+                            .aggregate(new SecondAggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig));
+                    break;
                 case TUMBLING_EVENT_TIME:
-                    return grootEventDataStream.keyBy(new KeySelector(aggregateConfig.getGroup_by_fields())).window(TumblingEventTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()))).aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig)).setParallelism(aggregateConfig.getParallelism()).name(aggregateConfig.getName());
+                    singleOutputStreamOperator = grootEventSingleOutputStreamOperator
+                            .process(new FirstAggregationEventTime(aggregateConfig, aggregateConfig.getWindow_size()))
+                            .keyBy(new PreKeySelector(aggregateConfig.getGroup_by_fields()))
+                            .window(TumblingEventTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size())))
+                            .aggregate(new SecondAggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig));
+                    break;
                 case SLIDING_PROCESSING_TIME:
-                    return grootEventDataStream.keyBy(new KeySelector(aggregateConfig.getGroup_by_fields())).window(SlidingProcessingTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()), Time.seconds(aggregateConfig.getWindow_slide()))).aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig)).setParallelism(aggregateConfig.getParallelism()).name(aggregateConfig.getName());
+                    singleOutputStreamOperator = grootEventSingleOutputStreamOperator
+                            .process(new FirstAggregationProcessingTime(aggregateConfig, aggregateConfig.getWindow_slide()))
+                            .keyBy(new PreKeySelector(aggregateConfig.getGroup_by_fields()))
+                            .window(SlidingProcessingTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()), Time.seconds(aggregateConfig.getWindow_slide())))
+                            .aggregate(new SecondAggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig));
+                    break;
                 case SLIDING_EVENT_TIME:
-                    return grootEventDataStream.keyBy(new KeySelector(aggregateConfig.getGroup_by_fields())).window(SlidingEventTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()), Time.seconds(aggregateConfig.getWindow_slide()))).aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig)).setParallelism(aggregateConfig.getParallelism()).name(aggregateConfig.getName());
+                    singleOutputStreamOperator = grootEventSingleOutputStreamOperator
+                            .process(new FirstAggregationEventTime(aggregateConfig, aggregateConfig.getWindow_slide()))
+                            .keyBy(new PreKeySelector(aggregateConfig.getGroup_by_fields()))
+                            .window(SlidingEventTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()), Time.seconds(aggregateConfig.getWindow_slide())))
+                            .aggregate(new SecondAggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig));
+                    break;
                 default:
                     throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Invalid window type");
+
             }
-        }else {
+        } else {
             switch (aggregateConfig.getWindow_type()) {
                 case TUMBLING_PROCESSING_TIME:
-                    return grootEventDataStream.keyBy(new KeySelector(aggregateConfig.getGroup_by_fields())).window(TumblingProcessingTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()))).aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig)).name(aggregateConfig.getName());
+                    singleOutputStreamOperator = grootEventSingleOutputStreamOperator
+                            .keyBy(new KeySelector(aggregateConfig.getGroup_by_fields()))
+                            .window(TumblingProcessingTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size())))
+                            .aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig));
+                    break;
                 case TUMBLING_EVENT_TIME:
-                    return grootEventDataStream.keyBy(new KeySelector(aggregateConfig.getGroup_by_fields())).window(TumblingEventTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()))).aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig)).name(aggregateConfig.getName());
+                    singleOutputStreamOperator = grootEventSingleOutputStreamOperator
+                            .keyBy(new KeySelector(aggregateConfig.getGroup_by_fields()))
+                            .window(TumblingEventTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size())))
+                            .aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig));
+                    break;
                 case SLIDING_PROCESSING_TIME:
-                    return grootEventDataStream.keyBy(new KeySelector(aggregateConfig.getGroup_by_fields())).window(SlidingProcessingTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()), Time.seconds(aggregateConfig.getWindow_slide()))).aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig)).name(aggregateConfig.getName());
+                    singleOutputStreamOperator = grootEventSingleOutputStreamOperator
+                            .keyBy(new KeySelector(aggregateConfig.getGroup_by_fields()))
+                            .window(SlidingProcessingTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()), Time.seconds(aggregateConfig.getWindow_slide())))
+                            .aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig));
+                    break;
                 case SLIDING_EVENT_TIME:
-                    return grootEventDataStream.keyBy(new KeySelector(aggregateConfig.getGroup_by_fields())).window(SlidingEventTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()), Time.seconds(aggregateConfig.getWindow_slide()))).aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig)).name(aggregateConfig.getName());
+                    singleOutputStreamOperator = grootEventSingleOutputStreamOperator
+                            .keyBy(new KeySelector(aggregateConfig.getGroup_by_fields()))
+                            .window(SlidingEventTimeWindows.of(Time.seconds(aggregateConfig.getWindow_size()), Time.seconds(aggregateConfig.getWindow_slide())))
+                            .aggregate(new AggregateProcessorFunction(aggregateConfig, config), new ProcessWindowFunctionImpl(aggregateConfig));
+                    break;
                 default:
                     throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Invalid window type");
             }
         }
+        if (aggregateConfig.getParallelism() != 0) {
+            singleOutputStreamOperator.setParallelism(aggregateConfig.getParallelism());
+        }
+        return singleOutputStreamOperator.name(aggregateConfig.getName());
 
     }
 
@@ -55,4 +96,5 @@ public class AggregateProcessorImpl implements AggregateProcessor  {
     public String type() {
         return "aggregate";
     }
+
 }
