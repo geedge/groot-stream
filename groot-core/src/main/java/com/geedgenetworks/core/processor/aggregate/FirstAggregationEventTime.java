@@ -34,11 +34,11 @@ public class FirstAggregationEventTime extends AbstractFirstAggregation {
         internalMetrics.incrementInEvents();
         try {
             String key = getKey(value, groupByFields);
-            while ((timestamp = eventTimeTimersQueue.peek()) != null && timestamp <= ctx.timerService().currentProcessingTime()) {
+            while ((timestamp = eventTimeTimersQueue.peek()) != null && timestamp <= ctx.timerService().currentWatermark()) {
                 eventTimeTimersQueue.poll();
                 onTimer(timestamp, out);
             }
-            long windowEnd = assignWindowEnd(ctx.timerService().currentProcessingTime());
+            long windowEnd = assignWindowEnd(ctx.timerService().currentWatermark());
             if (!windows.containsKey(windowEnd)) {
                 Map<String, Accumulator> map = new HashMap<>();
                 map.put(key, createAccumulator());

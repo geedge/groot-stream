@@ -107,15 +107,10 @@ public class SecondAggregateProcessorFunction implements org.apache.flink.api.co
 
     @Override
     public Accumulator merge(Accumulator acc1, Accumulator acc2) {
-        acc1.setInEvents(acc1.getInEvents() + acc2.getInEvents());
-        acc1.setOutEvents(acc1.getOutEvents() + acc2.getOutEvents());
-        acc1.setErrorCount(acc1.getErrorCount() + acc2.getErrorCount());
+        acc1.setInEvents(acc1.getInEvents() + 1);
         for (UdfEntity udafEntity : functions) {
             try {
-                boolean result = udafEntity.getFilterExpression() != null ? filterExecute(udafEntity.getFilterExpression(), udafEntity.getFilterExpression().newEnv("event", acc1.getMetricsFields())) : true;
-                if (result) {
-                    udafEntity.getAggregateFunction().merge(acc1, acc2);
-                }
+                udafEntity.getAggregateFunction().merge(acc1, acc2);
             } catch (ExpressionRuntimeException ignore) {
                 log.error("Function " + udafEntity.getName() + " Invalid filter !  ");
                 acc1.setErrorCount(acc1.getErrorCount() + 1);
