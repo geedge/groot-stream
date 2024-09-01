@@ -31,10 +31,10 @@ public abstract class CommandArgs {
             description = "Whether check config")
     protected boolean checkConfig = false;
 
-
+    // user-defined parameters
     @Parameter(names = {"-i", "--variable"},
               splitter = ParameterSplitter.class,
-              description = "user-defined parameters , such as -i data_center=bj "
+              description = "Job level user-defined parameters, such as -i traffic_file_bucket=traffic_file_bucket, or -i scheduler.knowledge_base.update.interval.minutes=1. "
                       + "We use ',' as separator, when inside \"\", ',' are treated as normal characters instead of delimiters.")
     protected List<String> variables = Collections.emptyList();
 

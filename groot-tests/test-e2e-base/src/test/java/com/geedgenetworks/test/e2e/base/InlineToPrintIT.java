@@ -8,6 +8,7 @@ import com.geedgenetworks.test.common.container.AbstractTestFlinkContainer;
 import com.geedgenetworks.test.common.container.TestContainerId;
 import com.geedgenetworks.test.common.junit.DisabledOnContainer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.TestTemplate;
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class InlineToPrintIT extends TestSuiteBase {
         CompletableFuture.supplyAsync(
                 () -> {
                     try {
-                        return container.executeJob("/kafka_to_print.yaml");
+                        return container.executeJob("/inline_to_print.yaml");
                     } catch (Exception e) {
                         log.error("Commit task exception :" + e.getMessage());
                         throw new RuntimeException(e);
@@ -85,6 +86,17 @@ public class InlineToPrintIT extends TestSuiteBase {
                             Assertions.assertNotNull(jobNumRestartsReference.get());
 
                         });
+
+        await().atMost(300000, TimeUnit.MILLISECONDS)
+                .untilAsserted(
+                        () -> {
+                            String logs = container.getServerLogs();
+                            Assertions.assertTrue(StringUtils.countMatches(logs, "job_level_traffic_rtp_file_bucket/test_pcap_file") > 10);
+                            Assertions.assertTrue(StringUtils.countMatches(logs, "job_level_traffic_http_file_bucket/test_http_req_file") > 10);
+                        });
+
+
+
     }
 
 }

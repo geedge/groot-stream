@@ -20,14 +20,14 @@ public class ExecuteCommandArgs extends CommandArgs {
 
     @Parameter(names={"-e", "--deploy-mode"},
             converter = DeployModeConverter.class,
-            description = "deploy mode, only support [run] ")
+            description = "Job deploy mode, only support [run] ")
     private DeployMode deployMode = DeployMode.RUN;
 
     @Parameter(
             names = {"--target"},
             converter = TargetTypeConverter.class,
             description =
-                    "job submitted target type, support [local, remote, yarn-session, yarn-per-job]")
+                    "Job submitted target type, support [local, remote, yarn-session, yarn-per-job]")
     private TargetType targetType;
 
     @Override
@@ -55,7 +55,7 @@ public class ExecuteCommandArgs extends CommandArgs {
 
     @Override
     public String toString() {
-        return "FlinkCommandArgs{"
+        return "CommandArgs{"
                 + "deployMode="
                 + deployMode
                 + ", targetType="
@@ -72,7 +72,6 @@ public class ExecuteCommandArgs extends CommandArgs {
                 + originalParameters
                 + '}';
     }
-
 
 
     private void userParamsToSysEnv() {
@@ -111,7 +110,7 @@ public class ExecuteCommandArgs extends CommandArgs {
                 return targetType;
             } else {
                 throw new IllegalArgumentException(
-                        "Groot-Stream job on flink engine submitted target type only "
+                        "GrootStream job submitted target type only "
                                 + "support these options: [local, remote, yarn-session, yarn-per-job]");
             }
         }
@@ -132,7 +131,7 @@ public class ExecuteCommandArgs extends CommandArgs {
                 return deployMode;
             } else {
                 throw new IllegalArgumentException(
-                        "Groot-Stream job on flink engine deploy mode only "
+                        "GrootStream job deploy mode only "
                                 + "support these options: [run, run-application]");
             }
         }

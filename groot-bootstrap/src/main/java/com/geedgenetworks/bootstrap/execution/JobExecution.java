@@ -39,26 +39,26 @@ public class JobExecution {
     private final List<Node> nodes;
     private final List<URL> jarPaths;
 
-    public JobExecution(Config config, GrootStreamConfig grootStreamConfig) {
+    public JobExecution(Config jobConfig, GrootStreamConfig grootStreamConfig) {
         try {
             jarPaths = new ArrayList<>(Collections.singletonList(new File(StartBuilder.appBootstrapDir()
                     .resolve(GrootStreamRunner.APP_JAR_NAME).toString())
                     .toURI().toURL()));
         } catch (MalformedURLException e) {
-            throw new JobExecuteException("load groot stream bootstrap jar error.", e);
+            throw new JobExecuteException("Load GrootStream Bootstrap jar failed.", e);
         }
 
-        registerPlugin(config.getConfig(Constants.APPLICATION));
+        registerPlugin(jobConfig.getConfig(Constants.APPLICATION));
 
-        this.sourceExecutor = new SourceExecutor(jarPaths, config);
-        this.sinkExecutor = new SinkExecutor(jarPaths, config);
-        this.filterExecutor = new FilterExecutor(jarPaths, config);
-        this.splitExecutor = new SplitExecutor(jarPaths, config);
-        this.preprocessingExecutor = new PreprocessingExecutor(jarPaths, config);
-        this.processingExecutor = new ProcessingExecutor(jarPaths, config);
-        this.postprocessingExecutor = new PostprocessingExecutor(jarPaths, config);
+        this.sourceExecutor = new SourceExecutor(jarPaths, jobConfig);
+        this.sinkExecutor = new SinkExecutor(jarPaths, jobConfig);
+        this.filterExecutor = new FilterExecutor(jarPaths, jobConfig);
+        this.splitExecutor = new SplitExecutor(jarPaths, jobConfig);
+        this.preprocessingExecutor = new PreprocessingExecutor(jarPaths, jobConfig);
+        this.processingExecutor = new ProcessingExecutor(jarPaths, jobConfig);
+        this.postprocessingExecutor = new PostprocessingExecutor(jarPaths, jobConfig);
         this.jobRuntimeEnvironment =
-                JobRuntimeEnvironment.getInstance(this.registerPlugin(config, jarPaths), grootStreamConfig);
+                JobRuntimeEnvironment.getInstance(this.registerPlugin(jobConfig, jarPaths), grootStreamConfig);
 
         this.sourceExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.sinkExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
@@ -67,7 +67,7 @@ public class JobExecution {
         this.preprocessingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.processingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
         this.postprocessingExecutor.setRuntimeEnvironment(jobRuntimeEnvironment);
-        this.nodes = buildJobNode(config);
+        this.nodes = buildJobNode(jobConfig);
 
     }
 
@@ -126,7 +126,7 @@ public class JobExecution {
                                             return new URL(uri);
                                         } catch (MalformedURLException e) {
                                             throw new RuntimeException(
-                                                    "the uri of jar illegal:" + uri, e);
+                                                    "The uri of jar illegal:" + uri, e);
                                         }
                                     })
                             .collect(Collectors.toSet());
@@ -251,7 +251,7 @@ public class JobExecution {
 
     private void buildJobGraph(DataStream<Event> dataStream, String downstreamNodeName) {
         Node node = getNode(downstreamNodeName).orElseGet(() -> {
-            throw new JobExecuteException("can't find downstream node " + downstreamNodeName);
+            throw new JobExecuteException("Can't find downstream node " + downstreamNodeName);
         });
         if (node.getType().name().equals(ProcessorType.FILTER.name())) {
             if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
