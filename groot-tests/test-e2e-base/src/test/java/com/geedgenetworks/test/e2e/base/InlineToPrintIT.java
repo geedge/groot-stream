@@ -24,7 +24,7 @@ import static org.awaitility.Awaitility.await;
 @DisabledOnContainer(
         value = {TestContainerId.FLINK_1_17},
         type = {},
-        disabledReason = "only flink adjusts the parameter configuration rules")
+        disabledReason = "Only flink adjusts the parameter configuration rules")
 public class InlineToPrintIT extends TestSuiteBase {
 
     @TestTemplate
@@ -32,7 +32,10 @@ public class InlineToPrintIT extends TestSuiteBase {
         CompletableFuture.supplyAsync(
                 () -> {
                     try {
-                        return container.executeJob("/inline_to_print.yaml");
+                        List<String> variables = List.of(
+                                "hos.bucket.name.rtp_file=cli_job_level_traffic_rtp_file_bucket",
+                                "hos.bucket.name.http_file=cli_job_level_traffic_http_file_bucket");
+                        return container.executeJob("/inline_to_print.yaml", variables);
                     } catch (Exception e) {
                         log.error("Commit task exception :" + e.getMessage());
                         throw new RuntimeException(e);
@@ -91,8 +94,8 @@ public class InlineToPrintIT extends TestSuiteBase {
                 .untilAsserted(
                         () -> {
                             String logs = container.getServerLogs();
-                            Assertions.assertTrue(StringUtils.countMatches(logs, "job_level_traffic_rtp_file_bucket/test_pcap_file") > 10);
-                            Assertions.assertTrue(StringUtils.countMatches(logs, "job_level_traffic_http_file_bucket/test_http_req_file") > 10);
+                            Assertions.assertTrue(StringUtils.countMatches(logs, "cli_job_level_traffic_rtp_file_bucket/test_pcap_file") > 10);
+                            Assertions.assertTrue(StringUtils.countMatches(logs, "cli_job_level_traffic_http_file_bucket/test_http_req_file") > 10);
                         });
 
 
