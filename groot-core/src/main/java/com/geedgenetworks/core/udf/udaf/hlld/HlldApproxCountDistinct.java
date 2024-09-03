@@ -16,10 +16,7 @@ public class HlldApproxCountDistinct extends HlldBaseAggregate {
 
         return acc;
     }
-    @Override
-    public Accumulator merge(Accumulator a, Accumulator b) {
-        return null;
-    }
+
     @Override
     public String functionName() {
         return "APPROX_COUNT_DISTINCT_HLLD";

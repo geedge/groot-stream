@@ -59,6 +59,26 @@ public abstract class HdrHistogramBaseAggregate implements AggregateFunction {
         return acc;
     }
 
+    @Override
+    public Accumulator merge(Accumulator acc, Accumulator other) {
+        Object agg = acc.getMetricsFields().get(outputField);
+        Object aggOther = other.getMetricsFields().get(outputField);
+        Object rst;
+
+        if(agg == null){
+            rst = aggOther;
+        } else if (aggOther == null) {
+            rst = agg;
+        }else{
+            rst = ((Histogramer)agg).merge(((Histogramer) aggOther));
+        }
+
+        if(rst != null){
+            acc.getMetricsFields().put(outputField, rst);
+        }
+        return acc;
+    }
+
     protected void updateHdr(Accumulator acc, Object value) {
         Map<String, Object> aggs = acc.getMetricsFields();
         ArrayHistogram his = (ArrayHistogram) aggs.get(outputField);
@@ -95,10 +115,7 @@ public abstract class HdrHistogramBaseAggregate implements AggregateFunction {
 
         his.merge(h);
     }
-    @Override
-    public Accumulator merge(Accumulator a, Accumulator b) {
-        return null;
-    }
+
     @Override
     public void close() {}
 }
