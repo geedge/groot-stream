@@ -47,6 +47,20 @@ public class LookupTestUtils {
 
     private static MockedStatic<AbstractMultipleKnowledgeBaseHandler> abstractMultipleKnowledgeBaseHandlerMockedStatic = mockStatic(AbstractMultipleKnowledgeBaseHandler.class);
 
+    /**
+     * mock runtime context
+     * the configuration is set in the global job parameters
+     * the configuration contains the knowledge base configuration
+     * the knowledge base configuration contains the knowledge base name and file path and file type and file list
+     * e.g.:
+     * - name: cn_ip_location
+     * fs_type: http
+     * fs_path: http://192.168.44.55:9999/v1/knowledge_base
+     * files:
+     * - 1
+     *
+     * @return runtime context
+     */
     static RuntimeContext mockRuntimeContext() {
         RuntimeContext runtimeContext = Mockito.mock(RuntimeContext.class);
         ExecutionConfig executionConfig = Mockito.mock(ExecutionConfig.class);
@@ -77,6 +91,12 @@ public class LookupTestUtils {
         }
     }
 
+    /**
+     * mock knowledge base handler
+     * the knowledge base handler is used to get the metadata and read the file content
+     *
+     * @param downloadContent download content
+     */
     static void mockKnowledgeBaseHandler(String downloadContent) {
         checkStaticMock();
         KnowLedgeBaseFileMeta knowLedgeBaseFileMeta = new KnowLedgeBaseFileMeta();
