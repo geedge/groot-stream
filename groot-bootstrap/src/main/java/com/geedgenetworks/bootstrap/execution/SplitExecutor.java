@@ -37,9 +37,9 @@ public class SplitExecutor extends AbstractExecutor<String, SplitConfig> {
     protected Map<String, SplitConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
         Map<String, SplitConfig> splitConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.SPLITS)) {
-            Config routes = operatorConfig.getConfig(Constants.SPLITS);
-            routes.root().unwrapped().forEach((key, value) -> {
-                CheckResult result = CheckConfigUtil.checkAllExists(routes.getConfig(key),
+            Config splitsConfig = operatorConfig.getConfig(Constants.SPLITS);
+            splitsConfig.root().unwrapped().forEach((key, value) -> {
+                CheckResult result = CheckConfigUtil.checkAllExists(splitsConfig.getConfig(key),
                         SplitConfigOptions.TYPE.key());
                 if (!result.isSuccess()) {
                     throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
@@ -74,9 +74,6 @@ public class SplitExecutor extends AbstractExecutor<String, SplitConfig> {
         }
         if (node.getParallelism() > 0) {
             splitConfig.setParallelism(node.getParallelism());
-        }
-        for(RuleContext ruleContext:splitConfig.getRules()) {
-            jobRuntimeEnvironment.getSplitSet().add(ruleContext.getName());
         }
         try {
             dataStream =
