@@ -33,7 +33,6 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
     private GrootStreamConfig grootStreamConfig;
     private StreamExecutionEnvironment environment;
     private String jobName = Constants.DEFAULT_JOB_NAME;
-    private Set<String> splitSet = new HashSet<>();
 
     private JobRuntimeEnvironment(Config jobConfig, GrootStreamConfig grootStreamConfig) {
         this.grootStreamConfig = grootStreamConfig;
@@ -198,14 +197,6 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
                     break;
             }
         }
-    }
-
-    public Set<String> getSplitSet() {
-        return splitSet;
-    }
-
-    public void setSplitSet(Set<String> splitSet) {
-        this.splitSet = splitSet;
     }
 
     private void setCheckpoint() {

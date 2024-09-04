@@ -7,8 +7,10 @@ import com.geedgenetworks.bootstrap.execution.*;
 import com.geedgenetworks.bootstrap.main.GrootStreamRunner;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.GrootStreamConfig;
+import com.geedgenetworks.common.udf.RuleContext;
 import com.geedgenetworks.common.utils.ReflectionUtils;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.core.pojo.SplitConfig;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
@@ -42,7 +44,7 @@ public class JobExecutionTest {
     private final Executor<DataStream<Event>, JobRuntimeEnvironment> processingExecutor;
     private final Executor<DataStream<Event>, JobRuntimeEnvironment> postprocessingExecutor;
     private final Executor<DataStream<Event>, JobRuntimeEnvironment> sinkExecutor;
-
+    private final Set<String> splitSet = new HashSet<>();
     private final List<Node> nodes;
 
     private BiConsumer<ClassLoader, URL> ADD_URL_TO_CLASSLOADER =
@@ -219,6 +221,12 @@ public class JobExecutionTest {
             } else if (sinks.containsKey(node.getName())) {
                 node.setType(ProcessorType.SINK);
             } else if (splits.containsKey(node.getName())) {
+                splits.forEach((key, value) -> {
+                    SplitConfig splitConfig = new com.alibaba.fastjson.JSONObject((Map<String, Object>) value).toJavaObject(SplitConfig.class);
+                    for(RuleContext ruleContext:splitConfig.getRules()) {
+                        splitSet.add(ruleContext.getName());
+                    }
+                });
                 node.setType(ProcessorType.SPLIT);
             } else if (filters.containsKey(node.getName())) {
                 node.setType(ProcessorType.FILTER);
@@ -262,7 +270,7 @@ public class JobExecutionTest {
             throw new JobExecuteException("can't find downstream node " + downstreamNodeName);
         });
         if (node.getType().name().equals(ProcessorType.FILTER.name())) {
-            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+            if (splitSet.contains(node.getName())) {
                 dataStream = filterExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
                 }), node);
             } else {
@@ -272,28 +280,28 @@ public class JobExecutionTest {
             dataStream = splitExecutor.execute(dataStream, node);
 
         } else if (node.getType().name().equals(ProcessorType.PREPROCESSING.name())) {
-            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+            if (splitSet.contains(node.getName())) {
                 dataStream = preprocessingExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
                 }), node);
             } else {
                 dataStream = preprocessingExecutor.execute(dataStream, node);
             }
         } else if (node.getType().name().equals(ProcessorType.PROCESSING.name())) {
-            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+            if (splitSet.contains(node.getName())) {
                 dataStream = processingExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
                 }), node);
             } else {
                 dataStream = processingExecutor.execute(dataStream, node);
             }
         } else if (node.getType().name().equals(ProcessorType.POSTPROCESSING.name())) {
-            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+            if (splitSet.contains(node.getName())) {
                 dataStream = postprocessingExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
                 }), node);
             } else {
                 dataStream = postprocessingExecutor.execute(dataStream, node);
             }
         } else if (node.getType().name().equals(ProcessorType.SINK.name())) {
-            if (jobRuntimeEnvironment.getSplitSet().contains(node.getName())) {
+            if (splitSet.contains(node.getName())) {
                 dataStream = sinkExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(node.getName()) {
                 }), node);
             } else {

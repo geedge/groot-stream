@@ -191,6 +191,8 @@ sinks:
 application: # [object] Application Configuration
   env: # [object] Environment Variables
     name: groot-stream-job # [string] Job Name
+    properties:
+      hos.bucket.name.policy_capture_file: traffic_policy_capture_file_bucket
     pipeline:
       object-reuse: true # [boolean] Object Reuse, default is false
   topology: # [array of object] Node List. It will be used build data flow for job dag graph.
@@ -205,6 +207,5 @@ application: # [object] Application Configuration
       downstream: [collect_sink]
     - name: collect_sink
       parallelism: 1
-  properties:
-    hos.bucket.name.policy_capture_file: traffic_policy_capture_file_bucket
+
 
