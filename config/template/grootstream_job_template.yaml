@@ -448,6 +448,7 @@ application: # [object] Application Configuration
     shade.identifier: default # [string] Shade Identifier, Using to encrypt and decrypt sensitive configuration. Support enum: default, aes, base64. if set default, it will not encrypt and decrypt sensitive configuration.
     pipeline:
       object-reuse: true # [boolean] Object Reuse, default is false
+
   topology: # [array of object] Node List. It will be used build data flow for job dag graph.
     - name: inline_source # [string] Node Name, must be unique. It will be used as the name of the corresponding Flink operator. eg. kafka_source the processor type as SOURCE.
       #parallelism: 1 # [number] Operator-Level Parallelism.

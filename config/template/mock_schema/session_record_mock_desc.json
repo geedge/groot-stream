@@ -115,10 +115,41 @@
             "end": "103.144.108.255"
           },
           {
+            "name": "client_ip_tags",
+            "type": "String",
+            "array": true,
+            "options": [
+              "Country:United States",
+              "ASN:63278",
+              "Cloud Provider:IBM Cloud",
+              "Country Code:US",
+              "CDN Provider:Light CDN",
+              "ASN:6423"
+
+            ],
+            "arrayLenMin":1,
+            "arrayLenMax":5
+          },
+          {
             "name": "server_ip",
             "type": "IPv4",
             "start": "1.0.0.0",
             "end": "162.105.10.255"
+          },
+          {
+            "name": "server_ip_tags",
+            "type": "String",
+            "array": true,
+            "options": [
+              "Country:China",
+              "ASN:15169",
+              "Cloud Provider:Alibaba Cloud",
+              "Country Code:CN",
+              "CDN Provider:Akamai",
+              "Super Administrative Area:Guangdong"
+            ],
+            "arrayLenMin":1,
+            "arrayLenMax":5
           },
           {
             "name": "c2s_ttl",
@@ -167,10 +198,41 @@
             "end": "162.105.10.255"
           },
           {
+            "name": "client_ip_tags",
+            "type": "String",
+            "array": true,
+            "options": [
+              "Country:China",
+              "ASN:15169",
+              "Cloud Provider:Alibaba Cloud",
+              "Country Code:CN",
+              "CDN Provider:Akamai",
+              "Super Administrative Area:Guangdong"
+            ],
+            "arrayLenMin":1,
+            "arrayLenMax":5
+          },
+          {
             "name": "server_ip",
             "type": "IPv4",
             "start": "103.144.108.1",
             "end": "103.144.108.255"
+          },
+          {
+            "name": "server_ip_tags",
+            "type": "String",
+            "array": true,
+            "options": [
+              "Country:United States",
+              "ASN:63278",
+              "Cloud Provider:IBM Cloud",
+              "Country Code:US",
+              "CDN Provider:Light CDN",
+              "ASN:6423"
+
+            ],
+            "arrayLenMin":1,
+            "arrayLenMax":5
           },
           {
             "name": "c2s_ttl",
@@ -338,6 +400,20 @@
             "type": "Expression",
             "expression": "#{internet.domainName}",
             "nullRate": 0.1
+          },
+          {
+            "name": "server_fqdn_tags",
+            "type": "String",
+            "array": true,
+            "options": [
+              "Category Name:Entertainment and Arts",
+              "IoC:Malware",
+              "Category Name:Home and Garden",
+              "Category Name:Translation",
+              "IoC:Spam"
+            ],
+            "arrayLenMin":1,
+            "arrayLenMax":5
           },
           {
             "name": "server_port",
