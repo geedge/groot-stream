@@ -3,7 +3,6 @@ package com.geedgenetworks.bootstrap.main.simple;
 import cn.hutool.setting.yaml.YamlUtil;
 import com.geedgenetworks.bootstrap.command.ExecuteCommandArgs;
 import com.geedgenetworks.bootstrap.enums.EngineType;
-import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.execution.ExecutionConfigKeyName;
 import com.geedgenetworks.bootstrap.execution.JobExecution;
 import com.geedgenetworks.bootstrap.main.simple.collect.CollectSink;
@@ -23,14 +22,13 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-public class SimpleJobTest {
+public class JobEtlTest {
 
     @ClassRule
     public static MiniClusterWithClientResource flinkCluster =

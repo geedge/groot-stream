@@ -3,7 +3,6 @@ package com.geedgenetworks.bootstrap.main.simple;
 import cn.hutool.setting.yaml.YamlUtil;
 import com.geedgenetworks.bootstrap.command.ExecuteCommandArgs;
 import com.geedgenetworks.bootstrap.enums.EngineType;
-import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.execution.ExecutionConfigKeyName;
 import com.geedgenetworks.bootstrap.execution.JobExecution;
 import com.geedgenetworks.bootstrap.main.simple.collect.CollectSink;
@@ -26,7 +25,7 @@ import java.nio.file.Path;
 import java.util.Map;
 
 
-public class JobSplitWithAggTest {
+public class JobAggTest {
 
     @ClassRule
     public static MiniClusterWithClientResource flinkCluster =
