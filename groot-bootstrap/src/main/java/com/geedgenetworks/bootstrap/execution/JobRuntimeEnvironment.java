@@ -93,7 +93,10 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
         return envConfig.hasPath(ExecutionConfigKeyName.ENV_TARGET_TYPE)
                 && envConfig.getString(ExecutionConfigKeyName.ENV_TARGET_TYPE).equals(TargetType.LOCAL.getTarget());
     }
-
+    public boolean isTestMode() {
+        return envConfig.hasPath(ExecutionConfigKeyName.ENV_TARGET_TYPE)
+                && envConfig.getString(ExecutionConfigKeyName.ENV_TARGET_TYPE).equals(TargetType.TEST.getTarget());
+    }
     @Override
     public void registerPlugin(List<URL> pluginPaths) {
         pluginPaths.forEach(url -> log.info("Begin register plugins: {}", url));

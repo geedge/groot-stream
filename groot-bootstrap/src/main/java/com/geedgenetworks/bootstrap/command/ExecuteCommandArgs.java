@@ -98,6 +98,7 @@ public class ExecuteCommandArgs extends CommandArgs {
 
         static {
             TARGET_TYPE_LIST.add(TargetType.LOCAL);
+            TARGET_TYPE_LIST.add(TargetType.TEST);
             TARGET_TYPE_LIST.add(TargetType.REMOTE);
             TARGET_TYPE_LIST.add(TargetType.YARN_SESSION);
             TARGET_TYPE_LIST.add(TargetType.YARN_PER_JOB);

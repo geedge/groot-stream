@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Data
 public class RuleContext implements Serializable {
 
-    private String name;
+    private String tag;
     private String expression;
     private Expression compiledExpression;
     private OutputTag<Event> outputTag ;
