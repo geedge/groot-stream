@@ -17,9 +17,9 @@ splits:
   test_split:
     type: split
     rules:
-      - name: table_processor
+      - tag: http_tag
         expression: event.decoded_as == 'HTTP'
-      - name: pre_etl_processor
+      - tag: dns_tag
         expression: event.decoded_as == 'DNS'
 
 postprocessing_pipelines:
@@ -83,8 +83,9 @@ application: # [object] Application Configuration
       parallelism: 1 # [number] Operator-Level Parallelism.
       downstream: [test_split,collect_sink]
     - name: test_split
-      parallelism: 1
+      tags: [http_tag,dns_tag]
       downstream: [ table_processor,pre_etl_processor ]
+      parallelism: 1
     - name: pre_etl_processor
       parallelism: 1
       downstream: [ collect_sink ]

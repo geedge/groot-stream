@@ -5,6 +5,7 @@ import com.geedgenetworks.bootstrap.command.ExecuteCommandArgs;
 import com.geedgenetworks.bootstrap.enums.EngineType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.execution.ExecutionConfigKeyName;
+import com.geedgenetworks.bootstrap.execution.JobExecution;
 import com.geedgenetworks.bootstrap.main.simple.collect.CollectSink;
 import com.geedgenetworks.bootstrap.utils.CommandLineUtils;
 import com.geedgenetworks.bootstrap.utils.ConfigFileUtils;
@@ -42,7 +43,7 @@ public class SimpleJobTest {
     @Test
     public void testEtl()  {
 
-        String[] args ={"--target", "remote", "-c", ".\\grootstream_job_etl_test.yaml"};
+        String[] args ={"--target", "test", "-c", ".\\grootstream_job_etl_test.yaml"};
         ExecuteCommandArgs executeCommandArgs = CommandLineUtils
                 .parse(args, new ExecuteCommandArgs(), EngineType.FLINK13.getShellName(), true);
 
@@ -60,15 +61,8 @@ public class SimpleJobTest {
                     ConfigValueFactory.fromAnyRef(executeCommandArgs.getTargetType().getTarget()));
 
 
-        JobExecutionTest jobExecution = new JobExecutionTest(config, grootStreamConfig);
-        jobExecution.getSingleOutputStreamOperator();
-
-        try {
-            jobExecution.getJobRuntimeEnvironment().getStreamExecutionEnvironment().execute();
-
-        } catch (Exception e) {
-            throw new JobExecuteException("Job executed error", e);
-        }
+        JobExecution jobExecution = new JobExecution(config, grootStreamConfig);
+        jobExecution.execute();
         Assert.assertEquals(1, CollectSink.values.size());
         Assert.assertEquals("BASE", CollectSink.values.get(0).getExtractedFields().get("decoded_as").toString());
         Assert.assertEquals("google.com", CollectSink.values.get(0).getExtractedFields().get("server_domain").toString());
@@ -86,7 +80,7 @@ public class SimpleJobTest {
     public void testTransmission() {
 
         CollectSink.values.clear();
-        String[] args ={"--target", "remote", "-c", ".\\grootstream_job_transmission_test.yaml"};
+        String[] args ={"--target", "test", "-c", ".\\grootstream_job_transmission_test.yaml"};
         ExecuteCommandArgs executeCommandArgs = CommandLineUtils
                 .parse(args, new ExecuteCommandArgs(), EngineType.FLINK13.getShellName(), true);
 
@@ -104,15 +98,8 @@ public class SimpleJobTest {
                 ConfigValueFactory.fromAnyRef(executeCommandArgs.getTargetType().getTarget()));
 
 
-        JobExecutionTest jobExecution = new JobExecutionTest(config, grootStreamConfig);
-        jobExecution.getSingleOutputStreamOperator();
-
-        try {
-            jobExecution.getJobRuntimeEnvironment().getStreamExecutionEnvironment().execute();
-
-        } catch (Exception e) {
-            throw new JobExecuteException("Job executed error", e);
-        }
+        JobExecution jobExecution = new JobExecution(config, grootStreamConfig);
+        jobExecution.execute();
         Assert.assertEquals(4, CollectSink.values.size());
     }
 

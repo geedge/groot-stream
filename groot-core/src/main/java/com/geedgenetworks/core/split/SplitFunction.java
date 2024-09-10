@@ -43,7 +43,7 @@ public class SplitFunction extends ProcessFunction<Event, Event> {
             instance.setFunctionMissing(null);
             Expression compiledExp = instance.compile(expression, true);
             rule.setCompiledExpression(compiledExp);
-            OutputTag<Event> outputTag = new OutputTag<>(rule.getName()){};
+            OutputTag<Event> outputTag = new OutputTag<>(rule.getTag()){};
             rule.setOutputTag(outputTag);
         }
     }
