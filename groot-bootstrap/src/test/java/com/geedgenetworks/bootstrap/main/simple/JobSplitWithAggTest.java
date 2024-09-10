@@ -40,7 +40,7 @@ public class JobSplitWithAggTest {
     public void testSplitForAgg() {
 
         CollectSink.values.clear();
-        String[] args ={"--target", "test", "-c", ".\\grootstream_job_split_agg_test.yaml"};
+        String[] args ={"--target", "test", "-c", ".\\grootstream_job_agg_test.yaml"};
         ExecuteCommandArgs executeCommandArgs = CommandLineUtils
                 .parse(args, new ExecuteCommandArgs(), EngineType.FLINK13.getShellName(), true);
 

@@ -32,12 +32,6 @@ postprocessing_pipelines:
       - function: MEAN
         lookup_fields: [ pkts ]
 
-  table_processor:
-    type: table
-    functions:
-      - function: JSON_UNROLL
-        lookup_fields: [ encapsulation ]
-        output_fields: [ new_name ]
 
 application: # [object] Application Configuration
   env: # [object] Environment Variables
