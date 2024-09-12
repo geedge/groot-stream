@@ -62,15 +62,11 @@ public class UnixTimestampConverter implements ScalarFunction {
 
         if(event.getExtractedFields().containsKey(lookupFieldName)) {
             Long timestamp = Long.parseLong(event.getExtractedFields().get(lookupFieldName).toString());
-            Instant instant = null;
-            if (String.valueOf(timestamp).length() == 13) {
-                // 时间戳长度大于10，表示为毫秒级时间戳
+            Instant instant ;
+            if (String.valueOf(timestamp).length() > 10) {
                 instant = Instant.ofEpochMilli(timestamp);
-            } else if (String.valueOf(timestamp).length() == 10) {
-                // 时间戳长度小于等于10，表示为秒级时间戳
-                instant = Instant.ofEpochSecond(timestamp);
             } else {
-                return event;
+                instant = Instant.ofEpochSecond(timestamp);
             }
             switch (precision) {
                 case "seconds":
