@@ -67,7 +67,14 @@ public class FromUnixTimestamp implements ScalarFunction {
     public Event evaluate(Event event) {
 
                if(event.getExtractedFields().containsKey(lookupFieldName)){
-                   String timestamp = sdf.format(Long.parseLong(event.getExtractedFields().get(lookupFieldName).toString()));
+                   String value = event.getExtractedFields().get(lookupFieldName).toString();
+                   String timestamp;
+                   if (value.length() > 10) {
+                       timestamp= sdf.format(Long.parseLong(value));
+                   }else
+                   {
+                       timestamp= sdf.format(Long.parseLong(value)*1000);
+                   }
                    event.getExtractedFields().put(outputFieldName, timestamp);
                }
                return  event;
