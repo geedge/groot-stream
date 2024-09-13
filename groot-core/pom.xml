@@ -14,13 +14,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.6</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>com.uber</groupId>
             <artifactId>h3</artifactId>
             <version>4.1.1</version>
