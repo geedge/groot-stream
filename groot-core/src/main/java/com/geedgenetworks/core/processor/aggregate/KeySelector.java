@@ -22,12 +22,12 @@ public class KeySelector implements org.apache.flink.api.java.functions.KeySelec
         KeybyEntity keybyEntity = new KeybyEntity(new HashMap<>());
         StringBuilder stringBuilder = new StringBuilder();
         for (String key : keys) {
-
-            if (value.getExtractedFields().containsKey(key)) {
-                keybyEntity.getKeys().put(key, value.getExtractedFields().get(key));
-                stringBuilder.append(value.getExtractedFields().get(key).toString());
-            } else {
+            Object object = value.getExtractedFields().get(key);
+            if(object==null){
                 stringBuilder.append(",");
+            }else{
+                keybyEntity.getKeys().put(key, object);
+                stringBuilder.append(object);
             }
         }
         String hashedKey = SecureUtil.md5(stringBuilder.toString());
