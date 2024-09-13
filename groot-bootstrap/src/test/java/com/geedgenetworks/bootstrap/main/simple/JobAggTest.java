@@ -60,9 +60,9 @@ public class JobAggTest {
         JobExecution jobExecution = new JobExecution(config, grootStreamConfig);
         jobExecution.execute();
 
-        Assert.assertEquals(2, CollectSink.values.size());
-        Assert.assertEquals("3", CollectSink.values.get(1).getExtractedFields().get("sessions").toString());
-        Assert.assertEquals("3.0", CollectSink.values.get(1).getExtractedFields().get("pkts").toString());
+        Assert.assertEquals(4, CollectSink.values.size());
+        Assert.assertEquals("2", CollectSink.values.get(1).getExtractedFields().get("sessions").toString());
+        Assert.assertEquals("3.5", CollectSink.values.get(1).getExtractedFields().get("pkts").toString());
 
     }
 }

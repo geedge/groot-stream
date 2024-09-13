@@ -3,6 +3,7 @@ package com.geedgenetworks.core.processor.aggregate;
 
 import com.geedgenetworks.common.Accumulator;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.KeybyEntity;
 import com.geedgenetworks.core.pojo.AggregateConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
@@ -32,7 +33,7 @@ public class FirstAggregationProcessingTime extends AbstractFirstAggregation {
         Long timestamp;
         internalMetrics.incrementInEvents();
         try {
-            String key = getKey(value, groupByFields);
+            KeybyEntity keybyEntity = getKey(value, groupByFields);
             while ((timestamp = processingTimeTimersQueue.peek()) != null && timestamp <= ctx.timerService().currentProcessingTime()) {
                 processingTimeTimersQueue.poll();
                 onTimer(timestamp, out);
@@ -40,15 +41,15 @@ public class FirstAggregationProcessingTime extends AbstractFirstAggregation {
             long windowEnd = assignWindowEnd(ctx.timerService().currentProcessingTime());
             if (!windows.containsKey(windowEnd)) {
                 Map<String, Accumulator> map = new HashMap<>();
-                map.put(key, createAccumulator());
+                map.put(keybyEntity.getKeysToString(), createAccumulator(keybyEntity.getKeys()));
                 windows.put(windowEnd, map);
                 processingTimeTimersQueue.add(windowEnd);
             } else {
-                if (!windows.get(windowEnd).containsKey(key)) {
-                    windows.get(windowEnd).put(key, createAccumulator());
+                if (!windows.get(windowEnd).containsKey(keybyEntity.getKeysToString())) {
+                    windows.get(windowEnd).put(keybyEntity.getKeysToString(), createAccumulator(keybyEntity.getKeys()));
                 }
             }
-            add(value, windows.get(windowEnd).get(key));
+            add(value, windows.get(windowEnd).get(keybyEntity.getKeysToString()));
         } catch (Exception e) {
             log.error("Error in pre-aggregate processElement", e);
             internalMetrics.incrementErrorEvents();

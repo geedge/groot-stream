@@ -22,12 +22,12 @@ public class PreKeySelector implements org.apache.flink.api.java.functions.KeySe
         KeybyEntity keybyEntity = new KeybyEntity(new HashMap<>());
         StringBuilder stringBuilder = new StringBuilder();
         for (String key : keys) {
-
-            if (value.getMetricsFields().containsKey(key)) {
-                keybyEntity.getKeys().put(key, value.getMetricsFields().get(key));
-                stringBuilder.append(value.getMetricsFields().get(key).toString());
-            } else {
+            Object object = value.getMetricsFields().get(key);
+            if(object==null){
                 stringBuilder.append(",");
+            }else{
+                keybyEntity.getKeys().put(key, object);
+                stringBuilder.append(object);
             }
         }
         String hashedKey = SecureUtil.md5(stringBuilder.toString());
