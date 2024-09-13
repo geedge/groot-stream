@@ -2,10 +2,11 @@ package com.geedgenetworks.bootstrap.command;
 
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
-import com.geedgenetworks.common.config.ConfigShade;
+import com.geedgenetworks.common.crypto.CryptoShade;
+
 import java.nio.charset.StandardCharsets;
 
-public class AESConfigShade implements ConfigShade {
+public class AESShade implements CryptoShade {
     private static final String IDENTIFIER = "aes";
 
     private static final byte[] SECURITY_KEY =

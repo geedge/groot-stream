@@ -1,10 +1,10 @@
 package com.geedgenetworks.bootstrap.command;
 
-import com.geedgenetworks.common.config.ConfigShade;
+import com.geedgenetworks.common.crypto.CryptoShade;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-public class Base64ConfigShade implements ConfigShade {
+public class Base64Shade implements CryptoShade {
     private static final Base64.Encoder ENCODER = Base64.getEncoder();
 
     private static final Base64.Decoder DECODER = Base64.getDecoder();

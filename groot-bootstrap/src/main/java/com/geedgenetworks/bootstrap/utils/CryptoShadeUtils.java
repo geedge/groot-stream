@@ -3,7 +3,7 @@ package com.geedgenetworks.bootstrap.utils;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.ConfigShade;
+import com.geedgenetworks.common.crypto.CryptoShade;
 import com.geedgenetworks.common.config.TypesafeConfigUtils;
 import com.google.common.base.Preconditions;
 import com.typesafe.config.*;
@@ -11,38 +11,38 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.*;
 import java.util.function.BiFunction;
 
-/** Config shade utilities */
+/** Crypto shade utilities */
 @Slf4j
-public final class ConfigShadeUtils {
+public final class CryptoShadeUtils {
 
     private static final String SHADE_IDENTIFIER_OPTION = "shade.identifier";
 
     private static final String[] DEFAULT_SENSITIVE_OPTIONS =
             new String[] {"password", "username", "auth"};
 
-    private static final Map<String, ConfigShade> CONFIG_SHADES = new HashMap<>();
+    private static final Map<String, CryptoShade> CRYPTO_SHADES = new HashMap<>();
 
-    private static final ConfigShade DEFAULT_SHADE = new DefaultConfigShade();
+    private static final CryptoShade DEFAULT_SHADE = new DefaultCryptoShade();
 
     static {
-        ServiceLoader<ConfigShade> serviceLoader = ServiceLoader.load(ConfigShade.class);
-        Iterator<ConfigShade> it = serviceLoader.iterator();
+        ServiceLoader<CryptoShade> serviceLoader = ServiceLoader.load(CryptoShade.class);
+        Iterator<CryptoShade> it = serviceLoader.iterator();
         it.forEachRemaining(
                 configShade -> {
-                    CONFIG_SHADES.put(configShade.getIdentifier(), configShade);
+                    CRYPTO_SHADES.put(configShade.getIdentifier(), configShade);
                 });
 
-        log.info("Load config shade: {}", CONFIG_SHADES.keySet());
+        log.info("Load config shade: {}", CRYPTO_SHADES.keySet());
     }
 
     public static String encryptOption(String identifier, String content) {
-        ConfigShade configShade = CONFIG_SHADES.getOrDefault(identifier, DEFAULT_SHADE);
-        return configShade.encrypt(content);
+        CryptoShade cryptoShade = CRYPTO_SHADES.getOrDefault(identifier, DEFAULT_SHADE);
+        return cryptoShade.encrypt(content);
     }
 
     public static String decryptOption(String identifier, String content) {
-        ConfigShade configShade = CONFIG_SHADES.getOrDefault(identifier, DEFAULT_SHADE);
-        return configShade.decrypt(content);
+        CryptoShade cryptoShade = CRYPTO_SHADES.getOrDefault(identifier, DEFAULT_SHADE);
+        return cryptoShade.decrypt(content);
     }
 
     public static Config decryptConfig(Config config) {
@@ -77,15 +77,15 @@ public final class ConfigShadeUtils {
 
     @SuppressWarnings("unchecked")
     private static Config processConfig(String identifier, Config config, boolean isDecrypted) {
-        ConfigShade configShade = CONFIG_SHADES.getOrDefault(identifier, DEFAULT_SHADE);
+        CryptoShade cryptoShade = CRYPTO_SHADES.getOrDefault(identifier, DEFAULT_SHADE);
         List<String> sensitiveOptions = new ArrayList<>(Arrays.asList(DEFAULT_SENSITIVE_OPTIONS));
-        sensitiveOptions.addAll(Arrays.asList(configShade.sensitiveOptions()));
+        sensitiveOptions.addAll(Arrays.asList(cryptoShade.sensitiveOptions()));
         BiFunction<String, Object, String> processFunction =
                 (key, value) -> {
                     if (isDecrypted) {
-                        return configShade.decrypt(value.toString());
+                        return cryptoShade.decrypt(value.toString());
                     } else {
-                        return configShade.encrypt(value.toString());
+                        return cryptoShade.encrypt(value.toString());
                     }
                 };
         String jsonString = config.root().render(ConfigRenderOptions.concise());
@@ -116,7 +116,7 @@ public final class ConfigShadeUtils {
     }
 
 
-    private static class DefaultConfigShade implements ConfigShade {
+    private static class DefaultCryptoShade implements CryptoShade {
         private static final String IDENTIFIER = "default";
 
         @Override

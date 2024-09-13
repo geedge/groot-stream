@@ -1,0 +1,3 @@
+com.geedgenetworks.bootstrap.command.Base64Shade
+com.geedgenetworks.bootstrap.command.AESShade
+com.geedgenetworks.bootstrap.command.SM4Shade

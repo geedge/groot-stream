@@ -5,12 +5,11 @@ import com.geedgenetworks.bootstrap.exception.CommandExecuteException;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.utils.ConfigBuilder;
 import com.geedgenetworks.bootstrap.utils.ConfigFileUtils;
-import com.geedgenetworks.bootstrap.utils.ConfigShadeUtils;
+import com.geedgenetworks.bootstrap.utils.CryptoShadeUtils;
 import com.typesafe.config.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 
 import static com.geedgenetworks.bootstrap.utils.ConfigFileUtils.checkConfigExist;
@@ -32,7 +31,7 @@ public class ConfEncryptCommand implements Command<ExecuteCommandArgs>{
         checkConfigExist(configPath);
         Map<String, Object> configMap = YamlUtil.loadByPath(configPath.toString());
         Config config = ConfigBuilder.of(configMap, false);
-        Config encryptConfig = ConfigShadeUtils.encryptConfig(config);
+        Config encryptConfig = CryptoShadeUtils.encryptConfig(config);
         System.out.println(String.format(
                 "Encrypt config: %s", encryptConfig.root().render(ConfigRenderOptions.defaults().setOriginComments(false))));
         log.info(
