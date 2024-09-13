@@ -1,10 +1,10 @@
-package com.geedgenetworks.common.config;
+package com.geedgenetworks.common.crypto;
 
-public interface ConfigShade {
+public interface CryptoShade {
 
     /**
      * The unique identifier of the current interface, used it to select the correct {@link
-     * ConfigShade}
+     * CryptoShade}
      */
     String getIdentifier();
 

@@ -3,11 +3,11 @@ package com.geedgenetworks.bootstrap.command;
 import cn.hutool.crypto.KeyUtil;
 import cn.hutool.crypto.SmUtil;
 import cn.hutool.crypto.symmetric.SM4;
-import com.geedgenetworks.common.config.ConfigShade;
+import com.geedgenetworks.common.crypto.CryptoShade;
 
 import java.nio.charset.StandardCharsets;
 
-public class SM4ConfigShade implements ConfigShade {
+public class SM4Shade implements CryptoShade {
     private static final String IDENTIFIER = "sm4";
 
     private static final String[] SENSITIVE_OPTIONS =
