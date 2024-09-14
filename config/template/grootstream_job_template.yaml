@@ -10,7 +10,7 @@ sources: # [object] Define connector source
     type: kafka  # [string] Source Type
     schema: # [object] Source Schema, config through fields or local_file or url. if not set schema, all fields(Map<String, Object>) will be output.
       #fields: "struct<log_id:bigint, recv_time:bigint,client_ip: string>"
-      local_file: /../schema/kafka_source_schema.json  # [string] Local File Path for Schema
+      local_file: $GROOT_HOME/config/dat/schema/kafka_source_schema.json  # [string] Local File Path for Schema
       #url: http:// # [string] URL for Schema
     properties: # [object] Kafka source properties
       topic: SESSION-RECORD  # [string] Topic Name, consumer will subscribe this topic.
@@ -45,9 +45,9 @@ sources: # [object] Define connector source
 
       kafka.security.protocol: SSL
       kafka.ssl.endpoint.identification.algorithm: ""
-      kafka.ssl.keystore.location: /data/tsg/olap/flink/topology/data/keystore.jks
+      kafka.ssl.keystore.location: $GROOT_HOME/config/dat/keystore.jks
       kafka.ssl.keystore.password: 86cf0e2ffba3f541a6c6761313e5cc7e
-      kafka.ssl.truststore.location: /data/tsg/olap/flink/topology/data/truststore.jks
+      kafka.ssl.truststore.location: $GROOT_HOME/config/dat/truststore.jks
       kafka.ssl.truststore.password: 86cf0e2ffba3f541a6c6761313e5cc7e
       kafka.ssl.key.password: 86cf0e2ffba3f541a6c6761313e5cc7e
       #kafka.security.protocol: SASL_PLAINTEXT
@@ -100,7 +100,7 @@ sources: # [object] Define connector source
       data: CIin2awGEICAoLC/hYzKAhoEQkFTRSCch8z3wtqEhAQo6o/Xmc0xMMCy15nNMTjWIkDRCEiIp9msBlCIp9msBloIMjE0MjYwMDNg//8DaP//A3JqeyJ0YWdzIjpbeyJ0YWciOiJkYXRhX2NlbnRlciIsInZhbHVlIjoiY2VudGVyLXh4Zy05MTQwIn0seyJ0YWciOiJkZXZpY2VfZ3JvdXAiLCJ2YWx1ZSI6Imdyb3VwLXh4Zy05MTQwIn1dfXoPY2VudGVyLXh4Zy05MTQwggEOZ3JvdXAteHhnLTkxNDCKAQ0xOTIuMTY4LjQwLjgxkAEEmAEBoAEBqAGQwAGyAQdbMSwxLDJd4gEDt+gY4gINMTkyLjU2LjE1MS44MOgCoeYD8gIHV2luZG93c/oCGOe+juWbvS5Vbmtub3duLlVua25vd24uLrIDDTE5Mi41Ni4yMjIuOTO4A/ZwwgMFTGludXjKAxjnvo7lm70uVW5rbm93bi5Vbmtub3duLi6SBAN0Y3CaBBFFVEhFUk5FVC5JUHY0LlRDULAMBLgMBcAM9gHIDJEOoA2AAagN8cr+jgKwDezksIAPwg0RYTI6ZmE6ZGM6NTY6Yzc6YjPKDRE0ODo3Mzo5Nzo5NjozODoyMNINETQ4OjczOjk3Ojk2OjM4OjIw2g0RYTI6ZmE6ZGM6NTY6Yzc6YjM=
       type: base64
       format: protobuf
-      protobuf.descriptor.file.path: ..\session_record_test.desc
+      protobuf.descriptor.file.path: $GROOT_HOME/config/dat/schema/session_record_test.desc
       protobuf.message.name: SessionRecord
 
   ipfix_source: # [object] IPFIX source connector name, must be unique. It used to define the source node of the job topology.
@@ -328,6 +328,7 @@ processing_pipelines: # [object] Define Processors for processing pipelines.
     group_by_fields: [ recv_time, sled_ip ] # [array of string] Group By Fields
     window_type: tumbling_processing_time # [string] Window Type, tumbling_processing_time, tumbling_event_time, sliding_processing_time, sliding_event_time
     window_size: 60
+    mini_batch: true # [boolean] Enable Local Aggregation, default is false
     functions:
       - function: NUMBER_SUM
         lookup_fields: [ received_bytes, sent_bytes ]
@@ -420,7 +421,7 @@ sinks: # [object] Define connector sink
   clickhouse_sink: # [object] ClickHouse sink connector name, must be unique. It used to define the sink node of the job topology.
     type: clickhouse
     schema:
-      local_file: /../schema/clickhouse_sink_schema.json
+      local_file: $GROOT_HOME/config/dat/schema/clickhouse_sink_schema.json
     properties:
       host: 127.0.0.1:9001
       table: inline_source_test_local
