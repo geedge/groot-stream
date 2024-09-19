@@ -28,10 +28,12 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
             String name = cleanNodeName(node);
              if (CommonConfigOptions.KNOWLEDGE_BASE.key().equals(name)) {
                  commonConfig.setKnowledgeBaseConfig(parseKnowledgeBaseConfig(node));
-            } else if (CommonConfigOptions.PROPERTIES.key().equals(name)) {
+            } else if (CommonConfigOptions.KMS.key().equals(name)) {
+                 commonConfig.setKmsConfig(parseKmsConfig(node));
+             } else if (CommonConfigOptions.PROPERTIES.key().equals(name)) {
                  commonConfig.setPropertiesConfig(parsePropertiesConfig(node));
             } else {
-                log.warn("Unrecognized configuration element: " + name);
+                 log.warn("Unrecognized Groot Stream configuration element: {}", name);
             }
 
         }
@@ -57,11 +59,11 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
         return knowledgeConfigList;
     }
 
+
    private KnowledgeBaseConfig parseKnowledgeBaseConfigAsObject(Node kbNode) {
         KnowledgeBaseConfig knowledgeBaseConfig = new KnowledgeBaseConfig();
         for (Node node : childElements(kbNode)) {
             String name = cleanNodeName(node);
-
             if (CommonConfigOptions.KNOWLEDGE_BASE_NAME.key().equals(name)) {
                 knowledgeBaseConfig.setName(getTextContent(node));
             } else if (CommonConfigOptions.KNOWLEDGE_BASE_FS_TYPE.key().equals(name)) {
@@ -72,13 +74,42 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
                 knowledgeBaseConfig.setFiles(parseKnowledgeBaseFilesConfig(node));
             } else if (CommonConfigOptions.KNOWLEDGE_BASE_PROPERTIES.key().equals(name)) {
                 knowledgeBaseConfig.setProperties(parseKnowledgeBasePropertiesConfig(node));
+            } else{
+                log.warn("Unrecognized KB configuration element: {}", name);
             }
-            else{
-                log.warn("Unrecognized configuration element: " + name);
-            }
+
         }
         return knowledgeBaseConfig;
     }
+
+    private Map<String, KmsConfig> parseKmsConfig(Node kmsRootNode) {
+        Map<String, KmsConfig> kmsConfigMap = new HashMap<>();
+        for (Node node : childElements(kmsRootNode)) {
+            String name = cleanNodeName(node);
+            kmsConfigMap.put(name, parseKmsConfigAsObject(node));
+        }
+        return kmsConfigMap;
+    }
+
+    private KmsConfig parseKmsConfigAsObject(Node kmsNode) {
+        KmsConfig kmsConfig = new KmsConfig();
+        for (Node node : childElements(kmsNode)) {
+            String name = cleanNodeName(node);
+            if (CommonConfigOptions.KMS_TYPE.key().equals(name)) {
+                kmsConfig.setType(getTextContent(node));
+            } else if (CommonConfigOptions.KMS_URL.key().equals(name)) {
+                kmsConfig.setUrl(getTextContent(node));
+            } else if (CommonConfigOptions.KMS_TOKEN.key().equals(name)) {
+                kmsConfig.setToken(getTextContent(node));
+            } else if (CommonConfigOptions.KMS_KEY_PATH.key().equals(name)) {
+                kmsConfig.setKeyPath(getTextContent(node));
+            } else {
+                log.warn("Unrecognized KMS configuration element: {}", name);
+            }
+        }
+        return kmsConfig;
+    }
+
 
     private Map<String, String> parseKnowledgeBasePropertiesConfig(Node properties) {
         Map<String, String> propertiesMap = new HashMap<>();

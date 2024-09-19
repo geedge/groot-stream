@@ -446,7 +446,8 @@ application: # [object] Application Configuration
   env: # [object] Define job runtime environment variables
     name: inline-to-print-job # [string] Job Name
     parallelism: 3 # [number] Job-Level Parallelism
-    shade.identifier: default # [string] Shade Identifier, Using to encrypt and decrypt sensitive configuration. Support enum: default, aes, base64. if set default, it will not encrypt and decrypt sensitive configuration.
+    shade.identifier: default # [string] Config Shade Identifier, Using to encrypt and decrypt sensitive configuration. Support enum: default, aes, base64. if set default, it will not encrypt and decrypt sensitive configuration.
+    kms.type: local # [string] Key Management Service Type, default is local. Support enum: local, vault.
     pipeline:
       object-reuse: true # [boolean] Object Reuse, default is false
 

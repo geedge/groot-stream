@@ -77,6 +77,30 @@ grootstream:
         - asn_builtin.mmdb
         - asn_user_defined.mmdb
 ```
+
+## KMS
+Key Management System(KMS). It is a service that provides a secure way to create, manage, and control encryption keys used to encrypt data. KMS is used to protect sensitive information by ensuring that encryption keys are kept secure and accessible only to authorized users and applications.
+
+| Name | Type   | Required | Default | Description                                      |
+|:-----| :----- | :------- | :-- ---- |:------------------------------------------------  |
+| type | String | Yes       | local     | The type of the Key Management Service. Enum: local, vault. |
+| url | String | No | (none) | The kms server's URL (e.g., `http://localhost:8200`). |
+| token | String | No | (none) | The authentication token |
+| key_path | String | No | (none) | If you enabled authentication in HashiCorp Vault with a custom path. |
+
+```yaml
+  kms:
+    local:
+      type: local
+    vault:
+      type: vault
+      url: <vault-url>
+      token: <vault-token>
+      key_path: <vault-key-path>
+```
+
+
+
 ## Properties
 Global user-defined variables can be set in the `properties` section using key-value pairs, where the key represents a configuration property and the value specifies the desired setting.
 The properties can be used in the configuration file by using `props.${property_name}`. 

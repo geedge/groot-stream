@@ -14,13 +14,13 @@ import java.util.List;
 
 public class GrootStreamExample {
     public static void main(String[] args) throws FileNotFoundException, URISyntaxException {
-        String configPath = args.length > 0 ? args[0] : "/examples/inline_to_kafka.yaml";
+        String configPath = args.length > 0 ? args[0] : "/examples/inline_to_print.yaml";
         String configFile = getTestConfigFile(configPath);
         ExecuteCommandArgs executeCommandArgs = new ExecuteCommandArgs();
         executeCommandArgs.setConfigFile(configFile);
         executeCommandArgs.setCheckConfig(false);
         executeCommandArgs.setEncrypt(false);
-        executeCommandArgs.setDecrypt(true);
+        executeCommandArgs.setDecrypt(false);
         executeCommandArgs.setVersion(false);
         executeCommandArgs.setVariables(List.of("hos.bucket.name.traffic_file=user_define_traffic_file_bucket",
                 "scheduler.knowledge_base.update.interval.minutes=1"));

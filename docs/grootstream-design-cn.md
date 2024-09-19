@@ -108,18 +108,29 @@ grootstream:
         
     - name: tsg_ip_location
       # ....
+  kms:
+    local:
+      type: local
+    vault:
+      type: vault
+      url: <vault-url>
+      token: <vault-token>
+      keyPath: <vault-key-path>
    
   properties:   # 用户自定义属性的支持从函数中获取，使用方式见函数定义
-    hos.path: http://{ip}:{port}
+    hos.path: http://127.0.0.1:9093
     hos.bucket.name.traffic_file: traffic_file_bucket
     hos.bucket.name.troubleshooting_file: troubleshooting_file_bucket
     scheduler.knowledge_base.update.interval.minutes: 1  #知识库文件定时更新时间
 ```
 
-| 属性名               | 必填         | 默认值     | 类型                   | 描述                    |
-|-------------------|------------|---------|----------------------|-----------------------|
-| knowledge_base    | Y          | -       | Object               | 知识库配置                 |
-| properties        | N          | -       | Map(String,Object)   | 自定义属性配置：key-value 格式  |
+| 属性名            | 必填 | 默认值 | 类型                 | 描述                                     |
+|----------------|----|-----|--------------------|----------------------------------------|
+| knowledge_base | Y  | -   | Object             | 知识库配置                                  |
+| kms            | N  | -   | Object             | kms (key management system, 密钥管理系统) 配置 |
+| properties     | N  | -   | Map(String,Object) | 自定义属性配置：key-value 格式                   |
+
+
 
 # 任务配置
 
@@ -389,21 +400,21 @@ mock desc为json配置，配置每个字段的mock规则，格式：
 
 #### mock type
 
-| type                    | 参数                                                                                                                                                                   |                                           说明                                           | 返回数据类型                                                     | 例子                                                                                                                                                                                                                                                                                                                                                   |
-|:------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------:|------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Number                  | min(number)：range起始值(包含)，默认：0。max(number)：range结束值(不包含)，默认：int32.max。options(array<number>)：number列表，配置options则[start, end)失效，默认：null。random(boolean)：随机模式，默认：true。  |                                       用于生成number                                       | 根据start、end、options的值，推测返回类型为：int或bigint或double            | 随机生成[0, 10000)范围的int数据：{"name":"int_random","type":"Number","min":0,"max":10000}递增方式生成[0, 10000)范围的int数据：{"name":"int_inc","type":"Number","min":0,"max":10000,"random":false}从int列表生成int数据：{"name":"int_options","type":"Number","options":[20,22,25,30]}随机生成[0, 10000)范围的double数据：{"name":"double_random","type":"Number","min":0.0,"max":10000.0} |
-| Sequence                | start(bigint)：range起始值(包含)，默认：0。step(bigint)：步长，默认：1。                                                                                                                |                                  用于生成bigint序列, 类似等差数列                                  | bigint                                                     | 生成0,1,2...序列：{"name":"sub_id","type":"Sequence","start":0}生成0,2,4...序列：{"name":"sub_id","type":"Sequence","start":0,"step":2}                                                                                                                                                                                                                        |
-| UniqueSequence          | start(bigint)：range起始值(包含)，默认：0。                                                                                                                                     |  用于生成唯一bigint序列，0,1,2...和Sequence的区别：  Sequence每个线程单独生成序列  UniqueSequence生成数字整个程序保证唯一  | bigint                                                     | 生成0,1,2...序列：{"name":"id","type":"UniqueSequence","start":0}                                                                                                                                                                                                                                                                                         |
-| String                  | regex(string)：根据正则随机生成符合正则的字符串，默认：[a-zA-Z]{0,5}。options(array<string>)：string列表，配置options则regex失效，默认：null。random(boolean)：随机模式，默认：true。                              |                                       用于生成string                                       | string                                                     | 随机生成长度我5-10的小写英文字符串：{"name":"str_regex","type":"String","regex":"[a-z]{5,10}"}从string列表生成string数据：{"name":"str_options","type":"String","options":["a","b","c"]}                                                                                                                                                                                     |
-| Timestamp               | unit(string)：second或millis，生成秒或者毫秒时间戳，默认：second。                                                                                                                     |                                     用于生成时间戳(当前时间)                                      | bigint                                                     | 生成unix时间戳：{"name":"timestamp","type":"Timestamp"}生成毫秒时间戳：{"name":"timestamp_ms","type":"Timestamp","unit":"millis"}                                                                                                                                                                                                                                  |
-| FormatTimestamp         | format(string)：format，默认：yyyy-MM-dd HH:mm:ss。utc(boolean)：使用utc时区，默认：false，当地时区。                                                                                     |                                    用于生成时间字符串(当前时间)                                     | string                                                     | 生成时间字符串：{"name":"timestamp_str","type":"FormatTimestamp","format":"yyyy-MM-dd HH:mm:ss"}生成时间字符串：{"name":"timestamp_str","type":"FormatTimestamp","format":"yyyy-MM-dd HH:mm:ss.SSS"}                                                                                                                                                                 |
-| IPv4                    | start(string)：起始值ip(包含)，默认：0.0.0.0。end(string)：结束ip(包含)，默认：255.255.255.255。                                                                                          |                                  用于生成start-end范围的ip地址                                  | string                                                     | 随机生成192.168.20.1-192.168.20.255范围的ip地址：{"name":"ip","type":"IPv4","start":"192.168.20.1","end":"192.168.20.255"}                                                                                                                                                                                                                                     |
-| Expression              | expression(string)：Datafaker expression，默认：null。                                                                                                                     | 用于使用datafaker库的expression生成随机字符串文档：https://www.datafaker.net/documentation/expressions | string                                                     | 生成人名：{"name":"name","type":"Expression","expression":"#{[Name.name](http://Name.name)}"}生成邮箱地址：{"name":"emailAddress","type":"Expression","expression":"#{internet.emailAddress}"}                                                                                                                                                                   |
-| Hlld                    | itemCount(bigint)：总基数(总唯一元素数量)，默认：1000000。batchCount(int)：每次生成的hll随机添加的元素数量，默认：10000。precision(int)：hll的精度，范围[4, 18]，默认：12。                                          |                               用于生成Hlld Sketch，hll算法的一种实现                               | string(字节数组的base64)                                        | 生成ip hll 每次大约包含1000个ip：{ "name": "ip_cnt", "type": "Hlld", "itemCount": 100000, "batchCount": 1000 }                                                                                                                                                                                                                                                 |
-| HdrHistogram            | max(bigint)：histogram最大值，默认：100000。batchCount(int)：每次生成的histogram随机添加的元素数量，默认：1000。numberOfSignificantValueDigits(int)：histogram的精度，范围[1, 5]，默认：1。                   |                     用于生成HdrHistogram Sketch，一种分位数Histogram Sketch                      | string(字节数组的base64)                                        | 生成延时的Histogram，每次包含1000个ms延时： { "name": "ms_his", "type": "HdrHistogram", "max": 100000, "batchCount": 1000}                                                                                                                                                                                                                                         |
-| Eval                    | expression(string)：AviatorScript expression，默认：null。                                                                                                                 |      计算列，通过其它列计算值AviatorScript文档：https://www.yuque.com/boyan-avfmj/aviatorscript       | 返回类型依赖expression，可能为任何类型                                   | 根据已有的in_bytes(bigint), out_bytes(bigint)列计算bytes(bigint)列其值为其它两个的和：{"name": "bytes", "type": "Eval", "expression": "in_bytes + out_bytes"}                                                                                                                                                                                                           |
-| Object                  | fields(array)：每个字段的生成规则，可以使用所有type，默认：null。                                                                                                                          |                用于生成struct/object类型fields内容和mock desc文件根配置一样，描述每个字段的生成规则                | struct/object                                              | 生成object：{"name":"object","type":"Object","fields":[{"name":"str","type":"String","regex":"[a-z]{5,10}","nullRate":0.1},{"name":"cate","type":"String","options":["a","b","c"]}]}                                                                                                                                                                    |
-| Union                   | unionFields(array)：每组字段生成规则，默认：null。每个元素的字段：fields(array)：和Object配置一样weight(int)：此组字段权重，根据权重按照比例生成数据random(boolean)：随机模式，默认：true。                                    |                                       用于生成有关联的字段                                       | 各个字段配置类型                                                   | 生成object_id、item_id字段，当object_id = 10时，item_id从[1, 2, 3, 4, 5]生成数据，当object_id = 20时，item_id从[6, 7]生成数据，第一种数据占比5/7，第二种数据占比2/7                                                                                                                                                                                                                         |
+| type            | 参数                                                                                                                                                                  |                                           说明                                           | 返回数据类型                                          | 例子                                                                                                                                                                                                                                                                                                                                                   |
+|:----------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------:|-------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Number          | min(number)：range起始值(包含)，默认：0。max(number)：range结束值(不包含)，默认：int32.max。options(array<number>)：number列表，配置options则[start, end)失效，默认：null。random(boolean)：随机模式，默认：true。 |                                       用于生成number                                       | 根据start、end、options的值，推测返回类型为：int或bigint或double | 随机生成[0, 10000)范围的int数据：{"name":"int_random","type":"Number","min":0,"max":10000}递增方式生成[0, 10000)范围的int数据：{"name":"int_inc","type":"Number","min":0,"max":10000,"random":false}从int列表生成int数据：{"name":"int_options","type":"Number","options":[20,22,25,30]}随机生成[0, 10000)范围的double数据：{"name":"double_random","type":"Number","min":0.0,"max":10000.0} |
+| Sequence        | start(bigint)：range起始值(包含)，默认：0。step(bigint)：步长，默认：1。                                                                                                               |                                  用于生成bigint序列, 类似等差数列                                  | bigint                                          | 生成0,1,2...序列：{"name":"sub_id","type":"Sequence","start":0}生成0,2,4...序列：{"name":"sub_id","type":"Sequence","start":0,"step":2}                                                                                                                                                                                                                        |
+| UniqueSequence  | start(bigint)：range起始值(包含)，默认：0。                                                                                                                                    |  用于生成唯一bigint序列，0,1,2...和Sequence的区别：  Sequence每个线程单独生成序列  UniqueSequence生成数字整个程序保证唯一  | bigint                                          | 生成0,1,2...序列：{"name":"id","type":"UniqueSequence","start":0}                                                                                                                                                                                                                                                                                         |
+| String          | regex(string)：根据正则随机生成符合正则的字符串，默认：[a-zA-Z]{0,5}。options(array`<string>`)：string列表，配置options则regex失效，默认：null。random(boolean)：随机模式，默认：true。                           |                                       用于生成string                                       | string                                          | 随机生成长度我5-10的小写英文字符串：{"name":"str_regex","type":"String","regex":"[a-z]{5,10}"}从string列表生成string数据：{"name":"str_options","type":"String","options":["a","b","c"]}                                                                                                                                                                                     |
+| Timestamp       | unit(string)：second或millis，生成秒或者毫秒时间戳，默认：second。                                                                                                                    |                                     用于生成时间戳(当前时间)                                      | bigint                                          | 生成unix时间戳：{"name":"timestamp","type":"Timestamp"}生成毫秒时间戳：{"name":"timestamp_ms","type":"Timestamp","unit":"millis"}                                                                                                                                                                                                                                  |
+| FormatTimestamp | format(string)：format，默认：yyyy-MM-dd HH:mm:ss。utc(boolean)：使用utc时区，默认：false，当地时区。                                                                                    |                                    用于生成时间字符串(当前时间)                                     | string                                          | 生成时间字符串：{"name":"timestamp_str","type":"FormatTimestamp","format":"yyyy-MM-dd HH:mm:ss"}生成时间字符串：{"name":"timestamp_str","type":"FormatTimestamp","format":"yyyy-MM-dd HH:mm:ss.SSS"}                                                                                                                                                                 |
+| IPv4            | start(string)：起始值ip(包含)，默认：0.0.0.0。end(string)：结束ip(包含)，默认：255.255.255.255。                                                                                         |                                  用于生成start-end范围的ip地址                                  | string                                          | 随机生成192.168.20.1-192.168.20.255范围的ip地址：{"name":"ip","type":"IPv4","start":"192.168.20.1","end":"192.168.20.255"}                                                                                                                                                                                                                                     |
+| Expression      | expression(string)：Datafaker expression，默认：null。                                                                                                                    | 用于使用datafaker库的expression生成随机字符串文档：https://www.datafaker.net/documentation/expressions | string                                          | 生成人名：{"name":"name","type":"Expression","expression":"#{[Name.name](http://Name.name)}"}生成邮箱地址：{"name":"emailAddress","type":"Expression","expression":"#{internet.emailAddress}"}                                                                                                                                                                   |
+| Hlld            | itemCount(bigint)：总基数(总唯一元素数量)，默认：1000000。batchCount(int)：每次生成的hll随机添加的元素数量，默认：10000。precision(int)：hll的精度，范围[4, 18]，默认：12。                                         |                               用于生成Hlld Sketch，hll算法的一种实现                               | string(字节数组的base64)                             | 生成ip hll 每次大约包含1000个ip：{ "name": "ip_cnt", "type": "Hlld", "itemCount": 100000, "batchCount": 1000 }                                                                                                                                                                                                                                                 |
+| HdrHistogram    | max(bigint)：histogram最大值，默认：100000。batchCount(int)：每次生成的histogram随机添加的元素数量，默认：1000。numberOfSignificantValueDigits(int)：histogram的精度，范围[1, 5]，默认：1。                  |                     用于生成HdrHistogram Sketch，一种分位数Histogram Sketch                      | string(字节数组的base64)                             | 生成延时的Histogram，每次包含1000个ms延时： { "name": "ms_his", "type": "HdrHistogram", "max": 100000, "batchCount": 1000}                                                                                                                                                                                                                                         |
+| Eval            | expression(string)：AviatorScript expression，默认：null。                                                                                                                |      计算列，通过其它列计算值AviatorScript文档：https://www.yuque.com/boyan-avfmj/aviatorscript       | 返回类型依赖expression，可能为任何类型                        | 根据已有的in_bytes(bigint), out_bytes(bigint)列计算bytes(bigint)列其值为其它两个的和：{"name": "bytes", "type": "Eval", "expression": "in_bytes + out_bytes"}                                                                                                                                                                                                           |
+| Object          | fields(array)：每个字段的生成规则，可以使用所有type，默认：null。                                                                                                                         |                用于生成struct/object类型fields内容和mock desc文件根配置一样，描述每个字段的生成规则                | struct/object                                   | 生成object：{"name":"object","type":"Object","fields":[{"name":"str","type":"String","regex":"[a-z]{5,10}","nullRate":0.1},{"name":"cate","type":"String","options":["a","b","c"]}]}                                                                                                                                                                    |
+| Union           | unionFields(array)：每组字段生成规则，默认：null。每个元素的字段：fields(array)：和Object配置一样weight(int)：此组字段权重，根据权重按照比例生成数据random(boolean)：随机模式，默认：true。                                   |                                       用于生成有关联的字段                                       | 各个字段配置类型                                        | 生成object_id、item_id字段，当object_id = 10时，item_id从[1, 2, 3, 4, 5]生成数据，当object_id = 20时，item_id从[6, 7]生成数据，第一种数据占比5/7，第二种数据占比2/7                                                                                                                                                                                                                         |
 
 - Union 举例
 
@@ -1283,6 +1294,8 @@ application:
   env:
     name: example-inline-to-print
     parallelism: 3
+    shade.identifier: aes
+    kms.type: local
     pipeline:
       object-reuse: true
     execution:
@@ -1327,47 +1340,23 @@ application:
 
 ### 标量函数
 
-#### Drop
+ #### ASN Lookup
 
-满足Filter表达式的日志增加删除标记，下游函数将不再执行，当前Projection Function 不再发送事件到下游。设置Event isDropped标记为true。
+查找IP所属AS号。
 
-- 日志格式数据（无嵌套），丢弃符合过滤条件的数据
+- Parameters
+  - kb_name=`<string>` // 使用的知识库的名称 ,需要预先在全局配置中进行注册。
+  - option = `<string>`
+    - IP_TO_ASN 
 
-```shell
-- function: DROP
-  filter: event.c2s_byte_num <10
+```yaml
+  - function: ASN_LOOKUP
+    lookup_fields: [ server_ip ]
+    output_fields: [ server_asn ]
+    parameters:
+      option: IP_TO_ASN
+      kb_name: tsg_ip_asn
 ```
-
-- 丢弃object_id为13167 数据
-
-```shell
-- function: DROP
-  filter: event.object_id == 13167
-  
-# Input: {"object_id":13176,"item_id":83989295}
-```
-
--  metrics格式数据（多级嵌套)，丢弃object_id为102且item_id大于等于2的数据，或object_id等于13176且item_id大于83989294的数据
-
-```shell
-- function: DROP
-  filter: (event.tags.object_id == 102 && event.tags.item_id >= 2) || (event.tags.object_id ==13176 && event.tags.item_id >= 83989294)
-
-# Input: {"tags":{"object_id":13176,"item_id":83989295},"fields":{"in_bytes":1765830,"out_bytes":27446,"bytes":1793276},"timestamp_ms":1714443502000}
-```
-
-#### Snowflake ID
-
-基于雪花算法生成唯一ID。
-
-Parameters:
-
-- data_center_id_num = <int> 数据中心id，用与保证生成雪花id的唯一性。
-
-````shell
-- function: SNOWFLAKE_ID
-      output_fields: [ log_id ]
-````
 
  #### Base64 Decode
 
@@ -1401,13 +1390,175 @@ Parameters:
     value_field: packet
 ```
 
+ #### Current Unix Timestamp
+
+获取系统当前时间戳。
+
+- Parameters
+  - precision=seconds | milliseconds
+
+```yaml
+- function: CURRENT_UNIX_TIMESTAMP
+  output_fields: [ processing_time ]
+  parameters:
+    precision: milliseconds
+
+```
+
+ #### Domain
+
+域名处理函数。
+
+Parameters：
+
+- option = `<string>`
+  - TOP_LEVEL_DOMAIN 顶级域名
+  - FIRST_SIGNIFICANT_SUBDOMAIN 获取二级有效域名
+  - FQDN 获取FQDN
+
+```yaml
+- function: DOMAIN
+  lookup_fields: [ http_host,ssl_sni,dtls_sni,quic_sni ]
+  output_fields: [ server_domain ]
+  parameters:
+    option: FIRST_SIGNIFICANT_SUBDOMAIN
+```
+
+#### Drop
+
+满足Filter表达式的日志增加删除标记，下游函数将不再执行，当前Projection Function 不再发送事件到下游。设置Event isDropped标记为true。
+
+- 日志格式数据（无嵌套），丢弃符合过滤条件的数据
+
+```shell
+- function: DROP
+  filter: event.c2s_byte_num <10
+```
+
+- 丢弃object_id为13167 数据
+
+```shell
+- function: DROP
+  filter: event.object_id == 13167
+  
+# Input: {"object_id":13176,"item_id":83989295}
+```
+
+-  metrics格式数据（多级嵌套)，丢弃object_id为102且item_id大于等于2的数据，或object_id等于13176且item_id大于83989294的数据
+
+```shell
+- function: DROP
+  filter: (event.tags.object_id == 102 && event.tags.item_id >= 2) || (event.tags.object_id ==13176 && event.tags.item_id >= 83989294)
+
+# Input: {"tags":{"object_id":13176,"item_id":83989295},"fields":{"in_bytes":1765830,"out_bytes":27446,"bytes":1793276},"timestamp_ms":1714443502000}
+```
+
+#### Encrypt
+
+敏感信息进行加密。
+
+Parameters:
+
+- identifier = `<string>`  加密算法唯一标识。支持：aes-128-gcm96, aes-256-gcm96, sm4-gcm96
+- default_val= `<string>` 加密失败输出该值，默认将输出原值。
+
+```
+- function: ENCRYPT
+  lookup_fields: [ phone_number ]
+  parameters:
+    identifier: aes-128-gcm96
+```
+
+ #### Eval
+
+通过值表达式，获取符合条件的值，添加到字段中。同时可以选择保留或删除指定的字段。
+
+Parameters:
+
+- value_expression=`<string>` 基于表达式设置字段的值，可以是一个常量
+
+Example 1: 创建一个字段ingestion_time, 取自 recv_time值
+
+```
+- function: EVAL
+  output_fields: [ ingestion_time ]
+  parameters:
+    value_expression:  'recv_time'
+```
+
+Example 2: 创建一个字段internal_ip, 如果flags&8=8?client_ip : server_ip
+
+```
+- function: EVAL
+  output_fields: [ internal_ip ]
+  parameters:
+    value_expression:  'flags&8=8? client_ip : server_ip'
+```
+
+ #### Flatten
+
+扁平化嵌套结构使其成为顶级字段。新字段命名使用每层结构名称作为前缀，中间默认用句点“.”分隔。
+
+- Parameters
+  - prefix= `<string>` //为扁平化的字段名称指定前缀。默认为空。
+  - depth=<int> // 扁平化的嵌套级别的最大值. 设置为1，仅扁平化顶级结构。默认设置为5
+  - delimiter=<String> 组合父级与子级名称的分隔符。默认为"."。
+  - json_string_keys=Array[string] 标识哪些JsonString格式的数据需要扁平化。默认为空。
+
+Example 1: 对Metrics的fields，tags 嵌套结构进行扁平化，如果lookup_fields为空则对所有嵌套结构进行扁平化。
+
+```
+- function: FLATTEN
+  lookup_fields: [ tags, fields ]
+```
+
+Example 2: 会话日志字段encapsulation(JsonString格式)嵌套结构进行扁平化，并增加前缀tunnels，嵌套深度指定3，中间用下划线“."分隔
+
+```yaml
+- function: FLATTEN
+  lookup_fields: [ encapsulation ]
+  parameters:
+    prefix: tunnels
+    depth:  3
+    delimiter: .
+    json_string_keys: [ encapsulation]
+
+# Output： tunnels.encapsulation.ipv4.client_ip: 192.168.4.1
+```
+
+ #### From Unix Timestamp
+
+将时间戳转换为日期类型，返回UTC日期时间格式字符串，输入支持10位和13位时间戳。
+
+- Parameters
+  - precision=seconds  // yyyy-MM-dd HH:mm:ss
+  - precision=milliseconds // yyyy-MM-dd HH:mm:ss:SSS
+
+```yaml
+- function: FROM_UNIX_TIMESTAMP
+  lookup_fields: [recv_time]
+  output_fields: [recv_time_string]
+  parameters:
+    precision: seconds
+```
+
+ #### Generate String Array
+
+创建字符串数组
+
+```yaml
+- function: GENERATE_STRING_ARRAY
+  lookup_fields: [ client_asn,server_asn ]
+  output_fields: [ asn_list ]
+```
+
  #### GeoIP Lookup
 
 查找IP地理位置信息。
 
 - Parameters
-  - kb_name=<string> // 使用的知识库的名称 ,需要预先在全局配置中进行注册。
-  - option = <string>
+  - kb_name=`<string>` // 使用的知识库的名称 ,需要预先在全局配置中进行注册。
+  - option = `<string>`
     - IP_TO_COUNTRY 所属国家或地区
     - IP_TO_PROVINCE 所属省/州
     - IP_TO_CITY 所属城市
@@ -1449,48 +1600,46 @@ Parameters:
 # - ORGANIZATION - 组织
 ```
 
+#### HMAC
 
+使用密钥和消息使用哈希算法生成一个固定长度的消息摘要。HMAC（Hash-based Message Authentication Code）是一种基于哈希函数的消息认证码，用于验证数据的完整性和真实性。
 
- #### ASN Lookup
+Parameters:
 
-查找IP所属AS号。
+- secret =  `<string>` 用于生成MAC的密钥。
+- algorithm=  `<string>`  用于生成MAC的HASH算法。默认是`sha256` 
+- output_format = `<string>` 输出MAC的格式。默认为`'hex'` 。支持：`base64` | `hex `。
+
+ #### JSON Extract
+
+解析JSON字段，通过表达式抽取json部分内容。
 
 - Parameters
-  - kb_name=<string> // 使用的知识库的名称 ,需要预先在全局配置中进行注册。
-  - option = <string>
-    - IP_TO_ASN 
+  - value_expression=`<string>` //基于JsonPath表达式设置字段的值
 
-```yaml
-  - function: ASN_LOOKUP
-    lookup_fields: [ server_ip ]
-    output_fields: [ server_asn ]
-    parameters:
-      option: IP_TO_ASN
-      kb_name: tsg_ip_asn
+```
+JSON_EXTRACT(null, 'device_tag', 'data_center', parameters)
+- parameters:
+  - value_expression = $.tags[?(@.tag=='data_center')][0].value
 ```
 
+ #### Path Combine
 
+路径合并。
 
- #### Domain
-
-域名处理函数。
-
-Parameters：
-
-- option = <string>
-  - TOP_LEVEL_DOMAIN 顶级域名
-  - FIRST_SIGNIFICANT_SUBDOMAIN 获取二级有效域名
-  - FQDN 获取FQDN
+- Parameters
+  - path = Array[string]
 
 ```yaml
-- function: DOMAIN
-  lookup_fields: [ http_host,ssl_sni,dtls_sni,quic_sni ]
-  output_fields: [ server_domain ]
+- function: PATH_COMBINE
+  lookup_fields: [ packet_capture_file ]
+  output_fields: [ packet_capture_file ]
   parameters:
-    option: FIRST_SIGNIFICANT_SUBDOMAIN
+    # 获取grootstream.yaml中properties配置的对应属性hos.path的值
+    path: [ props.hos.path, props.hos.bucket.name.traffic_file, packet_capture_file]
+
+# Output： hos_path + bucket_name + packet_capture_file
 ```
-
-
 
  #### Rename
 
@@ -1501,7 +1650,7 @@ Parameters：
   - parent_fields: Array[string] // 指定哪些字段的子字段将进行重命名。如果为空，则仅会对顶级字段进行重命名，不支持对数组结构中的key进行重命名。
   - rename_fields: // 指定的字段进行重命名
     - current_field_name : new_field_name 
-  - rename_expression=<string> // 对字段执行AviatorScript表达式，返回值作为重命名后的字段名，优先级低于rename_fields。
+  - rename_expression=`<string>` // 对字段执行AviatorScript表达式，返回值作为重命名后的字段名，优先级低于rename_fields。
 
   
 
@@ -1527,135 +1676,35 @@ Example 2: client_ip 重命名为source_ip, 包括隧道encapsulation.ipv4下的
 # Output: source_ip:192.168.4.1, encapsulation.ipv4.source_ip:192.168.12.12
 ```
 
- #### Eval
+#### Snowflake ID
 
-通过值表达式，获取符合条件的值，添加到字段中。同时可以选择保留或删除指定的字段。
+基于雪花算法生成唯一ID。
 
-- Parameters
-  - value_expression=<string> // 基于表达式设置字段的值，可以是一个常量
+Parameters:
 
-Example 1: 创建一个字段ingestion_time, 取自 recv_time值
+- data_center_id_num = <int> 数据中心id，用与保证生成雪花id的唯一性。
 
-```
-- function: EVAL
-  output_fields: [ ingestion_time ]
-  parameters:
-    value_expression:  'recv_time'
-```
+````shell
+- function: SNOWFLAKE_ID
+      output_fields: [ log_id ]
+````
 
-Example 2: 创建一个字段internal_ip, 如果flags&8=8?client_ip : server_ip
+ #### String Joiner
 
-```
-- function: EVAL
-  output_fields: [ internal_ip ]
-  parameters:
-    value_expression:  'flags&8=8? client_ip : server_ip'
-```
-
-
-
- #### JSON Extract
-
-解析JSON字段，通过表达式抽取json部分内容。
-
-- Parameters
-  - value_expression=<string> //基于JsonPath表达式设置字段的值
-
-```
-JSON_EXTRACT(null, 'device_tag', 'data_center', parameters)
-- parameters:
-  - value_expression = $.tags[?(@.tag=='data_center')][0].value
-```
-
-
-
- #### Flatten
-
-扁平化嵌套结构使其成为顶级字段。新字段命名使用每层结构名称作为前缀，中间默认用句点“.”分隔。
-
-- Parameters
-  - prefix= <string> //为扁平化的字段名称指定前缀。默认为空。
-  - depth=<int> // 扁平化的嵌套级别的最大值. 设置为1，仅扁平化顶级结构。默认设置为5
-  - delimiter=<String> 组合父级与子级名称的分隔符。默认为"."。
-  - json_string_keys=Array[string] 标识哪些JsonString格式的数据需要扁平化。默认为空。
-
-Example 1: 对Metrics的fields，tags 嵌套结构进行扁平化，如果lookup_fields为空则对所有嵌套结构进行扁平化。
-
-```
-- function: FLATTEN
-  lookup_fields: [ tags, fields ]
-```
-
-Example 2: 会话日志字段encapsulation(JsonString格式)嵌套结构进行扁平化，并增加前缀tunnels，嵌套深度指定3，中间用下划线“."分隔
+字符串拼接，可以指定分隔符，前缀与后缀。
 
 ```yaml
-- function: FLATTEN
-  lookup_fields: [ encapsulation ]
+- function: STRING_JOINER
+  lookup_fields: [client_ip, server_ip] 
+  output_fields: [ip_string]
   parameters:
-    prefix: tunnels
-    depth:  3
-    delimiter: .
-    json_string_keys: [ encapsulation]
-
-# Output： tunnels.encapsulation.ipv4.client_ip: 192.168.4.1
-```
-
-
-
- #### Current Unix Timestamp
-
-获取系统当前时间戳。
-
-- Parameters
-  - precision=seconds | milliseconds
-
-```yaml
-- function: CURRENT_UNIX_TIMESTAMP
-  output_fields: [ processing_time ]
-  parameters:
-    precision: milliseconds
+    delimiter: ','
+    prefix: '['
+    suffix: ']'
+    
+  # Output：ip_string='[client_ip, server_ip]'
 
 ```
-
-
-
- #### Path Combine
-
-路径合并。
-
-- Parameters
-  - path = Array[string]
-
-```yaml
-- function: PATH_COMBINE
-  lookup_fields: [ packet_capture_file ]
-  output_fields: [ packet_capture_file ]
-  parameters:
-    # 获取grootstream.yaml中properties配置的对应属性hos.path的值
-    path: [ props.hos.path, props.hos.bucket.name.traffic_file, packet_capture_file]
-
-# Output： hos_path + bucket_name + packet_capture_file
-```
-
-
-
- #### From Unix Timestamp
-
-将时间戳转换为日期类型，返回UTC日期时间格式字符串，输入支持10位和13位时间戳。
-
-- Parameters
-  - precision=seconds  // yyyy-MM-dd HH:mm:ss
-  - precision=milliseconds // yyyy-MM-dd HH:mm:ss:SSS
-
-```yaml
-- function: FROM_UNIX_TIMESTAMP
-  lookup_fields: [recv_time]
-  output_fields: [recv_time_string]
-  parameters:
-    precision: seconds
-```
-
-
 
  #### Unix Timestamp Converter
 
@@ -1681,52 +1730,9 @@ Example 2: 会话日志字段encapsulation(JsonString格式)嵌套结构进行�
 
 
 
- #### String Joiner
 
-字符串拼接，可以指定分隔符，前缀与后缀。
-
-```yaml
-- function: STRING_JOINER
-  lookup_fields: [client_ip, server_ip] 
-  output_fields: [ip_string]
-  parameters:
-    delimiter: ','
-    prefix: '['
-    suffix: ']'
-    
-  # Output：ip_string='[client_ip, server_ip]'
-
-```
-
-
-
- #### Generate String Array
-
-创建字符串数组
-
-```yaml
-- function: GENERATE_STRING_ARRAY
-  lookup_fields: [ client_asn,server_asn ]
-  output_fields: [ asn_list ]
-```
 
 ### 聚合函数
-
- #### Number Sum
-
-在时间窗口内对指定数字类型字段进行求和：支持 int，long，double，float类型。
-
-```yaml
-- function: NUMBER_SUM
-  lookup_fields: [received_bytes, sent_bytes]
-  output_fields: [received_bytes_sum]
-```
-
-```yaml
-- function: NUMBER_SUM
-  lookup_fields: [sent_bytes]
-
-```
 
  #### Collect List
 
@@ -1751,32 +1757,6 @@ Example 2: 会话日志字段encapsulation(JsonString格式)嵌套结构进行�
 # Output：client_ip_set= ['192.168.4.1','192.168.4.2']
 ```
 
- #### Mean
-
-在时间窗口内对指定的数值对象求平均值。
-
-Parameters
-
-- precision=<int> 返回的double类型结果精度，不配置则返回实际计算结果
-
-```yaml
-- function: MEAN
-  lookup_fields: [ received_bytes ]
-  output_fields: [ received_bytes_mean ]
-  parameters:
-    precision: 2
-```
-
- #### Long Count
-
-在时间窗口内统计Event条数。
-
-```yaml
-- function: LONG_COUNT
-  lookup_fields: [ log_id ]
-  output_fields: [ sessions ]
-```
-
  #### First Value
 
 返回时间窗口内第一个出现的不为空的value。
@@ -1795,6 +1775,50 @@ Parameters
 - function: LAST_VALUE
   lookup_fields: [ received_bytes ]
   output_fields: [ received_bytes_last ]
+```
+
+ #### Long Count
+
+在时间窗口内统计Event条数。
+
+```yaml
+- function: LONG_COUNT
+  lookup_fields: [ log_id ]
+  output_fields: [ sessions ]
+```
+
+ #### Mean
+
+在时间窗口内对指定的数值对象求平均值。
+
+Parameters
+
+- precision=<int> 返回的double类型结果精度，不配置则返回实际计算结果
+
+```yaml
+- function: MEAN
+  lookup_fields: [ received_bytes ]
+  output_fields: [ received_bytes_mean ]
+  parameters:
+    precision: 2
+```
+
+ #### 
+
+ #### Number Sum
+
+在时间窗口内对指定数字类型字段进行求和：支持 int，long，double，float类型。
+
+```yaml
+- function: NUMBER_SUM
+  lookup_fields: [received_bytes, sent_bytes]
+  output_fields: [received_bytes_sum]
+```
+
+```yaml
+- function: NUMBER_SUM
+  lookup_fields: [sent_bytes]
+
 ```
 
  #### HLLD
