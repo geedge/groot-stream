@@ -51,6 +51,34 @@ public abstract class HlldBaseAggregate implements AggregateFunction {
         return acc;
     }
 
+    @Override
+    public Accumulator merge(Accumulator acc, Accumulator other) {
+        Object agg = acc.getMetricsFields().get(outputField);
+        Object aggOther = other.getMetricsFields().get(outputField);
+        Object rst;
+
+        if(agg == null){
+            rst = aggOther;
+        } else if (aggOther == null) {
+            rst = agg;
+        }else{
+            if(inputSketch){
+                ((HllUnion)agg).update(((HllUnion) aggOther).getResult());
+                rst = agg;
+            }else{
+                final HllUnion union = new HllUnion(precision);
+                union.update((Hll) agg);
+                union.update((Hll) aggOther);
+                rst = union.getResult();
+            }
+        }
+
+        if(rst != null){
+            acc.getMetricsFields().put(outputField, rst);
+        }
+        return acc;
+    }
+
     protected Hll getResultHll(Accumulator acc){
         Object agg = acc.getMetricsFields().get(outputField);
         if (agg == null) {

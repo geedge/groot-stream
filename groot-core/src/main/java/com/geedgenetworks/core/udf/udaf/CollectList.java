@@ -1,17 +1,17 @@
 /**
-  * Copyright 2017 Hortonworks.
-  *
-  * Licensed under the Apache License, Version 2.0 (the "License");
-  * you may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at
-
-  *   http://www.apache.org/licenses/LICENSE-2.0
-
-  * Unless required by applicable law or agreed to in writing, software
-  * distributed under the License is distributed on an "AS IS" BASIS,
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+ * Copyright 2017 Hortonworks.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  **/
 package com.geedgenetworks.core.udf.udaf;
 
@@ -22,9 +22,9 @@ import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.AggregateFunction;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.processor.projection.UdfEntity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Collects elements within a group and returns the list of aggregated objects
@@ -36,18 +36,18 @@ public class CollectList implements AggregateFunction {
 
     @Override
     public void open(UDFContext udfContext) {
-        if(udfContext.getLookup_fields()==null ){
+        if (udfContext.getLookup_fields() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        this.lookupField  = udfContext.getLookup_fields().get(0);
-        if(udfContext.getOutput_fields()!=null && !udfContext.getOutput_fields().isEmpty()) {
+        this.lookupField = udfContext.getLookup_fields().get(0);
+        if (udfContext.getOutput_fields() != null && !udfContext.getOutput_fields().isEmpty()) {
             this.outputField = udfContext.getOutput_fields().get(0);
-        }
-        else {
+        } else {
             outputField = lookupField;
         }
 
     }
+
     @Override
     public Accumulator initAccumulator(Accumulator acc) {
         acc.getMetricsFields().put(outputField, new ArrayList<>());
@@ -56,7 +56,7 @@ public class CollectList implements AggregateFunction {
 
     @Override
     public Accumulator add(Event event, Accumulator acc) {
-        if(event.getExtractedFields().containsKey(lookupField)){
+        if (event.getExtractedFields().containsKey(lookupField)) {
             Object object = event.getExtractedFields().get(lookupField);
             List<Object> aggregate = (List<Object>) acc.getMetricsFields().get(outputField);
             aggregate.add(object);
@@ -73,6 +73,19 @@ public class CollectList implements AggregateFunction {
     @Override
     public Accumulator getResult(Accumulator acc) {
         return acc;
+    }
+
+    @Override
+    public Accumulator merge(Accumulator firstAcc, Accumulator secondAcc) {
+        if (firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
+            List<Object> firstValue = (List<Object>) firstAcc.getMetricsFields().get(outputField);
+            List<Object> secondValue = (List<Object>) secondAcc.getMetricsFields().get(outputField);
+            firstValue.addAll(secondValue);
+        } else if (!firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
+            List<Object> secondValue = (List<Object>) secondAcc.getMetricsFields().get(outputField);
+            firstAcc.getMetricsFields().put(outputField, secondValue);
+        }
+        return firstAcc;
     }
 
 }

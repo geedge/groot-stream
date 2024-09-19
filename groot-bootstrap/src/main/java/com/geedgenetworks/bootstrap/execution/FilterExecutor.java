@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.config.CheckConfigUtil;
 import com.geedgenetworks.common.config.CheckResult;
 import com.geedgenetworks.common.config.FilterConfigOptions;
@@ -14,6 +15,7 @@ import com.geedgenetworks.core.pojo.FilterConfig;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.net.URL;
@@ -54,7 +56,7 @@ public class FilterExecutor extends AbstractExecutor<String, FilterConfig> {
     }
 
     @Override
-    public SingleOutputStreamOperator execute(SingleOutputStreamOperator dataStream, Node node) throws JobExecuteException {
+    public DataStream<Event> execute(DataStream<Event> dataStream, Node node) throws JobExecuteException {
         FilterConfig filterConfig = operatorMap.get(node.getName());
         String className = filterConfig.getType();
         Filter filter;

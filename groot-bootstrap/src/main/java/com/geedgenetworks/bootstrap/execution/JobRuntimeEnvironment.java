@@ -22,12 +22,8 @@ import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.TernaryBoolean;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,16 +34,16 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
     private StreamExecutionEnvironment environment;
     private String jobName = Constants.DEFAULT_JOB_NAME;
 
-    private JobRuntimeEnvironment(Config config, GrootStreamConfig grootStreamConfig) {
+    private JobRuntimeEnvironment(Config jobConfig, GrootStreamConfig grootStreamConfig) {
         this.grootStreamConfig = grootStreamConfig;
-        this.initialize(config);
+        this.initialize(jobConfig);
     }
 
-    public static JobRuntimeEnvironment getInstance(Config config, GrootStreamConfig grootStreamConfig) {
+    public static JobRuntimeEnvironment getInstance(Config jobConfig, GrootStreamConfig grootStreamConfig) {
         if (INSTANCE == null) {
             synchronized (JobRuntimeEnvironment.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = new JobRuntimeEnvironment(config, grootStreamConfig);
+                    INSTANCE = new JobRuntimeEnvironment(jobConfig, grootStreamConfig);
                 }
             }
         }
@@ -73,18 +69,25 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
 
     @Override
     public RuntimeEnvironment prepare() {
-        createStreamEnvironment();
+
         if (envConfig.hasPath(Constants.JOB_NAME)) {
             jobName = envConfig.getString(Constants.JOB_NAME);
         }
+        // Job-level user-defined variables override the grootStreamConfig
+        if (envConfig.hasPath(Constants.PROPERTIES)) {
+            envConfig.getConfig(Constants.PROPERTIES).root().unwrapped().entrySet().forEach(entry -> {
+                this.grootStreamConfig.getCommonConfig().getPropertiesConfig().put(entry.getKey(), String.valueOf(entry.getValue()));
+            });
+        }
+
+        createStreamEnvironment();
+
         return this;
     }
 
     public String getJobName() {
         return jobName;
     }
-
-
 
     public boolean isLocalMode() {
         return envConfig.hasPath(ExecutionConfigKeyName.ENV_TARGET_TYPE)
@@ -126,7 +129,6 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
     }
 
     private void createStreamEnvironment() {
-
         Configuration configuration = new Configuration();
         EnvironmentUtil.initConfiguration(envConfig, configuration);
         if (isLocalMode()) {
@@ -269,6 +271,7 @@ public class JobRuntimeEnvironment implements RuntimeEnvironment{
                 checkpointConfig.setTolerableCheckpointFailureNumber(failNum);
             }
         }
+
 
 
 

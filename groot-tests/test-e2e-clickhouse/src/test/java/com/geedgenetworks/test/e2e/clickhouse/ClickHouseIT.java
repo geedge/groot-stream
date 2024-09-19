@@ -122,7 +122,6 @@ public class ClickHouseIT extends TestSuiteBase implements TestResource {
     @TestTemplate
     public void testClickHouse(TestContainer container) throws Exception {
         assertHasData(SOURCE_TABLE);
-        clearTable(SOURCE_TABLE);
     }
 
     @TestTemplate
@@ -144,7 +143,6 @@ public class ClickHouseIT extends TestSuiteBase implements TestResource {
                         () -> {
                             assertHasData(SINK_TABLE);
                             compareResult();
-                            clearTable(SINK_TABLE);
                         });
     }
 

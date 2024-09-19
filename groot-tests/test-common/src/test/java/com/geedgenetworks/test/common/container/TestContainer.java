@@ -5,6 +5,7 @@ import org.testcontainers.containers.Container;
 import org.testcontainers.containers.Network;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface TestContainer extends TestResource {
     Network NETWORK = Network.newNetwork();
@@ -15,6 +16,8 @@ public interface TestContainer extends TestResource {
 
     Container.ExecResult executeJob(String confFile) throws IOException, InterruptedException;
 
+    Container.ExecResult executeJob(String confFile, List<String> variables)
+            throws IOException, InterruptedException;
 
     default Container.ExecResult savepointJob(String jobId)
             throws IOException, InterruptedException {

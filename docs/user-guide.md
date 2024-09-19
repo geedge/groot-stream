@@ -153,7 +153,7 @@ Used to define job environment configuration information. For more details, you 
 # Command
 
 ## Run a job by CLI
-
+Note: When submitting a job via CLI, you can use `-D` parameter to specify flink configuration. For example, `-Dexecution.buffer-timeout.interval=1000` to set the buffer timeout to 1000ms.  More details can be found in the official [flink documentation](https://flink.apache.org/).
 ```bash
 Usage: start.sh [options]
 Options:
@@ -164,7 +164,7 @@ Options:
   -e, --deploy-mode <deploy mode>   Deploy mode, only support [run] (default: run)
   --target <target>                 Submitted target type, support [local, remote, yarn-session, yarn-per-job]
   -n, --name <name>                 Job name (default: groot-stream-job)
-  -i, --variable <variable>         User-defined parameters, eg. -i key=value (default: [])
+  -i, --variable <variable>         User-defined variables, eg. -i key=value (default: [])
   -h, --help                        Show help message
   -v, --version                     Show version message
   

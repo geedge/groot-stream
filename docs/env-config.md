@@ -57,10 +57,10 @@ Specify a list of classpath URLs via `pipeline.classpaths`, The classpaths are s
 You can directly use the flink parameter by prefixing `flink.`, such as `flink.execution.buffer-timeout`, `flink.object-reuse`, etc. More details can be found in the official [flink documentation](https://flink.apache.org/).
 Of course, you can use groot stream parameter, here are some parameter names corresponding to the names in Flink.
 
-|              Groot Stream              |                             Flink                             |
+|              Groot Stream              | Flink                                                         |
 |----------------------------------------|---------------------------------------------------------------|
-| execution.buffer-timeout               | flink.execution.buffer-timeout                                |
-| pipeline.object-reuse                  | flink.object-reuse                                            |
+| execution.buffer-timeout               | flink.execution.buffer-timeout.interval                       |
+| pipeline.object-reuse                  | flink.pipeline.object-reuse                                   |
 | pipeline.max-parallelism               | flink.pipeline.max-parallelism                                |
 | execution.restart.strategy             | flink.restart-strategy                                        |
 | execution.restart.attempts             | flink.restart-strategy.fixed-delay.attempts                   |
@@ -69,4 +69,21 @@ Of course, you can use groot stream parameter, here are some parameter names cor
 | execution.restart.failureInterval      | flink.restart-strategy.failure-rate.failure-rate-interval     |
 | execution.restart.delayInterval        | flink.restart-strategy.failure-rate.delay                     |
 | ...                                    | ...                                                           |
+
+## Properties
+Job-level user-defined variables can be set in the `properties` section using key-value pairs, where the key represents a configuration property and the value specifies the desired setting.
+The properties can be used in the configuration file by using `props.${property_name}`. It will override the corresponding settings in the  `grootstream.yaml` file for the duration of the job.
+```yaml
+application:
+  env:
+    name: example-inline-to-print
+    parallelism: 3
+    pipeline:
+      object-reuse: true
+    properties:
+      hos.bucket.name.rtp_file: job_level_traffic_rtp_file_bucket
+      hos.bucket.name.http_file: job_level_traffic_http_file_bucket
+      hos.bucket.name.eml_file: job_level_traffic_eml_file_bucket
+      hos.bucket.name.policy_capture_file: job_level_traffic_policy_capture_file_bucket
+```
 

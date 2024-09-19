@@ -19,6 +19,7 @@ package com.geedgenetworks.core.udf.test.aggregate;
 import com.geedgenetworks.common.Accumulator;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.core.udf.udaf.LongCount;
 import com.geedgenetworks.core.udf.udaf.NumberSum;
 import com.ibm.icu.text.NumberFormat;
 import org.junit.jupiter.api.Test;
@@ -41,8 +42,44 @@ public class NumberSumTest {
         excute(doubleArr, Double.class);
         excute(intArr, Long.class);
         excute(longArr, Long.class);
-    }
+        testMerge(intArr,floatArr);
 
+    }
+    private void testMerge(Number[] arr,Number[] arr2) {
+
+        UDFContext udfContext = new UDFContext();
+        udfContext.setLookup_fields(List.of("field"));
+        udfContext.setOutput_fields(Collections.singletonList("field_sum"));
+        NumberSum numberSum = new NumberSum();
+        Map<String, Object> metricsFields = new HashMap<>();
+        Accumulator accumulator = new Accumulator();
+        accumulator.setMetricsFields(metricsFields);
+        numberSum.open(udfContext);
+        Accumulator result1 = getMiddleResult(udfContext,arr);
+        Accumulator result2 = getMiddleResult(udfContext,arr2);
+        Accumulator result = numberSum.getResult(numberSum.merge(result1,result2));
+        assertEquals(Float.parseFloat((result.getMetricsFields().get("field_sum").toString())),20.0f);
+
+    }
+    private Accumulator getMiddleResult(UDFContext udfContext,Number[] arr) {
+
+
+        NumberSum numberSum = new NumberSum();
+        Map<String, Object> metricsFields = new HashMap<>();
+        Accumulator accumulator = new Accumulator();
+        accumulator.setMetricsFields(metricsFields);
+        numberSum.open(udfContext);
+        Accumulator agg = numberSum.initAccumulator(accumulator);
+        for (Number o : arr) {
+            Event event = new Event();
+            Map<String, Object> extractedFields = new HashMap<>();
+            extractedFields.put("field", o);
+            event.setExtractedFields(extractedFields);
+            agg = numberSum.add(event, agg);
+
+        }
+        return agg;
+    }
     private static void excute(Number[] arr, Class<? extends Number> clazz) throws ParseException {
 
         UDFContext udfContext = new UDFContext();

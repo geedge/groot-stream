@@ -23,7 +23,7 @@
     </modules>
 
     <properties>
-        <revision>1.5.0</revision>
+        <revision>1.6.0</revision>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -55,6 +55,7 @@
         <jsonpath.version>2.4.0</jsonpath.version>
         <fastjson2.version>2.0.32</fastjson2.version>
         <hutool.version>5.8.22</hutool.version>
+        <bouncycastle.version>1.78.1</bouncycastle.version>
         <galaxy.version>2.0.2</galaxy.version>
         <guava-retrying.version>2.0.0</guava-retrying.version>
         <ipaddress.version>5.3.3</ipaddress.version>
@@ -389,6 +390,12 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
 
             <dependency>

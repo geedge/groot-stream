@@ -20,7 +20,7 @@ grootstream:
 
 ```
 
-### Knowledge Base
+## Knowledge Base
 
 The knowledge base is a collection of libraries that can be used in the groot-stream job's UDFs. File system type can be specified `local`, `http` or `hdfs`.
 If the value is `http`, must be ` QGW Knowledge Base Repository` URL. The library will be dynamically updated according to the `scheduler.knowledge_base.update.interval.minutes` configuration.
@@ -77,3 +77,6 @@ grootstream:
         - asn_builtin.mmdb
         - asn_user_defined.mmdb
 ```
+## Properties
+Global user-defined variables can be set in the `properties` section using key-value pairs, where the key represents a configuration property and the value specifies the desired setting.
+The properties can be used in the configuration file by using `props.${property_name}`. 

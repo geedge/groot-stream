@@ -65,8 +65,16 @@ public class ConfigShadeTest {
         Assertions.assertEquals("159c7da83d988a9ec041d10a6bfbe221bcbaed6b62d9cc1b04ff51e633ebd105", encryptPassword);
         Assertions.assertEquals(decryptUsername, USERNAME);
         Assertions.assertEquals(decryptPassword, PASSWORD);
-        System.out.println( ConfigShadeUtils.encryptOption("aes", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"admin\" password=\"galaxy2019\";"));
-        System.out.println( ConfigShadeUtils.decryptOption("aes", "454f65ea6eef1256e3067104f82730e737b68959560966b811e7ff364116b03124917eb2b0f3596f14733aa29ebad9352644ce1a5c85991c6f01ba8a5e8f177a7ff0b2d3889a424249967b3870b50993d9644f239f0de82cdb13bdb502959e16afadffa49ef1e1d2b9c9b5113e619817"));
+        encryptUsername = ConfigShadeUtils.encryptOption("sm4", USERNAME);
+        decryptUsername = ConfigShadeUtils.decryptOption("sm4", encryptUsername);
+        Assertions.assertEquals("72ea74367a15cb96b0d1d42104149519", encryptUsername);
+        Assertions.assertEquals(decryptUsername, USERNAME);
+        encryptPassword = ConfigShadeUtils.encryptOption("sm4", PASSWORD);
+        decryptPassword = ConfigShadeUtils.decryptOption("sm4", encryptPassword);
+        Assertions.assertEquals("3876c7088d395bbbfa826e3648b6c9a022e7f80941c132313bde6dc8a7f2351f", encryptPassword);
+        Assertions.assertEquals(decryptPassword, PASSWORD);
+        System.out.println( ConfigShadeUtils.encryptOption("sm4", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"admin\" password=\"galaxy2019\";"));
+        System.out.println( ConfigShadeUtils.decryptOption("sm4", "f76480be84a8ee1b009504c6c56a5bed48239c348a468f94b4029a6a3148f51530b025d6dfa140af93b4c7c6fe0e3dce543773e779d272b5579555fbd3271e7fdbee088673a901b3f3b28e914a25f30a4a859d97594c5ea7d7c1dcefe8c62560baea32b6da0b767232ed8aca17af2dc6"));
         System.out.println( ConfigShadeUtils.encryptOption("aes", "testuser"));
         System.out.println( ConfigShadeUtils.encryptOption("aes", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"olap\" password=\"galaxy2019\";"));
     }

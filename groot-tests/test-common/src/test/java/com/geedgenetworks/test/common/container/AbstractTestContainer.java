@@ -62,8 +62,9 @@ public abstract class AbstractTestContainer implements TestContainer {
                 container, this.startModuleFullPath, GROOTSTREAM_HOME);
     }
 
-    protected Container.ExecResult executeJob(GenericContainer<?> container, String confFile)
+    protected Container.ExecResult executeJob(GenericContainer<?> container, String confFile, List<String> variables)
             throws IOException, InterruptedException {
+
         final String confInContainerPath =  ContainerUtil.copyConfigFileToContainer(container, confFile);
         // copy connectors
         ContainerUtil.copyConnectorJarToContainer(
@@ -81,9 +82,26 @@ public abstract class AbstractTestContainer implements TestContainer {
         command.add(ContainerUtil.adaptPathForWin(confInContainerPath));
         command.add("--target");
         command.add("remote");
-        command.addAll(getExtraStartShellCommands());
+        List<String> extraStartShellCommands = new ArrayList<>(getExtraStartShellCommands());
+        if (variables != null && !variables.isEmpty()) {
+            variables.forEach(
+                    v -> {
+                        extraStartShellCommands.add("-i");
+                        extraStartShellCommands.add(v);
+                    });
+        }
+        command.addAll(extraStartShellCommands);
         return executeCommand(container, command);
     }
+
+
+
+    protected Container.ExecResult executeJob(GenericContainer<?> container, String confFile)
+            throws IOException, InterruptedException {
+        return executeJob(container, confFile, null);
+    }
+
+
 
     protected Container.ExecResult savepointJob(GenericContainer<?> container, String jobId)
             throws IOException, InterruptedException {
