@@ -83,6 +83,25 @@ public class CommonConfigOptions {
             .defaultValue("")
             .withDescription("The key path of KMS.");
 
+    public static final Option<SSLConfig> SSL = Options.key("ssl")
+            .type(new TypeReference<SSLConfig>() {})
+            .noDefaultValue()
+            .withDescription("The ssl configuration.");
+
+    public static final Option<Boolean> SSL_DISABLED = Options.key("disabled")
+            .booleanType()
+            .defaultValue(true)
+            .withDescription("The disabled flag of the configuration.");
+
+    public static final Option<String> SSL_CERT_PATH = Options.key("cert_path")
+            .stringType()
+            .defaultValue("")
+            .withDescription("The certificate path of the configuration.");
+
+    public static final Option<String> SSL_PRIVATE_KEY_PATH = Options.key("private_key_path")
+            .stringType()
+            .defaultValue("")
+            .withDescription("The private key path of the configuration.");
 
 
 

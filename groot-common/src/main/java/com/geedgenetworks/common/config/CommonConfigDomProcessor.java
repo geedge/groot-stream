@@ -30,6 +30,8 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
                  commonConfig.setKnowledgeBaseConfig(parseKnowledgeBaseConfig(node));
             } else if (CommonConfigOptions.KMS.key().equals(name)) {
                  commonConfig.setKmsConfig(parseKmsConfig(node));
+             } else if (CommonConfigOptions.SSL.key().equals(name)) {
+                 commonConfig.setSslConfig(parseSSLConfig(node));
              } else if (CommonConfigOptions.PROPERTIES.key().equals(name)) {
                  commonConfig.setPropertiesConfig(parsePropertiesConfig(node));
             } else {
@@ -80,6 +82,23 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
 
         }
         return knowledgeBaseConfig;
+    }
+
+    private SSLConfig parseSSLConfig (Node sslRootNode) {
+        SSLConfig sslConfig = new SSLConfig();
+        for (Node node : childElements(sslRootNode)) {
+            String name = cleanNodeName(node);
+            if (CommonConfigOptions.SSL_DISABLED.key().equals(name)) {
+                sslConfig.setDisabled(getBooleanValue(getTextContent(node)));
+            } else if (CommonConfigOptions.SSL_CERT_PATH.key().equals(name)) {
+                sslConfig.setCertPath(getTextContent(node));
+            } else if (CommonConfigOptions.SSL_PRIVATE_KEY_PATH.key().equals(name)) {
+                sslConfig.setPrivateKeyPath(getTextContent(node));
+            } else {
+                log.warn("Unrecognized SSL configuration element: {}", name);
+            }
+        }
+        return sslConfig;
     }
 
     private Map<String, KmsConfig> parseKmsConfig(Node kmsRootNode) {

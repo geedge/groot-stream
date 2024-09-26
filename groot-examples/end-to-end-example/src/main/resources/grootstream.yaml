@@ -19,6 +19,11 @@ grootstream:
       token: <vault-token>
       key_path: <vault-key-path>
 
+  ssl:
+    disabled: false
+    cert_path: ./config/ssl/cert.pem
+    private_key_path: ./config/ssl/key.pem
+
   properties:
     hos.path: http://192.168.44.12:9098/hos
     hos.bucket.name.traffic_file: traffic_file_bucket
