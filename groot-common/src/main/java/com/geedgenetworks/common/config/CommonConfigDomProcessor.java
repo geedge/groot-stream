@@ -88,12 +88,14 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
         SSLConfig sslConfig = new SSLConfig();
         for (Node node : childElements(sslRootNode)) {
             String name = cleanNodeName(node);
-            if (CommonConfigOptions.SSL_DISABLED.key().equals(name)) {
-                sslConfig.setDisabled(getBooleanValue(getTextContent(node)));
-            } else if (CommonConfigOptions.SSL_CERT_PATH.key().equals(name)) {
-                sslConfig.setCertPath(getTextContent(node));
-            } else if (CommonConfigOptions.SSL_PRIVATE_KEY_PATH.key().equals(name)) {
-                sslConfig.setPrivateKeyPath(getTextContent(node));
+            if (CommonConfigOptions.SSL_ENABLED.key().equals(name)) {
+                sslConfig.setEnabled(getBooleanValue(getTextContent(node)));
+            } else if (CommonConfigOptions.SSL_CERT_FILE.key().equals(name)) {
+                sslConfig.setCertFile(getTextContent(node));
+            } else if (CommonConfigOptions.SSL_KEY_FILE.key().equals(name)) {
+                sslConfig.setKeyFile(getTextContent(node));
+            } else if (CommonConfigOptions.SSL_REQUIRE_CLIENT_AUTH.key().equals(name)) {
+                sslConfig.setRequireClientAuth(getBooleanValue(getTextContent(node)));
             } else {
                 log.warn("Unrecognized SSL configuration element: {}", name);
             }

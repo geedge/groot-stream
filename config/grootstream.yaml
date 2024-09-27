@@ -21,9 +21,10 @@ grootstream:
       key_path: <vault-key-path>
 
   ssl:
-    disabled: true
-    cert_path: ./config/ssl/cert.pem
-    private_key_path: ./config/ssl/key.pem
+    enabled: false
+    cert_file: ./config/ssl/cert.pem
+    key_file: ./config/ssl/key.pem
+    require_client_auth: false
 
 
   properties:

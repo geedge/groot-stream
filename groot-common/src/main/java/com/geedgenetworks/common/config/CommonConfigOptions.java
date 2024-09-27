@@ -88,20 +88,25 @@ public class CommonConfigOptions {
             .noDefaultValue()
             .withDescription("The ssl configuration.");
 
-    public static final Option<Boolean> SSL_DISABLED = Options.key("disabled")
+    public static final Option<Boolean> SSL_ENABLED = Options.key("enabled")
             .booleanType()
-            .defaultValue(true)
-            .withDescription("The disabled flag of the configuration.");
+            .defaultValue(false)
+            .withDescription("The enabled flag of the configuration.");
 
-    public static final Option<String> SSL_CERT_PATH = Options.key("cert_path")
+    public static final Option<String> SSL_CERT_FILE = Options.key("cert_file")
             .stringType()
             .defaultValue("")
-            .withDescription("The certificate path of the configuration.");
+            .withDescription("The certificate file path of the configuration.");
 
-    public static final Option<String> SSL_PRIVATE_KEY_PATH = Options.key("private_key_path")
+    public static final Option<String> SSL_KEY_FILE = Options.key("key_file")
             .stringType()
             .defaultValue("")
-            .withDescription("The private key path of the configuration.");
+            .withDescription("The private key file path of the configuration.");
+
+    public static final Option<Boolean> SSL_REQUIRE_CLIENT_AUTH = Options.key("require_client_auth")
+            .booleanType()
+            .defaultValue(false)
+            .withDescription("The require client auth flag of the configuration.");
 
 
 

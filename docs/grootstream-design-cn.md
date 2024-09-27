@@ -118,9 +118,10 @@ grootstream:
       default_key_path: <default-vault-key-path>
       plugin_key_path: <plugin-vault-key-path>
   ssl:
-    disabled: true
-    cert_path: <certificate-path>
-    private_key_path: <private-key-path>
+    enabled: false
+    cert_file: <certificate-file>
+    key_file: <private-key-file>
+    require_client_auth: false
    
   properties:   # 用户自定义属性的支持从函数中获取，使用方式见函数定义
     hos.path: http://127.0.0.1:9093
@@ -129,11 +130,11 @@ grootstream:
     scheduler.knowledge_base.update.interval.minutes: 1  #知识库文件定时更新时间
 ```
 
-| 属性名         | 必填 | 默认值 | 类型               | 描述                                           |
-| -------------- | ---- | ------ | ------------------ | ---------------------------------------------- |
+| 属性名            | 必填 | 默认值 | 类型               | 描述                                           |
+|----------------| ---- | ------ | ------------------ | ---------------------------------------------- |
 | knowledge_base | Y    | -      | Object             | 知识库配置                                     |
 | kms            | N    | -      | Object             | kms (key management system, 密钥管理系统) 配置 |
-| tls            | N    | -      | Object             | 客户端启用SSL双向认证                          |
+| ssl            | N    | -      | Object             | 客户端启用SSL双向认证                          |
 | properties     | N    | -      | Map(String,Object) | 自定义属性配置：key-value 格式                 |
 
 

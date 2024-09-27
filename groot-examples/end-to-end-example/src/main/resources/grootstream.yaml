@@ -20,9 +20,10 @@ grootstream:
       key_path: <vault-key-path>
 
   ssl:
-    disabled: false
-    cert_path: ./config/ssl/cert.pem
-    private_key_path: ./config/ssl/key.pem
+    enabled: true
+    cert_file: ./config/ssl/cert.pem
+    key_file: ./config/ssl/key.pem
+    require_client_auth: true
 
   properties:
     hos.path: http://192.168.44.12:9098/hos

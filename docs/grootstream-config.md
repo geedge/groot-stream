@@ -83,10 +83,11 @@ Key Management System(KMS). It is a service that provides a secure way to create
 
 | Name | Type   | Required | Default | Description                                      |
 |:-----| :----- | :------- | :-- ---- |:------------------------------------------------  |
-| type | String | Yes       | local     | The type of the Key Management Service. Enum: local, vault. |
-| url | String | No | (none) | The kms server's URL (e.g., `http://localhost:8200`). |
+| type | String  | Yes       | local     | The type of the Key Management Service. Enum: local, vault. |
+| url | String |  No | (none) | The kms server's URL (e.g., `http://localhost:8200`). |
 | token | String | No | (none) | The authentication token |
-| key_path | String | No | (none) | If you enabled authentication in HashiCorp Vault with a custom path. |
+| default_key_path | String | No | (none) | HashiCorp Vault default key path. for example, `transit/` |
+| plugin_key_path | String | No | (none) | HashiCorp Vault plugin key path. for example, `plugin/gmsm` |
 
 ```yaml
   kms:
@@ -96,7 +97,27 @@ Key Management System(KMS). It is a service that provides a secure way to create
       type: vault
       url: <vault-url>
       token: <vault-token>
-      key_path: <vault-key-path>
+      default_key_path: <vault-key-path>
+      plugin_key_path: <vault-plugin-key-path>
+```
+
+## SSL
+
+Client enabled SSL configuration. It is used to client SSL mutual authentication with Vault.
+
+| Name | Type   | Required | Default | Description                                      |
+|:-----| :----- | :------- | :-- ---- |:------------------------------------------------  |
+| enabled | Boolean | Yes | false | Enable SSL configuration. |
+| cert_file | String | Yes | (none) | The path of the certificate file. |
+| key_file | String | Yes | (none) | The path of the private key file. |
+| require_client_auth | Boolean | Yes | false |  Enable client authentication  |
+
+```yaml
+    ssl:
+        enabled: true
+        cert_file: /path/to/cert.pem
+        key_file: /path/to/key.pem
+        require_client_auth: true
 ```
 
 
