@@ -1654,10 +1654,10 @@ JSON_EXTRACT(null, 'device_tag', 'data_center', parameters)
 
 - Parameters
 
-  - parent_fields: Array[string] // 指定哪些字段的子字段将进行重命名。如果为空，则仅会对顶级字段进行重命名，不支持对数组结构中的key进行重命名。
-  - rename_fields: // 指定的字段进行重命名
+  - parent_fields: Array[string] 指定哪些字段的子字段将进行重命名。如果为空，则仅会对顶级字段进行重命名，不支持对数组结构中的key进行重命名。
+  - rename_fields:  指定的字段进行重命名
     - current_field_name : new_field_name 
-  - rename_expression=`<string>` // 对字段执行AviatorScript表达式，返回值作为重命名后的字段名，优先级低于rename_fields。
+  - rename_expression=`<string>` 对字段执行AviatorScript表达式，返回值作为重命名后的字段名，优先级低于rename_fields。
 
   
 
@@ -1735,9 +1735,48 @@ Parameters:
 
 ```
 
+ #### UUID
 
+使用UUIDv4标准，生成128位随机UUID。实现方式参考：https://github.com/cowtowncoder/java-uuid-generator
 
+```yaml
+- function: UUID
+  output_fields: [log_uuid]
+  
+  # 3f0f8d7e-d89e-4b0a-9f2e-2eab5c99d062
+```
 
+ #### UUIDv5
+
+是一种基于 **命名空间和名称** 生成的 UUID。与 `UUIDv4` 主要依赖随机数不同，`UUIDv5` 使用 SHA-1 哈希算法将命名空间和名称组合后生成一个确定性的 UUID。这意味着对同一命名空间和相同名称的输入，`UUIDv5` 总是会生成相同的 UUID。
+
+- Parameters
+  - namespace = <Enum> 枚举值，命名空间是一个 UUID，它定义了名称所属的上下文。可指定如下命名空间：
+    - NAMESPACE_IP: 6ba7b890-9dad-11d1-80b4-00c04fd430c8
+    - NAMESPACE_DOMAIN: 6ba7b891-9dad-11d1-80b4-00c04fd430c8
+    - NAMESPACE_APP: 6ba7b892-9dad-11d1-80b4-00c04fd430c8
+    - NAMESPACE_SUBSCRIBER: 6ba7b893-9dad-11d1-80b4-00c04fd430c8
+
+```yaml
+- function: UUIDv5
+  lookup_fields: [ client_ip, server_ip ] # 基于 client_ip, server_ip的值组成UUIDv5 name 参数值与命名空间结合后，通过哈希生成唯一的 UUID。
+  output_fields: [ip_uuid]
+  parameters:
+  	namespace: NAMESPACE_IP
+ 
+  # 2ed6657d-e927-568b-95e1-2665a8aea6a2
+```
+
+ #### UUIDv7
+
+通过时间戳和随机数生成唯一UUID，适合需要时间排序的场景，比如数据库索引和日志记录。
+
+```yaml
+- function: UUIDv7
+  output_fields: [log_uuid] # 生成基于时间戳和随机数的 UUID
+  
+  # 2ed6657d-e927-568b-95e1-2665a8aea6a2
+```
 
 ### 聚合函数
 
