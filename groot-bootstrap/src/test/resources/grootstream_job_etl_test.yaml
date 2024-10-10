@@ -101,6 +101,10 @@ processing_pipelines:
         output_fields: [ ingestion_time ]
         parameters:
           value_expression: recv_time
+      - function: EVAL
+        output_fields: [internal_ip]
+        parameters:
+          value_expression:  "(direction == 'Outbound')? client_ip : server_ip"
       - function: DOMAIN
         lookup_fields: [ http_host,ssl_sni,dtls_sni,quic_sni ]
         output_fields: [ server_domain ]
@@ -140,6 +144,18 @@ processing_pipelines:
           #rename_fields:
             #  tags: tags
           rename_expression: key =string.replace_all(key,'encapsulation.0.','');return key;
+
+      - function: UUIDv5
+        lookup_fields: [ client_ip, server_ip ] # 基于 client_ip, server_ip的值组成UUIDv5 name 参数值与命名空间结合后，通过哈希生成唯一的 UUID。
+        output_fields: [ ip_uuid ]
+        parameters:
+          namespace: NAMESPACE_IP
+      - function: UUIDv7
+        output_fields: [ log_uuid_v7 ] # 生成基于时间戳和随机数的 UUID
+      - function: UUID
+        output_fields: [ log_uuid ]
+
+
 
 
 sinks:
