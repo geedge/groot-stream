@@ -121,6 +121,13 @@
                     <scope>provided</scope>
                 </dependency>
 
+                <dependency>
+                    <groupId>com.geedgenetworks</groupId>
+                    <artifactId>connector-starrocks</artifactId>
+                    <version>${project.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+
                 <!--Format Json -->
                 <dependency>
                     <groupId>com.geedgenetworks</groupId>

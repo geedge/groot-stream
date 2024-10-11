@@ -1,8 +1,11 @@
 package com.geedgenetworks.core.types;
 
+import com.alibaba.fastjson2.JSON;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -26,6 +29,42 @@ public class TypesTest {
         dataType = (StructType)Types.parseDataType(ddl);
         System.out.println(dataType);
         System.out.println(dataType.treeString());
+    }
+
+    @Test
+    void test() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("a", 1);
+        map.put("b", "aa");
+        map.put("c", List.of(1, 2, 3));
+        map.put("int_array", new int[]{1, 2, 3});
+        map.put("str_array", new String[]{"1", "2", "3"});
+        map.put("obj_array", new Object[]{"1", "2", "3"});
+        String jsonString = JSON.toJSONString(map);
+        System.out.println(jsonString);
+    }
+
+    @Test
+    void test2() {
+        Object obj = new int[]{1, 2, 3};
+        System.out.println(obj instanceof byte[]);
+        System.out.println(obj instanceof int[]);
+        System.out.println(obj instanceof String[]);
+        System.out.println(obj instanceof Object[]);
+        System.out.println();
+
+        obj = new String[]{"1", "2", "3"};
+        System.out.println(obj instanceof byte[]);
+        System.out.println(obj instanceof int[]);
+        System.out.println(obj instanceof String[]);
+        System.out.println(obj instanceof Object[]);
+        System.out.println();
+
+        obj = new Object[]{"1", "2", "3"};
+        System.out.println(obj instanceof byte[]);
+        System.out.println(obj instanceof int[]);
+        System.out.println(obj instanceof String[]);
+        System.out.println(obj instanceof Object[]);
     }
 
     @Test
