@@ -73,7 +73,7 @@ public class JobEtlTest {
         Assert.assertEquals("MULTIPATH_ETHERNET", CollectSink.values.get(0).getExtractedFields().get("tunnels_schema_type").toString());
         Assert.assertEquals(36, CollectSink.values.get(0).getExtractedFields().get("log_uuid").toString().length());
         Assert.assertEquals(36, CollectSink.values.get(0).getExtractedFields().get("log_uuid_v7").toString().length());
-        Assert.assertEquals("b9dd71a2-ddcc-5707-9073-30ec900d5c8b", CollectSink.values.get(0).getExtractedFields().get("ip_uuid").toString());
+        Assert.assertEquals("dacad383-8355-5493-9e1e-20ef5cd8b8fd", CollectSink.values.get(0).getExtractedFields().get("ip_uuid").toString());
 
     }
 

@@ -30,15 +30,18 @@ public class UuidV5 implements ScalarFunction {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey namespace");
         }
         this.outputFieldName = udfContext.getOutput_fields().get(0);
-        this.lookupFieldNames = udfContext.getOutput_fields();
-        this.nameBasedGenerator = Generators.nameBasedGenerator(NameSpace.getUuidByName(udfContext.getParameters().get("namespace").toString()));
+        this.lookupFieldNames = udfContext.getLookup_fields();
+        this.nameBasedGenerator = Generators.nameBasedGenerator(NameSpaceType.getUuidByName(udfContext.getParameters().get("namespace").toString()));
     }
 
     @Override
     public Event evaluate(Event event) {
         StringBuilder sb = new StringBuilder();
-        for(String lookupField:lookupFieldNames){
-            sb.append(event.getExtractedFields().getOrDefault(lookupField,""));
+        for (int i = 0; i < lookupFieldNames.size(); i++) {
+            sb.append(event.getExtractedFields().getOrDefault(lookupFieldNames.get(i), ""));
+            if (i < lookupFieldNames.size() - 1) {
+                sb.append("_");
+            }
         }
         event.getExtractedFields()
                 .put(outputFieldName, nameBasedGenerator.generate(sb.toString()));

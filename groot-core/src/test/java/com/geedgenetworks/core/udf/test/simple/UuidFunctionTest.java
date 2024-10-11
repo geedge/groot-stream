@@ -63,21 +63,74 @@ public class UuidFunctionTest {
         assertEquals(36, result1.getExtractedFields().get("uuid").toString().length());
     }
     @Test
-    public void testUuidV5() {
+    public void testUuidV5ForNameSpaceIp() {
         udfContext = new UDFContext();
-        UuidV5 uuid = new UuidV5();
+        UuidV5 uuidv5 = new UuidV5();
         parameters =  new HashMap<>();
         udfContext.setParameters(parameters);
         udfContext.setLookup_fields(List.of("client_ip","server_ip"));
         udfContext.setOutput_fields(Collections.singletonList("uuid"));
         parameters.put("namespace","NAMESPACE_IP");
-        uuid.open(null, udfContext);
+        uuidv5.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
         extractedFields.put("client_ip", "1.1.1.1");
         extractedFields.put("server_ip", "1.1.1.2");
         event.setExtractedFields(extractedFields);
-        Event result1 = uuid.evaluate(event);
-        assertEquals("b9dd71a2-ddcc-5707-9073-30ec900d5c8b", result1.getExtractedFields().get("uuid").toString());
+        Event result1 = uuidv5.evaluate(event);
+        assertEquals("52530d0c-07df-5c4b-a659-661242575386", result1.getExtractedFields().get("uuid").toString());
+    }
+
+    @Test
+    public void testUuidV5ForNameSpaceDomain() {
+        udfContext = new UDFContext();
+        UuidV5 uuidv5 = new UuidV5();
+        parameters =  new HashMap<>();
+        udfContext.setParameters(parameters);
+        udfContext.setLookup_fields(List.of("domain"));
+        udfContext.setOutput_fields(Collections.singletonList("uuid"));
+        parameters.put("namespace","NAMESPACE_DOMAIN");
+        uuidv5.open(null, udfContext);
+        Event event = new Event();
+        Map<String, Object> extractedFields = new HashMap<>();
+        extractedFields.put("domain", "baidu");
+        event.setExtractedFields(extractedFields);
+        Event result1 = uuidv5.evaluate(event);
+        assertEquals("fd67cec1-6b33-5def-835c-fbe32f1ce4a4", result1.getExtractedFields().get("uuid").toString());
+    }
+    @Test
+    public void testUuidV5ForNameSpaceApp() {
+        udfContext = new UDFContext();
+        UuidV5 uuidv5 = new UuidV5();
+        parameters =  new HashMap<>();
+        udfContext.setParameters(parameters);
+        udfContext.setLookup_fields(List.of("app"));
+        udfContext.setOutput_fields(Collections.singletonList("uuid"));
+        parameters.put("namespace","NAMESPACE_APP");
+        uuidv5.open(null, udfContext);
+        Event event = new Event();
+        Map<String, Object> extractedFields = new HashMap<>();
+        extractedFields.put("app", "54321");
+        event.setExtractedFields(extractedFields);
+        Event result1 = uuidv5.evaluate(event);
+        assertEquals("194b8304-64f0-599e-bf7a-66cbc21bf6ee", result1.getExtractedFields().get("uuid").toString());
+    }
+
+    @Test
+    public void testUuidV5ForNameSpaceSubid() {
+        udfContext = new UDFContext();
+        UuidV5 uuidv5 = new UuidV5();
+        parameters =  new HashMap<>();
+        udfContext.setParameters(parameters);
+        udfContext.setLookup_fields(List.of("subid"));
+        udfContext.setOutput_fields(Collections.singletonList("uuid"));
+        parameters.put("namespace","NAMESPACE_SUBSCRIBER");
+        uuidv5.open(null, udfContext);
+        Event event = new Event();
+        Map<String, Object> extractedFields = new HashMap<>();
+        extractedFields.put("subid", "test1");
+        event.setExtractedFields(extractedFields);
+        Event result1 = uuidv5.evaluate(event);
+        assertEquals("9b154520-3c29-541c-bb81-f649354dae67", result1.getExtractedFields().get("uuid").toString());
     }
 }
