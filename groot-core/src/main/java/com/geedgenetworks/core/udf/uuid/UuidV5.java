@@ -44,7 +44,7 @@ public class UuidV5 implements ScalarFunction {
             }
         }
         event.getExtractedFields()
-                .put(outputFieldName, nameBasedGenerator.generate(sb.toString()));
+                .put(outputFieldName, nameBasedGenerator.generate(sb.toString()).toString());
         return event;
     }
 
