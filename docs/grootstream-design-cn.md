@@ -80,7 +80,7 @@ Groot Stream 是一个实时数据流处理平台，提供了灵活的数据定�
 
 - **Pipelines**
   - 在数据流的不同处理阶段可以引用不同类型的Pipelines，所有Pipelines(一系列Functions组成)架构和内部结构一致，只分为Projection和Aggregate两种类型。按Pipeline所在数据流的位置可分为：
-    - **Pre-processing Pipelines ：，可选，**前处理数据管道对输入日志进行格式化或执行一系列全局处理函数（例如：从原始日志中提取感兴趣的字段）。
+    - **Pre-processing Pipelines ：可选，**前处理数据管道对输入日志进行格式化或执行一系列全局处理函数（例如：从原始日志中提取感兴趣的字段）。
     - **Processing Pipelines：**业务处理管道
     - **Post-processing Pipelines ，可选，**后处理数据管道，发送到目的地之前对日志进行格式化或执行一系列全局处理函数（例如：对输出的日志进行格式验证、类型转换）
   - 数据流处理基本单元为处理器，按功能分为无状态和有状态处理器。每个处理器可以连接多个函数，组成一个Pipeline。

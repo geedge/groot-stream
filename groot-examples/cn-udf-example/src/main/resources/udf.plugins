@@ -20,3 +20,6 @@ com.geedgenetworks.core.udf.cn.UserDefineTagLookup
 com.geedgenetworks.core.udf.cn.FieldsMerge
 com.geedgenetworks.core.udf.cn.ArrayElementsPrepend
 com.geedgenetworks.core.udf.cn.IntelligenceIndicatorLookup
+com.geedgenetworks.core.udf.uuid.UUID
+com.geedgenetworks.core.udf.uuid.UUIDv5
+com.geedgenetworks.core.udf.uuid.UUIDv7

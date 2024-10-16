@@ -43,7 +43,7 @@ processing_pipelines:
   session_record_processor:
     type: projection
     remove_fields: [device_tag]
-    output_fields: [log_id, client_ip, client_geolocation, client_asn, server_domain, server_ip, server_geolocation, server_asn]
+    output_fields: [log_id, client_ip, client_geolocation, client_asn, server_domain, server_ip, server_geolocation, server_asn, log_uuid, log_uuid_v7, ip_uuid]
     functions:
       - function: DROP
         lookup_fields: []
@@ -97,9 +97,22 @@ processing_pipelines:
         output_fields: [ processing_time_str ]
         parameters:
           precision: milliseconds
+
       - function: RENAME
-        lookup_fields: [ device_tag ]
-        output_fields: [ renamed_device_tag ]
+        parameters:
+          rename_fields:
+            device_tag: renamed_device_tag
+
+      - function: UUIDv5
+        lookup_fields: [ client_ip, server_ip ] # 基于 client_ip, server_ip的值组成UUIDv5 name 参数值与命名空间结合后，通过哈希生成唯一的 UUID。
+        output_fields: [ ip_uuid ]
+        parameters:
+          namespace: NAMESPACE_IP
+      - function: UUIDv7
+        output_fields: [ log_uuid_v7 ] # 生成基于时间戳和随机数的 UUID
+      - function: UUID
+        output_fields: [ log_uuid ]
+
 
 sinks:
   print_sink:
