@@ -20,8 +20,8 @@ public class LoadIntervalDataUtil<T> {
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final AtomicBoolean stopped = new AtomicBoolean(false);
     private ScheduledExecutorService scheduler;
-    private Exception exception;
-    private T data;
+    private volatile Exception exception;
+    private volatile T data;
 
     private LoadIntervalDataUtil(SupplierWithException<T, Exception> dataSupplier, LoadIntervalDataOptions options) {
         this.dataSupplier = dataSupplier;
