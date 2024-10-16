@@ -93,7 +93,11 @@ public class SingleValueMap {
 
         void destroy() {
             if (destroyFunc != null) {
-                destroyFunc.accept(data);
+                try {
+                    destroyFunc.accept(data);
+                } catch (Exception e) {
+                    LOG.error("error when destroy data: {}", data);
+                }
             }
         }
 
