@@ -1313,6 +1313,8 @@ application:
       hos.bucket.name.http_file: traffic_http_file_bucket
       hos.bucket.name.eml_file: traffic_eml_file_bucket
       hos.bucket.name.policy_capture_file: traffic_policy_capture_file_bucket
+      # RestfulAPI 取需要加密的字段，返回数据类型为Array
+      projection.encrypt.schema.registry.uri: 127.0.0.1:9999/v1/schema/session_record?option=encrypt_fields 
   topology:
     - name: inline_source
       downstream: [decoded_as_split]
@@ -1462,13 +1464,12 @@ Parameters：
 
 #### Encrypt
 
-敏感信息进行加密。
+对敏感信息进行加密。支持引用动态规则，获取需要加密的字段，选择是否对当前字段进行加密
 
 Parameters:
 
 - identifier = `<string>`  加密算法唯一标识。支持：aes-128-gcm96, aes-256-gcm96, sm4-gcm96
 - default_val= `<string>` 加密失败输出该值，默认将输出原值
-- reference_uri = <string> 可选，Restful API 获取需要加密的字段，返回数据类型为Array
 
 ```
 - function: ENCRYPT
@@ -1476,8 +1477,9 @@ Parameters:
   output_fields: [ phone_number ]
   parameters:
     identifier: aes-128-gcm96
-    reference_uri: 127.0.0.1:9999/v1/database/session_record/schema?option=encrypt_fields
 ```
+
+Note : 读取任务变量`projection.encrypt.schema.registry.uri`，返回加密字段，数据类型为Array。
 
  #### Eval
 
