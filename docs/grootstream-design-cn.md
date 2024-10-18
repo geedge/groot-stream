@@ -117,11 +117,11 @@ grootstream:
       token: <vault-token>
       default_key_path: <default-vault-key-path>
       plugin_key_path: <plugin-vault-key-path>
-  ssl:
-    enabled: false
-    cert_file: <certificate-file>
-    key_file: <private-key-file>
-    require_client_auth: false
+  ssl: ## SSL/TLS 客户端链接配置
+    skip_verification: true                      # 忽略SSL证书校验
+    private_key_path: /path/to/certs/worker.key   # 客户端私钥文件路径
+    certificate_path: /path/to/certs/worker.pem   # 客户端证书文件路径
+    ca_certificate_path: /path/to/certs/root.pem  # CA 根证书路径
    
   properties:   # 用户自定义属性的支持从函数中获取，使用方式见函数定义
     hos.path: http://127.0.0.1:9093
@@ -130,12 +130,12 @@ grootstream:
     scheduler.knowledge_base.update.interval.minutes: 1  #知识库文件定时更新时间
 ```
 
-| 属性名            | 必填 | 默认值 | 类型               | 描述                                           |
-|----------------| ---- | ------ | ------------------ | ---------------------------------------------- |
-| knowledge_base | Y    | -      | Object             | 知识库配置                                     |
-| kms            | N    | -      | Object             | kms (key management system, 密钥管理系统) 配置 |
-| ssl            | N    | -      | Object             | 客户端启用SSL双向认证                          |
-| properties     | N    | -      | Map(String,Object) | 自定义属性配置：key-value 格式                 |
+| 属性名         | 必填 | 默认值 | 类型                | 描述                                           |
+| -------------- | ---- | ------ | ------------------- | ---------------------------------------------- |
+| knowledge_base | Y    | -      | Object              | 知识库配置                                     |
+| kms            | N    | -      | Object              | kms (key management system, 密钥管理系统) 配置 |
+| ssl            | N    | -      | Object              | ssl配置                                        |
+| properties     | N    | -      | Map(String, Object) | 自定义属性配置：key-value 格式                 |
 
 
 
@@ -1467,13 +1467,16 @@ Parameters：
 Parameters:
 
 - identifier = `<string>`  加密算法唯一标识。支持：aes-128-gcm96, aes-256-gcm96, sm4-gcm96
-- default_val= `<string>` 加密失败输出该值，默认将输出原值。
+- default_val= `<string>` 加密失败输出该值，默认将输出原值
+- reference_uri = <string> 可选，Restful API 获取需要加密的字段，返回数据类型为Array
 
 ```
 - function: ENCRYPT
   lookup_fields: [ phone_number ]
+  output_fields: [ phone_number ]
   parameters:
     identifier: aes-128-gcm96
+    reference_uri: 127.0.0.1:9999/v1/database/session_record/schema?option=encrypt_fields
 ```
 
  #### Eval
@@ -1616,6 +1619,17 @@ Parameters:
 - secret_key =  `<string>` 用于生成MAC的密钥。
 - algorithm=  `<string>`  用于生成MAC的HASH算法。默认是`sha256` 
 - output_format = `<string>` 输出MAC的格式。默认为`'hex'` 。支持：`base64` | `hex `。
+
+```
+- function: HMAC
+  lookup_fields: [ phone_number ]
+  output_fields: [ phone_number_hmac ]
+  parameters:
+    secret_key: ******
+    output_format: base64
+```
+
+
 
  #### JSON Extract
 

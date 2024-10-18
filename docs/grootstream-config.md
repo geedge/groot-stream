@@ -103,21 +103,21 @@ Key Management System(KMS). It is a service that provides a secure way to create
 
 ## SSL
 
-Client enabled SSL configuration. It is used to client SSL mutual authentication with Vault.
+The client SSL configuration.
 
 | Name | Type   | Required | Default | Description                                      |
 |:-----| :----- | :------- | :-- ---- |:------------------------------------------------  |
-| enabled | Boolean | Yes | false | Enable SSL configuration. |
-| cert_file | String | Yes | (none) | The path of the certificate file. |
-| key_file | String | Yes | (none) | The path of the private key file. |
-| require_client_auth | Boolean | Yes | false |  Enable client authentication  |
+| skip_verification | Boolean | Yes | true | Ignore SSL certificate verification |
+| certificate_path | String | Yes | (none) | Path to the client's private key file |
+| private_key_path | String | Yes | (none) | Path to the client's certificate file |
+| ca_certificate_path | Boolean | Yes | false | Path to the root CA certificate for server verification |
 
 ```yaml
     ssl:
-        enabled: true
-        cert_file: /path/to/cert.pem
-        key_file: /path/to/key.pem
-        require_client_auth: true
+        skip_verification: true
+        private_key_path: /path/to/certs/worker.key  
+        certificate_path: /path/to/certs/worker.pem   
+        ca_certificate_path: /path/to/certs/root.pem 
 ```
 
 
