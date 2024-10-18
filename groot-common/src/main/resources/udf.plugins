@@ -3,7 +3,9 @@ com.geedgenetworks.core.udf.CurrentUnixTimestamp
 com.geedgenetworks.core.udf.DecodeBase64
 com.geedgenetworks.core.udf.Domain
 com.geedgenetworks.core.udf.Drop
+com.geedgenetworks.core.udf.EncodeBase64
 com.geedgenetworks.core.udf.Eval
+com.geedgenetworks.core.udf.Flatten
 com.geedgenetworks.core.udf.FromUnixTimestamp
 com.geedgenetworks.core.udf.GenerateStringArray
 com.geedgenetworks.core.udf.GeoIpLookup
@@ -13,7 +15,9 @@ com.geedgenetworks.core.udf.Rename
 com.geedgenetworks.core.udf.SnowflakeId
 com.geedgenetworks.core.udf.StringJoiner
 com.geedgenetworks.core.udf.UnixTimestampConverter
-com.geedgenetworks.core.udf.Flatten
+com.geedgenetworks.core.udf.uuid.UUID
+com.geedgenetworks.core.udf.uuid.UUIDv5
+com.geedgenetworks.core.udf.uuid.UUIDv7
 com.geedgenetworks.core.udf.udaf.NumberSum
 com.geedgenetworks.core.udf.udaf.CollectList
 com.geedgenetworks.core.udf.udaf.CollectSet
@@ -29,6 +33,3 @@ com.geedgenetworks.core.udf.udaf.HdrHistogram.HdrHistogramQuantiles
 com.geedgenetworks.core.udf.udtf.JsonUnroll
 com.geedgenetworks.core.udf.udtf.Unroll
 com.geedgenetworks.core.udf.udtf.PathUnroll
-com.geedgenetworks.core.udf.uuid.UUID
-com.geedgenetworks.core.udf.uuid.UUIDv5
-com.geedgenetworks.core.udf.uuid.UUIDv7

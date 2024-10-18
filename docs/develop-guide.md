@@ -15,6 +15,28 @@
 | groot-docs       | Docs module of groot-stream, which is responsible for providing documents.                                 |
 | groot-release    | Release module of groot-stream, which is responsible for providing release scripts.                        |
 
+## Event Model
+Groot Stream based all stream processing on data records common known as events. A event is a collection of key-value pairs(fields). As follows:
+
+```json
+{
+  "__timestamp": "<Timestamp in UNIX epoch format (milliseconds)>",
+  "__input_id": "ID/Name of the source that delivered the event",
+  "__window_start_timestamp" : "<Timestamp in UNIX epoch format (milliseconds)>",
+  "__window_end_timestamp" : "<Timestamp in UNIX epoch format (milliseconds)>",
+  "key1": "<value1>",
+  "key2": "<value2>",
+  "keyN": "<valueN>"
+}
+```
+Groot Stream add internal fields during pipeline processing. A few notes about internal fields:
+- Internal fields start with a double underscore `__`.
+- Each source can add one or many internal fields to the each event. For example, the Kafka source adds both a `__timestamp` and a `__input_id` field.
+- Treat internal fields as read-only. Modifying them can result in unintended consequences to your data flows.
+- Internal fields only exist for the duration of the event processing pipeline. They are not documented under sources or sinks. 
+- If you do not configure a timestamp for extraction, the Pipeline process assigns the current time (in UNIX epoch format) to the __timestamp field.
+- If you have multiple sources, you can determine which source the event came form by looking at the `__input_id` field. For example, the Kafka source adds the topic name to the `__input_id` field.
+
 ## How to write a high quality Git commit message
 
 > [purpose] [module name] [sub-module name] Description (JIRA Issue ID)

@@ -43,7 +43,7 @@ processing_pipelines:
   session_record_processor:
     type: projection
     remove_fields: [device_tag]
-    output_fields: [log_id, client_ip, client_geolocation, client_asn, server_domain, server_ip, server_geolocation, server_asn, log_uuid, log_uuid_v7, ip_uuid]
+    #output_fields: [log_id, device_tag, client_ip, client_geolocation, client_asn, server_domain, server_ip, server_geolocation, server_asn, log_uuid, log_uuid_v7, ip_uuid]
     functions:
       - function: DROP
         lookup_fields: []
