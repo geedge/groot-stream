@@ -117,6 +117,7 @@ grootstream:
       token: <vault-token>
       default_key_path: <default-vault-key-path>
       plugin_key_path: <plugin-vault-key-path>
+  
   ssl: ## SSL/TLS 客户端链接配置
     skip_verification: true                      # 忽略SSL证书校验
     private_key_path: /path/to/certs/worker.key   # 客户端私钥文件路径
@@ -2084,7 +2085,7 @@ Parameters：
 
 ```yaml
 # 将一个应用层协议按层级进行拆分，应用层协议由协议解析路径和应用组成。
-- function: JSON_UNROLL
+- function: PATH_UNROLL
   lookup_fields: [ decoded_path, app]
   output_fields: [ protocol_stack_id, app_name ]
   parameters:
@@ -2114,7 +2115,7 @@ Parameters：
   #Event5: {"app_name":"ssl.port_444","protocol_stack_id":"ETHERNET.IPv4.TCP.ssl.ssl.port_444"}
 
 #只有路径参数的场景(或者上例中文件字段值为null).
-- function: JSON_UNROLL
+- function: PATH_UNROLL
   lookup_fields: [ decoded_path]
   output_fields: [ protocol_stack_id]
   parameters:

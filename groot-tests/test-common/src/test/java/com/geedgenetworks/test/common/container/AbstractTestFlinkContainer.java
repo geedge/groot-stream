@@ -81,6 +81,10 @@ public abstract class AbstractTestFlinkContainer extends AbstractTestContainer {
                                                 ".*Successful registration at resource manager.*")
                                         .withStartupTimeout(Duration.ofMinutes(2)));
 
+        // Copy groot-stream bootstrap and some other files to the container
+        copyGrootStreamStarterToContainer(taskManager);
+        copyGrootStreamStarterLoggingToContainer(taskManager);
+
         Startables.deepStart(Stream.of(jobManager)).join();
         Startables.deepStart(Stream.of(taskManager)).join();
         // execute extra commands

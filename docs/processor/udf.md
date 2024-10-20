@@ -201,17 +201,18 @@ If the value of `direction` is `69`, the value of `internal_ip` will be `client_
 - function: EVAL
   output_fields: [internal_ip]
   parameters:
-    value_expression: 'direction=69 ? client_ip : server_ip'
+    value_expression: "direction=69 ? client_ip : server_ip"
 ```
 
 ### Flatten
 
-Flatten the fields of nested structure to the top level. The new fields name are named using the field name prefixed with the names of the struct fields to reach it, separated by dots as default.
+Flatten the fields of nested structure to the top level. The new fields name are named using the field name prefixed with the names of the struct fields to reach it, separated by dots as default.  The original fields will be removed.
 
 ```FLATTEN(filter, lookup_fields, output_fields[, parameters])```
+
 - filter: optional
 - lookup_fields: optional
-- output_fields: not required
+- output_fields: not required. 
 - parameters: optional
   - prefix: `<String>` optional. Prefix string for flattened field names. Default is empty.
   - depth: `<Integer>` optional. Number representing the nested levels to consider for flattening. Minimum 1. Default is `5`.
@@ -255,6 +256,7 @@ Output:
 From unix timestamp function is used to convert the unix timestamp to date time string. The default time zone is UTC+0.
 
 ```FROM_UNIX_TIMESTAMP(filter, lookup_fields, output_fields[, parameters])```
+
 - filter: optional
 - lookup_fields: required
 - output_fields: required
@@ -427,7 +429,7 @@ Remove the prefix "tags_" from the field names and rename the field "timestamp_m
 
 ```yaml
 - function: RENAME
-- parameters:
+  parameters:
     rename_fields:
       timestamp_ms: recv_time_ms
     rename_expression: key=string.replace_all(key,'tags_',''); return key;
@@ -440,7 +442,7 @@ Rename the field `client_ip` to `source_ip`, including the fields under the `enc
 
 ```yaml
 - function: RENAME
-- parameters:
+  parameters:
     parent_fields: [encapsulation.ipv4]
     rename_fields:
       client_ip: source_ip
@@ -509,7 +511,7 @@ Unix timestamp converter function is used to convert the unix timestamp precisio
 - parameters: required
   - precision: `<String>` required. Enum: `milliseconds`, `seconds`, `minutes`. The minutes precision is used to generate Unix timestamp, round it to the minute level, and output it in seconds format.
 - Example:
-_`__timestamp` Internal field, from source ingestion time or current unix timestamp.
+  `__timestamp` Internal field, from source ingestion time or current unix timestamp.
 
 ```yaml
 - function: UNIX_TIMESTAMP_CONVERTER
