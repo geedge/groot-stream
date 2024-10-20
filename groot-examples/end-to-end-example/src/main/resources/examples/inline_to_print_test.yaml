@@ -104,12 +104,12 @@ processing_pipelines:
             device_tag: renamed_device_tag
 
       - function: UUIDv5
-        lookup_fields: [ client_ip, server_ip ] # 基于 client_ip, server_ip的值组成UUIDv5 name 参数值与命名空间结合后，通过哈希生成唯一的 UUID。
+        lookup_fields: [ client_ip, server_ip ]
         output_fields: [ ip_uuid ]
         parameters:
           namespace: NAMESPACE_IP
       - function: UUIDv7
-        output_fields: [ log_uuid_v7 ] # 生成基于时间戳和随机数的 UUID
+        output_fields: [ log_uuid_v7 ]
       - function: UUID
         output_fields: [ log_uuid ]
 

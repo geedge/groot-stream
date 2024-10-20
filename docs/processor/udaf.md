@@ -41,7 +41,7 @@ COLLECT_LIST is used to collect the value of the field in the group of events.
 - lookup_fields: required. Now only support one field.
 - output_fields: optional. If not set, the output field name is `lookup_field_name`.
 
-### Example
+Example: 
 
 ```yaml
 - function: COLLECT_LIST
@@ -59,7 +59,7 @@ COLLECT_SET is used to collect the unique value of the field in the group of eve
 - lookup_fields: required. Now only support one field.
 - output_fields: optional. If not set, the output field name is `lookup_field_name`.
 
-### Example
+Example
 
 ```yaml
 - function: COLLECT_SET
@@ -76,7 +76,7 @@ FIRST_VALUE is used to get the first value of the field in the group of events.
 - lookup_fields: required. Now only support one field.
 - output_fields: optional. If not set, the output field name is `lookup_field_name`.
 
-### Example
+Example
 
 ```yaml
 - function: FIRST_VALUE
@@ -92,7 +92,7 @@ LAST_VALUE is used to get the last value of the field in the group of events.
 - lookup_fields: required. Now only support one field.
 - output_fields: optional. If not set, the output field name is `lookup_field_name`.
 
-### Example
+Example
 
 ```yaml
 - function: LAST_VALUE
@@ -109,7 +109,7 @@ LONG_COUNT is used to count the number of events in the group of events.
 - lookup_fields: optional.
 - output_fields: required.
 
-### Example
+Example
 
 ```yaml
 - function: LONG_COUNT
@@ -127,7 +127,7 @@ MEAN is used to calculate the mean value of the field in the group of events. Th
 - parameters: optional.
     - precision: `<Integer>` required. The precision of the mean value. Default is 2.
 
-### Example
+Example
 
 ```yaml
 - function: MEAN
@@ -144,7 +144,7 @@ NUMBER_SUM is used to sum the value of the field in the group of events. The loo
 - lookup_fields: required. Now only support one field.
 - output_fields: optional. If not set, the output field name is `lookup_field_name`.
 
-### Example
+Example
 
 ```yaml
 - function: NUMBER_SUM
@@ -164,7 +164,8 @@ hlld is a high-performance C server which is used to expose HyperLogLog sets and
     - precision: `<Integer>` optional. The precision of the hlld value. Default is 12.
     - output_format: `<String>` optional. The output format can be either `base64(encoded string)` or `binary(byte[])`. The default is `base64`.
 
-### Example
+Example
+
   Merge multiple string field into a HyperLogLog data structure.
 ```yaml
   - function: HLLD
@@ -194,8 +195,8 @@ Approx Count Distinct HLLD is used to count the approximate number of distinct v
   - input_type: `<String>` optional. Refer to `HLLD` function.
   - precision: `<Integer>` optional. Refer to `HLLD` function.
 
-### Example
-    
+Example
+
 ```yaml
 - function: APPROX_COUNT_DISTINCT_HLLD
   lookup_fields: [client_ip]
@@ -228,8 +229,8 @@ A High Dynamic Range (HDR) Histogram. More details can be found in [HDR Histogra
   - autoResize: `<Boolean>` optional. If true, the highestTrackableValue will auto-resize. Default is true.
   - output_format: `<String>` optional. The output format can be either `base64(encoded string)` or `binary(byte[])`. The default is `base64`.
 
-### Example
-    
+Example
+
   ```yaml
   - function: HDR_HISTOGRAM
     lookup_fields: [latency_ms]
@@ -264,8 +265,8 @@ Approx Quantile HDR is used to calculate the approximate quantile value of the f
   - autoResize: `<Boolean>` optional. Refer to `HDR_HISTOGRAM` function.
   - probability: `<Double>` optional. The probability of the quantile. Default is 0.5.
 
-### Example
-  
+Example
+
   ```yaml
   - function: APPROX_QUANTILE_HDR
     lookup_fields: [latency_ms]
@@ -301,8 +302,8 @@ Approx Quantiles HDR is used to calculate the approximate quantile values of the
   - autoResize: `<Boolean>` optional. Refer to `HDR_HISTOGRAM` function.
   - probabilities: `<Array<Double>>` required. The list of probabilities of the quantiles. Range is 0 to 1.
 
-### Example
-    
+Example
+
 ```yaml
 - function: APPROX_QUANTILES_HDR
   lookup_fields: [latency_ms]
