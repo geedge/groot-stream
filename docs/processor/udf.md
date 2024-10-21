@@ -201,17 +201,18 @@ If the value of `direction` is `69`, the value of `internal_ip` will be `client_
 - function: EVAL
   output_fields: [internal_ip]
   parameters:
-    value_expression: 'direction=69 ? client_ip : server_ip'
+    value_expression: "direction=69 ? client_ip : server_ip"
 ```
 
 ### Flatten
 
-Flatten the fields of nested structure to the top level. The new fields name are named using the field name prefixed with the names of the struct fields to reach it, separated by dots as default.
+Flatten the fields of nested structure to the top level. The new fields name are named using the field name prefixed with the names of the struct fields to reach it, separated by dots as default.  The original fields will be removed.
 
 ```FLATTEN(filter, lookup_fields, output_fields[, parameters])```
+
 - filter: optional
 - lookup_fields: optional
-- output_fields: not required
+- output_fields: not required. 
 - parameters: optional
   - prefix: `<String>` optional. Prefix string for flattened field names. Default is empty.
   - depth: `<Integer>` optional. Number representing the nested levels to consider for flattening. Minimum 1. Default is `5`.
@@ -255,6 +256,7 @@ Output:
 From unix timestamp function is used to convert the unix timestamp to date time string. The default time zone is UTC+0.
 
 ```FROM_UNIX_TIMESTAMP(filter, lookup_fields, output_fields[, parameters])```
+
 - filter: optional
 - lookup_fields: required
 - output_fields: required
@@ -413,8 +415,8 @@ Rename function is used to rename or reformat(e.g. by replacing character unders
 - parameters: required
   - parent_fields: `<Array>` optional. Specify fields whose children will inherit the Rename fields and Rename expression operations.
   - rename_fields: `Map<String, String>` required. The key  is the original field name, and the value is the new field name.
-  - current_field_name: `<String>` required. The original field name.
-  - new_field_name: `<String>` required. The new field name.
+    - current_field_name: `<String>` required. The original field name.
+    - new_field_name: `<String>` required. The new field name.
   - rename_expression: `<String>` optional. AviatorScript expression whose returned value will be used to rename fields.
 
 ```
@@ -427,9 +429,9 @@ Remove the prefix "tags_" from the field names and rename the field "timestamp_m
 
 ```yaml
 - function: RENAME
-- parameters:
+  parameters:
     rename_fields:
-      - timestamp_ms: recv_time_ms
+      timestamp_ms: recv_time_ms
     rename_expression: key=string.replace_all(key,'tags_',''); return key;
      
 ```
@@ -440,10 +442,10 @@ Rename the field `client_ip` to `source_ip`, including the fields under the `enc
 
 ```yaml
 - function: RENAME
-- parameters:
+  parameters:
     parent_fields: [encapsulation.ipv4]
     rename_fields:
-      - client_ip: source_ip
+      client_ip: source_ip
      
 ```
 
@@ -509,7 +511,7 @@ Unix timestamp converter function is used to convert the unix timestamp precisio
 - parameters: required
   - precision: `<String>` required. Enum: `milliseconds`, `seconds`, `minutes`. The minutes precision is used to generate Unix timestamp, round it to the minute level, and output it in seconds format.
 - Example:
-_`__timestamp` Internal field, from source ingestion time or current unix timestamp.
+  `__timestamp` Internal field, from source ingestion time or current unix timestamp.
 
 ```yaml
 - function: UNIX_TIMESTAMP_CONVERTER
@@ -518,4 +520,67 @@ _`__timestamp` Internal field, from source ingestion time or current unix timest
   parameters:
     precision: seconds
 ```
+### UUID
 
+Generate a version 4 (random) UUID in accordance with [RFC-9562](https://datatracker.ietf.org/doc/rfc9562/).
+
+```UUID(output_fields)```
+- filter: not required
+- lookup_fields: not required
+- output_fields: required
+- parameters: not required
+
+Example:
+
+```yaml
+- function: UUID
+  output_fields: [uuid]
+```
+Result: such as 3f0f8d7e-d89e-4b0a-9f2e-2eab5c99d062.
+
+### UUIDv5
+
+Generate a version 5 (namespaced) UUID in accordance with RFC-9562 for the given name and namespace. If namespace is not a valid UUID, this function will fail.
+Suitable for consistent identifiers across different systems. One of IP, DOMAIN, APP, or SUBSCRIBER to use a predefined namespace. 
+- NAMESPACE_IP: `6ba7b890-9dad-11d1-80b4-00c04fd430c8`
+- NAMESPACE_DOMAIN: `6ba7b891-9dad-11d1-80b4-00c04fd430c8`
+- NAMESPACE_APP: `6ba7b892-9dad-11d1-80b4-00c04fd430c8`
+- NAMESPACE_SUBSCRIBER: `6ba7b893-9dad-11d1-80b4-00c04fd430c8`
+
+```UUIDV5(lookup_fields, output_fields[, parameters])```
+- filter: not required
+- lookup_fields: required
+- output_fields: required
+- parameters: required
+  - namespace: `<String>` required. The UUID namespace. 
+
+Example:
+
+```yaml
+- function: UUIDv5
+  lookup_fields: [ client_ip, server_ip ] # Based on the client_ip and server_ip value as Name with separator "_".
+  output_fields: [ip_uuid]
+  parameters:
+    namespace: NAMESPACE_IP
+```
+
+Result: such as 2ed6657d-e927-568b-95e1-2665a8aea6a2.
+
+### UUIDv7
+
+Generate a version 7 (Unix-timestamp + random based variant) UUID in accordance with RFC-9562. Suitable for scenarios that require time ordering, such as database indexing and logging.
+
+```UUIDV7(output_fields)```
+- filter: not required
+- lookup_fields: not required
+- output_fields: required
+- parameters: not required
+
+Example:
+
+```yaml
+- function: UUIDv7
+  output_fields: [log_uuid]
+
+```
+Result: such as 2ed6657d-e927-568b-95e1-2665a8aea6a2.

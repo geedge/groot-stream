@@ -17,6 +17,7 @@
         <module>connector-ipfix-collector</module>
         <module>connector-file</module>
         <module>connector-mock</module>
+        <module>connector-starrocks</module>
     </modules>
     <dependencies>
         <dependency>

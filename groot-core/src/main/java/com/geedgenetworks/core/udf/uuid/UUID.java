@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 @Slf4j
-public class Uuid implements ScalarFunction {
+public class UUID implements ScalarFunction {
     private String outputFieldName;
     private RandomBasedGenerator randomBasedGenerator;
     @Override
@@ -42,7 +42,6 @@ public class Uuid implements ScalarFunction {
 
     @Override
     public void close() {
-
     }
 
 

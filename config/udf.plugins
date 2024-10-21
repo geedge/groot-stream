@@ -15,6 +15,9 @@ com.geedgenetworks.core.udf.Rename
 com.geedgenetworks.core.udf.SnowflakeId
 com.geedgenetworks.core.udf.StringJoiner
 com.geedgenetworks.core.udf.UnixTimestampConverter
+com.geedgenetworks.core.udf.uuid.UUID
+com.geedgenetworks.core.udf.uuid.UUIDv5
+com.geedgenetworks.core.udf.uuid.UUIDv7
 com.geedgenetworks.core.udf.udaf.NumberSum
 com.geedgenetworks.core.udf.udaf.CollectList
 com.geedgenetworks.core.udf.udaf.CollectSet

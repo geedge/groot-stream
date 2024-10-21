@@ -1,7 +1,6 @@
 package com.geedgenetworks.core.udf.uuid;
 
 import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.NameBasedGenerator;
 import com.fasterxml.uuid.impl.TimeBasedEpochGenerator;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.exception.CommonErrorCode;
@@ -12,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 @Slf4j
-public class UuidV7 implements ScalarFunction {
+public class UUIDv7 implements ScalarFunction {
     private String outputFieldName;
     private TimeBasedEpochGenerator timeBasedEpochRandomGenerator;
 
@@ -44,6 +43,5 @@ public class UuidV7 implements ScalarFunction {
 
     @Override
     public void close() {
-
     }
 }

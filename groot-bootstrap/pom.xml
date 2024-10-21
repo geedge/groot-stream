@@ -66,6 +66,13 @@
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
+            <artifactId>connector-starrocks</artifactId>
+            <version>${revision}</version>
+            <scope>${scope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
             <artifactId>format-json</artifactId>
             <version>${revision}</version>
             <scope>${scope}</scope>

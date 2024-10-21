@@ -80,7 +80,7 @@ Groot Stream 是一个实时数据流处理平台，提供了灵活的数据定�
 
 - **Pipelines**
   - 在数据流的不同处理阶段可以引用不同类型的Pipelines，所有Pipelines(一系列Functions组成)架构和内部结构一致，只分为Projection和Aggregate两种类型。按Pipeline所在数据流的位置可分为：
-    - **Pre-processing Pipelines ：，可选，**前处理数据管道对输入日志进行格式化或执行一系列全局处理函数（例如：从原始日志中提取感兴趣的字段）。
+    - **Pre-processing Pipelines ：可选，**前处理数据管道对输入日志进行格式化或执行一系列全局处理函数（例如：从原始日志中提取感兴趣的字段）。
     - **Processing Pipelines：**业务处理管道
     - **Post-processing Pipelines ，可选，**后处理数据管道，发送到目的地之前对日志进行格式化或执行一系列全局处理函数（例如：对输出的日志进行格式验证、类型转换）
   - 数据流处理基本单元为处理器，按功能分为无状态和有状态处理器。每个处理器可以连接多个函数，组成一个Pipeline。
@@ -117,11 +117,12 @@ grootstream:
       token: <vault-token>
       default_key_path: <default-vault-key-path>
       plugin_key_path: <plugin-vault-key-path>
-  ssl:
-    enabled: false
-    cert_file: <certificate-file>
-    key_file: <private-key-file>
-    require_client_auth: false
+  
+  ssl: ## SSL/TLS 客户端链接配置
+    skip_verification: true                      # 忽略SSL证书校验
+    private_key_path: /path/to/certs/worker.key   # 客户端私钥文件路径
+    certificate_path: /path/to/certs/worker.pem   # 客户端证书文件路径
+    ca_certificate_path: /path/to/certs/root.pem  # CA 根证书路径
    
   properties:   # 用户自定义属性的支持从函数中获取，使用方式见函数定义
     hos.path: http://127.0.0.1:9093
@@ -130,12 +131,12 @@ grootstream:
     scheduler.knowledge_base.update.interval.minutes: 1  #知识库文件定时更新时间
 ```
 
-| 属性名            | 必填 | 默认值 | 类型               | 描述                                           |
-|----------------| ---- | ------ | ------------------ | ---------------------------------------------- |
-| knowledge_base | Y    | -      | Object             | 知识库配置                                     |
-| kms            | N    | -      | Object             | kms (key management system, 密钥管理系统) 配置 |
-| ssl            | N    | -      | Object             | 客户端启用SSL双向认证                          |
-| properties     | N    | -      | Map(String,Object) | 自定义属性配置：key-value 格式                 |
+| 属性名         | 必填 | 默认值 | 类型                | 描述                                           |
+| -------------- | ---- | ------ | ------------------- | ---------------------------------------------- |
+| knowledge_base | Y    | -      | Object              | 知识库配置                                     |
+| kms            | N    | -      | Object              | kms (key management system, 密钥管理系统) 配置 |
+| ssl            | N    | -      | Object              | ssl配置                                        |
+| properties     | N    | -      | Map(String, Object) | 自定义属性配置：key-value 格式                 |
 
 
 
@@ -1313,6 +1314,8 @@ application:
       hos.bucket.name.http_file: traffic_http_file_bucket
       hos.bucket.name.eml_file: traffic_eml_file_bucket
       hos.bucket.name.policy_capture_file: traffic_policy_capture_file_bucket
+      # RestfulAPI 取需要加密的字段，返回数据类型为Array
+      projection.encrypt.schema.registry.uri: 127.0.0.1:9999/v1/schema/session_record?option=encrypt_fields 
   topology:
     - name: inline_source
       downstream: [decoded_as_split]
@@ -1462,19 +1465,22 @@ Parameters：
 
 #### Encrypt
 
-敏感信息进行加密。
+对敏感信息进行加密。支持引用动态规则，获取需要加密的字段，选择是否对当前字段进行加密
 
 Parameters:
 
 - identifier = `<string>`  加密算法唯一标识。支持：aes-128-gcm96, aes-256-gcm96, sm4-gcm96
-- default_val= `<string>` 加密失败输出该值，默认将输出原值。
+- default_val= `<string>` 加密失败输出该值，默认将输出原值
 
 ```
 - function: ENCRYPT
   lookup_fields: [ phone_number ]
+  output_fields: [ phone_number ]
   parameters:
     identifier: aes-128-gcm96
 ```
+
+Note : 读取任务变量`projection.encrypt.schema.registry.uri`，返回加密字段，数据类型为Array。
 
  #### Eval
 
@@ -1616,6 +1622,17 @@ Parameters:
 - secret_key =  `<string>` 用于生成MAC的密钥。
 - algorithm=  `<string>`  用于生成MAC的HASH算法。默认是`sha256` 
 - output_format = `<string>` 输出MAC的格式。默认为`'hex'` 。支持：`base64` | `hex `。
+
+```
+- function: HMAC
+  lookup_fields: [ phone_number ]
+  output_fields: [ phone_number_hmac ]
+  parameters:
+    secret_key: ******
+    output_format: base64
+```
+
+
 
  #### JSON Extract
 
@@ -2068,7 +2085,7 @@ Parameters：
 
 ```yaml
 # 将一个应用层协议按层级进行拆分，应用层协议由协议解析路径和应用组成。
-- function: JSON_UNROLL
+- function: PATH_UNROLL
   lookup_fields: [ decoded_path, app]
   output_fields: [ protocol_stack_id, app_name ]
   parameters:
@@ -2098,7 +2115,7 @@ Parameters：
   #Event5: {"app_name":"ssl.port_444","protocol_stack_id":"ETHERNET.IPv4.TCP.ssl.ssl.port_444"}
 
 #只有路径参数的场景(或者上例中文件字段值为null).
-- function: JSON_UNROLL
+- function: PATH_UNROLL
   lookup_fields: [ decoded_path]
   output_fields: [ protocol_stack_id]
   parameters:

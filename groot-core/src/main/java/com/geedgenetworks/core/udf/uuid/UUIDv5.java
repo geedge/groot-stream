@@ -13,39 +13,46 @@ import org.apache.flink.api.common.functions.RuntimeContext;
 import java.util.List;
 
 @Slf4j
-public class UuidV5 implements ScalarFunction {
+public class UUIDv5 implements ScalarFunction {
     private List<String> lookupFieldNames;
     private String outputFieldName;
     private NameBasedGenerator nameBasedGenerator;
+    private static final String NAMESPACE_KEY = "namespace";
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
-        if(udfContext.getOutput_fields()==null || udfContext.getParameters()==null || udfContext.getLookup_fields()==null){
+        if(udfContext.getOutput_fields() == null || udfContext.getParameters() == null || udfContext.getLookup_fields() == null){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
         if(udfContext.getOutput_fields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
-        if(!udfContext.getParameters().containsKey("namespace") ){
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey namespace");
+        if(!udfContext.getParameters().containsKey(NAMESPACE_KEY) ){
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Parameters must contain key: " + NAMESPACE_KEY);
         }
+
         this.outputFieldName = udfContext.getOutput_fields().get(0);
         this.lookupFieldNames = udfContext.getLookup_fields();
-        this.nameBasedGenerator = Generators.nameBasedGenerator(NameSpaceType.getUuidByName(udfContext.getParameters().get("namespace").toString()));
+        String namespace = udfContext.getParameters().get(NAMESPACE_KEY).toString();
+        this.nameBasedGenerator = Generators.nameBasedGenerator(UUIDNameSpace.getUUID(namespace));
     }
 
     @Override
     public Event evaluate(Event event) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < lookupFieldNames.size(); i++) {
-            sb.append(event.getExtractedFields().getOrDefault(lookupFieldNames.get(i), ""));
-            if (i < lookupFieldNames.size() - 1) {
-                sb.append("_");
-            }
-        }
-        event.getExtractedFields()
-                .put(outputFieldName, nameBasedGenerator.generate(sb.toString()).toString());
+
+        String concatenatedFields = String.join("_",
+                lookupFieldNames.stream()
+                        .map(field -> event.getExtractedFields().getOrDefault(field, ""))
+                        .toArray(String[]::new)
+        );
+
+        // Generate the UUID based on concatenated fields
+        String generatedUUID = nameBasedGenerator.generate(concatenatedFields).toString();
+
+        // Set the generated UUID in the output field
+        event.getExtractedFields().put(outputFieldName, generatedUUID);
         return event;
+
     }
 
     @Override
@@ -57,4 +64,5 @@ public class UuidV5 implements ScalarFunction {
     public void close() {
 
     }
+
 }

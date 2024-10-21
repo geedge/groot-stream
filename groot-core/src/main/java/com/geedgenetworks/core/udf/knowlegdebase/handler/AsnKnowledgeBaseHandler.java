@@ -117,6 +117,7 @@ public class AsnKnowledgeBaseHandler extends AbstractKnowledgeBaseHandler {
                 }
 
             } catch (Exception e) {
+                log.error("Current class path {}", this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath());
                 log.error("File {} operation failed. {} ", knowledgeBaseConfig.getFiles().get(i), e.getMessage());
                 return false;
             }

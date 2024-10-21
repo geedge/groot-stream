@@ -15,8 +15,8 @@
         <dependency>
             <groupId>com.fasterxml.uuid</groupId>
             <artifactId>java-uuid-generator</artifactId>
-            <version>5.1.0</version>
         </dependency>
+
         <dependency>
             <groupId>com.uber</groupId>
             <artifactId>h3</artifactId>
