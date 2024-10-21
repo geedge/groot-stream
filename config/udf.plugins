@@ -33,3 +33,8 @@ com.geedgenetworks.core.udf.udaf.HdrHistogram.HdrHistogramQuantiles
 com.geedgenetworks.core.udf.udtf.JsonUnroll
 com.geedgenetworks.core.udf.udtf.Unroll
 com.geedgenetworks.core.udf.udtf.PathUnroll
+com.geedgenetworks.core.udf.uuid.Uuid
+com.geedgenetworks.core.udf.uuid.UuidV5
+com.geedgenetworks.core.udf.uuid.UuidV7
+com.geedgenetworks.core.udf.udaf.NumberMax
+com.geedgenetworks.core.udf.udaf.NumberMin
