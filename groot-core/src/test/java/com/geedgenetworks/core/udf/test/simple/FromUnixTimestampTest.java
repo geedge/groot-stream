@@ -27,7 +27,7 @@ public class FromUnixTimestampTest {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("precision", "seconds");
-        parameters.put("timezone", "UTC");
+        parameters.put("timezone", "Asia/Shanghai");
         udfContext.setParameters(parameters);
         FromUnixTimestamp fromUnixTimestamp = new FromUnixTimestamp();
         fromUnixTimestamp.open(null, udfContext);
@@ -36,11 +36,11 @@ public class FromUnixTimestampTest {
         extractedFields.put("unixTimestamp", 1577808000000L);
         event.setExtractedFields(extractedFields);
         Event result1 = fromUnixTimestamp.evaluate(event);
-        assertEquals("2019-12-31 16:00:00", result1.getExtractedFields().get("timestamp"));
+        assertEquals("2020-01-01 00:00:00", result1.getExtractedFields().get("timestamp"));
         parameters.put("precision", "milliseconds");
         fromUnixTimestamp.open(null, udfContext);
         Event result2 = fromUnixTimestamp.evaluate(event);
-        assertEquals("2019-12-31 16:00:00:000", result2.getExtractedFields().get("timestamp"));
+        assertEquals("2020-01-01 00:00:00.000", result2.getExtractedFields().get("timestamp"));
 
     }
 
@@ -49,7 +49,6 @@ public class FromUnixTimestampTest {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("precision", "seconds");
-        parameters.put("timezone", "UTC");
         udfContext.setParameters(parameters);
         FromUnixTimestamp fromUnixTimestamp = new FromUnixTimestamp();
         fromUnixTimestamp.open(null, udfContext);
@@ -62,7 +61,7 @@ public class FromUnixTimestampTest {
         parameters.put("precision", "milliseconds");
         fromUnixTimestamp.open(null, udfContext);
         Event result2 = fromUnixTimestamp.evaluate(event);
-        assertEquals("2019-12-31 16:00:00:000", result2.getExtractedFields().get("timestamp"));
+        assertEquals("2019-12-31 16:00:00.000", result2.getExtractedFields().get("timestamp"));
 
     }
 }
