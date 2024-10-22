@@ -33,9 +33,9 @@ public class NumberSum implements AggregateFunction {
 
     @Override
     public Accumulator add(Event event, Accumulator acc) {
-
-        if (event.getExtractedFields().containsKey(lookupField)) {
-            Number val = (Number) event.getExtractedFields().get(lookupField);
+        Object valueObj = event.getExtractedFields().get(lookupField);
+        if (valueObj!=null) {
+            Number val = (Number) valueObj;
             Number aggregate = (Number) acc.getMetricsFields().getOrDefault(outputField, 0L);
             if (aggregate instanceof Long && (val instanceof Integer || val instanceof Long)) {
                 aggregate = aggregate.longValue() + val.longValue();
@@ -66,10 +66,14 @@ public class NumberSum implements AggregateFunction {
 
     @Override
     public Accumulator merge(Accumulator firstAcc, Accumulator secondAcc) {
-        if (firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
 
-            Number firstValue = (Number) firstAcc.getMetricsFields().get(outputField);
-            Number secondValue = (Number) secondAcc.getMetricsFields().get(outputField);
+
+        Object firstValueObj = firstAcc.getMetricsFields().get(outputField);
+        Object secondValueObj = secondAcc.getMetricsFields().get(outputField);
+        if (firstValueObj != null && secondValueObj != null) {
+
+            Number firstValue = (Number) firstValueObj;
+            Number secondValue = (Number) secondValueObj;
             if (firstValue instanceof Long && (secondValue instanceof Integer || secondValue instanceof Long)) {
                 firstValue = firstValue.longValue() + secondValue.longValue();
             } else if (firstValue instanceof Float || secondValue instanceof Float) {
@@ -78,8 +82,8 @@ public class NumberSum implements AggregateFunction {
                 firstValue = firstValue.doubleValue() + secondValue.doubleValue();
             }
             firstAcc.getMetricsFields().put(outputField, firstValue);
-        } else if (!firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
-            Number secondValue = (Number) secondAcc.getMetricsFields().get(outputField);
+        } else if (firstValueObj == null && secondValueObj != null) {
+            Number secondValue = (Number) secondValueObj;
             firstAcc.getMetricsFields().put(outputField, secondValue);
         }
         return firstAcc;

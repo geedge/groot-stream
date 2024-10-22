@@ -42,20 +42,20 @@ public class Unroll implements TableFunction {
     @Override
     public List<Event> evaluate(Event event) {
         try {
-            if(event.getExtractedFields().containsKey(lookupFieldName)) {
-
+            Object valueObj = event.getExtractedFields().get(lookupFieldName);
+            if (valueObj!=null) {
                 if(regex.isEmpty()){
-                    if (event.getExtractedFields().get(lookupFieldName) instanceof List  ) {
-                        return parseList(event.getExtractedFields().get(lookupFieldName), event);
-                    } else if(event.getExtractedFields().get(lookupFieldName) instanceof Object[]){
-                        return parseArray(event.getExtractedFields().get(lookupFieldName), event);
+                    if (valueObj instanceof List  ) {
+                        return parseList(valueObj, event);
+                    } else if(valueObj instanceof Object[]){
+                        return parseArray(valueObj, event);
                     }else {
                         log.error("Invalid unroll ! Object is not instance of list or array. expression=" + regex);
                     }
                 }
                 else {
-                    if (event.getExtractedFields().get(lookupFieldName) instanceof String) {
-                        String[] array =((String) event.getExtractedFields().get(lookupFieldName)).split(regex);
+                    if (valueObj instanceof String) {
+                        String[] array =((String) valueObj).split(regex);
                         return parseArray(array, event);
                     }else {
                         log.error("Invalid unroll ! Object is not instance of String. expression=" + regex);

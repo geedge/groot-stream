@@ -61,10 +61,10 @@ public class GeoIpLookup implements ScalarFunction {
 
     @Override
     public Event evaluate(Event event) {
-        if (event.getExtractedFields().containsKey(lookupFieldName)) {
-
+        Object valueObj = event.getExtractedFields().get(lookupFieldName);
+        if (valueObj!=null) {
             if ("IP_TO_OBJECT".equals(option)) {
-                LocationResponse response  = GeoIpKnowledgeBaseHandler.lookUpObject(kbName,event.getExtractedFields().get(lookupFieldName).toString());
+                LocationResponse response  = GeoIpKnowledgeBaseHandler.lookUpObject(kbName,valueObj.toString());
                 for (Map.Entry<String, String> entry : geoLocationFieldMapping.entrySet()) {
                     String result = "";
                     if (response!=null) {
@@ -97,8 +97,7 @@ public class GeoIpLookup implements ScalarFunction {
                     }
                 }
             } else {
-                event.getExtractedFields().put(outputFieldName, GeoIpKnowledgeBaseHandler
-                        .lookUp(kbName, option, event.getExtractedFields().get(lookupFieldName).toString()));
+                event.getExtractedFields().put(outputFieldName, GeoIpKnowledgeBaseHandler.lookUp(kbName, option, valueObj.toString()));
             }
         }
         return event;

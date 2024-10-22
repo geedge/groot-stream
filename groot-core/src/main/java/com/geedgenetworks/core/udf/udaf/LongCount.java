@@ -44,14 +44,16 @@ public class LongCount implements AggregateFunction {
 
     @Override
     public Accumulator merge(Accumulator firstAcc, Accumulator secondAcc) {
-        if (firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
 
-            long firstValue = (long) firstAcc.getMetricsFields().get(outputField);
-            long secondValue = (long) secondAcc.getMetricsFields().get(outputField);
+        Object firstValueObj = firstAcc.getMetricsFields().get(outputField);
+        Object secondValueObj = secondAcc.getMetricsFields().get(outputField);
+        if (firstValueObj!=null && secondValueObj!=null) {
+            long firstValue = (long) firstValueObj;
+            long secondValue = (long) secondValueObj;
             firstValue = firstValue + secondValue;
             firstAcc.getMetricsFields().put(outputField, firstValue);
-        } else if (!firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
-            Number secondValue = (Number) secondAcc.getMetricsFields().get(outputField);
+        } else if (firstValueObj==null && secondValueObj!=null) {
+            Number secondValue = (Number) secondValueObj;
             firstAcc.getMetricsFields().put(outputField, secondValue);
         }
         return firstAcc;

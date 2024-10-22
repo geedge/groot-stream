@@ -70,8 +70,10 @@ public class LastValue implements AggregateFunction {
 
     @Override
     public Accumulator merge(Accumulator firstAcc, Accumulator secondAcc) {
-        if (secondAcc.getMetricsFields().containsKey(outputField)) {
-            firstAcc.getMetricsFields().put(outputField, secondAcc.getMetricsFields().get(outputField));
+
+        Object secondValueObj = secondAcc.getMetricsFields().get(outputField);
+        if (secondValueObj != null) {
+            firstAcc.getMetricsFields().put(outputField, secondValueObj);
         }
         return firstAcc;
     }

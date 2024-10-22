@@ -52,7 +52,8 @@ public class FirstValue implements AggregateFunction {
 
     @Override
     public Accumulator add(Event event, Accumulator acc) {
-        if (!acc.getMetricsFields().containsKey(outputField) && event.getExtractedFields().containsKey(lookupField)) {
+        Object valueObj = event.getExtractedFields().get(lookupField);
+        if (!acc.getMetricsFields().containsKey(outputField) && valueObj != null) {
             acc.getMetricsFields().put(outputField, event.getExtractedFields().get(lookupField));
         }
         return acc;
@@ -70,8 +71,10 @@ public class FirstValue implements AggregateFunction {
 
     @Override
     public Accumulator merge(Accumulator firstAcc, Accumulator secondAcc) {
-        if (!firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
-            firstAcc.getMetricsFields().put(outputField, secondAcc.getMetricsFields().get(outputField));
+        Object firstValueObj = firstAcc.getMetricsFields().get(outputField);
+        Object secondValueObj = secondAcc.getMetricsFields().get(outputField);
+        if (firstValueObj == null  && secondValueObj != null ) {
+            firstAcc.getMetricsFields().put(outputField, secondValueObj);
         }
         return firstAcc;
     }
