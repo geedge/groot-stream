@@ -54,8 +54,9 @@ public class AsnLookup implements ScalarFunction {
     @Override
     public Event evaluate(Event event) {
 
-        if (event.getExtractedFields().containsKey(lookupFieldName)) {
-            String asn = AsnKnowledgeBaseHandler.lookUp(kbName, option, event.getExtractedFields().get(lookupFieldName).toString());
+        Object valueObj = event.getExtractedFields().get(lookupFieldName);
+        if (valueObj!=null) {
+            String asn = AsnKnowledgeBaseHandler.lookUp(kbName, option, valueObj.toString());
             if (!asn.isEmpty()) {
                 event.getExtractedFields().put(outputFieldName, asn);
             }

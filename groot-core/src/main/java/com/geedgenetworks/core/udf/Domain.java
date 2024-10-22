@@ -54,12 +54,10 @@ public class Domain implements ScalarFunction {
         switch (option) {
             case "TOP_LEVEL_DOMAIN":
                 for (String lookupField : lookupFields){
-                    if(event.getExtractedFields().containsKey(lookupField)) {
-                        domain =
-                                getTopPrivateDomain(
-                                        (String)
-                                                event.getExtractedFields()
-                                                        .get(lookupField));
+
+                    Object valueObj = event.getExtractedFields().get(lookupField);
+                    if (valueObj!=null) {
+                        domain = getTopPrivateDomain((String) valueObj);
                         if (domain.contains(".")) {
                             domain = domain.substring(domain.indexOf(".") + 1);
                         }
@@ -71,12 +69,9 @@ public class Domain implements ScalarFunction {
                 break;
             case "FIRST_SIGNIFICANT_SUBDOMAIN":
                 for (String lookupField : lookupFields){
-                    if(event.getExtractedFields().containsKey(lookupField)) {
-                        domain =
-                                getTopPrivateDomain(
-                                        (String)
-                                                event.getExtractedFields()
-                                                        .get(lookupField));
+                    Object valueObj = event.getExtractedFields().get(lookupField);
+                    if (valueObj!=null) {
+                        domain = getTopPrivateDomain((String)valueObj);
                     }
                     if(!domain.isEmpty()){
                         break;
@@ -85,9 +80,9 @@ public class Domain implements ScalarFunction {
                 break;
             case "FQDN":
                 for (String lookupField : lookupFields) {
-                    if (event.getExtractedFields().containsKey(lookupField)) {
-                        domain = (String) event.getExtractedFields()
-                                .get(lookupField);
+                    Object valueObj = event.getExtractedFields().get(lookupField);
+                    if (valueObj!=null) {
+                        domain = (String)valueObj;
                     }
                     if(!domain.isEmpty()){
                         break;

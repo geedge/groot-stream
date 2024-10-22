@@ -59,9 +59,9 @@ public class UnixTimestampConverter implements ScalarFunction {
 
     @Override
     public Event evaluate(Event event) {
-
-        if(event.getExtractedFields().containsKey(lookupFieldName)) {
-            Long timestamp = Long.parseLong(event.getExtractedFields().get(lookupFieldName).toString());
+        Object valueObj = event.getExtractedFields().get(lookupFieldName);
+        if (valueObj!=null) {
+            Long timestamp = Long.parseLong(valueObj.toString());
             Instant instant ;
             if (String.valueOf(timestamp).length() > 10) {
                 instant = Instant.ofEpochMilli(timestamp);

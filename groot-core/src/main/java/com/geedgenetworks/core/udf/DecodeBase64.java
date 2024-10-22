@@ -41,15 +41,11 @@ public class DecodeBase64 implements ScalarFunction {
 
     @Override
     public Event evaluate(Event event) {
-        if (event.getExtractedFields().containsKey(valueField)) {
-
+        Object valueObj = event.getExtractedFields().get(valueField);
+        if (valueObj!=null) {
             String decodeResult = "";
-            String message =
-                    (String)
-                            event.getExtractedFields()
-                                    .get(valueField);
-            Object charset =
-                    event.getExtractedFields().getOrDefault(charsetField,"");
+            String message = (String)valueObj;
+            Object charset = event.getExtractedFields().getOrDefault(charsetField,"UTF-8");
             try {
                 if (StringUtil.isNotBlank(message)) {
                     byte[] base64decodedBytes = Base64.getDecoder().decode(message);
@@ -62,14 +58,9 @@ public class DecodeBase64 implements ScalarFunction {
             } catch (RuntimeException e) {
                 log.error("Resolve Base64 exception, exception information:" + e.getMessage());
             } catch (UnsupportedEncodingException e) {
-                log.error(
-                        "The Character Encoding ["
-                                + charset.toString()
-                                + "] is not supported.exception information:"
-                                + e.getMessage());
+                log.error("The Character Encoding [" + charset.toString() + "] is not supported.exception information:" + e.getMessage());
             }
-            event.getExtractedFields()
-                    .put(outputFieldName, decodeResult);
+            event.getExtractedFields().put(outputFieldName, decodeResult);
         }
         return event;
     }

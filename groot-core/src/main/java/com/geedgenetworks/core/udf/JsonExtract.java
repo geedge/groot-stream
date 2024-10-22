@@ -39,14 +39,9 @@ public class JsonExtract implements ScalarFunction {
 
     @Override
     public Event evaluate(Event event) {
-        if (event.getExtractedFields().containsKey(lookupFieldName)) {
-
-            String result =
-                    (String)
-                            JsonPathUtil.analysis(
-                                    event.getExtractedFields()
-                                            .get(lookupFieldName)
-                                            .toString(),expression);
+        Object valueObj = event.getExtractedFields().get(lookupFieldName);
+        if (valueObj!=null) {
+            String result = (String) JsonPathUtil.analysis(valueObj.toString(),expression);
             event.getExtractedFields().put(outputFieldName, result);
         }
         return event;

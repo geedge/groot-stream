@@ -57,13 +57,14 @@ public class JsonUnroll implements TableFunction {
     @Override
     public List<Event> evaluate(Event event) {
         try {
-            if(event.getExtractedFields().containsKey(lookupFieldName) ){
+            Object valueObj = event.getExtractedFields().get(lookupFieldName);
+            if (valueObj!=null) {
                 try {
                     if(path.isEmpty()){
-                        JSONArray jsonArray = JSONArray.parseArray(event.getExtractedFields().get(lookupFieldName).toString());
+                        JSONArray jsonArray = JSONArray.parseArray(valueObj.toString());
                         return parseList(jsonArray,event);
                     }else {
-                        JSONObject jsonObject = JSONObject.parseObject(event.getExtractedFields().get(lookupFieldName).toString());
+                        JSONObject jsonObject = JSONObject.parseObject(valueObj.toString());
                         Object obj = JsonPathUtil.get(jsonObject,path);
                         if(obj instanceof List || obj instanceof Array) {
                             List list = (List) obj;
