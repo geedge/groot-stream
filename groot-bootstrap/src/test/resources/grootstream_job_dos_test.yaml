@@ -41,12 +41,12 @@ postprocessing_pipelines:
         lookup_fields: [ client_country ]
       - function: FIRST_VALUE
         lookup_fields: [ server_country ]
-      - function: NUMBER_MIN
+      - function: MIN
         lookup_fields: [ timestamp_ms ]
         output_fields: [ start_timestamp_ms ]
-      - function: NUMBER_MIN
+      - function: MIN
         lookup_fields: [ recv_time ]
-      - function: NUMBER_MAX
+      - function: MAX
         lookup_fields: [ timestamp_ms ]
         output_fields: [ end_timestamp_ms ]
       - function: FIRST_VALUE

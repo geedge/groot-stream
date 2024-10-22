@@ -33,5 +33,5 @@ com.geedgenetworks.core.udf.udtf.PathUnroll
 com.geedgenetworks.core.udf.uuid.Uuid
 com.geedgenetworks.core.udf.uuid.UuidV5
 com.geedgenetworks.core.udf.uuid.UuidV7
-com.geedgenetworks.core.udf.udaf.NumberMax
-com.geedgenetworks.core.udf.udaf.NumberMin
+com.geedgenetworks.core.udf.udaf.Max
+com.geedgenetworks.core.udf.udaf.Min
