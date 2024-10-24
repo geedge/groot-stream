@@ -18,8 +18,7 @@ import org.apache.flink.util.Preconditions;
 import java.util.*;
 
 import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptions.*;
-import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptionsUtil.PROPERTIES_PREFIX;
-import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptionsUtil.getKafkaProperties;
+import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptionsUtil.*;
 
 public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
     public static final String IDENTIFIER = "kafka";
@@ -51,7 +50,7 @@ public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
         // 获取valueEncodingFormat
         EncodingFormat valueEncodingFormat = helper.discoverEncodingFormat(EncodingFormatFactory.class, FactoryUtil.FORMAT);
 
-        helper.validateExcept(PROPERTIES_PREFIX); // 校验参数，排除properties.参数
+        helper.validateExcept(PROPERTIES_PREFIX, HEADERS_PREFIX); // 校验参数，排除properties.参数
 
         StructType dataType = context.getDataType();
         ReadableConfig config = context.getConfiguration();
@@ -59,8 +58,9 @@ public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
         String topic = config.get(TOPIC).get(0);
         boolean logFailuresOnly = config.get(LOG_FAILURES_ONLY);
         final Properties properties = getKafkaProperties(context.getOptions());
+        Map<String, String> headers = getKafkaHeaders(context.getOptions());
 
-        return new KafkaSinkProvider(dataType, valueEncodingFormat, topic, properties, logFailuresOnly, getRateLimitingStrategy(config));
+        return new KafkaSinkProvider(dataType, valueEncodingFormat, topic, properties, headers, logFailuresOnly, getRateLimitingStrategy(config));
     }
 
     @Override

@@ -8,6 +8,7 @@ import java.util.Map;
 @Data
 public class Event implements Serializable {
     public static final String INTERNAL_TIMESTAMP_KEY = "__timestamp";
+    public static final String INTERNAL_HEADERS_KEY = "__headers";
     public static final String WINDOW_START_TIMESTAMP = "__window_start_timestamp";
     public static final String WINDOW_END_TIMESTAMP = "__window_end_timestamp";
 

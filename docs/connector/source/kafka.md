@@ -24,6 +24,13 @@ Kafka source custom properties. if properties belongs to Kafka Consumer Config, 
 | [format].config         | Map    | No       | (none)  | Data format properties. Please refer to [Format Options](../formats) for details.                                                                             |
 | kafka.config            | Map    | No       | (none)  | Kafka consumer properties. Please refer to [Kafka Consumer Config](https://kafka.apache.org/documentation/#consumerconfigs) for details.                      |
 
+## Internal Fields
+
+| Name        | Type                | Description                         |
+|-------------|---------------------|-------------------------------------|
+| __timestamp | Long                | The timestamp of this kafka record. |
+| __headers   | Map[String, String] | The headers of this kafka record.   |
+
 ## Example
 
 This example read data of kafka topic `SESSION-RECORD` and print to console.

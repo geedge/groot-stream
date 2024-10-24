@@ -9,8 +9,14 @@ import org.apache.flink.streaming.connectors.kafka.KafkaDeserializationSchema;
 import org.apache.flink.streaming.connectors.kafka.RuntimeContextAware;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EventKafkaDeserializationSchema implements KafkaDeserializationSchema<Event>, RuntimeContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(EventKafkaDeserializationSchema.class);
@@ -46,6 +52,12 @@ public class EventKafkaDeserializationSchema implements KafkaDeserializationSche
             Event event = valueDeserialization.deserialize(record.value());
             if(event != null){
                 event.getExtractedFields().put(Event.INTERNAL_TIMESTAMP_KEY, record.timestamp());
+                Headers headers = record.headers();
+                Map<String, String> headersMap = new HashMap<>();
+                for (Header header : headers) {
+                    headersMap.put(header.key(), new String(header.value(), StandardCharsets.UTF_8));
+                }
+                event.getExtractedFields().put(Event.INTERNAL_HEADERS_KEY, headersMap);
                 out.collect(event);
                 internalMetrics.incrementOutEvents();
                 return;

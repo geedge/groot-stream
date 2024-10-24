@@ -61,12 +61,15 @@ import org.apache.kafka.common.MetricName;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.errors.InvalidTxnStateException;
 import org.apache.kafka.common.errors.ProducerFencedException;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
@@ -257,6 +260,8 @@ public class GrootFlinkKafkaProducer<IN>
     private final Map<String, KafkaMetricMutableWrapper> previouslyCreatedMetrics = new HashMap<>();
     private RateLimitingStrategy rateLimitingStrategy;
     private boolean rateLimitingEnable;
+    private Map<String, String> headers;
+    private Header[] recordHeaders;
 
     private transient InternalMetrics internalMetrics;
 
@@ -769,6 +774,10 @@ public class GrootFlinkKafkaProducer<IN>
         this.rateLimitingEnable = rateLimitingStrategy != null && rateLimitingStrategy.rateLimited();
     }
 
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
     /**
      * Disables the propagation of exceptions thrown when committing presumably timed out Kafka
      * transactions during recovery of the job. If a Kafka transaction is timed out, a commit will
@@ -796,6 +805,17 @@ public class GrootFlinkKafkaProducer<IN>
             rateLimitingStrategy = rateLimitingStrategy.withMaxRate(subTaskMaxRate);
             LOG.error("rateLimitingStrategy: {}", rateLimitingStrategy);
         }
+        if(headers != null && !headers.isEmpty()){
+            recordHeaders = new Header[headers.size()];
+            int i = 0;
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                recordHeaders[i++] = new RecordHeader(entry.getKey(), entry.getValue().getBytes(StandardCharsets.UTF_8));
+            }
+            checkState(i == headers.size());
+        }else{
+            recordHeaders = new Header[0];
+        }
+
         internalMetrics = new InternalMetrics(getRuntimeContext());
         if (logFailuresOnly) {
             callback =
@@ -929,6 +949,9 @@ public class GrootFlinkKafkaProducer<IN>
                 record = kafkaSchema.serialize(next, context.timestamp());
             }
 
+            for (int i = 0; i < recordHeaders.length; i++) {
+                record.headers().add(recordHeaders[i]);
+            }
             if (!rateLimitingEnable) {
                 pendingRecords.incrementAndGet();
                 transaction.producer.send(record, callback);

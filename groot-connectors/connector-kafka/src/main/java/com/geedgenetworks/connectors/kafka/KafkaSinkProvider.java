@@ -10,6 +10,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.connectors.kafka.GrootFlinkKafkaProducer;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -19,6 +20,7 @@ public class KafkaSinkProvider implements SinkProvider {
 
     private final String topic;
     private final Properties properties;
+    private final Map<String, String> headers;
     private final boolean logFailuresOnly;
     private final RateLimitingStrategy rateLimitingStrategy;
 
@@ -27,6 +29,7 @@ public class KafkaSinkProvider implements SinkProvider {
             EncodingFormat valueEncodingFormat,
             String topic,
             Properties properties,
+            Map<String, String> headers,
             boolean logFailuresOnly,
             RateLimitingStrategy rateLimitingStrategy
     ) {
@@ -34,6 +37,7 @@ public class KafkaSinkProvider implements SinkProvider {
         this.valueSerialization = valueEncodingFormat.createRuntimeEncoder(dataType);
         this.topic = topic;
         this.properties = properties;
+        this.headers = headers;
         this.logFailuresOnly = logFailuresOnly;
         this.rateLimitingStrategy = rateLimitingStrategy;
     }
@@ -48,6 +52,7 @@ public class KafkaSinkProvider implements SinkProvider {
         );
         kafkaProducer.setLogFailuresOnly(logFailuresOnly);
         kafkaProducer.setRateLimitingStrategy(rateLimitingStrategy);
+        kafkaProducer.setHeaders(headers);
         return dataStream.addSink(kafkaProducer);
     }
 }
