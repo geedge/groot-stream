@@ -30,7 +30,7 @@ public class ProcessingExecutor extends AbstractProcessorExecutor {
         if (operatorConfig.hasPath(Constants.PROCESSING_PIPELINES)) {
             Config processors = operatorConfig.getConfig(Constants.PROCESSING_PIPELINES);
             processors.root().unwrapped().forEach((key, value) -> {
-                processingConfigMap.put(key, checkProcessorConfig(key, (Map<String, Object>) value, processors));
+                processingConfigMap.put(key, checkConfig(key, (Map<String, Object>) value, processors));
             });
         }
         return processingConfigMap;

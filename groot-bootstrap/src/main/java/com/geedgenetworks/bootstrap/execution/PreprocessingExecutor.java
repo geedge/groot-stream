@@ -32,7 +32,7 @@ public class PreprocessingExecutor extends AbstractProcessorExecutor {
         if (operatorConfig.hasPath(Constants.PREPROCESSING_PIPELINES)) {
             Config preprocessors = operatorConfig.getConfig(Constants.PREPROCESSING_PIPELINES);
             preprocessors.root().unwrapped().forEach((key, value) -> {
-                preprocessingConfigMap.put(key, checkProcessorConfig(key, (Map<String, Object>) value, preprocessors));
+                preprocessingConfigMap.put(key, checkConfig(key, (Map<String, Object>) value, preprocessors));
             });
         }
         return preprocessingConfigMap;

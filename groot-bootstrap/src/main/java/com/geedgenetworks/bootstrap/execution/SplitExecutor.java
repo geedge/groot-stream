@@ -10,6 +10,8 @@ import com.geedgenetworks.common.config.SplitConfigOptions;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.common.udf.RuleContext;
+import com.geedgenetworks.core.filter.Filter;
+import com.geedgenetworks.core.pojo.FilterConfig;
 import com.geedgenetworks.core.pojo.SplitConfig;
 import com.geedgenetworks.core.split.Split;
 import com.google.common.collect.Maps;
@@ -20,6 +22,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 
 /**
@@ -58,31 +61,48 @@ public class SplitExecutor extends AbstractExecutor<String, SplitConfig> {
     @Override
     public DataStream<Event> execute(DataStream<Event> dataStream, Node node) throws JobExecuteException {
         SplitConfig splitConfig = operatorMap.get(node.getName());
-        String className = splitConfig.getType();
-        Split split;
-        if (splitMap.containsKey(splitConfig.getType())) {
-
-            split = splitMap.get(splitConfig.getType());
-        } else {
-            Class cls;
-            try {
-                cls = Class.forName(className);
-                split = (Split) cls.newInstance();
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | RuntimeException e) {
-                throw new JobExecuteException("get split instance failed!", e);
+        boolean found = false; // 标志变量
+        ServiceLoader<Split> splits = ServiceLoader.load(Split.class);
+        for (Split split : splits) {
+            found = true; // 标志变量
+            if(split.type().equals(splitConfig.getType())){
+                if (node.getParallelism() > 0) {
+                    splitConfig.setParallelism(node.getParallelism());
+                }
+                try {
+                    dataStream =
+                            split.splitFunction(
+                                    dataStream, splitConfig);
+                } catch (Exception e) {
+                    throw new JobExecuteException("Create split instance failed!", e);
+                }
+                break;
             }
         }
-        if (node.getParallelism() > 0) {
-            splitConfig.setParallelism(node.getParallelism());
-        }
-        try {
-            dataStream =
-                    split.splitFunction(
-                            dataStream, splitConfig);
-        } catch (Exception e) {
-            throw new JobExecuteException("Create split instance failed!", e);
+        if (!found) {
+            throw new JobExecuteException("No matching split found for type: " + splitConfig.getType());
         }
         return dataStream;
     }
 
+    protected SplitConfig checkConfig(String key, Map<String, Object> value, Config config) {
+        SplitConfig splitConfig = new SplitConfig();
+        boolean found = false; // 标志变量
+        ServiceLoader<Split> splits = ServiceLoader.load(Split.class);
+        for (Split split : splits) {
+            if(split.type().equals(value.getOrDefault("type", "").toString())){
+                found = true;
+                try {
+                    splitConfig  = split.checkConfig(key, value, config);
+                } catch (Exception e) {
+                    throw new JobExecuteException("Create split pipeline instance failed!", e);
+                }
+                break;
+            }
+        }
+        if (!found) {
+            throw new JobExecuteException("No matching split found for type: " + value.getOrDefault("type", "").toString());
+        }
+        return splitConfig;
+    }
 }

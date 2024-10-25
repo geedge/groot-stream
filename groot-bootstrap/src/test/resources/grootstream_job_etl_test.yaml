@@ -12,7 +12,7 @@ sources:
       json.ignore.parse.errors: false
 filters:
   schema_type_filter:
-    type: com.geedgenetworks.core.filter.AviatorFilter
+    type: aviator
     output_fields:
     properties:
       expression: event.decoded_as == 'SSL' || event.decoded_as == 'BASE'
@@ -20,7 +20,7 @@ filters:
 
 preprocessing_pipelines:
   preprocessing_processor: # [object] Preprocessing Pipeline
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     output_fields:
     properties:
       key: value
@@ -36,7 +36,7 @@ preprocessing_pipelines:
 
 processing_pipelines:
   session_record_processor: # [object] Processing Pipeline
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     remove_fields:
     output_fields:
     properties:

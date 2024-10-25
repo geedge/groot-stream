@@ -1,10 +1,15 @@
 package com.geedgenetworks.core.split;
 
+import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.core.pojo.FilterConfig;
 import com.geedgenetworks.core.pojo.SplitConfig;
+import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
-public class SplitOperator implements Split {
+import java.util.Map;
+
+public class SplitOperator implements Split<SplitConfig> {
 
     @Override
     public DataStream<Event> splitFunction(
@@ -24,6 +29,13 @@ public class SplitOperator implements Split {
     @Override
     public String type() {
         return "split";
+    }
+
+    @Override
+    public SplitConfig checkConfig(String name, Map<String, Object> configProperties, Config config) {
+        SplitConfig splitConfig = new JSONObject(configProperties).toJavaObject(SplitConfig.class);
+        splitConfig.setName(name);
+        return splitConfig;
     }
 
 }

@@ -22,7 +22,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public class JobAggTest {
@@ -63,6 +65,15 @@ public class JobAggTest {
         Assert.assertEquals(4, CollectSink.values.size());
         Assert.assertEquals("2", CollectSink.values.get(1).getExtractedFields().get("sessions").toString());
         Assert.assertEquals("3.5", CollectSink.values.get(1).getExtractedFields().get("pkts").toString());
+        Assert.assertEquals("2", CollectSink.values.get(1).getExtractedFields().get("log_id_first").toString());
+        Assert.assertEquals("1", CollectSink.values.get(1).getExtractedFields().get("log_id_last").toString());
+        Assert.assertEquals("4", CollectSink.values.get(1).getExtractedFields().get("pktsmax").toString());
+        Assert.assertEquals("3", CollectSink.values.get(1).getExtractedFields().get("pktsmin").toString());
+        List<String> list = (List<String>) CollectSink.values.get(1).getExtractedFields().get("client_ip_list");
+        Set<String> set = (Set<String>) CollectSink.values.get(1).getExtractedFields().get("server_ip_set");
+        Assert.assertEquals(1, set.size());
+        Assert.assertEquals(2, list.size());
+        Assert.assertEquals("2", CollectSink.values.get(1).getExtractedFields().get("count").toString());
 
     }
 }

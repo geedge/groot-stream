@@ -1,9 +1,15 @@
 package com.geedgenetworks.core.processor.aggregate;
 
+import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.config.AggregateConfigOptions;
+import com.geedgenetworks.common.config.CheckConfigUtil;
+import com.geedgenetworks.common.config.CheckResult;
 import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.pojo.AggregateConfig;
+import com.typesafe.config.Config;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -12,6 +18,8 @@ import org.apache.flink.streaming.api.windowing.assigners.SlidingProcessingTimeW
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingProcessingTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+
+import java.util.Map;
 
 import static com.geedgenetworks.common.Constants.*;
 
@@ -95,6 +103,27 @@ public class AggregateProcessorImpl implements AggregateProcessor {
     @Override
     public String type() {
         return "aggregate";
+    }
+
+    @Override
+    public AggregateConfig checkConfig(String name, Map<String, Object> configProperties, Config typeSafeConfig) {
+        CheckResult result = CheckConfigUtil.checkAllExists(typeSafeConfig.getConfig(name),
+                AggregateConfigOptions.GROUP_BY_FIELDS.key(),
+                AggregateConfigOptions.WINDOW_TYPE.key(),
+                AggregateConfigOptions.FUNCTIONS.key(),
+                AggregateConfigOptions.WINDOW_SIZE.key());
+        if (!result.isSuccess()) {
+            throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
+                    "Aggregate processor: %s, At least one of [%s] should be specified.",
+                    name, String.join(",",
+                            AggregateConfigOptions.OUTPUT_FIELDS.key(),
+                            AggregateConfigOptions.REMOVE_FIELDS.key(),
+                            AggregateConfigOptions.FUNCTIONS.key())));
+        }
+
+        AggregateConfig aggregateConfig = new JSONObject(configProperties).toJavaObject(AggregateConfig.class);
+        aggregateConfig.setName(name);
+        return aggregateConfig;
     }
 
 }
