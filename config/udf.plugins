@@ -4,11 +4,13 @@ com.geedgenetworks.core.udf.DecodeBase64
 com.geedgenetworks.core.udf.Domain
 com.geedgenetworks.core.udf.Drop
 com.geedgenetworks.core.udf.EncodeBase64
+com.geedgenetworks.core.udf.Encrypt
 com.geedgenetworks.core.udf.Eval
 com.geedgenetworks.core.udf.Flatten
 com.geedgenetworks.core.udf.FromUnixTimestamp
 com.geedgenetworks.core.udf.GenerateStringArray
 com.geedgenetworks.core.udf.GeoIpLookup
+com.geedgenetworks.core.udf.Hmac
 com.geedgenetworks.core.udf.JsonExtract
 com.geedgenetworks.core.udf.PathCombine
 com.geedgenetworks.core.udf.Rename

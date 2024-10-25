@@ -6,14 +6,11 @@ import java.io.Serializable;
 
 @Data
 public class SSLConfig implements Serializable {
+    private Boolean skipVerification = CommonConfigOptions.SKIP_VERIFICATION.defaultValue();
 
-    private Boolean enabled = CommonConfigOptions.SSL_ENABLED.defaultValue();
+    private String caCertificatePath = CommonConfigOptions.CA_CERTIFICATE_PATH.defaultValue();
 
-    private String certFile = CommonConfigOptions.SSL_CERT_FILE.defaultValue();
+    private String certificatePath = CommonConfigOptions.CERTIFICATE_PATH.defaultValue();
 
-    private String keyFile = CommonConfigOptions.SSL_KEY_FILE.defaultValue();
-
-    private Boolean requireClientAuth = CommonConfigOptions.SSL_REQUIRE_CLIENT_AUTH.defaultValue();
-
-
+    private String privateKeyPath = CommonConfigOptions.PRIVATE_KEY_PATH.defaultValue();
 }

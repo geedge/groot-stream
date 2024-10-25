@@ -1,2 +1,6 @@
 com.geedgenetworks.bootstrap.command.Base64Shade
 com.geedgenetworks.bootstrap.command.AESShade
+com.geedgenetworks.bootstrap.command.SM4Shade
+com.geedgenetworks.bootstrap.command.AES128GCM96Shade
+com.geedgenetworks.bootstrap.command.AES256GCM96Shade
+com.geedgenetworks.bootstrap.command.SM4GCM96Shade

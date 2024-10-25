@@ -12,7 +12,7 @@ public class CommonConfigOptions {
     public static final Option<Map<String, String>> KNOWLEDGE_BASE_PROPERTIES =
             Options.key("properties")
                     .mapType()
-                    .defaultValue(new HashMap<String,String>())
+                    .defaultValue(new HashMap<String, String>())
                     .withDescription("The properties of knowledge base");
     public static final Option<String> KNOWLEDGE_BASE_NAME =
             Options.key("name")
@@ -47,7 +47,8 @@ public class CommonConfigOptions {
 
     public static final Option<List<KnowledgeBaseConfig>> KNOWLEDGE_BASE =
             Options.key("knowledge_base")
-                    .type(new TypeReference<List<KnowledgeBaseConfig>>() {})
+                    .type(new TypeReference<List<KnowledgeBaseConfig>>() {
+                    })
                     .noDefaultValue()
                     .withDescription("The knowledge base configuration.");
 
@@ -59,7 +60,8 @@ public class CommonConfigOptions {
 
     public static final Option<Map<String, KmsConfig>> KMS =
             Options.key("kms")
-                    .type(new TypeReference<Map<String, KmsConfig>>() {})
+                    .type(new TypeReference<Map<String, KmsConfig>>() {
+                    })
                     .noDefaultValue()
                     .withDescription("The kms configuration.");
 
@@ -68,47 +70,59 @@ public class CommonConfigOptions {
             .defaultValue("local")
             .withDescription("The type of KMS.");
 
+    public static final Option<String> KMS_SECRET_KEY = Options.key("secret_key")
+            .stringType()
+            .defaultValue("")
+            .withDescription("The type of KMS.");
+
     public static final Option<String> KMS_URL = Options.key("url")
             .stringType()
             .defaultValue("")
             .withDescription("The access url of KMS.");
 
-    public static final Option<String> KMS_TOKEN = Options.key("token")
+    public static final Option<String> KMS_USERNAME = Options.key("username")
             .stringType()
             .defaultValue("")
-            .withDescription("The access token of KMS.");
+            .withDescription("The access username of KMS.");
 
-    public static final Option<String> KMS_KEY_PATH = Options.key("key_path")
+    public static final Option<String> KMS_PASSWORD = Options.key("password")
             .stringType()
             .defaultValue("")
-            .withDescription("The key path of KMS.");
+            .withDescription("The access username of KMS.");
+
+    public static final Option<String> KMS_DEFAULT_KEY_PATH = Options.key("default_key_path")
+            .stringType()
+            .defaultValue("")
+            .withDescription("The default key path of KMS.");
+
+    public static final Option<String> KMS_PLUGIN_KEY_PATH = Options.key("plugin_key_path")
+            .stringType()
+            .defaultValue("")
+            .withDescription("The plugin key path of KMS.");
 
     public static final Option<SSLConfig> SSL = Options.key("ssl")
-            .type(new TypeReference<SSLConfig>() {})
+            .type(new TypeReference<SSLConfig>() {
+            })
             .noDefaultValue()
             .withDescription("The ssl configuration.");
 
-    public static final Option<Boolean> SSL_ENABLED = Options.key("enabled")
+    public static final Option<Boolean> SKIP_VERIFICATION = Options.key("skip_verification")
             .booleanType()
             .defaultValue(false)
-            .withDescription("The enabled flag of the configuration.");
+            .withDescription("The skip certificate of the configuration.");
 
-    public static final Option<String> SSL_CERT_FILE = Options.key("cert_file")
+    public static final Option<String> CA_CERTIFICATE_PATH = Options.key("ca_certificate_path")
+            .stringType()
+            .defaultValue("")
+            .withDescription("The ca certificate file path of the configuration.");
+
+    public static final Option<String> CERTIFICATE_PATH = Options.key("certificate_path")
             .stringType()
             .defaultValue("")
             .withDescription("The certificate file path of the configuration.");
 
-    public static final Option<String> SSL_KEY_FILE = Options.key("key_file")
+    public static final Option<String> PRIVATE_KEY_PATH = Options.key("private_key_path")
             .stringType()
             .defaultValue("")
             .withDescription("The private key file path of the configuration.");
-
-    public static final Option<Boolean> SSL_REQUIRE_CLIENT_AUTH = Options.key("require_client_auth")
-            .booleanType()
-            .defaultValue(false)
-            .withDescription("The require client auth flag of the configuration.");
-
-
-
-
 }

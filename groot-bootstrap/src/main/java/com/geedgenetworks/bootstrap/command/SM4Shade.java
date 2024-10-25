@@ -27,7 +27,7 @@ public class SM4Shade implements CryptoShade {
 
     @Override
     public String encrypt(String content) {
-        return SmUtil.sm4(SECURITY_KEY).encryptHex(content, StandardCharsets.UTF_8);
+        return SmUtil.sm4(SECURITY_KEY).encryptBase64(content, StandardCharsets.UTF_8);
     }
 
     @Override
