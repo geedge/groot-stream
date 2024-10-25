@@ -24,7 +24,7 @@ splits:
 
 postprocessing_pipelines:
   pre_etl_processor: # [object] Processing Pipeline
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     remove_fields: [fields,tags]
     output_fields:
     functions: # [array of object] Function List

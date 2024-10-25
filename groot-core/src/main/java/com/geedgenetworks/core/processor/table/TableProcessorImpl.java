@@ -1,7 +1,14 @@
 package com.geedgenetworks.core.processor.table;
 
+import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.config.CheckConfigUtil;
+import com.geedgenetworks.common.config.CheckResult;
+import com.geedgenetworks.common.config.TableConfigOptions;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.core.pojo.TableConfig;
+import com.typesafe.config.Config;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -29,5 +36,25 @@ public class TableProcessorImpl implements TableProcessor {
     @Override
     public String type() {
         return "table";
+    }
+
+    @Override
+    public TableConfig checkConfig(String name, Map<String, Object> configProperties, Config typeSafeConfig) {
+        CheckResult result = CheckConfigUtil.checkAtLeastOneExists(typeSafeConfig.getConfig(name),
+                TableConfigOptions.OUTPUT_FIELDS.key(),
+                TableConfigOptions.REMOVE_FIELDS.key(),
+                TableConfigOptions.FUNCTIONS.key());
+        if (!result.isSuccess()) {
+            throw new ConfigValidationException(CommonErrorCode.CONFIG_VALIDATION_FAILED, String.format(
+                    "Table processor: %s, At least one of [%s] should be specified.",
+                    name, String.join(",",
+                            TableConfigOptions.OUTPUT_FIELDS.key(),
+                            TableConfigOptions.REMOVE_FIELDS.key(),
+                            TableConfigOptions.FUNCTIONS.key())));
+        }
+
+        TableConfig tableConfig = new JSONObject(configProperties).toJavaObject(TableConfig.class);
+        tableConfig.setName(name);
+        return tableConfig;
     }
 }

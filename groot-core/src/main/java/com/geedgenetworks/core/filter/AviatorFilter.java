@@ -1,11 +1,14 @@
 package com.geedgenetworks.core.filter;
 
+import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.pojo.FilterConfig;
+import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
-public class AviatorFilter implements Filter {
+import java.util.Map;
+
+public class AviatorFilter implements Filter<FilterConfig> {
 
     @Override
     public DataStream<Event> filterFunction(
@@ -27,6 +30,14 @@ public class AviatorFilter implements Filter {
     @Override
     public String type() {
         return "aviator";
+    }
+
+    @Override
+    public FilterConfig checkConfig(String name, Map<String, Object> configProperties, Config typeSafeConfig) {
+
+        FilterConfig filterConfig = new JSONObject(configProperties).toJavaObject(FilterConfig.class);
+        filterConfig.setName(name);
+        return filterConfig;
     }
 
 }
