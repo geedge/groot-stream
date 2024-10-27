@@ -184,26 +184,46 @@ Eval function is used to adds or removes fields from events by evaluating an val
 - parameters: required
   - value_expression: `<String>` required. Enter a value expression to set the field’s value – this can be a constant.
 
-Example 1:
-Add a field `ingestion_time` with value `recv_time`:
+Example 1, add a field `eval_constant_string` with string value `fixed_value`:
+```yaml
 
+- function: EVAL
+  output_fields: [eval_constant_string]
+  parameters:
+    value_expression: "'fixed_value'"
+```
+
+Example 2, add a field `eval_constant_integer` with integer value `123`:
+```yaml
+- function: EVAL
+  output_fields: [eval_constant_integer]
+  parameters:
+    value_expression: "123"
+```
+
+Example 3: add a field `ingestion_time` with the value of `recv_time` field.
 ```yaml
 - function: EVAL
   output_fields: [ingestion_time]
   parameters:
-    value_expression: recv_time
+    value_expression: recv_time # or "recv_time"
 ```
 
-Example 2:
+Example 4: add a field `internal_ip` with the expression of conditional operator.
 If the value of `direction` is `69`, the value of `internal_ip` will be `client_ip`, otherwise the value of `internal_ip` will be `server_ip`.
-
 ```yaml
 - function: EVAL
   output_fields: [internal_ip]
   parameters:
     value_expression: "direction=69 ? client_ip : server_ip"
 ```
-
+Use the bitwise operator to determine the value of the `direction` field.
+```yaml
+      - function: EVAL
+        output_fields: [ direction ]
+        parameters:
+          value_expression: "(flags & 24576) == 24576 ? 'double' : ((flags & 8192) == 8192 ? 'c2s' : ((flags & 16384) == 16384 ? 's2c' : 'unknown'))"
+```
 ### Flatten
 
 Flatten the fields of nested structure to the top level. The new fields name are named using the field name prefixed with the names of the struct fields to reach it, separated by dots as default.  The original fields will be removed.
