@@ -31,6 +31,8 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
     // *开头，模糊匹配
     private Trie<String> domainSuffix = new Trie<>();
 
+    private HashMap<String, List<String>> subscriberTagMap = new HashMap<>();
+
     private IntelligenceIndicatorKnowledgeBaseHandler() {
     }
 
@@ -51,12 +53,14 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
             needColumns.add("ip1");
             needColumns.add("ip2");
             needColumns.add("domain");
+            needColumns.add("subscriber");
             needColumns.add("tags");
             byte[] content = downloadFile();
             HighCsvReader highCsvReader = new HighCsvReader(new InputStreamReader(new ByteArrayInputStream(content)), needColumns);
             TreeRangeMap<IPAddress, List<String>> newIpTagMap = TreeRangeMap.create();
             HashMap<String, List<String>> newDomainMap = new HashMap<>((int) (highCsvReader.getLineNumber() / 0.75F + 1.0F));
             Trie<String> newDomainSuffix = new Trie<>();
+            HashMap<String, List<String>> newSubscriberTagMap = new HashMap<>();
             HighCsvReader.CsvIterator iterator = highCsvReader.getIterator();
             while (iterator.hasNext()) {
                 Map<String, String> line = iterator.next();
@@ -66,6 +70,7 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
                     String ip1 = line.get("ip1");
                     String ip2 = line.get("ip2");
                     String domain = line.get("domain");
+                    String subscriberId = line.get("subscriber");
                     List<String> tags = Arrays.asList(line.get("tags").split(","));
 
                     if ("IP".equals(type)) {
@@ -121,6 +126,8 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
                         } else {
                             logger.warn("intelligence indicator find unknown domain: " + domain);
                         }
+                    } else if ("Subscriber".equals(type)) {
+                        newSubscriberTagMap.computeIfAbsent(subscriberId, k -> new ArrayList<>()).addAll(tags);
                     }
                 } catch (Exception lineException) {
                     logger.error(this.getClass().getSimpleName() + " line: " + line.toString() + " parse error：" + lineException, lineException);
@@ -129,6 +136,7 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
             ipTagMap = newIpTagMap;
             domainTagMap = newDomainMap;
             domainSuffix = newDomainSuffix;
+            subscriberTagMap = newSubscriberTagMap;
         } catch (Exception e) {
             logger.error(this.getClass().getSimpleName() + " update error", e);
             return false;
@@ -153,6 +161,10 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
         Optional.ofNullable(domainTagMap.get(domain)).ifPresent(result::addAll);
         result.addAll(domainSuffix.get(StringUtils.reverse(domain)));
         return result;
+    }
+
+    public List<String> lookupBySubscriber(String subscriber) {
+        return subscriberTagMap.computeIfAbsent(subscriber, k -> new ArrayList<>());
     }
 
     @Override

@@ -27,7 +27,7 @@ public class IntelligenceIndicatorLookupTest {
     void setUp() {
         runtimeContext = mockRuntimeContext();
 
-        String content = "type,ip_addr_format,ip1,ip2,domain,tags\nIP,CIDR,116.178.65.0,25,ali.com,\"阿里1,云服务1\"\nDomain,CIDR,116.178.65.0,25,$ali.com,\"阿里2,云服务2\"\nDomain,CIDR,116.178.65.0,25,*baidu.com,\"阿里3,云服务3\"\nIP,Single,116.178.65.64,116.178.65.64,ali.com,\"test\"";
+        String content = "type,ip_addr_format,ip1,ip2,domain,subscriber,tags\nIP,CIDR,116.178.65.0,25,ali.com,,\"阿里1,云服务1\"\nDomain,CIDR,116.178.65.0,25,$ali.com,,\"阿里2,云服务2\"\nDomain,CIDR,116.178.65.0,25,*baidu.com,,\"阿里3,云服务3\"\nIP,Single,116.178.65.64,116.178.65.64,ali.com,,\"test\"\nSubscriber,Single,116.178.65.64,116.178.65.64,ali.com,1234567,\"test_subscriber\"";
         mockKnowledgeBaseHandler(content);
 
         intelligenceIndicatorLookup = new IntelligenceIndicatorLookup();
@@ -153,6 +153,25 @@ public class IntelligenceIndicatorLookupTest {
         event.setExtractedFields(fields);
         Event evaluate1 = intelligenceIndicatorLookup.evaluate(event);
         assertEquals(Arrays.asList("阿里1", "云服务1", "test"), evaluate1.getExtractedFields().get("server_ip_tags"));
+    }
+
+    @Test
+    void evaluate7() {
+        UDFContext udfContext = new UDFContext();
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("kb_name", kbName);
+        parameters.put("option", "SUBSCRIBER_TO_TAG");
+        udfContext.setParameters(parameters);
+        udfContext.setLookup_fields(Collections.singletonList("subscriber_id"));
+        udfContext.setOutput_fields(Collections.singletonList("subscriber_tags"));
+        intelligenceIndicatorLookup.open(runtimeContext, udfContext);
+
+        Event event = new Event();
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("subscriber_id", "1234567");
+        event.setExtractedFields(fields);
+        Event evaluate1 = intelligenceIndicatorLookup.evaluate(event);
+        assertEquals(Arrays.asList("test_subscriber"), evaluate1.getExtractedFields().get("subscriber_tags"));
     }
 
     @AfterEach
