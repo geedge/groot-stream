@@ -15,7 +15,7 @@ public final class EncryptionAlgorithmUtils {
     public static final String ALGORITHM_AES_256_GCM96_NAME = "aes-256-gcm96";
     public static final String ALGORITHM_SM4_GCM96_NAME = "sm4-gcm96";
 
-    public static EncryptionAlgorithm getEncryptionAlgorithm(String identifier) throws Exception {
+    public static EncryptionAlgorithm createEncryptionAlgorithm(String identifier) throws Exception {
         switch (identifier) {
             case ALGORITHM_AES_128_GCM96_NAME:
                 return new AES128GCM96Algorithm();

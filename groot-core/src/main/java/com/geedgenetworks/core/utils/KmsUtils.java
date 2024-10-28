@@ -21,7 +21,7 @@ public class KmsUtils {
     public static final String KMS_TYPE_LOCAL = "local";
     public static final String KMS_TYPE_VAULT = "vault";
 
-    public static KmsKey getVaultKey(KmsConfig kmsConfig, SSLConfig sslConfig, String identifier) throws VaultException {
+    public static KmsKey getVaultKey(KmsConfig kmsConfig, SSLConfig sslConfig, String identifier) throws Exception {
         Vault vault = getVaultClient(kmsConfig, sslConfig);
         String exportKeyPath;
         if (EncryptionAlgorithmUtils.ALGORITHM_SM4_GCM96_NAME.equals(identifier)) {
@@ -34,8 +34,7 @@ public class KmsUtils {
             JsonObject keys = exportResponse.getDataObject().get("keys").asObject();
             return new KmsKey(Base64.getDecoder().decode(StrUtil.trim(keys.get(keys.size() + "").asString(), '"')), keys.size());
         } else {
-            log.error("Get kms key error! code: {} body: {}", exportResponse.getRestResponse().getStatus(), new String(exportResponse.getRestResponse().getBody()));
-            return null;
+            throw new RuntimeException("Get vault key error! code: " + exportResponse.getRestResponse().getStatus() + " body: " + new String(exportResponse.getRestResponse().getBody()));
         }
     }
 

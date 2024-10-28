@@ -117,8 +117,6 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
             String name = cleanNodeName(node);
             if (CommonConfigOptions.KMS_TYPE.key().equals(name)) {
                 kmsConfig.setType(getTextContent(node));
-            } else if (CommonConfigOptions.KMS_SECRET_KEY.key().equals(name)) {
-                kmsConfig.setSecretKey(getTextContent(node));
             } else if (CommonConfigOptions.KMS_URL.key().equals(name)) {
                 kmsConfig.setUrl(getTextContent(node));
             } else if (CommonConfigOptions.KMS_USERNAME.key().equals(name)) {

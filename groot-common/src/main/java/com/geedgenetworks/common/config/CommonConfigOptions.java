@@ -70,11 +70,6 @@ public class CommonConfigOptions {
             .defaultValue("local")
             .withDescription("The type of KMS.");
 
-    public static final Option<String> KMS_SECRET_KEY = Options.key("secret_key")
-            .stringType()
-            .defaultValue("")
-            .withDescription("The type of KMS.");
-
     public static final Option<String> KMS_URL = Options.key("url")
             .stringType()
             .defaultValue("")
