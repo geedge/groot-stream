@@ -66,6 +66,8 @@ application:
   env:
     name: example-inline-to-print
     parallelism: 3
+    shade.identifier: sm4
+    kms.type: vault
     pipeline:
       object-reuse: true
     execution:
@@ -76,6 +78,7 @@ application:
       hos.bucket.name.http_file: traffic_http_file_bucket
       hos.bucket.name.eml_file: traffic_eml_file_bucket
       hos.bucket.name.policy_capture_file: traffic_policy_capture_file_bucket
+      projection.encrypt.schema.registry.uri: 192.168.44.12:9999/v1/schema/session_record?option=encrypt_fields
   topology:
     - name: inline_source
       downstream: [decoded_as_split]

@@ -2,7 +2,7 @@ package com.geedgenetworks.common;
 
 public final class Constants {
 
-    public static final String DEFAULT_JOB_NAME="groot-stream-job";
+    public static final String DEFAULT_JOB_NAME = "groot-stream-job";
     public static final String SOURCES = "sources";
     public static final String FILTERS = "filters";
     public static final String PREPROCESSING_PIPELINES = "preprocessing_pipelines";
@@ -14,7 +14,7 @@ public final class Constants {
 
     public static final String PROPERTIES = "properties";
     public static final String SPLITS = "splits";
-    public static final String APPLICATION_ENV ="env";
+    public static final String APPLICATION_ENV = "env";
     public static final String APPLICATION_TOPOLOGY = "topology";
     public static final String JOB_NAME = "name";
     public static final String GROOT_LOGO = "\n" +
@@ -49,6 +49,8 @@ public final class Constants {
     public static final String SLIDING_PROCESSING_TIME = "sliding_processing_time";
     public static final String SLIDING_EVENT_TIME = "sliding_event_time";
 
-
+    public static final String SYSPROP_KMS_TYPE_CONFIG = "kms.type";
+    public static final String SYSPROP_ENCRYPT_KMS_KEY_SCHEDULER_INTERVAL_NAME = "scheduler.encrypt.update.kms.key.minutes";
+    public static final String SYSPROP_ENCRYPT_SENSITIVE_FIELDS_SCHEDULER_INTERVAL_NAME = "scheduler.encrypt.update.sensitive.fields.minutes";
 
 }

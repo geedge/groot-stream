@@ -1,8 +1,10 @@
 package com.geedgenetworks.bootstrap.utils;
 
 import com.geedgenetworks.bootstrap.execution.ExecutionConfigKeyName;
+import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.config.CheckResult;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigUtil;
 import com.typesafe.config.ConfigValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.ExecutionConfig;
@@ -16,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public final class EnvironmentUtil {
-    private  EnvironmentUtil() {
+    private EnvironmentUtil() {
         throw new UnsupportedOperationException("EnvironmentUtil is a utility class and cannot be instantiated");
     }
 
@@ -30,9 +32,12 @@ public final class EnvironmentUtil {
                 configuration.setString(
                         PipelineOptions.CLASSPATHS.key(), pipeline.getString("classpaths"));
             }
-            if(pipeline.hasPath("object-reuse")) {
+            if (pipeline.hasPath("object-reuse")) {
                 configuration.setBoolean(PipelineOptions.OBJECT_REUSE.key(), pipeline.getBoolean("object-reuse"));
             }
+        }
+        if (envConfig.hasPath(ConfigUtil.joinPath(Constants.SYSPROP_KMS_TYPE_CONFIG))) {
+            configuration.setString(Constants.SYSPROP_KMS_TYPE_CONFIG, envConfig.getString(ConfigUtil.joinPath(Constants.SYSPROP_KMS_TYPE_CONFIG)));
         }
         String prefixConf = "flink.";
         if (!envConfig.isEmpty()) {
@@ -115,7 +120,6 @@ public final class EnvironmentUtil {
         }
         return CheckResult.success();
     }
-
 
 
 }

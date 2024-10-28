@@ -27,7 +27,7 @@ public class AESShade implements CryptoShade {
 
     @Override
     public String encrypt(String content) {
-        return SecureUtil.aes(SECURITY_KEY).encryptHex(content, StandardCharsets.UTF_8);
+        return SecureUtil.aes(SECURITY_KEY).encryptBase64(content, StandardCharsets.UTF_8);
     }
 
     @Override
