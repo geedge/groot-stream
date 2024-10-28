@@ -113,6 +113,10 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
             knowledgeMetedataCache = knowledgeMetedata;
             return true;
         }
+        if (knowledgeMetedata.getIsValid() != knowledgeMetedataCache.getIsValid()) {
+            knowledgeMetedataCache = knowledgeMetedata;
+            return true;
+        }
         if (knowledgeMetedataCache.getSha256().equals(knowledgeMetedata.getSha256())) {
             return false;
         } else {
