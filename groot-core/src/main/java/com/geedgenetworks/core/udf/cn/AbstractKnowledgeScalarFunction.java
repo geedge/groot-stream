@@ -50,14 +50,14 @@ public abstract class AbstractKnowledgeScalarFunction implements ScalarFunction 
 
         registerKnowledges();
 
-        this.lookupFieldName = udfContext.getLookup_fields().get(0);
-        if (udfContext.getOutput_fields() != null && udfContext.getOutput_fields().size() > 0) {
-            this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.lookupFieldName = udfContext.getLookupFields().get(0);
+        if (udfContext.getOutputFields() != null && udfContext.getOutputFields().size() > 0) {
+            this.outputFieldName = udfContext.getOutputFields().get(0);
         }
     }
 
     private String buildMetricPrefix(UDFContext udfContext) {
-        return functionName().toLowerCase() + "_" + udfContext.getLookup_fields().get(0);
+        return functionName().toLowerCase() + "_" + udfContext.getLookupFields().get(0);
     }
 
     protected abstract void registerKnowledges();

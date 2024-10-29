@@ -21,12 +21,12 @@ public class Unroll implements TableFunction {
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-        if(udfContext.getLookup_fields()==null ){
+        if(udfContext.getLookupFields()==null ){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        this.lookupFieldName  = udfContext.getLookup_fields().get(0);
-        if(udfContext.getOutput_fields()!=null && !udfContext.getOutput_fields().isEmpty()) {
-            this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.lookupFieldName  = udfContext.getLookupFields().get(0);
+        if(udfContext.getOutputFields()!=null && !udfContext.getOutputFields().isEmpty()) {
+            this.outputFieldName = udfContext.getOutputFields().get(0);
         }
         else {
             outputFieldName = lookupFieldName;

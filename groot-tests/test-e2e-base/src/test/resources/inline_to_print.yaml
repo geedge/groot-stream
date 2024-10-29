@@ -70,9 +70,10 @@ processing_pipelines:
             ORGANIZATION: server_organization
 
       - function : BASE64_ENCODE_TO_STRING
+        lookup_fields: [ mail_subject ]
         output_fields: [ mail_subject_base64 ]
         parameters:
-          value_field: mail_subject
+          input_type: string
 
       - function: BASE64_DECODE_TO_STRING
         output_fields: [ mail_attachment_name ]
@@ -196,6 +197,7 @@ application:
     parallelism: 1
     pipeline:
       object-reuse: true
+
     properties:
       hos.path: http://192.168.44.12:9098/hos
       hos.bucket.name.troubleshooting_file: troubleshooting_file_bucket

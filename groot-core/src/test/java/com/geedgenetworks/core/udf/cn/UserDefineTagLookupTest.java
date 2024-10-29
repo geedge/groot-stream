@@ -37,8 +37,8 @@ class UserDefineTagLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "IP_TO_TAG");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("client_ip"));
-        udfContext.setOutput_fields(Collections.singletonList("client_ip_tags"));
+        udfContext.setLookupFields(Collections.singletonList("client_ip"));
+        udfContext.setOutputFields(Collections.singletonList("client_ip_tags"));
         userDefineTagLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();
@@ -59,8 +59,8 @@ class UserDefineTagLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "DOMAIN_TO_TAG");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("domain_tags"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
+        udfContext.setOutputFields(Collections.singletonList("domain_tags"));
         userDefineTagLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();
@@ -81,8 +81,8 @@ class UserDefineTagLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "DOMAIN_TO_TAG");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("domain_tags"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
+        udfContext.setOutputFields(Collections.singletonList("domain_tags"));
         userDefineTagLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();
@@ -103,8 +103,8 @@ class UserDefineTagLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "APP_TO_TAG");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("app"));
-        udfContext.setOutput_fields(Collections.singletonList("app_tags"));
+        udfContext.setLookupFields(Collections.singletonList("app"));
+        udfContext.setOutputFields(Collections.singletonList("app_tags"));
         userDefineTagLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();

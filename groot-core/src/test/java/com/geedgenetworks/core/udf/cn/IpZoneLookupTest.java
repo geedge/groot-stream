@@ -24,8 +24,8 @@ class IpZoneLookupTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("kb_name", kbName);
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("client_ip"));
-        udfContext.setOutput_fields(Collections.singletonList("client_zone"));
+        udfContext.setLookupFields(Collections.singletonList("client_ip"));
+        udfContext.setOutputFields(Collections.singletonList("client_zone"));
 
         RuntimeContext runtimeContext = mockRuntimeContext();
 

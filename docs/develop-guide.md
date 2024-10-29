@@ -21,7 +21,7 @@ Groot Stream based all stream processing on data records common known as events.
 ```json
 {
   "__timestamp": "<Timestamp in UNIX epoch format (milliseconds)>",
-  "__input_id": "ID/Name of the source that delivered the event",
+  "__headers":  "Map<String, String> headers of the source that delivered the event",
   "__window_start_timestamp" : "<Timestamp in UNIX epoch format (milliseconds)>",
   "__window_end_timestamp" : "<Timestamp in UNIX epoch format (milliseconds)>",
   "key1": "<value1>",
@@ -35,7 +35,7 @@ Groot Stream add internal fields during pipeline processing. A few notes about i
 - Treat internal fields as read-only. Modifying them can result in unintended consequences to your data flows.
 - Internal fields only exist for the duration of the event processing pipeline. They are not documented under sources or sinks. 
 - If you do not configure a timestamp for extraction, the Pipeline process assigns the current time (in UNIX epoch format) to the __timestamp field.
-- If you have multiple sources, you can determine which source the event came form by looking at the `__input_id` field. For example, the Kafka source adds the topic name to the `__input_id` field.
+- If you have multiple sources, you can determine the origin of the event by examining the `__headers` field. For example, the Kafka source appends the topic name as the `__input_id` key in the `__headers`.
 
 ## How to write a high quality Git commit message
 

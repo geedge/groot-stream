@@ -21,13 +21,13 @@ public class PathUnroll implements TableFunction {
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext c) {
-        Preconditions.checkArgument(c.getLookup_fields().size() >= 1, "input fields requested one path param at least");
-        Preconditions.checkArgument(CollectionUtils.isEmpty(c.getOutput_fields()) || c.getOutput_fields().size() == c.getOutput_fields().size(), "output fields requested same count param with input fields");
-        pathField = c.getLookup_fields().get(0);
-        fileField = c.getLookup_fields().size() == 1? null: c.getLookup_fields().get(1);
+        Preconditions.checkArgument(c.getLookupFields().size() >= 1, "input fields requested one path param at least");
+        Preconditions.checkArgument(CollectionUtils.isEmpty(c.getOutputFields()) || c.getOutputFields().size() == c.getOutputFields().size(), "output fields requested same count param with input fields");
+        pathField = c.getLookupFields().get(0);
+        fileField = c.getLookupFields().size() == 1? null: c.getLookupFields().get(1);
 
-        outputPathField = CollectionUtils.isEmpty(c.getOutput_fields())? pathField : c.getOutput_fields().get(0);
-        outputFileField = CollectionUtils.isEmpty(c.getOutput_fields()) || c.getLookup_fields().size() == 1 ? fileField : c.getOutput_fields().get(1);
+        outputPathField = CollectionUtils.isEmpty(c.getOutputFields())? pathField : c.getOutputFields().get(0);
+        outputFileField = CollectionUtils.isEmpty(c.getOutputFields()) || c.getLookupFields().size() == 1 ? fileField : c.getOutputFields().get(1);
         Map<String, Object> params = c.getParameters() == null? Collections.EMPTY_MAP:c.getParameters();
         String sep = params.getOrDefault("separator", "/").toString();
         Preconditions.checkArgument(sep.length() == 1, "separator mush has one char");

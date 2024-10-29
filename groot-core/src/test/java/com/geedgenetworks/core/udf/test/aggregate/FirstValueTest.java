@@ -27,8 +27,8 @@ public class FirstValueTest {
     private void testMerge(List<String> arr,List<String> arr2) {
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("field_first"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("field_first"));
         FirstValue firstValue = new FirstValue();
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
@@ -63,8 +63,8 @@ public class FirstValueTest {
     private static void testGetResult(List<String> arr) throws ParseException {
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("field_first"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("field_first"));
         FirstValue firstValue = new FirstValue();
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();

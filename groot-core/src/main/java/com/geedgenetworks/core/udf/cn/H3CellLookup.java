@@ -32,12 +32,12 @@ public class H3CellLookup implements ScalarFunction {
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-        if (udfContext.getLookup_fields() == null || udfContext.getOutput_fields() == null || udfContext.getParameters() == null) {
+        if (udfContext.getLookupFields() == null || udfContext.getOutputFields() == null || udfContext.getParameters() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
 
         int lookupFieldsSize = 2;
-        if (udfContext.getLookup_fields().size() != lookupFieldsSize) {
+        if (udfContext.getLookupFields().size() != lookupFieldsSize) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "lookup_fields must contain two fields: longitude and latitude");
         }
 
@@ -47,10 +47,10 @@ public class H3CellLookup implements ScalarFunction {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must contain key resolution and the value is between 0 and 15");
         }
 
-        List<String> lookupFields = udfContext.getLookup_fields();
+        List<String> lookupFields = udfContext.getLookupFields();
         longitudeFieldName = lookupFields.get(0);
         latitudeFieldName = lookupFields.get(1);
-        outputFieldName = udfContext.getOutput_fields().get(0);
+        outputFieldName = udfContext.getOutputFields().get(0);
         res = (int) udfContext.getParameters().get("resolution");
         try {
             h3 = H3Core.newInstance();

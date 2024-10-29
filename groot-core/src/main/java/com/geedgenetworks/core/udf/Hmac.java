@@ -28,8 +28,8 @@ public class Hmac implements ScalarFunction {
             algorithm = udfContext.getParameters().get("algorithm").toString();
         }
         this.hMac = new HMac(getHmacAlgorithm(algorithm), secretKey.getBytes());
-        this.lookupFieldName = udfContext.getLookup_fields().get(0);
-        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.lookupFieldName = udfContext.getLookupFields().get(0);
+        this.outputFieldName = udfContext.getOutputFields().get(0);
         this.outputFormat = "base64";
         if (udfContext.getParameters().containsKey("output_format")) {
             this.outputFormat = udfContext.getParameters().get("output_format").toString();
@@ -68,13 +68,13 @@ public class Hmac implements ScalarFunction {
     }
 
     private void checkUdfContext(UDFContext udfContext) {
-        if (udfContext.getParameters() == null || udfContext.getOutput_fields() == null) {
+        if (udfContext.getParameters() == null || udfContext.getOutputFields() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        if (udfContext.getLookup_fields().size() != 1) {
+        if (udfContext.getLookupFields().size() != 1) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
         }
-        if (udfContext.getOutput_fields().size() != 1) {
+        if (udfContext.getOutputFields().size() != 1) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
         if (!udfContext.getParameters().containsKey("secret_key")) {

@@ -24,8 +24,8 @@ class LinkDirectionLookupTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("kb_name", kbName);
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("in_link_id"));
-        udfContext.setOutput_fields(Collections.singletonList("in_link_direction"));
+        udfContext.setLookupFields(Collections.singletonList("in_link_id"));
+        udfContext.setOutputFields(Collections.singletonList("in_link_direction"));
 
         RuntimeContext runtimeContext = mockRuntimeContext();
 

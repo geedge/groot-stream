@@ -21,14 +21,14 @@ public class Eval implements ScalarFunction {
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
-        if(udfContext.getOutput_fields()==null || udfContext.getParameters() == null){
+        if(udfContext.getOutputFields()==null || udfContext.getParameters() == null){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
         if(!udfContext.getParameters().containsKey("value_expression")){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey value_expression");
         }
         String expr = (String) udfContext.getParameters().get("value_expression");
-        List<String> outputField = udfContext.getOutput_fields();
+        List<String> outputField = udfContext.getOutputFields();
         output = outputField.get(0);
         calc = new EvalExecutor(expr);
     }

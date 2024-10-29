@@ -18,14 +18,14 @@ public class GenerateStringArray implements ScalarFunction {
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
-        if(udfContext.getLookup_fields()==null || udfContext.getOutput_fields()==null ){
+        if(udfContext.getLookupFields()==null || udfContext.getOutputFields()==null ){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        if(udfContext.getOutput_fields().size() != 1){
+        if(udfContext.getOutputFields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
-        this.lookupFieldNames = udfContext.getLookup_fields();
-        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.lookupFieldNames = udfContext.getLookupFields();
+        this.outputFieldName = udfContext.getOutputFields().get(0);
     }
 
     @Override

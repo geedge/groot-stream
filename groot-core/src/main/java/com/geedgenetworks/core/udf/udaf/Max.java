@@ -20,12 +20,12 @@ public class Max implements AggregateFunction {
 
     @Override
     public void open(UDFContext udfContext) {
-        if (udfContext.getLookup_fields() == null) {
+        if (udfContext.getLookupFields() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        this.lookupField = udfContext.getLookup_fields().get(0);
-        if (udfContext.getOutput_fields() != null && !udfContext.getOutput_fields().isEmpty()) {
-            this.outputField = udfContext.getOutput_fields().get(0);
+        this.lookupField = udfContext.getLookupFields().get(0);
+        if (udfContext.getOutputFields() != null && !udfContext.getOutputFields().isEmpty()) {
+            this.outputField = udfContext.getOutputFields().get(0);
         } else {
             outputField = lookupField;
         }

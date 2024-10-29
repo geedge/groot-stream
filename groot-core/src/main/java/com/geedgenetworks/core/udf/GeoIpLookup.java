@@ -50,9 +50,9 @@ public class GeoIpLookup implements ScalarFunction {
         } else {
             log.error("GeoIpLookup init KnowledgeBase error ");
         }
-        this.lookupFieldName = udfContext.getLookup_fields().get(0);
-        if(udfContext.getOutput_fields()!=null && !udfContext.getOutput_fields().isEmpty()){
-            this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.lookupFieldName = udfContext.getLookupFields().get(0);
+        if(udfContext.getOutputFields()!=null && !udfContext.getOutputFields().isEmpty()){
+            this.outputFieldName = udfContext.getOutputFields().get(0);
         }
         GeoIpKnowledgeBaseHandler.increment();
         log.warn("GeoIpKnowledgeBaseHandler "+GeoIpKnowledgeBaseHandler.getCount());
@@ -105,10 +105,10 @@ public class GeoIpLookup implements ScalarFunction {
 
     private void checkUdfContext(UDFContext udfContext) {
 
-        if (udfContext.getLookup_fields() == null || udfContext.getParameters() == null) {
+        if (udfContext.getLookupFields() == null || udfContext.getParameters() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        if (udfContext.getLookup_fields().size() != 1) {
+        if (udfContext.getLookupFields().size() != 1) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
         }
         if (!udfContext.getParameters().containsKey("kb_name")) {

@@ -25,7 +25,7 @@ public class FlattenFunctionTest {
 
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("parent1", "parent2", "parent3", "parent4","parent5","parent6","parent7","parent8"));
+        udfContext.setLookupFields(List.of("parent1", "parent2", "parent3", "parent4","parent5","parent6","parent7","parent8"));
         Map<String, Object> params = new HashMap<>();
         params.put("prefix", "prefix");
         params.put("depth", "4");

@@ -26,8 +26,8 @@ public class MinTest {
     void setUp() {
         minFunction = new Min();
         udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("value"));
-        udfContext.setOutput_fields(List.of("minValue"));
+        udfContext.setLookupFields(List.of("value"));
+        udfContext.setOutputFields(List.of("minValue"));
         minFunction.open(udfContext);
 
         acc = new Accumulator();

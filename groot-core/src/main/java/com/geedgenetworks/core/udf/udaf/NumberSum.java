@@ -15,12 +15,12 @@ public class NumberSum implements AggregateFunction {
 
     @Override
     public void open(UDFContext udfContext) {
-        if (udfContext.getLookup_fields() == null) {
+        if (udfContext.getLookupFields() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        lookupField = udfContext.getLookup_fields().get(0);
-        if (udfContext.getOutput_fields() != null && !udfContext.getOutput_fields().isEmpty()) {
-            outputField = udfContext.getOutput_fields().get(0);
+        lookupField = udfContext.getLookupFields().get(0);
+        if (udfContext.getOutputFields() != null && !udfContext.getOutputFields().isEmpty()) {
+            outputField = udfContext.getOutputFields().get(0);
         } else {
             outputField = lookupField;
         }

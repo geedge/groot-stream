@@ -29,7 +29,7 @@ class FqdnCategoryLookupTest {
         fieldMapping.put("REPUTATION_LEVEL", "domain_reputation_level");
         parameters.put("field_mapping", fieldMapping);
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
 
         RuntimeContext runtimeContext = mockRuntimeContext();
 

@@ -30,7 +30,7 @@ public class Flatten implements ScalarFunction {
         prefix = udfContext.getParameters().getOrDefault("prefix", "").toString();
         delimiter = udfContext.getParameters().getOrDefault("delimiter", ".").toString();
         flattenKeys = new HashSet<>();
-        for (String key : udfContext.getLookup_fields()) {
+        for (String key : udfContext.getLookupFields()) {
             this.flattenKeys.add(prefix.isEmpty() ? key : prefix + delimiter + key);
         }
         depth = Integer.parseInt(udfContext.getParameters().getOrDefault("depth", "5").toString());

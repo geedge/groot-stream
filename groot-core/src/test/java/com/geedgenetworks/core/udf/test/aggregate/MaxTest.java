@@ -31,8 +31,8 @@ public class MaxTest {
 
         // 初始化上下文
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("value"));
-        udfContext.setOutput_fields(List.of("maxValue"));
+        udfContext.setLookupFields(List.of("value"));
+        udfContext.setOutputFields(List.of("maxValue"));
         maxFunction.open(udfContext);
 
         // 初始化累加器的 metricsFields

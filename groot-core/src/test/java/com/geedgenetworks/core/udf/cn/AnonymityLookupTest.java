@@ -37,8 +37,8 @@ class AnonymityLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "IP_TO_NODE_TYPE");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("server_ip"));
-        udfContext.setOutput_fields(Collections.singletonList("server_node_type"));
+        udfContext.setLookupFields(Collections.singletonList("server_ip"));
+        udfContext.setOutputFields(Collections.singletonList("server_node_type"));
         anonymityLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();
@@ -56,8 +56,8 @@ class AnonymityLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "DOMAIN_TO_NODE_TYPE");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("domain_node_type"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
+        udfContext.setOutputFields(Collections.singletonList("domain_node_type"));
         anonymityLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();
