@@ -57,6 +57,17 @@ public class IntelligenceIndicatorLookup extends AbstractKnowledgeScalarFunction
                         }
                     }
                     break;
+                case "SUBSCRIBER_TO_TAG":
+                    List<String> subscriberTags = knowledgeBaseHandler.lookupBySubscriber(lookupValue);
+                    if (subscriberTags != null && subscriberTags.size() > 0) {
+                        hitCounter.inc();
+                        if (event.getExtractedFields().get(outputFieldName) != null && event.getExtractedFields().get(outputFieldName) instanceof List) {
+                            ((List<String>) event.getExtractedFields().get(outputFieldName)).addAll(subscriberTags);
+                        } else {
+                            event.getExtractedFields().put(outputFieldName, subscriberTags);
+                        }
+                    }
+                    break;
                 default:
                     logger.error("unknown option :" + option);
                     break;
