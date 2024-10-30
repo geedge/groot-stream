@@ -237,7 +237,7 @@ public class EncryptFunctionTest {
                 "    ]\n" +
                 "}";
         HttpClientPoolUtil instance = Mockito.mock(HttpClientPoolUtil.class);
-        Mockito.when(instance.httpGet(ArgumentMatchers.any())).thenReturn(sensitiveFieldsStr);
+        Mockito.when(instance.httpGet(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(sensitiveFieldsStr);
         MockedStatic<HttpClientPoolUtil> httpClientPoolUtilMockedStatic = Mockito.mockStatic(HttpClientPoolUtil.class);
         Mockito.when(HttpClientPoolUtil.getInstance()).thenReturn(instance);
         return httpClientPoolUtilMockedStatic;

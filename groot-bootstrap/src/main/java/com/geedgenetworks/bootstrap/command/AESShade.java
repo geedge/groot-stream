@@ -10,7 +10,7 @@ public class AESShade implements CryptoShade {
     private static final String IDENTIFIER = "aes";
 
     private static final byte[] SECURITY_KEY =
-            SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue(), ".geedgenetworks.".getBytes(StandardCharsets.UTF_8)).getEncoded() ;
+            SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue(), ".geedgenetworks.".getBytes(StandardCharsets.UTF_8)).getEncoded();
 
     private static final String[] SENSITIVE_OPTIONS =
             new String[] {"connection.user", "connection.password", "kafka.sasl.jaas.config","kafka.ssl.keystore.password","kafka.ssl.truststore.password","kafka.ssl.key.password"};

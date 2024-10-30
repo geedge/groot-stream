@@ -8,7 +8,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
-public class SM4GCM96Algorithm implements EncryptionAlgorithm {
+public class SM4GCM96 implements EncryptionAlgorithm {
     private static final String IDENTIFIER = "sm4-gcm96";
     private static final String ALGORITHM = "SM4";
     private static final String TRANSFORMATION = "SM4/GCM/NoPadding";
@@ -20,7 +20,7 @@ public class SM4GCM96Algorithm implements EncryptionAlgorithm {
     private final Cipher cipher;
     private KmsKey kmsKey;
 
-    public SM4GCM96Algorithm() throws Exception {
+    public SM4GCM96() throws Exception {
         this.cipher = Cipher.getInstance(TRANSFORMATION);
         this.kmsKey = new KmsKey(DEFAULT_SECRET_KEY, 1);
     }

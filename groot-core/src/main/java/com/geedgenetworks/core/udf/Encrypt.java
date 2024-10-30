@@ -17,6 +17,9 @@ import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.pojo.KmsKey;
 import com.geedgenetworks.core.udf.encrypt.EncryptionAlgorithm;
 import com.geedgenetworks.core.utils.*;
+import com.geedgenetworks.shaded.org.apache.http.HttpHeaders;
+import com.geedgenetworks.shaded.org.apache.http.HttpStatus;
+import com.geedgenetworks.shaded.org.apache.http.message.BasicHeader;
 import com.geedgenetworks.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
@@ -149,9 +152,9 @@ public class Encrypt implements ScalarFunction {
 
     public Set<String> getSensitiveFields(String url) throws IOException {
         Set<String> sensitiveFieldsSet;
-        String sensitiveFieldsStr = HttpClientPoolUtil.getInstance().httpGet(URI.create(URLUtil.normalize(url)));
+        String sensitiveFieldsStr = HttpClientPoolUtil.getInstance().httpGet(URI.create(URLUtil.normalize(url)), new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded"));
         JSONObject sensitiveFieldsJson = JSONUtil.parseObj(sensitiveFieldsStr);
-        if (sensitiveFieldsJson.getInt("status", 500) == 200) {
+        if (sensitiveFieldsJson.getInt("status", HttpStatus.SC_INTERNAL_SERVER_ERROR) == HttpStatus.SC_OK) {
             JSONArray sensitiveFieldsJsonArr = sensitiveFieldsJson.getJSONArray("data");
             sensitiveFieldsSet = IntStream.range(0, sensitiveFieldsJsonArr.size())
                     .mapToObj(sensitiveFieldsJsonArr::getStr)
