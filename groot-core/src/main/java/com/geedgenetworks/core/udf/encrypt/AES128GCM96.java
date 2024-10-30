@@ -8,19 +8,19 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
-public class AES256GCM96Algorithm implements EncryptionAlgorithm {
-    private static final String IDENTIFIER = "aes-256-gcm96";
+public class AES128GCM96 implements EncryptionAlgorithm {
+    private static final String IDENTIFIER = "aes-128-gcm96";
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
     private static final int GCM_TAG_LENGTH = 128;
     private static final int GCM_96_NONCE_LENGTH = 12;
-    private static final int SECRET_KEY_LENGTH = 32;
-    private static final byte[] DEFAULT_SECRET_KEY = ".........geedgenetworks.........".getBytes();
+    private static final int SECRET_KEY_LENGTH = 16;
+    private static final byte[] DEFAULT_SECRET_KEY = ".geedgenetworks.".getBytes();
 
     private final Cipher cipher;
     private KmsKey kmsKey;
 
-    public AES256GCM96Algorithm() throws Exception {
+    public AES128GCM96() throws Exception {
         this.cipher = Cipher.getInstance(TRANSFORMATION);
         this.kmsKey = new KmsKey(DEFAULT_SECRET_KEY, 1);
     }

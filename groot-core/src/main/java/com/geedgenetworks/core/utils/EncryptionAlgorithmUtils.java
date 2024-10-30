@@ -1,9 +1,9 @@
 package com.geedgenetworks.core.utils;
 
 import com.geedgenetworks.core.udf.encrypt.EncryptionAlgorithm;
-import com.geedgenetworks.core.udf.encrypt.AES128GCM96Algorithm;
-import com.geedgenetworks.core.udf.encrypt.AES256GCM96Algorithm;
-import com.geedgenetworks.core.udf.encrypt.SM4GCM96Algorithm;
+import com.geedgenetworks.core.udf.encrypt.AES128GCM96;
+import com.geedgenetworks.core.udf.encrypt.AES256GCM96;
+import com.geedgenetworks.core.udf.encrypt.SM4GCM96;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -18,11 +18,11 @@ public final class EncryptionAlgorithmUtils {
     public static EncryptionAlgorithm createEncryptionAlgorithm(String identifier) throws Exception {
         switch (identifier) {
             case ALGORITHM_AES_128_GCM96_NAME:
-                return new AES128GCM96Algorithm();
+                return new AES128GCM96();
             case ALGORITHM_AES_256_GCM96_NAME:
-                return new AES256GCM96Algorithm();
+                return new AES256GCM96();
             case ALGORITHM_SM4_GCM96_NAME:
-                return new SM4GCM96Algorithm();
+                return new SM4GCM96();
             default:
                 return null;
         }
