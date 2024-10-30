@@ -162,8 +162,8 @@ public class IntelligenceIndicatorLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "SUBSCRIBER_TO_TAG");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("subscriber_id"));
-        udfContext.setOutput_fields(Collections.singletonList("subscriber_tags"));
+        udfContext.setLookupFields(Collections.singletonList("subscriber_id"));
+        udfContext.setOutputFields(Collections.singletonList("subscriber_tags"));
         intelligenceIndicatorLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();
