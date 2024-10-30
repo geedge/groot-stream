@@ -92,6 +92,21 @@ processing_pipelines:
           kb_name: tsg_ip_location
           option: IP_TO_DETAIL
 
+      - function: GEOIP_LOOKUP
+        lookup_fields: [ server_ip ]
+        output_fields: [ ]
+        parameters:
+          kb_name: tsg_ip_location
+          option: IP_TO_OBJECT
+          geolocation_field_mapping:
+            COUNTRY: server_country
+            PROVINCE: server_super_administrative_area
+            CITY: server_administrative_area
+            LONGITUDE: server_longitude
+            LATITUDE: server_latitude
+            ISP: server_isp
+            ORGANIZATION: server_organization
+
       - function: JSON_EXTRACT
         lookup_fields: [ device_tag ]
         output_fields: [ device_group ]

@@ -11,12 +11,12 @@ public final class CheckUDFContextUtil {
 
     // Check if all the params are present in the UDFContext
     public static CheckResult checkAllExists(UDFContext context, String... params) {
-        List<String> missingParams = Arrays.stream(params)
-                .filter(param -> !isValidParam(context, param))
+        List<String> invalidParams = Arrays.stream(params)
+                .filter(param -> isInvalidParam(context, param))
                 .collect(Collectors.toList());
 
-        if (!missingParams.isEmpty()) {
-            String errorMsg = java.lang.String.format("Please specify [%s] as non-empty.", java.lang.String.join(",", missingParams));
+        if (!invalidParams.isEmpty()) {
+            String errorMsg = java.lang.String.format("Please specify [%s] as non-empty.", java.lang.String.join(",", invalidParams));
             return CheckResult.error(errorMsg);
         }
         return CheckResult.success();
@@ -28,19 +28,21 @@ public final class CheckUDFContextUtil {
             return CheckResult.success();
         }
 
-        List<String> missingParams = Arrays.stream(params)
-                .filter(param -> !isValidParam(context, param))
+        List<String> invalidParams = Arrays.stream(params)
+                .filter(param -> isInvalidParam(context, param))
                 .collect(Collectors.toList());
 
-        if (missingParams.size() == params.length) {
-            String errorMsg = java.lang.String.format("Please specify at least one config of [%s] as non-empty.", java.lang.String.join(",", missingParams));
+        if (invalidParams.size() == params.length) {
+            String errorMsg = java.lang.String.format("Please specify at least one config of [%s] as non-empty.", java.lang.String.join(",", invalidParams));
             return CheckResult.error(errorMsg);
         }
         return CheckResult.success();
     }
 
+
+
     // Check Array/Map Object has only one item
-    public static CheckResult checkSingleItemExists (UDFContext context, String param) {
+    public static CheckResult checkCollectionSingleItemExists (UDFContext context, String param) {
         if (context == null) {
             return CheckResult.error("UDFContext is null");
         }
@@ -57,25 +59,46 @@ public final class CheckUDFContextUtil {
 
     }
 
-    public static boolean isValidParam(UDFContext context, String param) {
+    // Check Parameters contains keys
+    public static CheckResult checkParametersContainsKeys(UDFContext context, String... keys) {
         if (context == null) {
-            return false;
+            return CheckResult.error("UDFContext is null");
+        }
+
+        if (context.getParameters() == null) {
+            return CheckResult.error("Parameters is null");
+        }
+
+        List<String> missingKeys = Arrays.stream(keys)
+                .filter(key -> !context.getParameters().containsKey(key))
+                .collect(Collectors.toList());
+
+        if (!missingKeys.isEmpty()) {
+            String errorMsg = java.lang.String.format("Please specify [%s] as non-empty.", java.lang.String.join(",", missingKeys));
+            return CheckResult.error(errorMsg);
+        }
+        return CheckResult.success();
+    }
+
+    public static boolean isInvalidParam(UDFContext context, String param) {
+        if (context == null) {
+            return true;
         }
 
         if (UDFContextConfigOptions.NAME.key().equals(param)) {
-            return context.getName() != null;
+            return context.getName() == null;
         } else if (UDFContextConfigOptions.LOOKUP_FIELDS.key().equals(param)) {
-            return context.getLookupFields() != null && !context.getLookupFields().isEmpty();
+            return context.getLookupFields() == null || context.getLookupFields().isEmpty();
         } else if (UDFContextConfigOptions.OUTPUT_FIELDS.key().equals(param)) {
-            return context.getOutputFields() != null && !context.getOutputFields().isEmpty();
+            return context.getOutputFields() == null || context.getOutputFields().isEmpty();
         } else if (UDFContextConfigOptions.FILTER.key().equals(param)) {
-            return context.getFilter() != null;
+            return context.getFilter() == null;
         } else if (UDFContextConfigOptions.PARAMETERS.key().equals(param)) {
-            return context.getParameters() != null && !context.getParameters().isEmpty();
+            return context.getParameters() == null || context.getParameters().isEmpty();
         } else if (UDFContextConfigOptions.FUNCTION.key().equals(param)) {
-            return context.getFunction() != null;
+            return context.getFunction() == null;
         } else {
-            return false;
+            return true;
         }
 
     }

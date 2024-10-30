@@ -29,8 +29,26 @@ public interface UDFContextConfigOptions {
             .noDefaultValue()
             .withDescription("The parameters for the function.");
 
+    Option<String> PARAMETERS_KB_NAME = Options.key("kb_name")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("The name of the knowledge base.");
+
+    Option<String> PARAMETERS_OPTION = Options.key("option")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("The option for the function.");
+
+    Option<Map<String, String>> PARAMETERS_GEOLOCATION_FIELD_MAPPING = Options.key("geolocation_field_mapping")
+            .mapType()
+            .noDefaultValue()
+            .withDescription("The geolocation field mapping.");
+
+
     Option<String> FUNCTION = Options.key("function")
             .stringType()
             .noDefaultValue()
             .withDescription("The function to be executed.");
+
+
 }

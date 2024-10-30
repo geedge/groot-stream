@@ -95,25 +95,24 @@ public class Domain implements ScalarFunction {
             throw new GrootStreamRuntimeException(CommonErrorCode.CONFIG_VALIDATION_FAILED, result.getMsg());
         }
 
-        result = CheckUDFContextUtil.checkSingleItemExists(udfContext, UDFContextConfigOptions.OUTPUT_FIELDS.key());
+        result = CheckUDFContextUtil.checkCollectionSingleItemExists(udfContext, UDFContextConfigOptions.OUTPUT_FIELDS.key());
         if (!result.isSuccess()) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
         }
 
-        if(!udfContext.getParameters().containsKey("option")){
+        if(!udfContext.getParameters().containsKey(UDFContextConfigOptions.PARAMETERS_OPTION.key())){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, String.format(
                     "UDF: %s, [%s] Option should be specified.",
                     udfContext.getFunction(), UDFContextConfigOptions.PARAMETERS.key()));
         }
 
-        String optionValue = udfContext.getParameters().get("option").toString();
+        String optionValue = udfContext.getParameters().get(UDFContextConfigOptions.PARAMETERS_OPTION.key()).toString();
         if (!Option.isValid(optionValue)) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, String.format( "UDF: %s, [%s] Option value is not correct.",
                     udfContext.getFunction(), UDFContextConfigOptions.PARAMETERS.key()));
         }
 
     }
-
 
     @Override
     public String functionName() {

@@ -2,8 +2,7 @@ package com.geedgenetworks.core.udf;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.CommonConfig;
-import com.geedgenetworks.common.config.KnowledgeBaseConfig;
+import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.ScalarFunction;
@@ -24,10 +23,23 @@ public class AsnLookup implements ScalarFunction {
     private String lookupFieldName;
     private String outputFieldName;
 
+
+    enum Option {
+        IP_TO_ASN;
+
+        public static boolean isValid(String option) {
+            try {
+                Option.valueOf(option);
+                return true;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+    }
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
-        checkUdfContext(udfContext);
+        checkConfig(udfContext);
         this.kbName = udfContext.getParameters().get("kb_name").toString();
         this.option = udfContext.getParameters().get("option").toString();
         Configuration configuration = (Configuration) runtimeContext
@@ -79,29 +91,38 @@ public class AsnLookup implements ScalarFunction {
         }
     }
 
-    private void checkUdfContext(UDFContext udfContext) {
+    @Override
+    public void checkConfig(UDFContext udfContext) {
+        CheckResult result = CheckUDFContextUtil.checkAllExists(udfContext,
+                UDFContextConfigOptions.LOOKUP_FIELDS.key(),
+                UDFContextConfigOptions.OUTPUT_FIELDS.key(),
+                UDFContextConfigOptions.PARAMETERS.key());
 
-        if (udfContext.getLookupFields() == null || udfContext.getOutputFields() == null || udfContext.getParameters() == null) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
-        }
-
-        if (udfContext.getLookupFields().size() != 1) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
-        }
-        if (udfContext.getOutputFields().size() != 1) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.CONFIG_VALIDATION_FAILED, result.getMsg());
         }
 
-        if (!udfContext.getParameters().containsKey("kb_name")) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey kb_name");
+        result = CheckUDFContextUtil.checkCollectionSingleItemExists(udfContext, UDFContextConfigOptions.LOOKUP_FIELDS.key());
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
         }
-        if (!udfContext.getParameters().containsKey("option")) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey option");
-        } else {
-            if (!udfContext.getParameters().get("option").toString().equals("IP_TO_ASN")) {
-                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters option value is not correct");
-            }
+
+        result = CheckUDFContextUtil.checkCollectionSingleItemExists(udfContext, UDFContextConfigOptions.OUTPUT_FIELDS.key());
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
         }
+
+        result = CheckUDFContextUtil.checkParametersContainsKeys(udfContext, UDFContextConfigOptions.PARAMETERS_KB_NAME.key(), UDFContextConfigOptions.PARAMETERS_OPTION.key());
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
+        }
+
+        String optionValue = udfContext.getParameters().get(UDFContextConfigOptions.PARAMETERS_OPTION.key()).toString();
+        if (!Option.isValid(optionValue)) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, String.format( "UDF: %s, [%s] Option value is not correct.",
+                    udfContext.getFunction(), UDFContextConfigOptions.PARAMETERS.key()));
+        }
+
     }
 
 }
