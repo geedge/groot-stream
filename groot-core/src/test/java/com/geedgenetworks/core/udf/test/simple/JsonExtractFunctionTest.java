@@ -25,7 +25,7 @@ public class JsonExtractFunctionTest {
     @Test
     public void testInit(){
         JsonExtract jsonExtract = new JsonExtract();
-        udfContext.setLookup_fields(new ArrayList<>());
+        udfContext.setLookupFields(new ArrayList<>());
         udfContext.setParameters(new HashMap<>());
         udfContext.setParameters(null);
         Assertions.assertThrows(GrootStreamRuntimeException.class, () -> {
@@ -52,8 +52,8 @@ public class JsonExtractFunctionTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("value_expression","$.tags[?(@.tag=='device_group')][0].value");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("device_tag"));
-        udfContext.setOutput_fields(Collections.singletonList("device_group"));
+        udfContext.setLookupFields(Collections.singletonList("device_tag"));
+        udfContext.setOutputFields(Collections.singletonList("device_group"));
         jsonExtract.open(null, udfContext);
         Event event = new Event();
         String jsonString = "{\"device_tag\":\"{\\\"tags\\\":[{\\\"tag\\\":\\\"data_center\\\",\\\"value\\\":\\\"center-xxg-tsgx\\\"},{\\\"tag\\\":\\\"device_group\\\",\\\"value\\\":\\\"group-xxg-tsgx\\\"}]}\"}";

@@ -51,8 +51,8 @@ public class Encrypt implements ScalarFunction {
         if (udfContext.getParameters().containsKey("default_val")) {
             this.defaultVal = udfContext.getParameters().get("default_val").toString();
         }
-        this.lookupFieldName = udfContext.getLookup_fields().get(0);
-        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.lookupFieldName = udfContext.getLookupFields().get(0);
+        this.outputFieldName = udfContext.getOutputFields().get(0);
         this.identifier = udfContext.getParameters().get("identifier").toString();
         Configuration configuration = (Configuration) runtimeContext.getExecutionConfig().getGlobalJobParameters();
         CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
@@ -139,10 +139,10 @@ public class Encrypt implements ScalarFunction {
         if (udfContext.getParameters() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        if (udfContext.getLookup_fields().size() != 1) {
+        if (udfContext.getLookupFields().size() != 1) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
         }
-        if (udfContext.getOutput_fields().size() != 1) {
+        if (udfContext.getOutputFields().size() != 1) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
         if (!udfContext.getParameters().containsKey("identifier")) {

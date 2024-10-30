@@ -29,23 +29,23 @@ public class BaseStationLookup extends AbstractKnowledgeScalarFunction {
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
         super.open(runtimeContext, udfContext);
-        if (udfContext.getLookup_fields() == null || udfContext.getOutput_fields() == null || udfContext.getParameters() == null) {
+        if (udfContext.getLookupFields() == null || udfContext.getOutputFields() == null || udfContext.getParameters() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
 
         int lookupFieldsSize = 1;
-        if (udfContext.getLookup_fields().size() != lookupFieldsSize) {
+        if (udfContext.getLookupFields().size() != lookupFieldsSize) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "lookup_fields must contain field: cell_id");
         }
 
         int outputFieldsSize = 2;
-        if (udfContext.getOutput_fields().size() != outputFieldsSize) {
+        if (udfContext.getOutputFields().size() != outputFieldsSize) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "output_fields must contain two fields: longitude and latitude");
         }
 
-        List<String> lookupFields = udfContext.getLookup_fields();
+        List<String> lookupFields = udfContext.getLookupFields();
         cellIdFieldName = lookupFields.get(0);
-        List<String> outputFields = udfContext.getOutput_fields();
+        List<String> outputFields = udfContext.getOutputFields();
         longitudeFieldName = outputFields.get(0);
         latitudeFieldName = outputFields.get(1);
     }

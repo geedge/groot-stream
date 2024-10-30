@@ -55,7 +55,7 @@ public class PathCombine implements ScalarFunction {
                 }
             }
         }
-        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.outputFieldName = udfContext.getOutputFields().get(0);
     }
 
 

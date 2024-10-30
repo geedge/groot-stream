@@ -98,8 +98,8 @@ public class UnrollTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("separator", separator);
         c.setParameters(parameters);
-        c.setLookup_fields(Arrays.asList(pathField, fileField).stream().filter(x -> x != null).collect(Collectors.toList()));
-        c.setOutput_fields(Arrays.asList(outputPathField, outputFileField).stream().filter(x -> x != null).collect(Collectors.toList()));
+        c.setLookupFields(Arrays.asList(pathField, fileField).stream().filter(x -> x != null).collect(Collectors.toList()));
+        c.setOutputFields(Arrays.asList(outputPathField, outputFileField).stream().filter(x -> x != null).collect(Collectors.toList()));
 
         pathUnroll.open(null, c);
         event = new Event();

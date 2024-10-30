@@ -26,8 +26,8 @@ public class UUIDTest {
         UUIDv5 uuidv5 = new UUIDv5();
         parameters =  new HashMap<>();
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(List.of("client_ip","server_ip"));
-        udfContext.setOutput_fields(Collections.singletonList("uuid"));
+        udfContext.setLookupFields(List.of("client_ip","server_ip"));
+        udfContext.setOutputFields(Collections.singletonList("uuid"));
         parameters.put("namespace","NAMESPACE_IP_1");
         Assertions.assertThrows(GrootStreamRuntimeException.class, () -> {
             uuidv5.open(null, udfContext);
@@ -41,7 +41,7 @@ public class UUIDTest {
         UUID uuid = new UUID();
         parameters =  new HashMap<>();
         udfContext.setParameters(parameters);
-        udfContext.setOutput_fields(Collections.singletonList("uuid"));
+        udfContext.setOutputFields(Collections.singletonList("uuid"));
         uuid.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
@@ -55,7 +55,7 @@ public class UUIDTest {
         UUIDv7 uuid = new UUIDv7();
         parameters =  new HashMap<>();
         udfContext.setParameters(parameters);
-        udfContext.setOutput_fields(Collections.singletonList("uuid"));
+        udfContext.setOutputFields(Collections.singletonList("uuid"));
         uuid.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
@@ -69,8 +69,8 @@ public class UUIDTest {
         UUIDv5 uuidv5 = new UUIDv5();
         parameters =  new HashMap<>();
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(List.of("client_ip", "server_ip"));
-        udfContext.setOutput_fields(Collections.singletonList("uuid"));
+        udfContext.setLookupFields(List.of("client_ip", "server_ip"));
+        udfContext.setOutputFields(Collections.singletonList("uuid"));
         parameters.put("namespace","NAMESPACE_IP");
         uuidv5.open(null, udfContext);
         Event event = new Event();
@@ -90,8 +90,8 @@ public class UUIDTest {
         UUIDv5 uuidv5 = new UUIDv5();
         parameters =  new HashMap<>();
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(List.of("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("uuid"));
+        udfContext.setLookupFields(List.of("domain"));
+        udfContext.setOutputFields(Collections.singletonList("uuid"));
         parameters.put("namespace","NAMESPACE_DOMAIN");
         uuidv5.open(null, udfContext);
         Event event = new Event();
@@ -107,8 +107,8 @@ public class UUIDTest {
         UUIDv5 uuidv5 = new UUIDv5();
         parameters =  new HashMap<>();
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(List.of("app"));
-        udfContext.setOutput_fields(Collections.singletonList("uuid"));
+        udfContext.setLookupFields(List.of("app"));
+        udfContext.setOutputFields(Collections.singletonList("uuid"));
         parameters.put("namespace","NAMESPACE_APP");
         uuidv5.open(null, udfContext);
         Event event = new Event();
@@ -125,8 +125,8 @@ public class UUIDTest {
         UUIDv5 uuidv5 = new UUIDv5();
         parameters =  new HashMap<>();
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(List.of("subscriber_id"));
-        udfContext.setOutput_fields(Collections.singletonList("uuid"));
+        udfContext.setLookupFields(List.of("subscriber_id"));
+        udfContext.setOutputFields(Collections.singletonList("uuid"));
         parameters.put("namespace","NAMESPACE_SUBSCRIBER");
         uuidv5.open(null, udfContext);
         Event event = new Event();

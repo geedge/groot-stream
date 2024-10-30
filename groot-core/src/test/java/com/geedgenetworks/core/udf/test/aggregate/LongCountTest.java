@@ -31,8 +31,8 @@ public class LongCountTest {
     private void testMerge(Number[] arr,Number[] arr2) {
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("count"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("count"));
         LongCount longCount = new LongCount();
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
@@ -66,7 +66,7 @@ public class LongCountTest {
     private static void testGetResult(Number[] arr) throws ParseException {
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setOutput_fields(Collections.singletonList("count"));
+        udfContext.setOutputFields(Collections.singletonList("count"));
         LongCount longCount = new LongCount();
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();

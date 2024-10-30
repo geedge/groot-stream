@@ -30,7 +30,7 @@ class AppCategoryLookupTest {
         fieldMapping.put("COMPANY_CATEGORY", "app_company_category");
         parameters.put("field_mapping", fieldMapping);
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("app"));
+        udfContext.setLookupFields(Collections.singletonList("app"));
 
         RuntimeContext runtimeContext = mockRuntimeContext();
 

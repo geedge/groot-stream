@@ -14,10 +14,10 @@ public class LongCount implements AggregateFunction {
 
     @Override
     public void open(UDFContext udfContext) {
-        if (udfContext.getOutput_fields() == null) {
+        if (udfContext.getOutputFields() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        outputField = udfContext.getOutput_fields().get(0);
+        outputField = udfContext.getOutputFields().get(0);
     }
 
     @Override

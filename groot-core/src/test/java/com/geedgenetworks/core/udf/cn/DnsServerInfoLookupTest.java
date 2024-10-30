@@ -25,8 +25,8 @@ class DnsServerInfoLookupTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("kb_name", kbName);
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("server_ip"));
-        udfContext.setOutput_fields(Collections.singletonList("server_dns_server"));
+        udfContext.setLookupFields(Collections.singletonList("server_ip"));
+        udfContext.setOutputFields(Collections.singletonList("server_dns_server"));
 
         RuntimeContext runtimeContext = mockRuntimeContext();
 

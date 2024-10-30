@@ -22,20 +22,20 @@ public class EncodeBase64 implements ScalarFunction {
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
-        if(udfContext.getParameters()==null || udfContext.getOutput_fields()==null || udfContext.getLookup_fields() == null){
+        if(udfContext.getParameters()==null || udfContext.getOutputFields()==null || udfContext.getLookupFields() == null){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        if(udfContext.getOutput_fields().size() != 1){
+        if(udfContext.getOutputFields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
-        if(udfContext.getLookup_fields().size() != 1){
+        if(udfContext.getLookupFields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
         }
         if(!udfContext.getParameters().containsKey("input_type") ){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey value_field ");
         }
-        this.outputFieldName = udfContext.getOutput_fields().get(0);
-        this.lookupFieldName = udfContext.getLookup_fields().get(0);
+        this.outputFieldName = udfContext.getOutputFields().get(0);
+        this.lookupFieldName = udfContext.getLookupFields().get(0);
         this.input_type =udfContext.getParameters().get("input_type").toString();
 
     }

@@ -31,8 +31,8 @@ public class MeanTest {
     }
     private void testMerge(Number[] arr1,Number[] arr2,int precision) throws ParseException {
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("field_mean"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("field_mean"));
         udfContext.setParameters(new HashMap<>());
         udfContext.getParameters().put("precision", precision);
         Mean mean = new Mean();
@@ -47,8 +47,8 @@ public class MeanTest {
     }
     private Accumulator getMiddleResult(Number[] arr,int precision) throws ParseException {
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("field_mean"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("field_mean"));
         udfContext.setParameters(new HashMap<>());
         udfContext.getParameters().put("precision", precision);
         Mean mean = new Mean();
@@ -72,8 +72,8 @@ public class MeanTest {
         private void testInt(Number[] arr,int precision) throws ParseException {
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("field_mean"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("field_mean"));
         udfContext.setParameters(new HashMap<>());
         udfContext.getParameters().put("precision", precision);
         Mean mean = new Mean();
@@ -98,8 +98,8 @@ public class MeanTest {
     private  void testDouble(Number[] arr,int precision) throws ParseException {
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("field_mean"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("field_mean"));
         udfContext.setParameters(new HashMap<>());
         udfContext.getParameters().put("precision", precision);
         Mean mean = new Mean();
@@ -123,8 +123,8 @@ public class MeanTest {
     private void testNoPrecision(Number[] arr) throws ParseException {
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("field_mean"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("field_mean"));
         Mean mean = new Mean();
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();

@@ -40,8 +40,8 @@ public class IntelligenceIndicatorLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "IP_TO_TAG");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("server_ip"));
-        udfContext.setOutput_fields(Collections.singletonList("server_ip_tags"));
+        udfContext.setLookupFields(Collections.singletonList("server_ip"));
+        udfContext.setOutputFields(Collections.singletonList("server_ip_tags"));
         intelligenceIndicatorLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();
@@ -59,8 +59,8 @@ public class IntelligenceIndicatorLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "IP_TO_TAG");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("server_ip"));
-        udfContext.setOutput_fields(Collections.singletonList("server_ip_tags"));
+        udfContext.setLookupFields(Collections.singletonList("server_ip"));
+        udfContext.setOutputFields(Collections.singletonList("server_ip_tags"));
         intelligenceIndicatorLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();
@@ -82,8 +82,8 @@ public class IntelligenceIndicatorLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "DOMAIN_TO_TAG");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("domain_tags"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
+        udfContext.setOutputFields(Collections.singletonList("domain_tags"));
         intelligenceIndicatorLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();
@@ -101,8 +101,8 @@ public class IntelligenceIndicatorLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "DOMAIN_TO_TAG");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("domain_tags"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
+        udfContext.setOutputFields(Collections.singletonList("domain_tags"));
         intelligenceIndicatorLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();
@@ -124,8 +124,8 @@ public class IntelligenceIndicatorLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "DOMAIN_TO_TAG");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("domain_tags"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
+        udfContext.setOutputFields(Collections.singletonList("domain_tags"));
         intelligenceIndicatorLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();
@@ -143,8 +143,8 @@ public class IntelligenceIndicatorLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "IP_TO_TAG");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("server_ip"));
-        udfContext.setOutput_fields(Collections.singletonList("server_ip_tags"));
+        udfContext.setLookupFields(Collections.singletonList("server_ip"));
+        udfContext.setOutputFields(Collections.singletonList("server_ip_tags"));
         intelligenceIndicatorLookup.open(runtimeContext, udfContext);
 
         Event event = new Event();

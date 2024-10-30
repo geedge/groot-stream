@@ -23,8 +23,8 @@ public class HmacFunctionTest {
     @BeforeAll
     public static void setUp() {
         udfContext = new UDFContext();
-        udfContext.setLookup_fields(Collections.singletonList("phone_number"));
-        udfContext.setOutput_fields(Collections.singletonList("phone_number_mac"));
+        udfContext.setLookupFields(Collections.singletonList("phone_number"));
+        udfContext.setOutputFields(Collections.singletonList("phone_number_mac"));
     }
 
     @Test

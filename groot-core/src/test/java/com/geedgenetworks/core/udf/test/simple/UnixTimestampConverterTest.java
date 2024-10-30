@@ -19,8 +19,8 @@ public class UnixTimestampConverterTest {
     @BeforeAll
     public static void setUp() {
         udfContext = new UDFContext();
-        udfContext.setLookup_fields(Arrays.asList("input"));
-        udfContext.setOutput_fields(Arrays.asList("output"));
+        udfContext.setLookupFields(Arrays.asList("input"));
+        udfContext.setOutputFields(Arrays.asList("output"));
     }
 
     @Test

@@ -96,18 +96,19 @@ Base64 encode function is commonly used to encode the binary data to base64 stri
 
 ```BASE64_ENCODE_TO_STRING(filter, output_fields[, parameters])```
 - filter: optional
-- lookup_fields: not required
+- lookup_fields: required
 - output_fields: required
 - parameters: required
-  - value_field: `<String>` required.
+    - input_type: `<String>` required. Enum: `string`, `byte_array`. The input type of the value field.
 
 Example:
 
 ```yaml
 - function: BASE64_ENCODE_TO_STRING
+  lookup_fields: [packet]
   output_fields: [packet]
   parameters:
-    value_field: packet
+    input_type: string
 ```
 
 ### Current Unix Timestamp
@@ -141,7 +142,7 @@ Domain function is used to extract the domain from the url.
 - parameters: required
   - option: `<String>` required. Enum: `TOP_LEVEL_DOMAIN`, `FIRST_SIGNIFICANT_SUBDOMAIN`.
 
-#### Option
+**Option**
 
 - `TOP_LEVEL_DOMAIN` is used to extract the top level domain from the url. For example, `www.abc.com` will be extracted to `com`.
 - `FIRST_SIGNIFICANT_SUBDOMAIN` is used to extract the first significant subdomain from the url. For example, `www.abc.com` will be extracted to `abc.com`.
@@ -283,7 +284,7 @@ From unix timestamp function is used to convert the unix timestamp to date time 
 - parameters: optional
   - precision: `<String>` optional. Default is `seconds`. Enum: `milliseconds`, `seconds`.
 
-#### Precision
+**Precision**
 
 - `milliseconds` is used to convert the unix timestamp to milliseconds date time string. For example, `1619712000` will be converted to `2021-04-30 00:00:00.000`.
 - `seconds` is used to convert the unix timestamp to seconds date time string. For example, `1619712000` will be converted to `2021-04-30 00:00:00`.
@@ -336,7 +337,7 @@ GeoIP lookup function is used to lookup the geoip information by ip address. You
     - ISP: `<String>` optional.
     - ORGANIZATION: `<String>` optional.
 
-#### Option
+**Option**
 
 - `IP_TO_COUNTRY` is used to lookup the country or region information by ip address.
 - `IP_TO_PROVINCE` is used to lookup the province or state information by ip address.
@@ -348,7 +349,7 @@ GeoIP lookup function is used to lookup the geoip information by ip address. You
 - `IP_TO_JSON` is used to lookup the above information by ip address. The result is a json string.
 - `IP_TO_OBJECT` is used to lookup the above information by ip address. The result is a `LocationResponse` object.
 
-#### GeoLocation Field Mapping
+**GeoLocation Field Mapping**
 
 - `COUNTRY` is used to map the country information to the event field.
 - `PROVINCE` is used to map the province information to the event field.

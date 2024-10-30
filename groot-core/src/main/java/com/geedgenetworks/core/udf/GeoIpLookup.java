@@ -1,8 +1,7 @@
 package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.config.CommonConfig;
-import com.geedgenetworks.common.config.KnowledgeBaseConfig;
+import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.ScalarFunction;
@@ -28,13 +27,55 @@ public class GeoIpLookup implements ScalarFunction {
     private String outputFieldName;
     private Map<String, String> geoLocationFieldMapping;
 
+    enum Option {
+        IP_TO_COUNTRY,
+        IP_TO_PROVINCE,
+        IP_TO_CITY,
+        IP_TO_SUBDIVISION_ADDR,
+        IP_TO_DETAIL,
+        IP_TO_LATLNG,
+        IP_TO_PROVIDER,
+        IP_TO_JSON,
+        IP_TO_OBJECT
+        ;
+
+        public static boolean isValid(String option) {
+            try {
+                Option.valueOf(option);
+                return true;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+    }
+
+    enum GeolocationFieldMapping {
+        COUNTRY,
+        PROVINCE,
+        CITY,
+        LONGITUDE,
+        LATITUDE,
+        ISP,
+        ORGANIZATION
+        ;
+
+        public static boolean isValid(String option) {
+            try {
+                GeolocationFieldMapping.valueOf(option);
+                return true;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+    }
+
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-        checkUdfContext(udfContext);
-        this.kbName = udfContext.getParameters().get("kb_name").toString();
-        this.option = udfContext.getParameters().get("option").toString();
-        if (option.equals("IP_TO_OBJECT")) {
-            this.geoLocationFieldMapping = (Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
+        checkConfig(udfContext);
+        this.kbName = udfContext.getParameters().get(UDFContextConfigOptions.PARAMETERS_KB_NAME.key()).toString();
+        this.option = udfContext.getParameters().get(UDFContextConfigOptions.PARAMETERS_OPTION.key()).toString();
+        if (option.equals(Option.IP_TO_OBJECT.name())) {
+            this.geoLocationFieldMapping = (Map<String, String>) udfContext.getParameters().get(UDFContextConfigOptions.PARAMETERS_GEOLOCATION_FIELD_MAPPING.key());
         }
         Configuration configuration = (Configuration) runtimeContext
                 .getExecutionConfig().getGlobalJobParameters();
@@ -50,9 +91,9 @@ public class GeoIpLookup implements ScalarFunction {
         } else {
             log.error("GeoIpLookup init KnowledgeBase error ");
         }
-        this.lookupFieldName = udfContext.getLookup_fields().get(0);
-        if(udfContext.getOutput_fields()!=null && !udfContext.getOutput_fields().isEmpty()){
-            this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.lookupFieldName = udfContext.getLookupFields().get(0);
+        if(udfContext.getOutputFields()!=null && !udfContext.getOutputFields().isEmpty()){
+            this.outputFieldName = udfContext.getOutputFields().get(0);
         }
         GeoIpKnowledgeBaseHandler.increment();
         log.warn("GeoIpKnowledgeBaseHandler "+GeoIpKnowledgeBaseHandler.getCount());
@@ -63,7 +104,7 @@ public class GeoIpLookup implements ScalarFunction {
     public Event evaluate(Event event) {
         Object valueObj = event.getExtractedFields().get(lookupFieldName);
         if (valueObj!=null) {
-            if ("IP_TO_OBJECT".equals(option)) {
+            if (Option.IP_TO_OBJECT.name().equals(option)) {
                 LocationResponse response  = GeoIpKnowledgeBaseHandler.lookUpObject(kbName,valueObj.toString());
                 for (Map.Entry<String, String> entry : geoLocationFieldMapping.entrySet()) {
                     String result = "";
@@ -103,57 +144,49 @@ public class GeoIpLookup implements ScalarFunction {
         return event;
     }
 
-    private void checkUdfContext(UDFContext udfContext) {
+    @Override
+    public void checkConfig(UDFContext udfContext) {
+        CheckResult result = CheckUDFContextUtil.checkAllExists(udfContext,
+                UDFContextConfigOptions.LOOKUP_FIELDS.key(),
+                UDFContextConfigOptions.PARAMETERS.key());
 
-        if (udfContext.getLookup_fields() == null || udfContext.getParameters() == null) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.CONFIG_VALIDATION_FAILED, result.getMsg());
         }
-        if (udfContext.getLookup_fields().size() != 1) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
+
+        result = CheckUDFContextUtil.checkCollectionSingleItemExists(udfContext, UDFContextConfigOptions.LOOKUP_FIELDS.key());
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
         }
-        if (!udfContext.getParameters().containsKey("kb_name")) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey kb_name");
+
+        result = CheckUDFContextUtil.checkParametersContainsKeys(udfContext, UDFContextConfigOptions.PARAMETERS_KB_NAME.key(), UDFContextConfigOptions.PARAMETERS_OPTION.key());
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
         }
-        if (!udfContext.getParameters().containsKey("option")) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey option");
-        } else {
-            if (!udfContext.getParameters().get("option").toString().equals("IP_TO_COUNTRY") && //IP_TO_COUNTRY
-                    !udfContext.getParameters().get("option").toString().equals("IP_TO_PROVINCE") && //IP_TO_PROVINCE
-                    !udfContext.getParameters().get("option").toString().equals("IP_TO_CITY") && //IP_TO_CITY
-                    !udfContext.getParameters().get("option").toString().equals("IP_TO_SUBDIVISION_ADDR") && //IP_TO_SUBDIVISION_ADDR
-                    !udfContext.getParameters().get("option").toString().equals("IP_TO_DETAIL") && //IP_TO_DETAIL
-                    !udfContext.getParameters().get("option").toString().equals("IP_TO_LATLNG") && //IP_TO_LATLNG
-                    !udfContext.getParameters().get("option").toString().equals("IP_TO_PROVIDER") && //IP_TO_PROVIDER
-                    !udfContext.getParameters().get("option").toString().equals("IP_TO_JSON") && //IP_TO_JSON
-                    !udfContext.getParameters().get("option").toString().equals("IP_TO_OBJECT")) {
-                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters option value is not correct");
+
+        String optionValue = udfContext.getParameters().get(UDFContextConfigOptions.PARAMETERS_OPTION.key()).toString();
+        if (!Option.isValid(optionValue)) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, String.format( "UDF: %s, [%s] Option value is not correct.",
+                    udfContext.getFunction(), UDFContextConfigOptions.PARAMETERS.key()));
+        }
+
+        if (optionValue.equals(Option.IP_TO_OBJECT.name())) {
+            result = CheckUDFContextUtil.checkParametersContainsKeys(udfContext, UDFContextConfigOptions.PARAMETERS_GEOLOCATION_FIELD_MAPPING.key());
+            if (!result.isSuccess()) {
+                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
             }
-            if (udfContext.getParameters().get("option").toString().equals("IP_TO_OBJECT")) {
 
-                if (!udfContext.getParameters().containsKey("geolocation_field_mapping")) {
+           Map<String, String> fieldMap =  (Map<String, String>) udfContext.getParameters().get(UDFContextConfigOptions.PARAMETERS_GEOLOCATION_FIELD_MAPPING.key());
 
-                    throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters need containkey geolocation_field_mapping");
-
-                } else {
-                    Map<String, String> geolocation_field_mapping = (Map<String, String>) udfContext.getParameters().get("geolocation_field_mapping");
-
-                    if (!geolocation_field_mapping.isEmpty()) {
-
-                        for (Map.Entry<String, String> entry : geolocation_field_mapping.entrySet()) {
-
-                            if (!entry.getKey().equals("COUNTRY") && !entry.getKey().equals("PROVINCE") && !entry.getKey().equals("CITY") && !entry.getKey().equals("LONGITUDE") && !entry.getKey().equals("LATITUDE") && !entry.getKey().equals("ISP") && !entry.getKey().equals("ORGANIZATION")) {
-                                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters geolocation_field_mapping value is not correct");
-                            }
-                        }
-                    } else {
-                        throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters geolocation_field_mapping value is not correct");
-                    }
+            for (Map.Entry<String, String> entry : fieldMap.entrySet()) {
+                if (!GeolocationFieldMapping.isValid(entry.getKey())) {
+                    throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters geolocation_field_mapping value is not correct");
                 }
             }
+
         }
 
     }
-
 
     @Override
     public String functionName() {

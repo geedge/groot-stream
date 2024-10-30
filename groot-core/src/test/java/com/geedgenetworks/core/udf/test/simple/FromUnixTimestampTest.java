@@ -19,8 +19,8 @@ public class FromUnixTimestampTest {
     @BeforeAll
     public static void setUp() {
         udfContext = new UDFContext();
-        udfContext.setLookup_fields(Arrays.asList("unixTimestamp"));
-        udfContext.setOutput_fields(Arrays.asList("timestamp"));
+        udfContext.setLookupFields(Arrays.asList("unixTimestamp"));
+        udfContext.setOutputFields(Arrays.asList("timestamp"));
     }
     @Test
     public void testFromUnixTimestampMsFunction() throws Exception {

@@ -30,8 +30,8 @@ public class LastValueTest {
     private void testMerge(List<String> arr,List<String> arr2) {
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("field_last"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("field_last"));
         LastValue lastValue = new LastValue();
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
@@ -66,8 +66,8 @@ public class LastValueTest {
     private static void testGetResult(List<String> arr) throws ParseException {
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("field_last"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("field_last"));
         LastValue lastValue = new LastValue();
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();

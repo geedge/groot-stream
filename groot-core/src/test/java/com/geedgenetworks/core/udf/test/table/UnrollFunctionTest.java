@@ -34,8 +34,8 @@ public class UnrollFunctionTest {
 
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("k1"));
-        udfContext.setOutput_fields(List.of("newk1"));
+        udfContext.setLookupFields(List.of("k1"));
+        udfContext.setOutputFields(List.of("newk1"));
         Unroll unroll = new Unroll();
         unroll.open(null, udfContext);
         Event event = new Event();
@@ -60,8 +60,8 @@ public class UnrollFunctionTest {
         udfContext.setParameters(params);
         udfContext.setParameters(params);
         event.setExtractedFields(nestedMap);
-        udfContext.setLookup_fields(List.of("k2"));
-        udfContext.setOutput_fields(List.of("k2"));
+        udfContext.setLookupFields(List.of("k2"));
+        udfContext.setOutputFields(List.of("k2"));
         unroll.open(null, udfContext);
         List<Event> result2 = unroll.evaluate(event);
         assertEquals(3, result2.size());
@@ -76,8 +76,8 @@ public class UnrollFunctionTest {
         Unroll unroll = new Unroll();
         Event event = new Event();
         event.setExtractedFields(nestedMap);
-        udfContext.setLookup_fields(List.of("k3"));
-        udfContext.setOutput_fields(List.of("newk3"));
+        udfContext.setLookupFields(List.of("k3"));
+        udfContext.setOutputFields(List.of("newk3"));
         unroll.open(null, udfContext);
         List<Event> result2 = unroll.evaluate(event);
         assertEquals(1, result2.size());

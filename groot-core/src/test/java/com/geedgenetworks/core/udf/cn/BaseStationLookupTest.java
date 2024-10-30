@@ -38,8 +38,8 @@ class BaseStationLookupTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("kb_name", kbName);
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Arrays.asList("cell_id"));
-        udfContext.setOutput_fields(Arrays.asList("subscriber_longitude", "subscriber_latitude"));
+        udfContext.setLookupFields(Arrays.asList("cell_id"));
+        udfContext.setOutputFields(Arrays.asList("subscriber_longitude", "subscriber_latitude"));
 
         RuntimeContext runtimeContext = mockRuntimeContext();
 

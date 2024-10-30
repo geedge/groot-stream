@@ -71,8 +71,8 @@ public class HlldApproxCountDistinctTest {
         parameters.put("precision", precision);
         parameters.put("input_type", input_type);
         c.setParameters(parameters);
-        c.setLookup_fields(Collections.singletonList("ip"));
-        c.setOutput_fields(Collections.singletonList("ip_cnt"));
+        c.setLookupFields(Collections.singletonList("ip"));
+        c.setOutputFields(Collections.singletonList("ip_cnt"));
 
         agg.open(c);
         Map<String, Object> map = new HashMap<>();

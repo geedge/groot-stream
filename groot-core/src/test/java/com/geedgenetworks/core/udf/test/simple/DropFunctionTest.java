@@ -16,6 +16,7 @@ public class DropFunctionTest {
     @BeforeAll
     public static void setUp() {
         udfContext = new UDFContext();
+        udfContext.setFilter("true");
         udfContext.setParameters(new HashMap<>());
     }
 

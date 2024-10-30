@@ -25,8 +25,8 @@ public class EncodeBase64FunctionTest {
     @Test
     public void testEncodeBase64FunctionForByte() {
         udfContext = new UDFContext();
-        udfContext.setOutput_fields(Collections.singletonList("encodeResult"));
-        udfContext.setLookup_fields(Collections.singletonList("name"));
+        udfContext.setOutputFields(Collections.singletonList("encodeResult"));
+        udfContext.setLookupFields(Collections.singletonList("name"));
         Map<String,Object> map = new HashMap<>();
         map.put("input_type","byte_array");
         udfContext.setParameters(map);
@@ -47,8 +47,8 @@ public class EncodeBase64FunctionTest {
     public void testEncodeBase64FunctionForString() {
 
         udfContext = new UDFContext();
-        udfContext.setOutput_fields(Collections.singletonList("encodeResult"));
-        udfContext.setLookup_fields(Collections.singletonList("name"));
+        udfContext.setOutputFields(Collections.singletonList("encodeResult"));
+        udfContext.setLookupFields(Collections.singletonList("name"));
         Map<String,Object> map = new HashMap<>();
         map.put("input_type","string");
         udfContext.setParameters(map);

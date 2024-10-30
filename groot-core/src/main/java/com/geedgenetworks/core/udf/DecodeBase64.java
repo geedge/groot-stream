@@ -22,16 +22,16 @@ public class DecodeBase64 implements ScalarFunction {
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
-        if(udfContext.getParameters()==null || udfContext.getOutput_fields()==null){
+        if(udfContext.getParameters()==null || udfContext.getOutputFields()==null){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        if(udfContext.getOutput_fields().size() != 1){
+        if(udfContext.getOutputFields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
         if(!udfContext.getParameters().containsKey("value_field") ||!udfContext.getParameters().containsKey("charset_field") ){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey value_field and charset_field");
         }
-        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.outputFieldName = udfContext.getOutputFields().get(0);
         this.valueField =udfContext.getParameters().get("value_field").toString();
         this.charsetField =udfContext.getParameters().get("charset_field").toString();
 

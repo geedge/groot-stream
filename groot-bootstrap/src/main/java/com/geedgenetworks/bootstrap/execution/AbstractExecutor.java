@@ -14,7 +14,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public abstract  class AbstractExecutor<K, V>
+public abstract class AbstractExecutor<K, V>
         implements Executor<DataStream<Event>, JobRuntimeEnvironment> {
     protected  JobRuntimeEnvironment jobRuntimeEnvironment;
     protected final Config operatorConfig;

@@ -24,15 +24,15 @@ public class DomainFunctionTest {
         udfContext = new UDFContext();
         parameters =  new HashMap<>();
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("domain1"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
+        udfContext.setOutputFields(Collections.singletonList("domain1"));
     }
 
 
     @Test
     public void testInit(){
         Domain domain = new Domain();
-        udfContext.setLookup_fields(new ArrayList<>());
+        udfContext.setLookupFields(new ArrayList<>());
         udfContext.setParameters(new HashMap<>());
         udfContext.setParameters(null);
         Assertions.assertThrows(GrootStreamRuntimeException.class, () -> {
@@ -44,10 +44,10 @@ public class DomainFunctionTest {
             domain.open(null, udfContext);
         });
 
-        udfContext.setLookup_fields(new ArrayList<>());
-        udfContext.getLookup_fields().add("v1");
-        udfContext.setOutput_fields(new ArrayList<>());
-        udfContext.getOutput_fields().add("v2");
+        udfContext.setLookupFields(new ArrayList<>());
+        udfContext.getLookupFields().add("v1");
+        udfContext.setOutputFields(new ArrayList<>());
+        udfContext.getOutputFields().add("v2");
         udfContext.setParameters(new HashMap<>());
         udfContext.getParameters().put("option","other");
         Assertions.assertThrows(GrootStreamRuntimeException.class, () -> {
@@ -59,16 +59,16 @@ public class DomainFunctionTest {
     @Test
     public void testDomainFunctionTopLevelDomain() {
         parameters.put("option", "TOP_LEVEL_DOMAIN");
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("domain1"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
+        udfContext.setOutputFields(Collections.singletonList("domain1"));
         Domain domain = new Domain();
         domain.open(null, udfContext);
         Event event = new Event();
         Map<String, Object> extractedFields = new HashMap<>();
-        extractedFields.put("domain", "www.baidu.com");
+        extractedFields.put("domain", "http://www.baidu.com.cn");
         event.setExtractedFields(extractedFields);
         Event result1 = domain.evaluate(event);
-        assertEquals("com", result1.getExtractedFields().get("domain1"));
+        assertEquals("com.cn", result1.getExtractedFields().get("domain1"));
     }
 
     @Test
@@ -76,8 +76,8 @@ public class DomainFunctionTest {
 
         parameters.put("option", "FIRST_SIGNIFICANT_SUBDOMAIN");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("domain1"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
+        udfContext.setOutputFields(Collections.singletonList("domain1"));
         Domain domain = new Domain();
         domain.open(null, udfContext);
         Event event = new Event();
@@ -87,4 +87,5 @@ public class DomainFunctionTest {
         Event result1 = domain.evaluate(event);
         assertEquals("baidu.com", result1.getExtractedFields().get("domain1"));
     }
+
 }

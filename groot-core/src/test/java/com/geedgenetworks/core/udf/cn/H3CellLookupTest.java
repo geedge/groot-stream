@@ -36,8 +36,8 @@ public class H3CellLookupTest {
          *           resolution: 9
          */
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(Arrays.asList("subscriber_longitude", "subscriber_latitude"));
-        udfContext.setOutput_fields(Arrays.asList("first_location"));
+        udfContext.setLookupFields(Arrays.asList("subscriber_longitude", "subscriber_latitude"));
+        udfContext.setOutputFields(Arrays.asList("first_location"));
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("resolution", 9);
         udfContext.setParameters(parameters);

@@ -42,8 +42,8 @@ public class EncryptFunctionTest {
     public static void setUp() throws IOException {
         Security.addProvider(new BouncyCastleProvider());
         udfContext = new UDFContext();
-        udfContext.setLookup_fields(Collections.singletonList("phone_number"));
-        udfContext.setOutput_fields(Collections.singletonList("phone_number"));
+        udfContext.setLookupFields(Collections.singletonList("phone_number"));
+        udfContext.setOutputFields(Collections.singletonList("phone_number"));
         httpClientPoolUtilMockedStatic = mockSensitiveFields();
     }
 
