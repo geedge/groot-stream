@@ -149,6 +149,12 @@
                 </dependency>
                 <dependency>
                     <groupId>com.geedgenetworks</groupId>
+                    <artifactId>format-csv</artifactId>
+                    <version>${project.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.geedgenetworks</groupId>
                     <artifactId>format-raw</artifactId>
                     <version>${project.version}</version>
                     <scope>provided</scope>

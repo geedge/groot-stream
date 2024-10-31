@@ -17,6 +17,7 @@
         <module>format-protobuf</module>
         <module>format-msgpack</module>
         <module>format-raw</module>
+        <module>format-csv</module>
     </modules>
 
     <dependencies>
