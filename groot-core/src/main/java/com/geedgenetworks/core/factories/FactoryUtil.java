@@ -159,6 +159,16 @@ public final class FactoryUtil {
         return discoverFactory(Thread.currentThread().getContextClassLoader(), factoryClass, connector);
     }
 
+    public static <T extends DecodingFormatFactory> T discoverDecodingFormatFactory(
+            Class<T> factoryClass, String type) {
+        return discoverFactory(Thread.currentThread().getContextClassLoader(), factoryClass, type);
+    }
+
+    public static <T extends EncodingFormatFactory> T discoverEncodingFormatFactory(
+            Class<T> factoryClass, String type) {
+        return discoverFactory(Thread.currentThread().getContextClassLoader(), factoryClass, type);
+    }
+
     private static <T> T readOption(ReadableConfig options, ConfigOption<T> option) {
         try {
             return options.get(option);

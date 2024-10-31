@@ -1,6 +1,7 @@
 package com.geedgenetworks.formats.msgpack;
 
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.core.connector.format.MapDeserialization;
 import com.geedgenetworks.core.types.StructType;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -9,7 +10,7 @@ import org.apache.flink.util.StringUtils;
 import java.io.IOException;
 import java.util.Map;
 
-public class MessagePackEventDeserializationSchema implements DeserializationSchema<Event> {
+public class MessagePackEventDeserializationSchema implements DeserializationSchema<Event>, MapDeserialization {
     private final StructType dataType;
     private final MessagePackDeserializer deserializer;
 
@@ -25,6 +26,15 @@ public class MessagePackEventDeserializationSchema implements DeserializationSch
             Event event = new Event();
             event.setExtractedFields(map);
             return event;
+        } catch (Exception e) {
+            throw new IOException(StringUtils.byteToHexString(bytes), e);
+        }
+    }
+
+    @Override
+    public Map<String, Object> deserializeToMap(byte[] bytes) throws IOException {
+        try {
+            return deserializer.deserialize(bytes);
         } catch (Exception e) {
             throw new IOException(StringUtils.byteToHexString(bytes), e);
         }

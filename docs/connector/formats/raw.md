@@ -4,7 +4,7 @@
 >
 > ## Description
 >
-> The Raw format allows to read and write raw (byte based) values as a single column.
+> The Raw format allows to read and write raw (byte based) values as a single column, the column name is raw default, it can also be explicitly defined as other name.
 
 |    Name    | Supported Versions |                                                           Maven                                                           |
 |------------|--------------------|---------------------------------------------------------------------------------------------------------------------------|

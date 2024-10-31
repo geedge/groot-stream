@@ -92,6 +92,13 @@
             <scope>${scope}</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>format-csv</artifactId>
+            <version>${revision}</version>
+            <scope>${scope}</scope>
+        </dependency>
+
         <!--  Idea debug dependencies -->
         <dependency>
             <groupId>org.apache.flink</groupId>
