@@ -4,8 +4,7 @@
 >
 > ## Description
 >
-> The CSV format allows to read and write CSV data based on an CSV schema. Currently, the CSV schema is derived from table schema.
-> **The CSV format must config schema for source/sink**.
+> The CSV format allows for reading and writing CSV data based on a schema. Currently, the CSV schema is derived from the table schema.
 
 | Name         | Supported Versions | Maven                                                                                                                     |
 |--------------|--------------------|---------------------------------------------------------------------------------------------------------------------------|
@@ -16,12 +15,12 @@
 | Name                        | Type      | Required | Default | Description                                                                                                                                                        |
 |-----------------------------|-----------|----------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | format                      | String    | Yes      | (none)  | Specify what format to use, here should be 'csv'.                                                                                                                  |
-| csv.field.delimiter         | String    | No       | ,       | Field delimiter character (',' by default), must be single character. You can use backslash to specify special characters, e.g. '\t' represents the tab character. |
-| csv.disable.quote.character | Boolean   | No       | false   | Disabled quote character for enclosing field values (false by default). If true, option 'csv.quote.character' can not be set.                                      |
-| csv.quote.character         | String    | No       | "       | Quote character for enclosing field values (" by default).                                                                                                         |
+| csv.field.delimiter         | String    | No       | ,       | Field delimiter character (`,` by default), must be single character. You can use backslash to specify special characters, e.g. '\t' represents the tab character. |
+| csv.disable.quote.character | Boolean   | No       | false   | Disabled quote character for enclosing field values (`false` by default). If true, option `csv.quote.character` can not be set.                                    |
+| csv.quote.character         | String    | No       | "       | Quote character for enclosing field values (`"` by default).                                                                                                       |
 | csv.allow.comments          | Boolean   | No       | false   | Ignore comment lines that start with '#' (disabled by default). If enabled, make sure to also ignore parse errors to allow empty rows.                             |
 | csv.ignore.parse.errors     | Boolean   | No       | false   | Skip fields and rows with parse errors instead of failing. Fields are set to null in case of errors.                                                               |
-| csv.array.element.delimiter | String    | No       | ;       | Array element delimiter string for separating array and row element values (';' by default).                                                                       |
+| csv.array.element.delimiter | String    | No       | ;       | Array element delimiter string for separating array and row element values (`;`  by default).                                                                      |
 | csv.escape.character        | String    | No       | (none)  | Escape character for escaping values (disabled by default).                                                                                                        |
 | csv.null.literal            | String    | No       | (none)  | Null literal string that is interpreted as a null value (disabled by default).                                                                                     |
 

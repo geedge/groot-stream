@@ -114,7 +114,8 @@ grootstream:
     vault:
       type: vault
       url: <vault-url>
-      token: <vault-token>
+      username: <vault-username>
+      password: <vault-password>
       default_key_path: <default-vault-key-path>
       plugin_key_path: <plugin-vault-key-path>
   
@@ -1295,6 +1296,23 @@ sinks:
       format: raw
 ```
 
+### CSV 
+
+按照既定的Schema读取/写入csv格式数据。
+
+| 属性名                      | 必填 | 默认值 | 类型    | 描述                                                         |
+| --------------------------- | ---- | ------ | ------- | ------------------------------------------------------------ |
+| csv.field.delimiter         | Y    | ,      | String  | 指定字段值之间的分隔符，默认为逗号                           |
+| csv.quote.character         | N    | "      | String  | 指定用于包围字段值的引号字符，默认为双引号"。如果csv.disable.quote.character为true，无法使用该选项。 |
+| csv.disable.quote.character | N    | false  | Boolean | 是否禁用包围字段值的引号字符。默认为false                    |
+| csv.allow.comments          | N    | false  | Boolean | 忽略以 `#` 开头的注释行（默认情况下禁用）。如果启用此选项，确保同时忽略解析错误，以允许存在空行。这意味着在处理 CSV 文件时，任何以 `#` 开头的行都将被视为注释，不会被解析或读取。 |
+| csv.ignore.parse.errors     | N    | false  | Boolean | 忽略解析错误，默认为false。遇到格式错误输出异常日志。        |
+| csv.array.element.delimiter | N    | ;      | String  | 数组中元素的分隔符                                           |
+| csv.escape.character        | N    |        | String  | 转义特殊字符的字符。例如：分隔符、引号或换行符。             |
+| csv.null.literal            | N    |        | String  | 指定NULL值的字符串                                           |
+
+
+
 # 任务编排
 
 ```yaml
@@ -1480,7 +1498,7 @@ Parameters:
     identifier: aes-128-gcm96
 ```
 
-Note : 读取任务变量`projection.encrypt.schema.registry.uri`，返回加密字段，数据类型为Array。
+Note : 读取任务变量`projection.encrypt.schema.registry.uri`，返回加密的字段，数据类型为Array。
 
  #### Eval
 
@@ -1621,7 +1639,7 @@ Parameters:
 
 - secret_key =  `<string>` 用于生成MAC的密钥。
 - algorithm=  `<string>`  用于生成MAC的HASH算法。默认是`sha256` 
-- output_format = `<string>` 输出MAC的格式。默认为`'hex'` 。支持：`base64` | `hex `。
+- output_format = `<string>` 输出MAC的格式。默认为`'base64'` 。支持：`base64` | `hex `。
 
 ```
 - function: HMAC
@@ -1848,6 +1866,28 @@ Parameters:
 - function: LONG_COUNT
   lookup_fields: [ log_id ]
   output_fields: [ sessions ]
+```
+
+
+
+ #### Max
+
+在时间窗口内获取最大值
+
+```yaml
+- function: MAX
+  lookup_fields: [ received_time ]
+  output_fields: [ received_time ]
+```
+
+ #### Min
+
+在时间窗口内获取最小值
+
+```yaml
+- function: MIN
+  lookup_fields: [ received_time ]
+  output_fields: [ received_time ]
 ```
 
  #### Mean

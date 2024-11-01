@@ -10,11 +10,13 @@
 - [Current Unix Timestamp](#current-unix-timestamp)
 - [Domain](#domain)
 - [Drop](#drop)
+- [Encrypt](#encrypt)
 - [Eval](#eval)
 - [Flatten](#flatten)
 - [From Unix Timestamp](#from-unix-timestamp)
 - [Generate String Array](#generate-string-array)
 - [GeoIP Lookup](#geoip-lookup)
+- [HMAC](#hmac)
 - [JSON Extract](#json-extract)
 - [Path Combine](#path-combine)
 - [Rename](#rename)
@@ -172,6 +174,30 @@ Example:
 ```yaml
 - function: DROP
   filter:  event.server_ip == '4.4.4.4'
+```
+
+### Encrypt
+
+Encrypt function is used to encrypt the field value by the specified algorithm.
+
+Note: This feature allows you to use a third-party RESTful API to retrieve encrypted fields. By using these fields as criteria, you can determine whether the current field is encrypted. You must also set the projection.encrypt.schema.registry.uri as a job property.
+For example, setting `projection.encrypt.schema.registry.uri=127.0.0.1:9999/v1/schema/session_record?option=encrypt_fields` will return the encrypted fields in an array format.
+
+```ENCRYPT(filter, lookup_fields, output_fields[, parameters])```
+- filter: optional
+- lookup_fields: required
+- output_fields: required
+- parameters: required
+  - identifier: `<String>` required. The identifier of the encryption algorithm. Supports `aes-128-gcm96`, `aes-256-gcm96`, and `sm4-gcm96`.
+
+Example:
+Encrypt the phone number by the AES-128-GCM96 algorithm. Here phone_number will replace the original value with the encrypted value.
+```yaml 
+- function: ENCRYPT
+  lookup_fields: [phone_number]
+  output_fields: [phone_number]
+  parameters:
+    identifier: aes-128-gcm96
 ```
 
 ### Eval
@@ -381,6 +407,29 @@ Example:
       COUNTRY: server_country
       PROVINCE: server_super_administrative_area
       CITY: server_administrative_area
+```
+
+### HMAC
+
+HMAC function is used to generate the hash-based message authentication code (HMAC) by the specified algorithm.
+
+```HMAC(filter, lookup_fields, output_fields[, parameters])```
+- filter: optional
+- lookup_fields: required
+- output_fields: required
+- parameters: required
+  - secret_key: `<String>` required. The secret key used to generate the HMAC.
+  - output_format: `<String>` required. Enum: `HEX`, `BASE64`. Default is `BASE64`.
+
+Example:
+    
+```yaml
+  - function: HMAC
+    lookup_fields: [phone_number]
+    output_fields: [phone_number_hmac]
+    parameters:
+      secret_key: abcdefg
+      output_format: BASE64
 ```
 
 ### JSON Extract
@@ -605,3 +654,4 @@ Example:
 
 ```
 Result: such as 2ed6657d-e927-568b-95e1-2665a8aea6a2.
+

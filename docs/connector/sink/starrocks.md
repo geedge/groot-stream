@@ -1,25 +1,25 @@
 # Starrocks
 
-> Starrocks sink connector
+> StarRocks sink connector
 >
 > ## Description
 >
-> Sink connector for Starrocks, know more in https://docs.starrocks.io/zh/docs/loading/Flink-connector-starrocks/.
+> Sink connector for StarRocks, know more in https://docs.starrocks.io/zh/docs/loading/Flink-connector-starrocks/.
 
 ## Sink Options
 
-Starrocks sink custom properties. If properties belongs to Starrocks Flink Connector Config, you can use `connection.` prefix to set.
+StarRocks sink custom properties. If properties belongs to StarRocks Flink Connector Config, you can use `connection.` prefix to set.
 
 | Name                | Type    | Required | Default | Description                                                                                                                                                                                                                                               |
 |---------------------|---------|----------|---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | log.failures.only   | Boolean | No       | true    | Optional flag to whether the sink should fail on errors, or only log them; If this is set to true, then exceptions will be only logged, if set to false, exceptions will be eventually thrown, true by default.                                           |
 | connection.jdbc-url | String  | Yes      | (none)  | The address that is used to connect to the MySQL server of the FE. You can specify multiple addresses, which must be separated by a comma (,). Format: jdbc:mysql://<fe_host1>:<fe_query_port1>,<fe_host2>:<fe_query_port2>,<fe_host3>:<fe_query_port3>.. |
 | connection.load-url | String  | Yes      | (none)  | The address that is used to connect to the HTTP server of the FE. You can specify multiple addresses, which must be separated by a semicolon (;). Format: <fe_host1>:<fe_http_port1>;<fe_host2>:<fe_http_port2>..                                         |
-| connection.config   | Map     | No       | (none)  | Starrocks Flink Connector Options, know more in https://docs.starrocks.io/docs/loading/Flink-connector-starrocks/#options.                                                                                                                                |
+| connection.config   | Map     | No       | (none)  | StarRocks Flink Connector Options, know more in https://docs.starrocks.io/docs/loading/Flink-connector-starrocks/#options.                                                                                                                                |
 
 ## Example
 
-This example read data of inline test source and write to Starrocks table `test`.
+This example read data of inline test source and write to StarRocks table `test`.
 
 ```yaml
 sources: # [object] Define connector source

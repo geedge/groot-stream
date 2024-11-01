@@ -9,7 +9,9 @@
 - [First Value](#First-Value)
 - [Last Value](#Last-Value)
 - [Long Count](#Long-Count)
+- [Max](#Max)
 - [MEAN](#Mean)
+- [Min](#Min)
 - [Number SUM](#Number-SUM)
 - [HLLD](#HLLD)
 - [Approx Count Distinct HLLD](#Approx-Count-Distinct-HLLD)
@@ -116,6 +118,23 @@ Example
   output_fields: [sessions]
 ```
 
+### Max
+
+MAX is used to get the maximum value of the field in the group of events.
+
+```MAX(filter, lookup_fields, output_fields)```
+- filter: optional
+- lookup_fields: required. Now only support one field.
+- output_fields: optional. If not set, the output field name is `lookup_field_name`.
+
+Example
+
+```yaml 
+- function: MAX
+  lookup_fields: [receive_time]
+  output_fields: [receive_time]
+```
+
 ### Mean
 
 MEAN is used to calculate the mean value of the field in the group of events. The lookup field value must be a number.
@@ -134,6 +153,25 @@ Example
   lookup_fields: [received_bytes]
   output_fields: [received_bytes_mean]
 ```
+
+
+### Min
+
+MIN is used to get the minimum value of the field in the group of events.
+
+```MIN(filter, lookup_fields, output_fields)```
+- filter: optional
+- lookup_fields: required. Now only support one field.
+- output_fields: optional. If not set, the output field name is `lookup_field_name`.
+
+Example
+
+```yaml
+- function: MIN
+  lookup_fields: [receive_time]
+  output_fields: [receive_time]
+```
+
 
 ### Number SUM
 
