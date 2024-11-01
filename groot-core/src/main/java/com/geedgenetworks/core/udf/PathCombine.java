@@ -55,7 +55,7 @@ public class PathCombine implements ScalarFunction {
                 }
             }
         }
-        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.outputFieldName = udfContext.getOutputFields().get(0);
     }
 
 
@@ -65,9 +65,9 @@ public class PathCombine implements ScalarFunction {
         List<String> pathBuilder = new LinkedList<>();
         for (Map.Entry<String, String> entry : pathParameters.entrySet()) {
             if (entry.getValue().isEmpty()) {
-
-                if(event.getExtractedFields().containsKey(entry.getKey())) {
-                    pathBuilder.add(event.getExtractedFields().get(entry.getKey()).toString());
+                Object valueObj = event.getExtractedFields().get(entry.getKey());
+                if (valueObj!=null) {
+                    pathBuilder.add(valueObj.toString());
                 }
                 else {
                     return event;

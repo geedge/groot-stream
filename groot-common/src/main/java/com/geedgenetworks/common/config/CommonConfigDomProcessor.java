@@ -1,8 +1,6 @@
 package com.geedgenetworks.common.config;
 
 import com.hazelcast.internal.config.AbstractDomConfigProcessor;
-import com.hazelcast.logging.ILogger;
-import com.hazelcast.logging.Logger;
 import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Node;
 
@@ -16,6 +14,7 @@ import static com.hazelcast.internal.config.DomConfigHelper.*;
 @Slf4j
 public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
     private final GrootStreamConfig config;
+
     CommonConfigDomProcessor(boolean domLevel3, GrootStreamConfig config) {
         super(domLevel3);
         this.config = config;
@@ -26,12 +25,16 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
         final CommonConfig commonConfig = config.getCommonConfig();
         for (Node node : childElements(rootNode)) {
             String name = cleanNodeName(node);
-             if (CommonConfigOptions.KNOWLEDGE_BASE.key().equals(name)) {
-                 commonConfig.setKnowledgeBaseConfig(parseKnowledgeBaseConfig(node));
+            if (CommonConfigOptions.KNOWLEDGE_BASE.key().equals(name)) {
+                commonConfig.setKnowledgeBaseConfig(parseKnowledgeBaseConfig(node));
+            } else if (CommonConfigOptions.KMS.key().equals(name)) {
+                commonConfig.setKmsConfig(parseKmsConfig(node));
+            } else if (CommonConfigOptions.SSL.key().equals(name)) {
+                commonConfig.setSslConfig(parseSSLConfig(node));
             } else if (CommonConfigOptions.PROPERTIES.key().equals(name)) {
-                 commonConfig.setPropertiesConfig(parsePropertiesConfig(node));
+                commonConfig.setPropertiesConfig(parsePropertiesConfig(node));
             } else {
-                log.warn("Unrecognized configuration element: " + name);
+                log.warn("Unrecognized Groot Stream configuration element: {}", name);
             }
 
         }
@@ -39,12 +42,12 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
 
     private Map<String, String> parsePropertiesConfig(Node properties) {
 
-            Map<String, String> propertiesMap = new HashMap<>();
-            for (Node node : childElements(properties)) {
-                String name = cleanNodeName(node);
-                propertiesMap.put(name,getTextContent(node));
-            }
-            return propertiesMap;
+        Map<String, String> propertiesMap = new HashMap<>();
+        for (Node node : childElements(properties)) {
+            String name = cleanNodeName(node);
+            propertiesMap.put(name, getTextContent(node));
+        }
+        return propertiesMap;
     }
 
 
@@ -57,11 +60,11 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
         return knowledgeConfigList;
     }
 
-   private KnowledgeBaseConfig parseKnowledgeBaseConfigAsObject(Node kbNode) {
+
+    private KnowledgeBaseConfig parseKnowledgeBaseConfigAsObject(Node kbNode) {
         KnowledgeBaseConfig knowledgeBaseConfig = new KnowledgeBaseConfig();
         for (Node node : childElements(kbNode)) {
             String name = cleanNodeName(node);
-
             if (CommonConfigOptions.KNOWLEDGE_BASE_NAME.key().equals(name)) {
                 knowledgeBaseConfig.setName(getTextContent(node));
             } else if (CommonConfigOptions.KNOWLEDGE_BASE_FS_TYPE.key().equals(name)) {
@@ -72,19 +75,71 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
                 knowledgeBaseConfig.setFiles(parseKnowledgeBaseFilesConfig(node));
             } else if (CommonConfigOptions.KNOWLEDGE_BASE_PROPERTIES.key().equals(name)) {
                 knowledgeBaseConfig.setProperties(parseKnowledgeBasePropertiesConfig(node));
+            } else {
+                log.warn("Unrecognized KB configuration element: {}", name);
             }
-            else{
-                log.warn("Unrecognized configuration element: " + name);
-            }
+
         }
         return knowledgeBaseConfig;
     }
+
+    private SSLConfig parseSSLConfig(Node sslRootNode) {
+        SSLConfig sslConfig = new SSLConfig();
+        for (Node node : childElements(sslRootNode)) {
+            String name = cleanNodeName(node);
+            if (CommonConfigOptions.SKIP_VERIFICATION.key().equals(name)) {
+                sslConfig.setSkipVerification(getBooleanValue(getTextContent(node)));
+            } else if (CommonConfigOptions.CA_CERTIFICATE_PATH.key().equals(name)) {
+                sslConfig.setCaCertificatePath(getTextContent(node));
+            } else if (CommonConfigOptions.CERTIFICATE_PATH.key().equals(name)) {
+                sslConfig.setCertificatePath(getTextContent(node));
+            } else if (CommonConfigOptions.PRIVATE_KEY_PATH.key().equals(name)) {
+                sslConfig.setPrivateKeyPath(getTextContent(node));
+            } else {
+                log.warn("Unrecognized SSL configuration element: {}", name);
+            }
+        }
+        return sslConfig;
+    }
+
+    private Map<String, KmsConfig> parseKmsConfig(Node kmsRootNode) {
+        Map<String, KmsConfig> kmsConfigMap = new HashMap<>();
+        for (Node node : childElements(kmsRootNode)) {
+            String name = cleanNodeName(node);
+            kmsConfigMap.put(name, parseKmsConfigAsObject(node));
+        }
+        return kmsConfigMap;
+    }
+
+    private KmsConfig parseKmsConfigAsObject(Node kmsNode) {
+        KmsConfig kmsConfig = new KmsConfig();
+        for (Node node : childElements(kmsNode)) {
+            String name = cleanNodeName(node);
+            if (CommonConfigOptions.KMS_TYPE.key().equals(name)) {
+                kmsConfig.setType(getTextContent(node));
+            } else if (CommonConfigOptions.KMS_URL.key().equals(name)) {
+                kmsConfig.setUrl(getTextContent(node));
+            } else if (CommonConfigOptions.KMS_USERNAME.key().equals(name)) {
+                kmsConfig.setUsername(getTextContent(node));
+            } else if (CommonConfigOptions.KMS_PASSWORD.key().equals(name)) {
+                kmsConfig.setPassword(getTextContent(node));
+            } else if (CommonConfigOptions.KMS_DEFAULT_KEY_PATH.key().equals(name)) {
+                kmsConfig.setDefaultKeyPath(getTextContent(node));
+            } else if (CommonConfigOptions.KMS_PLUGIN_KEY_PATH.key().equals(name)) {
+                kmsConfig.setPluginKeyPath(getTextContent(node));
+            } else {
+                log.warn("Unrecognized KMS configuration element: {}", name);
+            }
+        }
+        return kmsConfig;
+    }
+
 
     private Map<String, String> parseKnowledgeBasePropertiesConfig(Node properties) {
         Map<String, String> propertiesMap = new HashMap<>();
         for (Node node : childElements(properties)) {
             String name = cleanNodeName(node);
-            propertiesMap.put(name,getTextContent(node));
+            propertiesMap.put(name, getTextContent(node));
         }
         return propertiesMap;
     }

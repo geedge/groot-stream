@@ -30,8 +30,8 @@ class VpnLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "IP_TO_VPN");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("server_ip"));
-        udfContext.setOutput_fields(Collections.singletonList("server_vpn_service_name"));
+        udfContext.setLookupFields(Collections.singletonList("server_ip"));
+        udfContext.setOutputFields(Collections.singletonList("server_vpn_service_name"));
 
         RuntimeContext runtimeContext = mockRuntimeContext();
 
@@ -55,8 +55,8 @@ class VpnLookupTest {
         parameters.put("kb_name", kbName);
         parameters.put("option", "DOMAIN_TO_VPN");
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("domain_vpn_service_name"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
+        udfContext.setOutputFields(Collections.singletonList("domain_vpn_service_name"));
 
         RuntimeContext runtimeContext = mockRuntimeContext();
 

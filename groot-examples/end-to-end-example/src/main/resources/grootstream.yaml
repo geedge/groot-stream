@@ -10,6 +10,21 @@ grootstream:
       fs_path: ./config/dat
       files:
         - ip_builtin.mmdb
+  kms:
+    local:
+      type: local
+    vault:
+      type: vault
+      url: <vault-url>
+      token: <vault-token>
+      key_path: <vault-key-path>
+
+  ssl:
+    enabled: true
+    cert_file: ./config/ssl/cert.pem
+    key_file: ./config/ssl/key.pem
+    require_client_auth: true
+
   properties:
     hos.path: http://192.168.44.12:9098/hos
     hos.bucket.name.traffic_file: traffic_file_bucket

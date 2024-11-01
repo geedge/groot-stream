@@ -22,8 +22,8 @@ public class FieldsMerge implements ScalarFunction {
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-        this.lookupFieldNames = udfContext.getLookup_fields();
-        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.lookupFieldNames = udfContext.getLookupFields();
+        this.outputFieldName = udfContext.getOutputFields().get(0);
     }
 
     @Override

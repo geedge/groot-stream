@@ -17,8 +17,8 @@ public class GenerateStringArrayFunctionTest {
     @BeforeAll
     public static void setUp() {
         udfContext = new UDFContext();
-        udfContext.setLookup_fields(Arrays.asList("t1", "t2","t3","t4","t5"));
-        udfContext.setOutput_fields(Collections.singletonList("result_list"));
+        udfContext.setLookupFields(Arrays.asList("t1", "t2","t3","t4","t5"));
+        udfContext.setOutputFields(Collections.singletonList("result_list"));
     }
 
     // 测试方法

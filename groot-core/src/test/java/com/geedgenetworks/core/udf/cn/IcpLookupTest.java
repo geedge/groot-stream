@@ -24,8 +24,8 @@ class IcpLookupTest {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("kb_name", kbName);
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("domain"));
-        udfContext.setOutput_fields(Collections.singletonList("domain_icp_company_name"));
+        udfContext.setLookupFields(Collections.singletonList("domain"));
+        udfContext.setOutputFields(Collections.singletonList("domain_icp_company_name"));
 
         RuntimeContext runtimeContext = mockRuntimeContext();
 

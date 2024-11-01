@@ -134,10 +134,10 @@
             <useTransitiveDependencies>true</useTransitiveDependencies>
             <unpack>false</unpack>
             <includes>
-                <include>com.geedgenetworks:hbase-client-shaded:jar</include>
                 <include>com.geedgenetworks:format-json:jar</include>
                 <include>com.geedgenetworks:format-protobuf:jar</include>
                 <include>com.geedgenetworks:format-msgpack:jar</include>
+                <include>com.geedgenetworks:format-csv:jar</include>
                 <include>com.geedgenetworks:format-raw:jar</include>
             </includes>
             <outputFileNameMapping>${artifact.file.name}</outputFileNameMapping>

@@ -14,30 +14,15 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public abstract  class AbstractExecutor<K, V>
+public abstract class AbstractExecutor<K, V>
         implements Executor<DataStream<Event>, JobRuntimeEnvironment> {
     protected  JobRuntimeEnvironment jobRuntimeEnvironment;
     protected final Config operatorConfig;
     protected final Map<K,V> operatorMap;
-    protected final Map<String,Filter> filterMap = new HashMap<>();
-    protected final Map<String, Split> splitMap = new HashMap<>();
-    protected final Map<String, Processor> processorMap = new HashMap<>();
 
     protected AbstractExecutor(List<URL> jarPaths, Config operatorConfig) {
         this.operatorConfig = operatorConfig;
         this.operatorMap = initialize(jarPaths, operatorConfig);
-        ServiceLoader<Filter> filters = ServiceLoader.load(Filter.class);
-        for (Filter filter : filters) {
-            this.filterMap.put(filter.type(), filter);
-        }
-        ServiceLoader<Split> splits = ServiceLoader.load(Split.class);
-        for (Split split : splits) {
-            this.splitMap.put(split.type(), split);
-        }
-        ServiceLoader<Processor> processors = ServiceLoader.load(Processor.class);
-        for (Processor processor : processors) {
-            this.processorMap.put(processor.type(), processor);
-        }
     }
 
     @Override

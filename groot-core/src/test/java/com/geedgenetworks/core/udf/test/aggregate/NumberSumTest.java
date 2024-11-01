@@ -48,8 +48,8 @@ public class NumberSumTest {
     private void testMerge(Number[] arr,Number[] arr2) {
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("field_sum"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("field_sum"));
         NumberSum numberSum = new NumberSum();
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
@@ -83,8 +83,8 @@ public class NumberSumTest {
     private static void excute(Number[] arr, Class<? extends Number> clazz) throws ParseException {
 
         UDFContext udfContext = new UDFContext();
-        udfContext.setLookup_fields(List.of("field"));
-        udfContext.setOutput_fields(Collections.singletonList("field_sum"));
+        udfContext.setLookupFields(List.of("field"));
+        udfContext.setOutputFields(Collections.singletonList("field_sum"));
         NumberSum numberSum = new NumberSum();
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();

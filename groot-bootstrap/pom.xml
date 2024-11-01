@@ -66,6 +66,13 @@
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
+            <artifactId>connector-starrocks</artifactId>
+            <version>${revision}</version>
+            <scope>${scope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
             <artifactId>format-json</artifactId>
             <version>${revision}</version>
             <scope>${scope}</scope>
@@ -81,6 +88,13 @@
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>format-msgpack</artifactId>
+            <version>${revision}</version>
+            <scope>${scope}</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>format-csv</artifactId>
             <version>${revision}</version>
             <scope>${scope}</scope>
         </dependency>

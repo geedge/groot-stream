@@ -1,0 +1,130 @@
+sources:
+
+  inline_source:
+    type : inline
+    watermark_timestamp: timestamp_ms
+    watermark_timestamp_unit: ms
+    watermark_lag: 10
+    fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
+    properties:
+      data:  '[{"sessions":100,"pkts":1000,"bytes":10000,"timestamp_ms":1729476000001,"vsys_id": 1,"duration": 60000,"rule_uuid": "123","client_ip":"1.1.1.2","server_ip":"1.2.2.2","client_country":"CN","server_country":"US"},{"sessions":100,"pkts":1000,"bytes":10000,"timestamp_ms":1729476000001,"vsys_id": 1,"duration": 60000,"rule_uuid": "123","client_ip":"1.1.1.1","server_ip":"1.2.2.2","client_country":"CN","server_country":"US"},{"timestamp_ms":1729476003000,"vsys_id": 1,"duration": 60000,"rule_uuid": "123","client_ip":"1.1.1.1","server_ip":"1.2.2.2","client_country":"CN1","server_country":"US1","sessions":100,"pkts":1000,"bytes":10000},{"timestamp_ms":1729477003000,"vsys_id": 1,"duration": 60000,"rule_uuid": "123","client_ip":"1.1.1.1","server_ip":"1.2.2.2","client_country":"CN1","server_country":"US1","sessions":100,"pkts":1000,"bytes":10000}]'
+      interval.per.row: 2s # 可选
+      repeat.count: 1 # 可选
+      format: json
+      json.ignore.parse.errors: false
+
+
+
+postprocessing_pipelines:
+
+  pre_etl_processor: # [object] Processing Pipeline
+    type: projection
+    functions: # [array of object] Function List
+      - function: CURRENT_UNIX_TIMESTAMP
+        output_fields: [ recv_time ]
+        parameters:
+          precision: seconds
+  aggregate_processor:
+    type: aggregate
+    group_by_fields: [vsys_id,rule_uuid,server_ip,client_ip]
+    window_type: tumbling_event_time  # tumbling_event_time,sliding_processing_time,sliding_event_time
+    window_size: 600
+    functions:
+      - function: NUMBER_SUM
+        lookup_fields: [ sessions ]
+      - function: NUMBER_SUM
+        lookup_fields: [ bytes ]
+      - function: NUMBER_SUM
+        lookup_fields: [ pkts ]
+        output_fields: [ packets ]
+      - function: FIRST_VALUE
+        lookup_fields: [ client_country ]
+      - function: FIRST_VALUE
+        lookup_fields: [ server_country ]
+      - function: MIN
+        lookup_fields: [ timestamp_ms ]
+        output_fields: [ start_timestamp_ms ]
+      - function: MIN
+        lookup_fields: [ recv_time ]
+      - function: MAX
+        lookup_fields: [ timestamp_ms ]
+        output_fields: [ end_timestamp_ms ]
+      - function: FIRST_VALUE
+        lookup_fields: [ duration ]
+  post_etl_processor: # [object] Processing Pipeline
+    type: projection
+    remove_fields:
+    output_fields:
+    functions: # [array of object] Function List
+      - function: UNIX_TIMESTAMP_CONVERTER
+        lookup_fields: [ end_timestamp_ms ]
+        output_fields: [ end_time ]
+        parameters:
+          precision: seconds
+      - function: UNIX_TIMESTAMP_CONVERTER
+        lookup_fields: [ start_timestamp_ms ]
+        output_fields: [ start_time ]
+        parameters:
+          precision: seconds
+      - function: EVAL
+        output_fields: [ duration ]
+        parameters:
+          value_expression: "((end_time-start_time) > 0)? (end_time-start_time) : (duration/1000)"
+      - function: EVAL
+        output_fields: [ end_time ]
+        parameters:
+          value_expression: start_time + duration
+      - function: EVAL
+        output_fields: [ session_rate ]
+        parameters:
+          value_expression:   math.round((double(sessions) / duration )*100)/100.0
+      - function: EVAL
+        output_fields: [ packet_rate ]
+        parameters:
+          value_expression:  math.round((double(packets) / duration ) *100)/100.0
+      - function: EVAL
+        output_fields: [ bit_rate ]
+        parameters:
+          value_expression:  math.round((double((bytes*8)) / duration) *100)/100.0
+      - function: RENAME
+        parameters:
+          rename_fields:
+            client_ip: source_ip
+            client_country: source_country
+            server_ip: destination_ip
+            server_country: destination_country
+      - function: SNOWFLAKE_ID
+        lookup_fields: ['']
+        output_fields: [log_id]
+        parameters:
+          data_center_id_num: 1
+
+sinks:
+
+  collect_sink:
+    type: collect
+    properties:
+      format: json
+
+application: # [object] Application Configuration
+
+  env: # [object] Environment Variables
+    name: groot-stream-job # [string] Job Name
+    parallelism: 1
+    properties:
+      k: v
+    pipeline:
+      object-reuse: true # [boolean] Object Reuse, default is false
+
+
+  topology:
+    - name: inline_source
+      downstream: [pre_etl_processor]
+    - name: pre_etl_processor
+      downstream: [aggregate_processor]
+    - name: aggregate_processor
+      downstream: [ post_etl_processor ]
+    - name: post_etl_processor
+      downstream: [ collect_sink]
+    - name: collect_sink
+

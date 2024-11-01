@@ -25,14 +25,14 @@ public class GeoIpLookupFunctionTest {
     @BeforeAll
     public static void setUp() {
         udfContext = new UDFContext();
-        udfContext.setLookup_fields(Collections.singletonList("ip"));
-        udfContext.setOutput_fields(Collections.singletonList("iplocation"));
+        udfContext.setLookupFields(Collections.singletonList("ip"));
+        udfContext.setOutputFields(Collections.singletonList("iplocation"));
     }
 
     @Test
     public void testInit(){
         GeoIpLookup geoIpLookup = new GeoIpLookup();
-        udfContext.setLookup_fields(new ArrayList<>());
+        udfContext.setLookupFields(new ArrayList<>());
         udfContext.setParameters(new HashMap<>());
         udfContext.setParameters(null);
         Assertions.assertThrows(GrootStreamRuntimeException.class, () -> {
@@ -44,10 +44,10 @@ public class GeoIpLookupFunctionTest {
             geoIpLookup.open(null, udfContext);
         });
 
-        udfContext.setLookup_fields(new ArrayList<>());
-        udfContext.getLookup_fields().add("v1");
-        udfContext.setOutput_fields(new ArrayList<>());
-        udfContext.getOutput_fields().add("v2");
+        udfContext.setLookupFields(new ArrayList<>());
+        udfContext.getLookupFields().add("v1");
+        udfContext.setOutputFields(new ArrayList<>());
+        udfContext.getOutputFields().add("v2");
         udfContext.setParameters(new HashMap<>());
         udfContext.getParameters().put("option","other");
         Assertions.assertThrows(GrootStreamRuntimeException.class, () -> {

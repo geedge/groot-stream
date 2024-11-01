@@ -21,17 +21,15 @@ public class EncodeBase64FunctionTest {
 
     private static UDFContext udfContext;
 
-    @BeforeAll
-    public static void setUp() {
-         udfContext = new UDFContext();
-         udfContext.setOutput_fields(Collections.singletonList("encodeResult"));
-         Map<String,Object> map = new HashMap<>();
-         map.put("value_field","name");
-         udfContext.setParameters(map);
-    }
-    @Test
-    public void testEncodeBase64Function() {
 
+    @Test
+    public void testEncodeBase64FunctionForByte() {
+        udfContext = new UDFContext();
+        udfContext.setOutputFields(Collections.singletonList("encodeResult"));
+        udfContext.setLookupFields(Collections.singletonList("name"));
+        Map<String,Object> map = new HashMap<>();
+        map.put("input_type","byte_array");
+        udfContext.setParameters(map);
         EncodeBase64 encodeBase64 = new EncodeBase64();
         encodeBase64.open(null, udfContext);
         Event event = new Event();
@@ -40,11 +38,28 @@ public class EncodeBase64FunctionTest {
         event.setExtractedFields(extractedFields);
         Event result1 = encodeBase64.evaluate(event);
         assertEquals("aGVsbG8=", result1.getExtractedFields().get("encodeResult"));
-        extractedFields.put("name", "hello");
-        event.setExtractedFields(extractedFields);
-        Event result2 = encodeBase64.evaluate(event);
-        assertEquals("", result2.getExtractedFields().get("encodeResult"));
+
+
 
     }
 
+    @Test
+    public void testEncodeBase64FunctionForString() {
+
+        udfContext = new UDFContext();
+        udfContext.setOutputFields(Collections.singletonList("encodeResult"));
+        udfContext.setLookupFields(Collections.singletonList("name"));
+        Map<String,Object> map = new HashMap<>();
+        map.put("input_type","string");
+        udfContext.setParameters(map);
+        EncodeBase64 encodeBase64 = new EncodeBase64();
+        encodeBase64.open(null, udfContext);
+        Event event = new Event();
+        Map<String, Object> extractedFields = new HashMap<>();
+        extractedFields.put("name", "hello");
+        event.setExtractedFields(extractedFields);
+        Event result1 = encodeBase64.evaluate(event);
+        assertEquals("aGVsbG8=", result1.getExtractedFields().get("encodeResult"));
+
+    }
 }

@@ -19,5 +19,6 @@ public class Node implements Serializable {
     private ProcessorType type;
     private List<String> downstream = Collections.emptyList();
     private int parallelism;
+    private List<String> tags = Collections.emptyList();
 
 }

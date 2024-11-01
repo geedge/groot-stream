@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.geedgenetworks.common.Accumulator;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.KeybyEntity;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.AggregateFunction;
@@ -139,12 +140,10 @@ public class AbstractFirstAggregation extends ProcessFunction<Event, Accumulator
         return (long) (ThreadLocalRandom.current().nextDouble() * (double) windowSize);
     }
 
-    public Accumulator createAccumulator() {
+    public Accumulator createAccumulator(Map<String, Object> keysMap) {
 
-        Map<String, Object> map = new HashMap<>();
         Accumulator accumulator = new Accumulator();
-
-        accumulator.setMetricsFields(map);
+        accumulator.setMetricsFields(keysMap);
         for (UdfEntity udfEntity : functions) {
             udfEntity.getAggregateFunction().initAccumulator(accumulator);
         }
@@ -152,17 +151,21 @@ public class AbstractFirstAggregation extends ProcessFunction<Event, Accumulator
 
     }
 
-    public String getKey(Event value, List<String> keys) {
+    public KeybyEntity getKey(Event value, List<String> keys) {
+        KeybyEntity keybyEntity = new KeybyEntity(new HashMap<>());
         StringBuilder stringBuilder = new StringBuilder();
         for (String key : keys) {
-
-            if (value.getExtractedFields().containsKey(key)) {
-                stringBuilder.append(value.getExtractedFields().get(key).toString());
-            } else {
+            Object object = value.getExtractedFields().get(key);
+            if(object==null){
                 stringBuilder.append(",");
+            }else{
+                keybyEntity.getKeys().put(key, object);
+                stringBuilder.append(object);
             }
+
         }
-        return SecureUtil.md5(stringBuilder.toString());
+        keybyEntity.setKeysToString(SecureUtil.md5(stringBuilder.toString()));
+        return keybyEntity;
 
     }
 

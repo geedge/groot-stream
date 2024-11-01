@@ -121,13 +121,13 @@
                     <scope>provided</scope>
                 </dependency>
 
-                <!--Hbase Jars -->
                 <dependency>
                     <groupId>com.geedgenetworks</groupId>
-                    <artifactId>hbase-client-shaded</artifactId>
+                    <artifactId>connector-starrocks</artifactId>
                     <version>${project.version}</version>
                     <scope>provided</scope>
                 </dependency>
+
                 <!--Format Json -->
                 <dependency>
                     <groupId>com.geedgenetworks</groupId>
@@ -144,6 +144,12 @@
                 <dependency>
                     <groupId>com.geedgenetworks</groupId>
                     <artifactId>format-msgpack</artifactId>
+                    <version>${project.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.geedgenetworks</groupId>
+                    <artifactId>format-csv</artifactId>
                     <version>${project.version}</version>
                     <scope>provided</scope>
                 </dependency>

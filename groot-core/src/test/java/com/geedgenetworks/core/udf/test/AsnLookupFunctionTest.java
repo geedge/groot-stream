@@ -26,8 +26,8 @@ public class AsnLookupFunctionTest {
         udfContext = new UDFContext();
         parameters = new HashMap<>();
         udfContext.setParameters(parameters);
-        udfContext.setLookup_fields(Collections.singletonList("ip"));
-        udfContext.setOutput_fields(Collections.singletonList("asn"));
+        udfContext.setLookupFields(Collections.singletonList("ip"));
+        udfContext.setOutputFields(Collections.singletonList("asn"));
 
     }
 
@@ -36,7 +36,7 @@ public class AsnLookupFunctionTest {
     @Test
     public void testInit(){
         AsnLookup asnLookup = new AsnLookup();
-        udfContext.setLookup_fields(new ArrayList<>());
+        udfContext.setLookupFields(new ArrayList<>());
         udfContext.setParameters(new HashMap<>());
         udfContext.setParameters(null);
         Assertions.assertThrows(GrootStreamRuntimeException.class, () -> {
@@ -48,10 +48,10 @@ public class AsnLookupFunctionTest {
             asnLookup.open(null, udfContext);
         });
 
-        udfContext.setLookup_fields(new ArrayList<>());
-        udfContext.getLookup_fields().add("v1");
-        udfContext.setOutput_fields(new ArrayList<>());
-        udfContext.getOutput_fields().add("v2");
+        udfContext.setLookupFields(new ArrayList<>());
+        udfContext.getLookupFields().add("v1");
+        udfContext.setOutputFields(new ArrayList<>());
+        udfContext.getOutputFields().add("v2");
         udfContext.setParameters(new HashMap<>());
         udfContext.getParameters().put("option","other");
         Assertions.assertThrows(GrootStreamRuntimeException.class, () -> {

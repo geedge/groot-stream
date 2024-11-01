@@ -77,6 +77,51 @@ grootstream:
         - asn_builtin.mmdb
         - asn_user_defined.mmdb
 ```
+
+## KMS
+Key Management System(KMS). It is a service that provides a secure way to create, manage, and control encryption keys used to encrypt data. KMS is used to protect sensitive information by ensuring that encryption keys are kept secure and accessible only to authorized users and applications.
+
+| Name | Type   | Required | Default | Description                                      |
+|:-----| :----- | :------- | :-- ---- |:------------------------------------------------  |
+| type | String  | Yes       | local     | The type of the Key Management Service. Enum: local, vault. |
+| url | String |  No | (none) | The kms server's URL (e.g., `http://localhost:8200`). |
+| token | String | No | (none) | The authentication token |
+| default_key_path | String | No | (none) | HashiCorp Vault default key path. for example, `transit/` |
+| plugin_key_path | String | No | (none) | HashiCorp Vault plugin key path. for example, `plugin/gmsm` |
+
+```yaml
+  kms:
+    local:
+      type: local
+    vault:
+      type: vault
+      url: <vault-url>
+      token: <vault-token>
+      default_key_path: <vault-key-path>
+      plugin_key_path: <vault-plugin-key-path>
+```
+
+## SSL
+
+The client SSL configuration.
+
+| Name | Type   | Required | Default | Description                                      |
+|:-----| :----- | :------- | :-- ---- |:------------------------------------------------  |
+| skip_verification | Boolean | Yes | true | Ignore SSL certificate verification |
+| certificate_path | String | Yes | (none) | Path to the client's private key file |
+| private_key_path | String | Yes | (none) | Path to the client's certificate file |
+| ca_certificate_path | Boolean | Yes | false | Path to the root CA certificate for server verification |
+
+```yaml
+    ssl:
+        skip_verification: true
+        private_key_path: /path/to/certs/worker.key  
+        certificate_path: /path/to/certs/worker.pem   
+        ca_certificate_path: /path/to/certs/root.pem 
+```
+
+
+
 ## Properties
 Global user-defined variables can be set in the `properties` section using key-value pairs, where the key represents a configuration property and the value specifies the desired setting.
 The properties can be used in the configuration file by using `props.${property_name}`. 

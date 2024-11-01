@@ -25,7 +25,7 @@ public class ConfigBuilder {
         Map<String, Object> configMap = YamlUtil.loadByPath(filePath.toString());
         ConfigObject configObject = ConfigValueFactory.fromMap(configMap);
         Config config = configObject.toConfig();
-        return ConfigShadeUtils.decryptConfig(config);
+        return CryptoShadeUtils.decryptConfig(config);
     }
 
     public static Config of(@NonNull Map<String, Object> objectMap) {
@@ -36,7 +36,7 @@ public class ConfigBuilder {
         ConfigObject configObject = ConfigValueFactory.fromMap(objectMap);
         Config config = configObject.toConfig();
         if (needDecrypt) {
-            return ConfigShadeUtils.decryptConfig(config);
+            return CryptoShadeUtils.decryptConfig(config);
         }
         return config;
     }

@@ -165,7 +165,8 @@ public class FakerUtils {
     private static Faker<?> parseSequenceFaker(JSONObject obj) {
         long start = obj.getLongValue("start", 0L);
         long step = obj.getLongValue("step", 1L);
-        return new SequenceFaker(start, step);
+        int batch = obj.getIntValue("batch", 1);
+        return new SequenceFaker(start, step, batch);
     }
 
     private static Faker<?> parseStringFaker(JSONObject obj) {

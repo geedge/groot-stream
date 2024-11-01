@@ -36,6 +36,9 @@ This parameter is used to define the runtime mode of the job, the default value 
 Specify the method of encryption, if you didn't have the requirement for encrypting or decrypting sensitive information in the configuration file, this option can be ignored.
 For more details, you can refer to the documentation [config-encryption-decryption](connector/config-encryption-decryption.md)
 
+### kms.type
+Specify Key Management System (KMS) type, default is `local`. You can integrate an external KMS, such as `vault`. For more details, you can refer to the documentation [KMS](grootstream-config.md#kms).
+
 ### pipeline.object-reuse
 
 This parameter is used to enable/disable object reuse for the execution of the job. If it is not specified, the default value is `false`.

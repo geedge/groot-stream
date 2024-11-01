@@ -2,6 +2,7 @@ package com.geedgenetworks.formats.json;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.core.connector.format.MapDeserialization;
 import com.geedgenetworks.core.types.StructType;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -12,7 +13,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-public class JsonEventDeserializationSchema implements DeserializationSchema<Event> {
+public class JsonEventDeserializationSchema implements DeserializationSchema<Event>, MapDeserialization {
     private static final Logger LOG = LoggerFactory.getLogger(JsonEventDeserializationSchema.class);
     private static final int MAX_CHARS_LENGTH = 1024 * 32;
     private final StructType dataType;
@@ -28,6 +29,18 @@ public class JsonEventDeserializationSchema implements DeserializationSchema<Eve
 
     @Override
     public Event deserialize(byte[] bytes) throws IOException {
+        Map<String, Object> map = deserializeToMap(bytes);
+        if (map == null) {
+            return null;
+        }
+
+        Event event = new Event();
+        event.setExtractedFields(map);
+        return event;
+    }
+
+    @Override
+    public Map<String, Object> deserializeToMap(byte[] bytes) throws IOException {
         Map<String, Object> map;
 
         String message = decodeUTF8(bytes, 0, bytes.length);
@@ -50,9 +63,7 @@ public class JsonEventDeserializationSchema implements DeserializationSchema<Eve
             map = converter.convert(message);
         }
 
-        Event event = new Event();
-        event.setExtractedFields(map);
-        return event;
+        return map;
     }
 
     private String decodeUTF8(byte[] input, int offset, int byteLen) {

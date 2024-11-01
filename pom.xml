@@ -23,7 +23,7 @@
     </modules>
 
     <properties>
-        <revision>1.6.0</revision>
+        <revision>1.7.0</revision>
         <java.version>11</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -55,6 +55,7 @@
         <jsonpath.version>2.4.0</jsonpath.version>
         <fastjson2.version>2.0.32</fastjson2.version>
         <hutool.version>5.8.22</hutool.version>
+        <uuid-generator.version>5.1.0</uuid-generator.version>
         <bouncycastle.version>1.78.1</bouncycastle.version>
         <galaxy.version>2.0.2</galaxy.version>
         <guava-retrying.version>2.0.0</guava-retrying.version>
@@ -393,6 +394,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.fasterxml.uuid</groupId>
+                <artifactId>java-uuid-generator</artifactId>
+                <version>${uuid-generator.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
                 <version>${bouncycastle.version}</version>
@@ -539,6 +546,11 @@
         <finalName>${project.artifactId}-${project.version}</finalName>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>2.16.0</version>
+                </plugin>
                 <!-- java compiler -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

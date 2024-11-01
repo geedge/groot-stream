@@ -127,13 +127,13 @@ Next, I'll show how to quickly use groot-stream's own `aes` encryption:
 
 ## How to implement user-defined encryption and decryption
 
-1. Create a new class and implement interface `ConfigShade`, this interface has the following methods:
+1. Create a new class and implement interface `CryptoShade`, this interface has the following methods:
 
    ```java
-   public interface ConfigShade {  
+   public interface CryptoShade {  
        /**
         * The unique identifier of the current interface, used it to select the correct {@link
-        * ConfigShade}
+        * CryptoShade}
         */
        String getIdentifier();
 
@@ -157,6 +157,6 @@ Next, I'll show how to quickly use groot-stream's own `aes` encryption:
        }
    }
    ```
-2. Add `com.geedgenetworks.common.config.ConfigShade` in `resources/META-INF/services`
+2. Add `com.geedgenetworks.common.crypto.CryptoShade` in `resources/META-INF/services`
 3. Change the option `shade.identifier` to the value that you defined in `ConfigShade#getIdentifier`of you config file.
 

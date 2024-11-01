@@ -34,12 +34,12 @@ public class JsonUnroll implements TableFunction {
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-        if(udfContext.getLookup_fields()==null ){
+        if(udfContext.getLookupFields()==null ){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        this.lookupFieldName  = udfContext.getLookup_fields().get(0);
-        if(udfContext.getOutput_fields()!=null && !udfContext.getOutput_fields().isEmpty()) {
-            this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.lookupFieldName  = udfContext.getLookupFields().get(0);
+        if(udfContext.getOutputFields()!=null && !udfContext.getOutputFields().isEmpty()) {
+            this.outputFieldName = udfContext.getOutputFields().get(0);
         }
         else {
             outputFieldName = lookupFieldName;
@@ -57,13 +57,14 @@ public class JsonUnroll implements TableFunction {
     @Override
     public List<Event> evaluate(Event event) {
         try {
-            if(event.getExtractedFields().containsKey(lookupFieldName) ){
+            Object valueObj = event.getExtractedFields().get(lookupFieldName);
+            if (valueObj!=null) {
                 try {
                     if(path.isEmpty()){
-                        JSONArray jsonArray = JSONArray.parseArray(event.getExtractedFields().get(lookupFieldName).toString());
+                        JSONArray jsonArray = JSONArray.parseArray(valueObj.toString());
                         return parseList(jsonArray,event);
                     }else {
-                        JSONObject jsonObject = JSONObject.parseObject(event.getExtractedFields().get(lookupFieldName).toString());
+                        JSONObject jsonObject = JSONObject.parseObject(valueObj.toString());
                         Object obj = JsonPathUtil.get(jsonObject,path);
                         if(obj instanceof List || obj instanceof Array) {
                             List list = (List) obj;

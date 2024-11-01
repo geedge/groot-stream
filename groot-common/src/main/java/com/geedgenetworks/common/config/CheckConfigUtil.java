@@ -12,6 +12,7 @@ public final class CheckConfigUtil {
     private CheckConfigUtil() {}
 
     public static CheckResult checkAllExists(Config config, String... params) {
+
         List<String> missingParams =
                 Arrays.stream(params)
                         .filter(param -> !isValidParam(config, param))
@@ -20,11 +21,10 @@ public final class CheckConfigUtil {
         if (!missingParams.isEmpty()) {
             String errorMsg =
                     String.format(
-                            "please specify [%s] as non-empty.", String.join(",", missingParams));
+                            "Please specify [%s] as non-empty.", String.join(",", missingParams));
             return CheckResult.error(errorMsg);
-        } else {
-            return CheckResult.success();
         }
+        return CheckResult.success();
     }
 
     /** check config if there was at least one usable */
@@ -33,48 +33,42 @@ public final class CheckConfigUtil {
             return CheckResult.success();
         }
 
-        List<String> missingParams = new LinkedList<>();
-        for (String param : params) {
-            if (!isValidParam(config, param)) {
-                missingParams.add(param);
-            }
-        }
+        List<String> missingParams = Arrays.stream(params)
+                .filter(param -> !isValidParam(config, param))
+                .collect(Collectors.toList());
 
         if (missingParams.size() == params.length) {
             String errorMsg =
                     String.format(
-                            "please specify at least one config of [%s] as non-empty.",
+                            "Please specify at least one config of [%s] as non-empty.",
                             String.join(",", missingParams));
             return CheckResult.error(errorMsg);
-        } else {
-            return CheckResult.success();
         }
+        return CheckResult.success();
     }
 
-    public static boolean  isValidParam(Config config, String param) {
-        boolean isValidParam = true;
+    public static boolean isValidParam(Config config, String param) {
         if (!config.hasPath(param)) {
-            isValidParam = false;
-        } else if (config.getAnyRef(param) instanceof List) {
-            isValidParam = !((List<?>) config.getAnyRef(param)).isEmpty();
+            return false;
         }
-        return isValidParam;
+        Object value = config.getAnyRef(param);
+        return !(value instanceof List && ((List<?>) value).isEmpty());
     }
 
     /** merge all check result */
     public static CheckResult mergeCheckResults(CheckResult... checkResults) {
+
         List<CheckResult> notPassConfig =
                 Arrays.stream(checkResults)
                         .filter(item -> !item.isSuccess())
                         .collect(Collectors.toList());
         if (notPassConfig.isEmpty()) {
             return CheckResult.success();
-        } else {
-            String errMessage =
-                    notPassConfig.stream()
-                            .map(CheckResult::getMsg)
-                            .collect(Collectors.joining(","));
-            return CheckResult.error(errMessage);
         }
+        String errMessage =
+                notPassConfig.stream()
+                        .map(CheckResult::getMsg)
+                        .collect(Collectors.joining(","));
+        return CheckResult.error(errMessage);
     }
 }

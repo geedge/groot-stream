@@ -73,8 +73,8 @@ public class HdrHistogramQuantileTest {
         parameters.put("numberOfSignificantValueDigits", numberOfSignificantValueDigits);
         parameters.put("probability", probability);
         c.setParameters(parameters);
-        c.setLookup_fields(Collections.singletonList("ms"));
-        c.setOutput_fields(Collections.singletonList("ms_his"));
+        c.setLookupFields(Collections.singletonList("ms"));
+        c.setOutputFields(Collections.singletonList("ms_his"));
 
         agg.open(c);
         Map<String, Object> map = new HashMap<>();

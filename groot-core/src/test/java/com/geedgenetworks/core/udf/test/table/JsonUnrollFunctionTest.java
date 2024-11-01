@@ -52,8 +52,8 @@ public class JsonUnrollFunctionTest {
         JsonUnroll unroll = new JsonUnroll();
         Event event = new Event();
         event.setExtractedFields(nestedMap);
-        udfContext.setLookup_fields(List.of("k1"));
-        udfContext.setOutput_fields(List.of("newk1"));
+        udfContext.setLookupFields(List.of("k1"));
+        udfContext.setOutputFields(List.of("newk1"));
         unroll.open(null, udfContext);
         List<Event> result3 = unroll.evaluate(event);
         assertEquals(2, result3.size());
@@ -75,8 +75,8 @@ public class JsonUnrollFunctionTest {
         udfContext.setParameters(params);
         params.put("path", "$.k3_1.k3_1_1");
         event.setExtractedFields(nestedMap);
-        udfContext.setLookup_fields(List.of("k3"));
-        udfContext.setOutput_fields(List.of("newk3"));
+        udfContext.setLookupFields(List.of("k3"));
+        udfContext.setOutputFields(List.of("newk3"));
         unroll.open(null, udfContext);
         List<Event> result2 = unroll.evaluate(event);
         assertEquals(2, result2.size());
@@ -95,8 +95,8 @@ public class JsonUnrollFunctionTest {
         udfContext.setParameters(params);
         params.put("path", "$.k4_1.k4_1_1");
         event.setExtractedFields(nestedMap);
-        udfContext.setLookup_fields(List.of("k4"));
-        udfContext.setOutput_fields(List.of("newk4"));
+        udfContext.setLookupFields(List.of("k4"));
+        udfContext.setOutputFields(List.of("newk4"));
         unroll.open(null, udfContext);
         List<Event> result2 = unroll.evaluate(event);
         assertEquals(1, result2.size());

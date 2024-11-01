@@ -19,9 +19,9 @@ public abstract class HlldBaseAggregate implements AggregateFunction {
 
     @Override
     public void open(UDFContext c) {
-        inputField = c.getLookup_fields().get(0);
-        if (CollectionUtils.isNotEmpty(c.getOutput_fields())) {
-            outputField = c.getOutput_fields().get(0);
+        inputField = c.getLookupFields().get(0);
+        if (CollectionUtils.isNotEmpty(c.getOutputFields())) {
+            outputField = c.getOutputFields().get(0);
         } else {
             outputField = inputField;
         }

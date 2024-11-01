@@ -22,12 +22,12 @@ public class CollectSet implements AggregateFunction {
 
     @Override
     public void open(UDFContext udfContext) {
-        if (udfContext.getLookup_fields() == null) {
+        if (udfContext.getLookupFields() == null) {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        this.lookupField = udfContext.getLookup_fields().get(0);
-        if (udfContext.getOutput_fields() != null && !udfContext.getOutput_fields().isEmpty()) {
-            this.outputField = udfContext.getOutput_fields().get(0);
+        this.lookupField = udfContext.getLookupFields().get(0);
+        if (udfContext.getOutputFields() != null && !udfContext.getOutputFields().isEmpty()) {
+            this.outputField = udfContext.getOutputFields().get(0);
         } else {
             outputField = lookupField;
         }
@@ -41,8 +41,9 @@ public class CollectSet implements AggregateFunction {
 
     @Override
     public Accumulator add(Event event, Accumulator acc) {
-        if (event.getExtractedFields().containsKey(lookupField)) {
-            Object object = event.getExtractedFields().get(lookupField);
+        Object valueObj = event.getExtractedFields().get(lookupField);
+        if (valueObj != null) {
+            Object object = valueObj;
             Set<Object> aggregate = (Set<Object>) acc.getMetricsFields().get(outputField);
             aggregate.add(object);
             acc.getMetricsFields().put(outputField, aggregate);
@@ -62,12 +63,14 @@ public class CollectSet implements AggregateFunction {
 
     @Override
     public Accumulator merge(Accumulator firstAcc, Accumulator secondAcc) {
-        if (firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
-            Set<Object> firstValue = (Set<Object>) firstAcc.getMetricsFields().get(outputField);
-            Set<Object> secondValue = (Set<Object>) secondAcc.getMetricsFields().get(outputField);
+        Object firstValueObj = firstAcc.getMetricsFields().get(outputField);
+        Object secondValueObj = secondAcc.getMetricsFields().get(outputField);
+        if (firstValueObj != null && secondValueObj != null) {
+            Set<Object> firstValue = (Set<Object>) firstValueObj;
+            Set<Object> secondValue = (Set<Object>) secondValueObj;
             firstValue.addAll(secondValue);
-        } else if (!firstAcc.getMetricsFields().containsKey(outputField) && secondAcc.getMetricsFields().containsKey(outputField)) {
-            Set<Object> secondValue = (Set<Object>) secondAcc.getMetricsFields().get(outputField);
+        } else if (firstValueObj == null && secondValueObj !=null) {
+            Set<Object> secondValue = (Set<Object>)secondValueObj;
             firstAcc.getMetricsFields().put(outputField, secondValue);
         }
         return firstAcc;

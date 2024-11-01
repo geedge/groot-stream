@@ -31,6 +31,13 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
         if ("http".equals(knowledgeBaseConfig.getFsType())) {
             this.knowledgeMetedataCache = getMetadata(knowledgeBaseConfig.getFsType(), knowledgeBaseConfig.getFsPath(), knowledgeBaseConfig.getFiles().get(0));
         }
+        if ("local".equals(knowledgeBaseConfig.getFsType())) {
+            knowledgeMetedataCache = new KnowLedgeBaseFileMeta();
+            knowledgeMetedataCache.setIsValid(1);
+            knowledgeMetedataCache.setFormat(knowledgeBaseConfig.getFiles().get(0).substring(knowledgeBaseConfig.getFiles().get(0).lastIndexOf(".") + 1));
+            knowledgeMetedataCache.setName(knowledgeBaseConfig.getFiles().get(0));
+            knowledgeMetedataCache.setPath(knowledgeBaseConfig.getFsPath() + knowledgeBaseConfig.getFiles().get(0));
+        }
         return buildKnowledgeBase();
     }
 
@@ -81,11 +88,8 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
                 case "aes":
                     result = AESUtil.decrypt(data, AES_KEY);
                     break;
-                case "csv":
-                    result = data;
-                    break;
                 default:
-                    logger.error("unknown format: " + knowledgeMetedataCache.getFormat());
+                    result = data;
             }
         } catch (Exception e) {
             logger.error("decrypt error", e);
@@ -99,6 +103,10 @@ public abstract class AbstractSingleKnowledgeBaseHandler extends AbstractKnowled
             return false;
         }
         if (knowledgeMetedataCache == null || knowledgeMetedataCache.getSha256() == null) {
+            knowledgeMetedataCache = knowledgeMetedata;
+            return true;
+        }
+        if (knowledgeMetedata.getIsValid() != knowledgeMetedataCache.getIsValid()) {
             knowledgeMetedataCache = knowledgeMetedata;
             return true;
         }

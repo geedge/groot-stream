@@ -5,14 +5,14 @@ sources:
     type : inline
     fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
     properties:
-      data:  '[{"encapsulation":"[{\"tunnels_schema_type\":\"MULTIPATH_ETHERNET\"}]","mail_attachment_name_charset":"GBK","mail_attachment_name":"aGVsbG8=","packet_capture_file":"test","ssl_sni":"www.google.com","decoded_as":"BASE","ssl_san":"www.google.com","__timestamp":1705568517095,"client_ip":"255.255.255.255","server_ip":"2600:1015:b002::"},{"decoded_as":"HTTP","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"DNS","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"SSL","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"}]'
+      data:  '[{"encapsulation":"[{\"tunnels_schema_type\":\"MULTIPATH_ETHERNET\"}]","mail_attachment_name_charset":"GBK","mail_attachment_name":"aGVsbG8=","packet_capture_file":"test","ssl_sni":"www.google.com","decoded_as":"BASE","ssl_san":"www.google.com","start_timestamp":1705568517095,"client_ip":"255.255.255.255","server_ip":"2600:1015:b002::"},{"decoded_as":"HTTP","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"DNS","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"decoded_as":"SSL","log_id": 1, "recv_time":"111", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"}]'
       interval.per.row: 1s # 可选
       repeat.count: 1 # 可选
       format: json
       json.ignore.parse.errors: false
 filters:
   schema_type_filter:
-    type: com.geedgenetworks.core.filter.AviatorFilter
+    type: aviator
     output_fields:
     properties:
       expression: event.decoded_as == 'SSL' || event.decoded_as == 'BASE'
@@ -20,7 +20,7 @@ filters:
 
 preprocessing_pipelines:
   preprocessing_processor: # [object] Preprocessing Pipeline
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     output_fields:
     properties:
       key: value
@@ -36,7 +36,7 @@ preprocessing_pipelines:
 
 processing_pipelines:
   session_record_processor: # [object] Processing Pipeline
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     remove_fields:
     output_fields:
     properties:
@@ -51,6 +51,14 @@ processing_pipelines:
         parameters:
           value_field: mail_attachment_name
           charset_field: mail_attachment_name_charset
+
+      - function: BASE64_ENCODE_TO_STRING
+        output_fields: [old_mail_attachment_name]
+        lookup_fields: [mail_attachment_name]
+        parameters:
+          input_type: string
+
+
 
       - function: GEOIP_LOOKUP
         lookup_fields: [ client_ip ]
@@ -101,6 +109,10 @@ processing_pipelines:
         output_fields: [ ingestion_time ]
         parameters:
           value_expression: recv_time
+      - function: EVAL
+        output_fields: [internal_ip]
+        parameters:
+          value_expression:  "(direction == 'Outbound')? client_ip : server_ip"
       - function: DOMAIN
         lookup_fields: [ http_host,ssl_sni,dtls_sni,quic_sni ]
         output_fields: [ server_domain ]
@@ -140,6 +152,25 @@ processing_pipelines:
           #rename_fields:
             #  tags: tags
           rename_expression: key =string.replace_all(key,'encapsulation.0.','');return key;
+
+      - function: UUIDv5
+        lookup_fields: [ client_ip, server_ip ] # 基于 client_ip, server_ip的值组成UUIDv5 name 参数值与命名空间结合后，通过哈希生成唯一的 UUID。
+        output_fields: [ ip_uuid ]
+        parameters:
+          namespace: NAMESPACE_IP
+      - function: UUIDv7
+        output_fields: [ log_uuid_v7 ] # 生成基于时间戳和随机数的 UUID
+      - function: UUID
+        output_fields: [ log_uuid ]
+
+      - function: FROM_UNIX_TIMESTAMP
+        lookup_fields: [start_timestamp]
+        output_fields: [start_time]
+        parameters:
+          timezone: Asia/Shanghai
+          precision: milliseconds
+
+
 
 
 sinks:

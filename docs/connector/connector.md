@@ -1,3 +1,12 @@
+# Table of Contents
+- [Source Connector](#source-connector)
+  - [Common Source Options](#common-source-options)
+  - [Schema Field Projection](#schema-field-projection)
+  - [Schema Config](#schema-config)
+  - [Mock Data Type](#mock-data-type)
+- [Sink Connector](#sink-connector)
+  - [Common Sink Options](#common-sink-options)
+
 # Source Connector
 
 Source Connector contains some common core features, and each source connector supports them to varying degrees.
@@ -62,13 +71,12 @@ schema:
 To retrieve the schema from a local file using its absolute path.
 
 > Ensures that the file path is accessible to all nodes in your Flink cluster.
->
-> ```yaml
-> schema:
-> # by array
-> fields:
-> local_file: "/path/to/schema.json"
-> ```
+
+ ```yaml
+schema:
+  # Note: Only support avro schema format
+  local_file: "/path/to/schema.json"
+```
 
 ### URL
 
@@ -76,9 +84,8 @@ Some connectors support periodically fetching and updating the schema from a URL
 
 ```yaml
 schema:
-  # by array
-  fields:
-    url: "https://localhost:8080/schema.json"
+  # Note: Only support avro schema format
+  url: "https://localhost:8080/schema.json"
 ```
 
 ## Mock Data Type

@@ -20,8 +20,8 @@ public class StringJoinerFunctionTest {
     @BeforeAll
     public static void setUp() {
         udfContext = new UDFContext();
-        udfContext.setLookup_fields(Arrays.asList("server_ip", "client_ip"));
-        udfContext.setOutput_fields(Collections.singletonList("ip_string"));
+        udfContext.setLookupFields(Arrays.asList("server_ip", "client_ip"));
+        udfContext.setOutputFields(Collections.singletonList("ip_string"));
         Map<String, Object> params = new HashMap<>();
         params.put("separator",",");
         params.put("prefix","[");

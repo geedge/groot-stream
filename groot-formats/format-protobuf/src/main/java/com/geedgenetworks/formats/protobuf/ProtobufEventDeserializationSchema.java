@@ -1,6 +1,7 @@
 package com.geedgenetworks.formats.protobuf;
 
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.core.connector.format.MapDeserialization;
 import com.geedgenetworks.core.types.StructType;
 import com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
@@ -12,7 +13,7 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.Map;
 
-public class ProtobufEventDeserializationSchema implements DeserializationSchema<Event> {
+public class ProtobufEventDeserializationSchema implements DeserializationSchema<Event>, MapDeserialization {
     private static final Logger LOG = LoggerFactory.getLogger(ProtobufEventDeserializationSchema.class);
     private final String messageName;
     private final byte[] binaryFileDescriptorSet;
@@ -37,15 +38,25 @@ public class ProtobufEventDeserializationSchema implements DeserializationSchema
 
     @Override
     public Event deserialize(byte[] message) throws IOException {
-        if(message == null){
-            return null;
-        }
-
         try {
             Map<String, Object> map = converter.converter(message);
             Event event = new Event();
             event.setExtractedFields(map);
             return event;
+        } catch (Exception e) {
+            if(ignoreParseErrors){
+                LOG.error(String.format("proto解析失败for:%s", Base64.getEncoder().encodeToString(message)), e);
+                return null;
+            }else{
+                throw new IOException(String.format("proto解析失败for:%s", Base64.getEncoder().encodeToString(message)), e);
+            }
+        }
+    }
+
+    @Override
+    public Map<String, Object> deserializeToMap(byte[] message) throws IOException {
+        try {
+            return converter.converter(message);
         } catch (Exception e) {
             if(ignoreParseErrors){
                 LOG.error(String.format("proto解析失败for:%s", Base64.getEncoder().encodeToString(message)), e);

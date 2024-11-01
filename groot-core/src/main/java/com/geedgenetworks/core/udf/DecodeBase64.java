@@ -22,16 +22,16 @@ public class DecodeBase64 implements ScalarFunction {
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
-        if(udfContext.getParameters()==null || udfContext.getOutput_fields()==null){
+        if(udfContext.getParameters()==null || udfContext.getOutputFields()==null){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        if(udfContext.getOutput_fields().size() != 1){
+        if(udfContext.getOutputFields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
         if(!udfContext.getParameters().containsKey("value_field") ||!udfContext.getParameters().containsKey("charset_field") ){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must containkey value_field and charset_field");
         }
-        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.outputFieldName = udfContext.getOutputFields().get(0);
         this.valueField =udfContext.getParameters().get("value_field").toString();
         this.charsetField =udfContext.getParameters().get("charset_field").toString();
 
@@ -41,15 +41,11 @@ public class DecodeBase64 implements ScalarFunction {
 
     @Override
     public Event evaluate(Event event) {
-        if (event.getExtractedFields().containsKey(valueField)) {
-
+        Object valueObj = event.getExtractedFields().get(valueField);
+        if (valueObj!=null) {
             String decodeResult = "";
-            String message =
-                    (String)
-                            event.getExtractedFields()
-                                    .get(valueField);
-            Object charset =
-                    event.getExtractedFields().getOrDefault(charsetField,"");
+            String message = (String)valueObj;
+            Object charset = event.getExtractedFields().getOrDefault(charsetField,"UTF-8");
             try {
                 if (StringUtil.isNotBlank(message)) {
                     byte[] base64decodedBytes = Base64.getDecoder().decode(message);
@@ -62,14 +58,9 @@ public class DecodeBase64 implements ScalarFunction {
             } catch (RuntimeException e) {
                 log.error("Resolve Base64 exception, exception information:" + e.getMessage());
             } catch (UnsupportedEncodingException e) {
-                log.error(
-                        "The Character Encoding ["
-                                + charset.toString()
-                                + "] is not supported.exception information:"
-                                + e.getMessage());
+                log.error("The Character Encoding [" + charset.toString() + "] is not supported.exception information:" + e.getMessage());
             }
-            event.getExtractedFields()
-                    .put(outputFieldName, decodeResult);
+            event.getExtractedFields().put(outputFieldName, decodeResult);
         }
         return event;
     }

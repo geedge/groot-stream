@@ -23,13 +23,13 @@ public class UnixTimestampConverter implements ScalarFunction {
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
 
         this.udfContext = udfContext;
-        if(udfContext.getLookup_fields()==null || udfContext.getOutput_fields()==null || udfContext.getParameters() == null){
+        if(udfContext.getLookupFields()==null || udfContext.getOutputFields()==null || udfContext.getParameters() == null){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
         }
-        if(udfContext.getOutput_fields().size() != 1){
+        if(udfContext.getOutputFields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
-        if(udfContext.getLookup_fields().size() != 1){
+        if(udfContext.getLookupFields().size() != 1){
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
         }
         if(!udfContext.getParameters().containsKey("precision")){
@@ -51,26 +51,22 @@ public class UnixTimestampConverter implements ScalarFunction {
         else{
             this.interval = Long.parseLong(udfContext.getParameters().get("interval").toString());
         }
-        this.lookupFieldName = udfContext.getLookup_fields().get(0);
-        this.outputFieldName = udfContext.getOutput_fields().get(0);
+        this.lookupFieldName = udfContext.getLookupFields().get(0);
+        this.outputFieldName = udfContext.getOutputFields().get(0);
 
     }
 
 
     @Override
     public Event evaluate(Event event) {
-
-        if(event.getExtractedFields().containsKey(lookupFieldName)) {
-            Long timestamp = Long.parseLong(event.getExtractedFields().get(lookupFieldName).toString());
-            Instant instant = null;
-            if (String.valueOf(timestamp).length() == 13) {
-                // 时间戳长度大于10，表示为毫秒级时间戳
+        Object valueObj = event.getExtractedFields().get(lookupFieldName);
+        if (valueObj!=null) {
+            Long timestamp = Long.parseLong(valueObj.toString());
+            Instant instant ;
+            if (String.valueOf(timestamp).length() > 10) {
                 instant = Instant.ofEpochMilli(timestamp);
-            } else if (String.valueOf(timestamp).length() == 10) {
-                // 时间戳长度小于等于10，表示为秒级时间戳
-                instant = Instant.ofEpochSecond(timestamp);
             } else {
-                return event;
+                instant = Instant.ofEpochSecond(timestamp);
             }
             switch (precision) {
                 case "seconds":
