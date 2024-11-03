@@ -15,7 +15,6 @@ grootstream:
   kms:
     local:
       type: local
-      secret_key: .geedgenetworks.
     vault:
       type: vault
       url: https://192.168.40.223:8200
