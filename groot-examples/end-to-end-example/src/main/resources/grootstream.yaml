@@ -15,15 +15,17 @@ grootstream:
       type: local
     vault:
       type: vault
-      url: <vault-url>
-      token: <vault-token>
-      key_path: <vault-key-path>
+      url: https://192.168.40.223:8200
+      username: galaxy
+      password: 123
+      default_key_path: tsg_olap/transit
+      plugin_key_path: tsg_olap/plugin/gmsm
 
   ssl:
-    enabled: true
-    cert_file: ./config/ssl/cert.pem
-    key_file: ./config/ssl/key.pem
-    require_client_auth: true
+      skip_verification: true
+      ca_certificate_path: ./config/ssl/root.pem
+      certificate_path: ./config/ssl/worker.pem
+      private_key_path: ./config/ssl/worker.key
 
   properties:
     hos.path: http://192.168.44.12:9098/hos

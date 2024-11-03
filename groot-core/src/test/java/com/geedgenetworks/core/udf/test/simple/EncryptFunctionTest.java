@@ -6,15 +6,15 @@ import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KmsConfig;
-import com.geedgenetworks.common.config.SSLConfig;
+import com.geedgenetworks.common.config.ClientSSLConfig;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.pojo.KmsKey;
+import com.geedgenetworks.core.pojo.DataEncryptionKey;
 import com.geedgenetworks.core.udf.Encrypt;
-import com.geedgenetworks.core.udf.encrypt.EncryptionAlgorithm;
-import com.geedgenetworks.core.utils.EncryptionAlgorithmUtils;
+import com.geedgenetworks.core.udf.encrypt.Crypto;
+import com.geedgenetworks.core.utils.CryptoProvider;
 import com.geedgenetworks.core.utils.HttpClientPoolUtil;
-import com.geedgenetworks.core.utils.KmsUtils;
+import com.geedgenetworks.core.utils.KMSUtils;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -55,11 +55,11 @@ public class EncryptFunctionTest {
     @Test
     public void testEncryptByVault() throws Exception {
         String secretKey = RandomUtil.randomString(32);
-        MockedStatic<KmsUtils> kmsUtilsMockedStatic = Mockito.mockStatic(KmsUtils.class);
-        Mockito.when(KmsUtils.getVaultKey(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(new KmsKey(secretKey.getBytes(), 1));
+        MockedStatic<KMSUtils> kmsUtilsMockedStatic = Mockito.mockStatic(KMSUtils.class);
+        Mockito.when(KMSUtils.getVaultKey(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(new DataEncryptionKey(secretKey.getBytes(), 1));
         RuntimeContext runtimeContext = mockVaultRuntimeContext();
         Map<String, Object> map = new HashMap<>();
-        map.put("identifier", EncryptionAlgorithmUtils.ALGORITHM_AES_256_GCM96_NAME);
+        map.put("identifier", CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
         udfContext.setParameters(map);
         Encrypt encrypt = new Encrypt();
         encrypt.open(runtimeContext, udfContext);
@@ -68,12 +68,12 @@ public class EncryptFunctionTest {
         extractedFields.put("phone_number", DATA);
         event.setExtractedFields(extractedFields);
         Event result = encrypt.evaluate(event);
-        EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithmUtils.createEncryptionAlgorithm(EncryptionAlgorithmUtils.ALGORITHM_AES_256_GCM96_NAME);
-        assertNotNull(encryptionAlgorithm);
-        encryptionAlgorithm.setKmsKey(new KmsKey(secretKey.getBytes(), 1));
+        Crypto crypto = CryptoProvider.createEncryptionAlgorithm(CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
+        assertNotNull(crypto);
+        crypto.setDataEncryptionKey(new DataEncryptionKey(secretKey.getBytes(), 1));
         String encrypted = result.getExtractedFields().get("phone_number").toString();
         assertTrue(encrypted.contains("vault:v1:"));
-        String decrypted = encryptionAlgorithm.decrypt(encrypted.split(":")[2]);
+        String decrypted = crypto.decrypt(encrypted.split(":")[2]);
         assertEquals(DATA, decrypted);
         encrypt.close();
         kmsUtilsMockedStatic.close();
@@ -81,10 +81,9 @@ public class EncryptFunctionTest {
 
     @Test
     public void testEncryptByLocal() throws Exception {
-        byte[] secretKey = ".........geedgenetworks.........".getBytes();
         RuntimeContext runtimeContext = mockLocalRuntimeContext();
         Map<String, Object> map = new HashMap<>();
-        map.put("identifier", EncryptionAlgorithmUtils.ALGORITHM_AES_256_GCM96_NAME);
+        map.put("identifier", CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
         udfContext.setParameters(map);
         Encrypt encrypt = new Encrypt();
         encrypt.open(runtimeContext, udfContext);
@@ -93,9 +92,8 @@ public class EncryptFunctionTest {
         extractedFields.put("phone_number", DATA);
         event.setExtractedFields(extractedFields);
         Event result = encrypt.evaluate(event);
-        EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithmUtils.createEncryptionAlgorithm(EncryptionAlgorithmUtils.ALGORITHM_AES_256_GCM96_NAME);
+        Crypto encryptionAlgorithm = CryptoProvider.createEncryptionAlgorithm(CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
         assertNotNull(encryptionAlgorithm);
-        encryptionAlgorithm.setKmsKey(new KmsKey(secretKey, 1));
         String decrypted = encryptionAlgorithm.decrypt((String) result.getExtractedFields().get("phone_number"));
         assertEquals(DATA, decrypted);
         encrypt.close();
@@ -104,20 +102,20 @@ public class EncryptFunctionTest {
     @Test
     public void testEncryptByIdentifier() {
         Map<String, Object> map = new HashMap<>();
-        map.put("identifier", EncryptionAlgorithmUtils.ALGORITHM_AES_256_GCM96_NAME);
+        map.put("identifier", CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
         udfContext.setParameters(map);
         Encrypt encrypt1 = new Encrypt();
         assertDoesNotThrow(() -> encrypt1.open(mockLocalRuntimeContext(), udfContext));
         encrypt1.close();
 
         Encrypt encrypt2 = new Encrypt();
-        map.put("identifier", EncryptionAlgorithmUtils.ALGORITHM_AES_128_GCM96_NAME);
+        map.put("identifier", CryptoProvider.Algorithm.AES_128_GCM96.getIdentifier());
         udfContext.setParameters(map);
         assertDoesNotThrow(() -> encrypt2.open(mockLocalRuntimeContext(), udfContext));
         encrypt2.close();
 
         Encrypt encrypt3 = new Encrypt();
-        map.put("identifier", EncryptionAlgorithmUtils.ALGORITHM_SM4_GCM96_NAME);
+        map.put("identifier", CryptoProvider.Algorithm.SM4_GCM96.getIdentifier());
         udfContext.setParameters(map);
         assertDoesNotThrow(() -> encrypt3.open(mockLocalRuntimeContext(), udfContext));
         encrypt3.close();
@@ -125,29 +123,29 @@ public class EncryptFunctionTest {
 
     @Test
     public void testEncryptionAlgorithm() throws Exception {
-        EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithmUtils.createEncryptionAlgorithm(EncryptionAlgorithmUtils.ALGORITHM_AES_128_GCM96_NAME);
-        assertNotNull(encryptionAlgorithm);
-        encryptionAlgorithm.setKmsKey(new KmsKey("aaaaaaaaaaaaaaaa".getBytes(), 1));
-        String encryptData = encryptionAlgorithm.encrypt(DATA);
-        String decryptData = encryptionAlgorithm.decrypt(encryptData);
+        Crypto crypto = CryptoProvider.createEncryptionAlgorithm(CryptoProvider.Algorithm.AES_128_GCM96.getIdentifier());
+        assertNotNull(crypto);
+        crypto.setDataEncryptionKey(new DataEncryptionKey("aaaaaaaaaaaaaaaa".getBytes(), 1));
+        String encryptData = crypto.encrypt(DATA);
+        String decryptData = crypto.decrypt(encryptData);
         assertEquals(DATA, decryptData);
 
-        encryptionAlgorithm = EncryptionAlgorithmUtils.createEncryptionAlgorithm(EncryptionAlgorithmUtils.ALGORITHM_AES_256_GCM96_NAME);
-        assertNotNull(encryptionAlgorithm);
-        encryptionAlgorithm.setKmsKey(new KmsKey("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".getBytes(), 1));
-        encryptData = encryptionAlgorithm.encrypt(DATA);
-        decryptData = encryptionAlgorithm.decrypt(encryptData);
+        crypto = CryptoProvider.createEncryptionAlgorithm(CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
+        assertNotNull(crypto);
+        crypto.setDataEncryptionKey(new DataEncryptionKey("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa".getBytes(), 1));
+        encryptData = crypto.encrypt(DATA);
+        decryptData = crypto.decrypt(encryptData);
         assertEquals(DATA, decryptData);
 
-        encryptionAlgorithm = EncryptionAlgorithmUtils.createEncryptionAlgorithm(EncryptionAlgorithmUtils.ALGORITHM_SM4_GCM96_NAME);
-        assertNotNull(encryptionAlgorithm);
-        encryptionAlgorithm.setKmsKey(new KmsKey("aaaaaaaaaaaaaaaa".getBytes(), 1));
-        encryptData = encryptionAlgorithm.encrypt(DATA);
-        decryptData = encryptionAlgorithm.decrypt(encryptData);
+        crypto = CryptoProvider.createEncryptionAlgorithm(CryptoProvider.Algorithm.SM4_GCM96.getIdentifier());
+        assertNotNull(crypto);
+        crypto.setDataEncryptionKey(new DataEncryptionKey("aaaaaaaaaaaaaaaa".getBytes(), 1));
+        encryptData = crypto.encrypt(DATA);
+        decryptData = crypto.decrypt(encryptData);
         assertEquals(DATA, decryptData);
 
-        encryptionAlgorithm = EncryptionAlgorithmUtils.createEncryptionAlgorithm("sm4");
-        assertNull(encryptionAlgorithm);
+        assertThrows(IllegalArgumentException.class, () -> CryptoProvider.createEncryptionAlgorithm("sm4"));
+
     }
 
     @Test
@@ -178,12 +176,12 @@ public class EncryptFunctionTest {
         CommonConfig commonConfig = new CommonConfig();
         Map<String, KmsConfig> kmsConfigs = new HashMap<>();
         KmsConfig kmsConfig = new KmsConfig();
-        kmsConfig.setType(KmsUtils.KMS_TYPE_LOCAL);
-        kmsConfigs.put(KmsUtils.KMS_TYPE_LOCAL, kmsConfig);
+        kmsConfig.setType(KMSUtils.KMS_TYPE_LOCAL);
+        kmsConfigs.put(KMSUtils.KMS_TYPE_LOCAL, kmsConfig);
         kmsConfig = new KmsConfig();
-        kmsConfig.setType(KmsUtils.KMS_TYPE_VAULT);
-        kmsConfigs.put(KmsUtils.KMS_TYPE_VAULT, kmsConfig);
-        SSLConfig sslConfig = new SSLConfig();
+        kmsConfig.setType(KMSUtils.KMS_TYPE_VAULT);
+        kmsConfigs.put(KMSUtils.KMS_TYPE_VAULT, kmsConfig);
+        ClientSSLConfig sslConfig = new ClientSSLConfig();
         sslConfig.setSkipVerification(true);
         Map<String, String> propertiesConfig = new HashMap<>();
         propertiesConfig.put("projection.encrypt.schema.registry.uri", "127.0.0.1:9999/v1/schema/session_record?option=encrypt_fields");
@@ -191,7 +189,7 @@ public class EncryptFunctionTest {
         commonConfig.setSslConfig(sslConfig);
         commonConfig.setPropertiesConfig(propertiesConfig);
         configuration.setString(Constants.SYSPROP_GROOTSTREAM_CONFIG, JSON.toJSONString(commonConfig));
-        configuration.setString(Constants.SYSPROP_KMS_TYPE_CONFIG, KmsUtils.KMS_TYPE_LOCAL);
+        configuration.setString(Constants.SYSPROP_KMS_TYPE_CONFIG, KMSUtils.KMS_TYPE_LOCAL);
         Mockito.when(executionConfig.getGlobalJobParameters()).thenReturn(configuration);
         return runtimeContext;
     }
@@ -208,12 +206,12 @@ public class EncryptFunctionTest {
         CommonConfig commonConfig = new CommonConfig();
         Map<String, KmsConfig> kmsConfigs = new HashMap<>();
         KmsConfig kmsConfig = new KmsConfig();
-        kmsConfig.setType(KmsUtils.KMS_TYPE_VAULT);
-        kmsConfigs.put(KmsUtils.KMS_TYPE_VAULT, kmsConfig);
+        kmsConfig.setType(KMSUtils.KMS_TYPE_VAULT);
+        kmsConfigs.put(KMSUtils.KMS_TYPE_VAULT, kmsConfig);
         kmsConfig = new KmsConfig();
-        kmsConfig.setType(KmsUtils.KMS_TYPE_LOCAL);
-        kmsConfigs.put(KmsUtils.KMS_TYPE_LOCAL, kmsConfig);
-        SSLConfig sslConfig = new SSLConfig();
+        kmsConfig.setType(KMSUtils.KMS_TYPE_LOCAL);
+        kmsConfigs.put(KMSUtils.KMS_TYPE_LOCAL, kmsConfig);
+        ClientSSLConfig sslConfig = new ClientSSLConfig();
         sslConfig.setSkipVerification(true);
         Map<String, String> propertiesConfig = new HashMap<>();
         propertiesConfig.put("projection.encrypt.schema.registry.uri", "127.0.0.1:9999/v1/schema/session_record?option=encrypt_fields");
@@ -221,7 +219,7 @@ public class EncryptFunctionTest {
         commonConfig.setSslConfig(sslConfig);
         commonConfig.setPropertiesConfig(propertiesConfig);
         configuration.setString(Constants.SYSPROP_GROOTSTREAM_CONFIG, JSON.toJSONString(commonConfig));
-        configuration.setString(Constants.SYSPROP_KMS_TYPE_CONFIG, KmsUtils.KMS_TYPE_VAULT);
+        configuration.setString(Constants.SYSPROP_KMS_TYPE_CONFIG, KMSUtils.KMS_TYPE_VAULT);
         Mockito.when(executionConfig.getGlobalJobParameters()).thenReturn(configuration);
         return runtimeContext;
     }

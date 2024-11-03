@@ -44,6 +44,10 @@ public interface UDFContextConfigOptions {
             .noDefaultValue()
             .withDescription("The geolocation field mapping.");
 
+    Option<String> PARAMETERS_IDENTIFIER = Options.key("identifier")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("The identifier for the parameters of function.");
 
     Option<String> FUNCTION = Options.key("function")
             .stringType()

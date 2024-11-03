@@ -1483,7 +1483,10 @@ Parameters：
 
 #### Encrypt
 
-对敏感信息进行加密。支持引用动态规则，获取需要加密的字段，选择是否对当前字段进行加密
+对敏感信息进行加密。支持引用动态规则，获取需要加密的字段，选择是否对当前字段进行加密 。
+
+- 加密基于 Vault KMS，密钥支持动态更新；如果从 Vault 加载失败，系统将使用最近一次有效的密钥来加密数据。
+- 读取任务变量 `projection.encrypt.schema.registry.uri`，返回敏感字段（类型为 Array），可以据此判断当前字段是否需要加密。如果访问 schema 失败，将使用最近一次的有效字段。
 
 Parameters:
 
@@ -1497,8 +1500,6 @@ Parameters:
   parameters:
     identifier: aes-128-gcm96
 ```
-
-Note : 读取任务变量`projection.encrypt.schema.registry.uri`，返回加密的字段，数据类型为Array。
 
  #### Eval
 

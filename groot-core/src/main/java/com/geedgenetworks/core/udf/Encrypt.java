@@ -7,29 +7,22 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.Constants;
 import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.config.CommonConfig;
-import com.geedgenetworks.common.config.KmsConfig;
-import com.geedgenetworks.common.config.SSLConfig;
+import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.ScalarFunction;
 import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.pojo.KmsKey;
-import com.geedgenetworks.core.udf.encrypt.EncryptionAlgorithm;
+import com.geedgenetworks.core.pojo.DataEncryptionKey;
+import com.geedgenetworks.core.udf.encrypt.Crypto;
 import com.geedgenetworks.core.utils.*;
 import com.geedgenetworks.shaded.org.apache.http.HttpHeaders;
 import com.geedgenetworks.shaded.org.apache.http.HttpStatus;
 import com.geedgenetworks.shaded.org.apache.http.message.BasicHeader;
-import com.geedgenetworks.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
-
-import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -41,83 +34,119 @@ public class Encrypt implements ScalarFunction {
     private String identifier;
     private String defaultVal;
     private String type;
-    private transient SingleValueMap.Data<LoadIntervalDataUtil<Set<String>>> sensitiveFieldsData;
-    private transient SingleValueMap.Data<LoadIntervalDataUtil<KmsKey>> kmsKeyData;
-    private transient EncryptionAlgorithm encryptionAlgorithm;
+    private transient SingleValueMap.Data<LoadIntervalDataUtil<Set<String>>> sensitiveFieldState;
+    private transient SingleValueMap.Data<LoadIntervalDataUtil<DataEncryptionKey>> dekState;
+    private transient Crypto crypto;
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-        checkUdfContext(udfContext);
-        if (udfContext.getParameters().containsKey("default_val")) {
-            this.defaultVal = udfContext.getParameters().get("default_val").toString();
-        }
+        checkConfig(udfContext);
+        configureParameters(udfContext);
+        initializeCrypto(runtimeContext);
+    }
+
+    private void configureParameters(UDFContext udfContext) {
+        this.defaultVal = Optional.ofNullable(udfContext.getParameters().get("default_val"))
+                .map(Object::toString).orElse("");
         this.lookupFieldName = udfContext.getLookupFields().get(0);
         this.outputFieldName = udfContext.getOutputFields().get(0);
-        this.identifier = udfContext.getParameters().get("identifier").toString();
+        this.identifier = udfContext.getParameters().get(UDFContextConfigOptions.PARAMETERS_IDENTIFIER.key()).toString();
+    }
+
+    private void initializeCrypto(RuntimeContext runtimeContext) {
         Configuration configuration = (Configuration) runtimeContext.getExecutionConfig().getGlobalJobParameters();
         CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
         KmsConfig kmsConfig = commonConfig.getKmsConfig().get(configuration.toMap().get(Constants.SYSPROP_KMS_TYPE_CONFIG));
-        SSLConfig sslConfig = commonConfig.getSslConfig();
+        ClientSSLConfig sslConfig = commonConfig.getSslConfig();
         Map<String, String> propertiesConfig = commonConfig.getPropertiesConfig();
-        type = kmsConfig.getType();
+        this.type = kmsConfig.getType();
         try {
-            encryptionAlgorithm = EncryptionAlgorithmUtils.createEncryptionAlgorithm(identifier);
-            if (encryptionAlgorithm == null) {
-                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Parameters identifier is illegal!");
-            }
-            if (!type.equals(KmsUtils.KMS_TYPE_LOCAL)) {
-                kmsKeyData = SingleValueMap.acquireData("kmsKeyData",
-                        () -> LoadIntervalDataUtil.newInstance(() -> KmsUtils.getVaultKey(kmsConfig, sslConfig, identifier),
-                                LoadIntervalDataOptions.defaults("kmsKeyData", Integer.parseInt(propertiesConfig.getOrDefault(Constants.SYSPROP_ENCRYPT_KMS_KEY_SCHEDULER_INTERVAL_NAME, "5")) * 60000L)),
-                        LoadIntervalDataUtil::stop);
-                KmsKey kmsKey = kmsKeyData.getData().data();
-                if (kmsKey == null) {
-                    throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Initialization UDF Encrypt failed!");
-                }
-                if (encryptionAlgorithm.getSecretKeyLength() != kmsKey.getKeyData().length) {
-                    throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Global parameter kms secret Key requires " + encryptionAlgorithm.getSecretKeyLength() + " bytes!");
-                }
-                encryptionAlgorithm.setKmsKey(kmsKey);
-            }
-            sensitiveFieldsData = SingleValueMap.acquireData("sensitiveFields",
-                    () -> LoadIntervalDataUtil.newInstance(() -> getSensitiveFields(propertiesConfig.get("projection.encrypt.schema.registry.uri")),
-                            LoadIntervalDataOptions.defaults("sensitiveFields", Integer.parseInt(propertiesConfig.getOrDefault(Constants.SYSPROP_ENCRYPT_SENSITIVE_FIELDS_SCHEDULER_INTERVAL_NAME, "5")) * 60000L)),
-                    LoadIntervalDataUtil::stop);
-            if (sensitiveFieldsData.getData().data() == null) {
-                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Initialization UDF Encrypt failed!");
-            }
+            this.crypto = CryptoProvider.createEncryptionAlgorithm(identifier);
+            initializeDataEncryptionKeyIfNeeded(kmsConfig, sslConfig, propertiesConfig);
+            initializeSensitiveFieldsIfNeeded(propertiesConfig);
         } catch (Exception e) {
             throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Initialization UDF Encrypt failed!", e);
         }
     }
 
+    private void initializeDataEncryptionKeyIfNeeded(KmsConfig kmsConfig, ClientSSLConfig sslConfig, Map<String, String> propertiesConfig) throws Exception {
+        if (KMSUtils.KMS_TYPE_VAULT.equals(type)) {
+            this.dekState = SingleValueMap.acquireData("dekState",
+                    () -> LoadIntervalDataUtil.newInstance(
+                            () -> KMSUtils.getVaultKey(kmsConfig, sslConfig, identifier),
+                            LoadIntervalDataOptions.defaults("dekState",
+                                    Integer.parseInt(propertiesConfig.getOrDefault(Constants.SYSPROP_ENCRYPT_KMS_KEY_SCHEDULER_INTERVAL_NAME, "1")) * 60000L)),
+                    LoadIntervalDataUtil::stop);
+
+            DataEncryptionKey dek = dekState.getData().data();
+
+            if (dek == null) {
+                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, String.format("URI: %s, Unable to get KMS Secret Key!", kmsConfig.getUrl()));
+            }
+
+            if (crypto.getSecretKeyLength() != dek.getData().length) {
+                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, String.format( "Version: %s, [%s] KMS Secret Key requires %s bytes!",
+                        dek.getVersion(), crypto.getIdentifier(), crypto.getSecretKeyLength()));
+            }
+
+            crypto.setDataEncryptionKey(dek);
+        }
+    }
+
+    private void initializeSensitiveFieldsIfNeeded(Map<String, String> propertiesConfig)  throws Exception {
+        String schemaUri = propertiesConfig.get("projection.encrypt.schema.registry.uri");
+        if (schemaUri != null) {
+            this.sensitiveFieldState = SingleValueMap.acquireData("sensitiveFieldState",
+                    () -> LoadIntervalDataUtil.newInstance(
+                            () -> getSensitiveFields(schemaUri),
+                            LoadIntervalDataOptions.defaults("sensitiveFieldState",
+                                    Integer.parseInt(propertiesConfig.getOrDefault(Constants.SYSPROP_ENCRYPT_SENSITIVE_FIELDS_SCHEDULER_INTERVAL_NAME, "1")) * 60000L)),
+                    LoadIntervalDataUtil::stop);
+            if (sensitiveFieldState.getData().data() == null) {
+                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, String.format("URI: %s, Unable to get encrypted fields!", schemaUri));
+            }
+        }
+    }
+
+
     @Override
     public Event evaluate(Event event) {
         try {
-            if (!type.equals(KmsUtils.KMS_TYPE_LOCAL)) {
-                KmsKey kmsKey = kmsKeyData.getData().data();
-                if (kmsKey.getKeyVersion() != encryptionAlgorithm.getKmsKey().getKeyVersion() || !Arrays.equals(kmsKey.getKeyData(), encryptionAlgorithm.getKmsKey().getKeyData())) {
-                    encryptionAlgorithm.setKmsKey(kmsKey);
-                }
-            }
-            if (sensitiveFieldsData.getData().data().contains(lookupFieldName) && event.getExtractedFields().containsKey(lookupFieldName)) {
-                String value = (String) event.getExtractedFields().get(lookupFieldName);
-                if (StringUtil.isNotBlank(value)) {
-                    String encryptResult = encryptionAlgorithm.encrypt(value);
-                    if (StringUtil.isEmpty(encryptResult)) {
-                        event.getExtractedFields().put(outputFieldName, StringUtil.isNotBlank(defaultVal) ? defaultVal : value);
-                    } else {
-                        if (KmsUtils.KMS_TYPE_VAULT.equals(type)) {
-                            encryptResult = "vault:v" + encryptionAlgorithm.getKmsKey().getKeyVersion() + ":" + encryptResult;
-                        }
-                        event.getExtractedFields().put(outputFieldName, encryptResult);
-                    }
-                }
+            refreshDataEncryptionKey();
+
+            if (isSensitiveField(lookupFieldName)) {
+                executeEncrypt(event);
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("Encrypt failed!", e);
         }
         return event;
+    }
+
+    private void refreshDataEncryptionKey() throws Exception {
+        if (dekState == null || dekState.getData().data() == null) {
+            return;
+        }
+        DataEncryptionKey dek = dekState.getData().data();
+        if (!Arrays.equals(dek.getData(), crypto.getDataEncryptionKey().getData())) {
+            crypto.setDataEncryptionKey(dek);
+        }
+
+    }
+
+    private boolean isSensitiveField(String fieldName) throws Exception{
+        return sensitiveFieldState == null || sensitiveFieldState.getData().data().contains(fieldName);
+    }
+
+    private void executeEncrypt(Event event) {
+        Object value = event.getExtractedFields().get(lookupFieldName);
+        if (value != null) {
+            String encryptResult = Optional.ofNullable(crypto.encrypt(value.toString())).orElse(defaultVal);
+            if (KMSUtils.KMS_TYPE_VAULT.equals(type)) {
+                encryptResult = "vault:v" + crypto.getDataEncryptionKey().getVersion() + ":" + encryptResult;
+            }
+            event.getExtractedFields().put(outputFieldName, encryptResult);
+        }
     }
 
     @Override
@@ -127,41 +156,65 @@ public class Encrypt implements ScalarFunction {
 
     @Override
     public void close() {
-        if (sensitiveFieldsData != null) {
-            sensitiveFieldsData.release();
+        if (sensitiveFieldState != null) {
+            sensitiveFieldState.release();
         }
-        if (kmsKeyData != null) {
-            kmsKeyData.release();
-        }
-    }
-
-    private void checkUdfContext(UDFContext udfContext) {
-        if (udfContext.getParameters() == null) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
-        }
-        if (udfContext.getLookupFields().size() != 1) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
-        }
-        if (udfContext.getOutputFields().size() != 1) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
-        }
-        if (!udfContext.getParameters().containsKey("identifier")) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Parameters must contains identifier");
+        if (dekState != null) {
+            dekState.release();
         }
     }
 
-    public Set<String> getSensitiveFields(String url) throws IOException {
-        Set<String> sensitiveFieldsSet;
-        String sensitiveFieldsStr = HttpClientPoolUtil.getInstance().httpGet(URI.create(URLUtil.normalize(url)), new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded"));
-        JSONObject sensitiveFieldsJson = JSONUtil.parseObj(sensitiveFieldsStr);
-        if (sensitiveFieldsJson.getInt("status", HttpStatus.SC_INTERNAL_SERVER_ERROR) == HttpStatus.SC_OK) {
-            JSONArray sensitiveFieldsJsonArr = sensitiveFieldsJson.getJSONArray("data");
-            sensitiveFieldsSet = IntStream.range(0, sensitiveFieldsJsonArr.size())
-                    .mapToObj(sensitiveFieldsJsonArr::getStr)
-                    .collect(Collectors.toSet());
-        } else {
-            throw new GrootStreamRuntimeException(CommonErrorCode.UNSUPPORTED_OPERATION, "Get encrypt fields error! Error message: " + sensitiveFieldsStr);
+    @Override
+    public void checkConfig(UDFContext udfContext) {
+
+        CheckResult result = CheckUDFContextUtil.checkAllExists(udfContext,
+                UDFContextConfigOptions.LOOKUP_FIELDS.key(),
+                UDFContextConfigOptions.OUTPUT_FIELDS.key(),
+                UDFContextConfigOptions.PARAMETERS.key());
+
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.CONFIG_VALIDATION_FAILED, result.getMsg());
         }
-        return sensitiveFieldsSet;
+
+        result = CheckUDFContextUtil.checkCollectionSingleItemExists(udfContext, UDFContextConfigOptions.LOOKUP_FIELDS.key());
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
+        }
+
+        result = CheckUDFContextUtil.checkCollectionSingleItemExists(udfContext, UDFContextConfigOptions.OUTPUT_FIELDS.key());
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
+        }
+
+        result = CheckUDFContextUtil.checkParametersContainsKeys(udfContext, UDFContextConfigOptions.PARAMETERS_IDENTIFIER.key());
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
+        }
+
+
     }
+
+    // If accessing the schema URI fails, the last known state of sensitiveFieldState will be used
+    private Set<String> getSensitiveFields(String url) throws Exception {
+        try {
+           String result = HttpClientPoolUtil.getInstance()
+                   .httpGet(URI.create(URLUtil.normalize(url)), new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded"));
+           JSONObject resultJson = JSONUtil.parseObj(result);
+           int statusCode = resultJson.getInt("status", HttpStatus.SC_INTERNAL_SERVER_ERROR);
+           if (statusCode == HttpStatus.SC_OK) {
+               return Optional.ofNullable(resultJson.getJSONArray("data"))
+                       .map(jsonArray -> IntStream.range(0, jsonArray.size())
+                               .mapToObj(jsonArray::getStr)
+                               .collect(Collectors.toSet()))
+                       .orElseGet(Collections::emptySet);
+           } else {
+               return Collections.emptySet();
+           }
+
+        } catch (Exception e) {
+            log.error("Get sensitive fields error! Error message: {}", e.getMessage());
+            return sensitiveFieldState.getData().data(); // return the previous value
+        }
+    }
+
 }

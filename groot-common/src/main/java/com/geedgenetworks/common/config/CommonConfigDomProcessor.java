@@ -83,17 +83,17 @@ public class CommonConfigDomProcessor extends AbstractDomConfigProcessor {
         return knowledgeBaseConfig;
     }
 
-    private SSLConfig parseSSLConfig(Node sslRootNode) {
-        SSLConfig sslConfig = new SSLConfig();
+    private ClientSSLConfig parseSSLConfig(Node sslRootNode) {
+        ClientSSLConfig sslConfig = new ClientSSLConfig();
         for (Node node : childElements(sslRootNode)) {
             String name = cleanNodeName(node);
-            if (CommonConfigOptions.SKIP_VERIFICATION.key().equals(name)) {
+            if (CommonConfigOptions.SSL_SKIP_VERIFICATION.key().equals(name)) {
                 sslConfig.setSkipVerification(getBooleanValue(getTextContent(node)));
-            } else if (CommonConfigOptions.CA_CERTIFICATE_PATH.key().equals(name)) {
+            } else if (CommonConfigOptions.SSL_CA_CERTIFICATE_PATH.key().equals(name)) {
                 sslConfig.setCaCertificatePath(getTextContent(node));
-            } else if (CommonConfigOptions.CERTIFICATE_PATH.key().equals(name)) {
+            } else if (CommonConfigOptions.SSL_CERTIFICATE_PATH.key().equals(name)) {
                 sslConfig.setCertificatePath(getTextContent(node));
-            } else if (CommonConfigOptions.PRIVATE_KEY_PATH.key().equals(name)) {
+            } else if (CommonConfigOptions.SSL_PRIVATE_KEY_PATH.key().equals(name)) {
                 sslConfig.setPrivateKeyPath(getTextContent(node));
             } else {
                 log.warn("Unrecognized SSL configuration element: {}", name);

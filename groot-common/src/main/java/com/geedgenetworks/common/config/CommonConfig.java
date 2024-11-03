@@ -18,7 +18,7 @@ public class CommonConfig implements Serializable {
 
     private Map<String,KmsConfig> kmsConfig = CommonConfigOptions.KMS.defaultValue();
 
-    private SSLConfig sslConfig = CommonConfigOptions.SSL.defaultValue();
+    private ClientSSLConfig sslConfig = CommonConfigOptions.SSL.defaultValue();
 
     private Map<String,String> propertiesConfig = CommonConfigOptions.PROPERTIES.defaultValue();
 
@@ -32,7 +32,7 @@ public class CommonConfig implements Serializable {
        this.kmsConfig = kmsConfig;
    }
 
-   public void setSslConfig(SSLConfig sslConfig) {
+   public void setSslConfig(ClientSSLConfig sslConfig) {
        checkNotNull(sslConfig, CommonConfigOptions.SSL + " sslConfig should not be null");
        this.sslConfig = sslConfig;
    }

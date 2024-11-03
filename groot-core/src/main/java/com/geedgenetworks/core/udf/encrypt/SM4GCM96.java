@@ -1,14 +1,18 @@
 package com.geedgenetworks.core.udf.encrypt;
 
 import cn.hutool.core.util.RandomUtil;
-import com.geedgenetworks.core.pojo.KmsKey;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
+import com.geedgenetworks.core.pojo.DataEncryptionKey;
 
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
-public class SM4GCM96 implements EncryptionAlgorithm {
+public class SM4GCM96 implements Crypto {
     private static final String IDENTIFIER = "sm4-gcm96";
     private static final String ALGORITHM = "SM4";
     private static final String TRANSFORMATION = "SM4/GCM/NoPadding";
@@ -18,11 +22,15 @@ public class SM4GCM96 implements EncryptionAlgorithm {
     private static final byte[] DEFAULT_SECRET_KEY = ".geedgenetworks.".getBytes();
 
     private final Cipher cipher;
-    private KmsKey kmsKey;
+    private DataEncryptionKey dek;
 
-    public SM4GCM96() throws Exception {
-        this.cipher = Cipher.getInstance(TRANSFORMATION);
-        this.kmsKey = new KmsKey(DEFAULT_SECRET_KEY, 1);
+    public SM4GCM96() {
+        try {
+            this.cipher = Cipher.getInstance(TRANSFORMATION);
+            this.dek = new DataEncryptionKey(DEFAULT_SECRET_KEY, 1);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            throw new GrootStreamRuntimeException (CommonErrorCode.UNSUPPORTED_OPERATION, "Failed to initialize SM4GCM96", e);
+        }
     }
 
     @Override
@@ -36,13 +44,13 @@ public class SM4GCM96 implements EncryptionAlgorithm {
     }
 
     @Override
-    public KmsKey getKmsKey() {
-        return kmsKey;
+    public DataEncryptionKey getDataEncryptionKey() {
+        return dek;
     }
 
     @Override
-    public void setKmsKey(KmsKey kmsKey) {
-        this.kmsKey = kmsKey;
+    public void setDataEncryptionKey(DataEncryptionKey dek) {
+        this.dek = dek;
     }
 
     @Override
@@ -51,7 +59,7 @@ public class SM4GCM96 implements EncryptionAlgorithm {
         try {
             byte[] nonce = RandomUtil.randomBytes(GCM_96_NONCE_LENGTH);
             GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH, nonce);
-            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(kmsKey.getKeyData(), ALGORITHM), gcmSpec);
+            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(dek.getData(), ALGORITHM), gcmSpec);
             byte[] encryptedBytes = cipher.doFinal(content.getBytes());
             byte[] combinedBytes = new byte[GCM_96_NONCE_LENGTH + encryptedBytes.length];
             System.arraycopy(nonce, 0, combinedBytes, 0, GCM_96_NONCE_LENGTH);
@@ -73,7 +81,7 @@ public class SM4GCM96 implements EncryptionAlgorithm {
             System.arraycopy(combined, 0, nonce, 0, GCM_96_NONCE_LENGTH);
             System.arraycopy(combined, GCM_96_NONCE_LENGTH, encryptedBytes, 0, encryptedBytes.length);
             GCMParameterSpec gcmSpec = new GCMParameterSpec(GCM_TAG_LENGTH, nonce);
-            cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(kmsKey.getKeyData(), ALGORITHM), gcmSpec);
+            cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(dek.getData(), ALGORITHM), gcmSpec);
             byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
             decryptedString = new String(decryptedBytes);
         } catch (Exception e) {

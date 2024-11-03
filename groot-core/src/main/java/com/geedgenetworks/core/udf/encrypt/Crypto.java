@@ -1,15 +1,15 @@
 package com.geedgenetworks.core.udf.encrypt;
 
-import com.geedgenetworks.core.pojo.KmsKey;
+import com.geedgenetworks.core.pojo.DataEncryptionKey;
 
-public interface EncryptionAlgorithm {
+public interface Crypto {
     String getIdentifier();
 
     int getSecretKeyLength();
 
-    KmsKey getKmsKey();
+    DataEncryptionKey getDataEncryptionKey();
 
-    void setKmsKey(KmsKey kmsKey);
+    void setDataEncryptionKey(DataEncryptionKey dek);
 
     String encrypt(String content);
 

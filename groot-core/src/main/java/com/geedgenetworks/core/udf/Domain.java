@@ -100,10 +100,9 @@ public class Domain implements ScalarFunction {
             throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
         }
 
-        if(!udfContext.getParameters().containsKey(UDFContextConfigOptions.PARAMETERS_OPTION.key())){
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, String.format(
-                    "UDF: %s, [%s] Option should be specified.",
-                    udfContext.getFunction(), UDFContextConfigOptions.PARAMETERS.key()));
+        result = CheckUDFContextUtil.checkParametersContainsKeys(udfContext, UDFContextConfigOptions.PARAMETERS_OPTION.key());
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
         }
 
         String optionValue = udfContext.getParameters().get(UDFContextConfigOptions.PARAMETERS_OPTION.key()).toString();
