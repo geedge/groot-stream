@@ -55,7 +55,7 @@ public class KMSUtils {
         return Vault.create(config);
     }
 
-    private static SslConfig configureSSL(ClientSSLConfig clientSSLConfig) throws VaultException {
+    public static SslConfig configureSSL(ClientSSLConfig clientSSLConfig) throws VaultException {
         boolean verifySSL = clientSSLConfig != null && !clientSSLConfig.getSkipVerification();
         SslConfig sslConfig = new SslConfig().verify(verifySSL).build();
         if (verifySSL) {

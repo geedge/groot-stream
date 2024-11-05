@@ -15,6 +15,7 @@ import com.geedgenetworks.core.udf.encrypt.Crypto;
 import com.geedgenetworks.core.utils.CryptoProvider;
 import com.geedgenetworks.core.utils.HttpClientPoolUtil;
 import com.geedgenetworks.core.utils.KMSUtils;
+import io.github.jopenlibs.vault.VaultException;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
@@ -100,6 +101,115 @@ public class EncryptFunctionTest {
     }
 
     @Test
+    public void testEncryptGetKeyAndSensitiveFieldsError() throws Exception {
+        String secretKey = RandomUtil.randomString(32);
+        MockedStatic<KMSUtils> kmsUtilsMockedStatic = Mockito.mockStatic(KMSUtils.class);
+        Mockito.when(KMSUtils.getVaultKey(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(new DataEncryptionKey(secretKey.getBytes(), 1));
+        RuntimeContext runtimeContext = mockVaultRuntimeContext();
+        Map<String, Object> map = new HashMap<>();
+        map.put("identifier", CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
+        udfContext.setParameters(map);
+        Encrypt encrypt = new Encrypt();
+        encrypt.open(runtimeContext, udfContext);
+        Event event = new Event();
+        Map<String, Object> extractedFields = new HashMap<>();
+        extractedFields.put("phone_number", DATA);
+        event.setExtractedFields(extractedFields);
+        Event result = encrypt.evaluate(event);
+        Crypto crypto = CryptoProvider.createEncryptionAlgorithm(CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
+        assertNotNull(crypto);
+        crypto.setDataEncryptionKey(new DataEncryptionKey(secretKey.getBytes(), 1));
+        String encrypted = result.getExtractedFields().get("phone_number").toString();
+        assertTrue(encrypted.contains("vault:v1:"));
+        String decrypted = crypto.decrypt(encrypted.split(":")[2]);
+        assertEquals(DATA, decrypted);
+
+        Thread.sleep(90000);
+        event = new Event();
+        extractedFields = new HashMap<>();
+        extractedFields.put("phone_number", DATA);
+        event.setExtractedFields(extractedFields);
+        result = encrypt.evaluate(event);
+        encrypted = result.getExtractedFields().get("phone_number").toString();
+        assertTrue(encrypted.contains("vault:v1:"));
+        decrypted = crypto.decrypt(encrypted.split(":")[2]);
+        assertEquals(DATA, decrypted);
+        encrypt.close();
+        kmsUtilsMockedStatic.close();
+    }
+
+    @Test
+    public void testEncryptNoSensitiveFields() throws Exception {
+        String secretKey = RandomUtil.randomString(32);
+        MockedStatic<KMSUtils> kmsUtilsMockedStatic = Mockito.mockStatic(KMSUtils.class);
+        Mockito.when(KMSUtils.getVaultKey(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(new DataEncryptionKey(secretKey.getBytes(), 1));
+        RuntimeContext runtimeContext = mockVaultNoSensitiveFieldsRuntimeContext();
+        Map<String, Object> map = new HashMap<>();
+        map.put("identifier", CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
+        udfContext.setParameters(map);
+        Encrypt encrypt = new Encrypt();
+        encrypt.open(runtimeContext, udfContext);
+        Event event = new Event();
+        Map<String, Object> extractedFields = new HashMap<>();
+        extractedFields.put("phone_number", DATA);
+        event.setExtractedFields(extractedFields);
+        Event result = encrypt.evaluate(event);
+        Crypto crypto = CryptoProvider.createEncryptionAlgorithm(CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
+        assertNotNull(crypto);
+        crypto.setDataEncryptionKey(new DataEncryptionKey(secretKey.getBytes(), 1));
+        String encrypted = result.getExtractedFields().get("phone_number").toString();
+        assertTrue(encrypted.contains("vault:v1:"));
+        String decrypted = crypto.decrypt(encrypted.split(":")[2]);
+        assertEquals(DATA, decrypted);
+        encrypt.close();
+        kmsUtilsMockedStatic.close();
+    }
+
+    @Test
+    public void testEncryptFirstGetKeyError() throws Exception {
+        RuntimeContext runtimeContext = mockVaultRuntimeContext();
+        Map<String, Object> map = new HashMap<>();
+        map.put("identifier", CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
+        udfContext.setParameters(map);
+        Encrypt encrypt = new Encrypt();
+        assertThrows(GrootStreamRuntimeException.class, () -> encrypt.open(runtimeContext, udfContext));
+        encrypt.close();
+    }
+
+    @Test
+    public void testEncryptFirstGetSensitiveFieldsError() throws Exception {
+        httpClientPoolUtilMockedStatic.close();
+        String secretKey = RandomUtil.randomString(32);
+        MockedStatic<KMSUtils> kmsUtilsMockedStatic = Mockito.mockStatic(KMSUtils.class);
+        Mockito.when(KMSUtils.getVaultKey(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(new DataEncryptionKey(secretKey.getBytes(), 1));
+        RuntimeContext runtimeContext = mockVaultRuntimeContext();
+        Map<String, Object> map = new HashMap<>();
+        map.put("identifier", CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
+        udfContext.setParameters(map);
+        Encrypt encrypt = new Encrypt();
+        assertThrows(GrootStreamRuntimeException.class, () -> encrypt.open(runtimeContext, udfContext));
+        encrypt.close();
+        kmsUtilsMockedStatic.close();
+        httpClientPoolUtilMockedStatic = mockSensitiveFields();
+    }
+
+    @Test
+    public void testEncryptByVaultBySSL() throws Exception {
+        ClientSSLConfig sslConfig = new ClientSSLConfig();
+        sslConfig.setSkipVerification(true);
+        assertDoesNotThrow(() -> KMSUtils.configureSSL(sslConfig));
+
+        sslConfig.setSkipVerification(false);
+        assertThrows(VaultException.class, () -> KMSUtils.configureSSL(sslConfig));
+
+        sslConfig.setSkipVerification(false);
+        sslConfig.setCaCertificatePath("src/test/resources/ssl/ca.crt");
+        sslConfig.setCertificatePath("src/test/resources/ssl/server.crt");
+        sslConfig.setPrivateKeyPath("src/test/resources/ssl/server.key");
+        assertDoesNotThrow(() -> KMSUtils.configureSSL(sslConfig));
+    }
+
+    @Test
     public void testEncryptByIdentifier() {
         Map<String, Object> map = new HashMap<>();
         map.put("identifier", CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
@@ -119,6 +229,12 @@ public class EncryptFunctionTest {
         udfContext.setParameters(map);
         assertDoesNotThrow(() -> encrypt3.open(mockLocalRuntimeContext(), udfContext));
         encrypt3.close();
+
+        Encrypt encrypt4 = new Encrypt();
+        map.put("identifier", CryptoProvider.Algorithm.AES_128_GCM.getIdentifier());
+        udfContext.setParameters(map);
+        assertDoesNotThrow(() -> encrypt4.open(mockLocalRuntimeContext(), udfContext));
+        encrypt4.close();
     }
 
     @Test
@@ -138,6 +254,13 @@ public class EncryptFunctionTest {
         assertEquals(DATA, decryptData);
 
         crypto = CryptoProvider.createEncryptionAlgorithm(CryptoProvider.Algorithm.SM4_GCM96.getIdentifier());
+        assertNotNull(crypto);
+        crypto.setDataEncryptionKey(new DataEncryptionKey("aaaaaaaaaaaaaaaa".getBytes(), 1));
+        encryptData = crypto.encrypt(DATA);
+        decryptData = crypto.decrypt(encryptData);
+        assertEquals(DATA, decryptData);
+
+        crypto = CryptoProvider.createEncryptionAlgorithm(CryptoProvider.Algorithm.AES_128_GCM.getIdentifier());
         assertNotNull(crypto);
         crypto.setDataEncryptionKey(new DataEncryptionKey("aaaaaaaaaaaaaaaa".getBytes(), 1));
         encryptData = crypto.encrypt(DATA);
@@ -215,6 +338,39 @@ public class EncryptFunctionTest {
         sslConfig.setSkipVerification(true);
         Map<String, String> propertiesConfig = new HashMap<>();
         propertiesConfig.put("projection.encrypt.schema.registry.uri", "127.0.0.1:9999/v1/schema/session_record?option=encrypt_fields");
+        propertiesConfig.put(Constants.SYSPROP_ENCRYPT_KMS_KEY_SCHEDULER_INTERVAL_NAME, "1");
+        propertiesConfig.put(Constants.SYSPROP_ENCRYPT_SENSITIVE_FIELDS_SCHEDULER_INTERVAL_NAME, "1");
+        commonConfig.setKmsConfig(kmsConfigs);
+        commonConfig.setSslConfig(sslConfig);
+        commonConfig.setPropertiesConfig(propertiesConfig);
+        configuration.setString(Constants.SYSPROP_GROOTSTREAM_CONFIG, JSON.toJSONString(commonConfig));
+        configuration.setString(Constants.SYSPROP_KMS_TYPE_CONFIG, KMSUtils.KMS_TYPE_VAULT);
+        Mockito.when(executionConfig.getGlobalJobParameters()).thenReturn(configuration);
+        return runtimeContext;
+    }
+
+    static RuntimeContext mockVaultNoSensitiveFieldsRuntimeContext() {
+        RuntimeContext runtimeContext = Mockito.mock(RuntimeContext.class);
+        ExecutionConfig executionConfig = Mockito.mock(ExecutionConfig.class);
+        Mockito.when(runtimeContext.getExecutionConfig()).thenReturn(executionConfig);
+        MetricGroup metricGroup = Mockito.mock(OperatorMetricGroup.class);
+        Mockito.when(runtimeContext.getMetricGroup()).thenReturn(metricGroup);
+        Mockito.when(metricGroup.addGroup(Mockito.anyString())).thenReturn(metricGroup);
+        Mockito.when(metricGroup.counter(Mockito.anyString())).thenReturn(new SimpleCounter());
+        Configuration configuration = new Configuration();
+        CommonConfig commonConfig = new CommonConfig();
+        Map<String, KmsConfig> kmsConfigs = new HashMap<>();
+        KmsConfig kmsConfig = new KmsConfig();
+        kmsConfig.setType(KMSUtils.KMS_TYPE_VAULT);
+        kmsConfigs.put(KMSUtils.KMS_TYPE_VAULT, kmsConfig);
+        kmsConfig = new KmsConfig();
+        kmsConfig.setType(KMSUtils.KMS_TYPE_LOCAL);
+        kmsConfigs.put(KMSUtils.KMS_TYPE_LOCAL, kmsConfig);
+        ClientSSLConfig sslConfig = new ClientSSLConfig();
+        sslConfig.setSkipVerification(true);
+        Map<String, String> propertiesConfig = new HashMap<>();
+        propertiesConfig.put(Constants.SYSPROP_ENCRYPT_KMS_KEY_SCHEDULER_INTERVAL_NAME, "1");
+        propertiesConfig.put(Constants.SYSPROP_ENCRYPT_SENSITIVE_FIELDS_SCHEDULER_INTERVAL_NAME, "1");
         commonConfig.setKmsConfig(kmsConfigs);
         commonConfig.setSslConfig(sslConfig);
         commonConfig.setPropertiesConfig(propertiesConfig);
