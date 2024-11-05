@@ -17,17 +17,17 @@ grootstream:
       type: local
     vault:
       type: vault
-      url: https://192.168.40.223:8200
-      username: tsg_olap
-      password: tsg_olap
+      url: https://192.168.44.12:8200
+      username: galaxy
+      password: Galaxy2019#
       default_key_path: tsg_olap/transit
       plugin_key_path: tsg_olap/plugin/gmsm
 
   ssl:
     skip_verification: true
-    ca_certificate_path: ./config/ssl/root.pem
-    certificate_path: ./config/ssl/worker.pem
-    private_key_path: ./config/ssl/worker.key
+    ca_certificate_path: ./config/ssl/ca.crt
+    certificate_path: ./config/ssl/server.crt
+    private_key_path: ./config/ssl/server.key
 
   properties:
     hos.path: http://192.168.44.12:9098/hos

@@ -1,7 +1,6 @@
 package com.geedgenetworks.core.udf;
 
 import cn.hutool.core.util.URLUtil;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
@@ -21,6 +20,7 @@ import com.geedgenetworks.shaded.org.apache.http.message.BasicHeader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
+
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,7 +33,7 @@ public class Encrypt implements ScalarFunction {
     private String outputFieldName;
     private String identifier;
     private String defaultVal;
-    private String type;
+    private String kmsType;
     private transient SingleValueMap.Data<LoadIntervalDataUtil<Set<String>>> sensitiveFieldState;
     private transient SingleValueMap.Data<LoadIntervalDataUtil<DataEncryptionKey>> dekState;
     private transient Crypto crypto;
@@ -59,7 +59,7 @@ public class Encrypt implements ScalarFunction {
         KmsConfig kmsConfig = commonConfig.getKmsConfig().get(configuration.toMap().get(Constants.SYSPROP_KMS_TYPE_CONFIG));
         ClientSSLConfig sslConfig = commonConfig.getSslConfig();
         Map<String, String> propertiesConfig = commonConfig.getPropertiesConfig();
-        this.type = kmsConfig.getType();
+        this.kmsType = kmsConfig.getType();
         try {
             this.crypto = CryptoProvider.createEncryptionAlgorithm(identifier);
             initializeDataEncryptionKeyIfNeeded(kmsConfig, sslConfig, propertiesConfig);
@@ -70,7 +70,7 @@ public class Encrypt implements ScalarFunction {
     }
 
     private void initializeDataEncryptionKeyIfNeeded(KmsConfig kmsConfig, ClientSSLConfig sslConfig, Map<String, String> propertiesConfig) throws Exception {
-        if (KMSUtils.KMS_TYPE_VAULT.equals(type)) {
+        if (KMSUtils.KMS_TYPE_VAULT.equals(kmsType)) {
             this.dekState = SingleValueMap.acquireData("dekState",
                     () -> LoadIntervalDataUtil.newInstance(
                             () -> KMSUtils.getVaultKey(kmsConfig, sslConfig, identifier),
@@ -85,7 +85,7 @@ public class Encrypt implements ScalarFunction {
             }
 
             if (crypto.getSecretKeyLength() != dek.getData().length) {
-                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, String.format( "Version: %s, [%s] KMS Secret Key requires %s bytes!",
+                throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, String.format("Version: %s, [%s] KMS Secret Key requires %s bytes!",
                         dek.getVersion(), crypto.getIdentifier(), crypto.getSecretKeyLength()));
             }
 
@@ -93,7 +93,7 @@ public class Encrypt implements ScalarFunction {
         }
     }
 
-    private void initializeSensitiveFieldsIfNeeded(Map<String, String> propertiesConfig)  throws Exception {
+    private void initializeSensitiveFieldsIfNeeded(Map<String, String> propertiesConfig) throws Exception {
         String schemaUri = propertiesConfig.get("projection.encrypt.schema.registry.uri");
         if (schemaUri != null) {
             this.sensitiveFieldState = SingleValueMap.acquireData("sensitiveFieldState",
@@ -134,7 +134,7 @@ public class Encrypt implements ScalarFunction {
 
     }
 
-    private boolean isSensitiveField(String fieldName) throws Exception{
+    private boolean isSensitiveField(String fieldName) throws Exception {
         return sensitiveFieldState == null || sensitiveFieldState.getData().data().contains(fieldName);
     }
 
@@ -142,7 +142,7 @@ public class Encrypt implements ScalarFunction {
         Object value = event.getExtractedFields().get(lookupFieldName);
         if (value != null) {
             String encryptResult = Optional.ofNullable(crypto.encrypt(value.toString())).orElse(defaultVal);
-            if (KMSUtils.KMS_TYPE_VAULT.equals(type)) {
+            if (KMSUtils.KMS_TYPE_VAULT.equals(kmsType)) {
                 encryptResult = "vault:v" + crypto.getDataEncryptionKey().getVersion() + ":" + encryptResult;
             }
             event.getExtractedFields().put(outputFieldName, encryptResult);
@@ -197,20 +197,20 @@ public class Encrypt implements ScalarFunction {
     // If accessing the schema URI fails, the last known state of sensitiveFieldState will be used
     private Set<String> getSensitiveFields(String url) throws Exception {
         try {
-           String result = HttpClientPoolUtil.getInstance()
-                   .httpGet(URI.create(URLUtil.normalize(url)), new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded"));
-           JSONObject resultJson = JSONUtil.parseObj(result);
-           int statusCode = resultJson.getInt("status", HttpStatus.SC_INTERNAL_SERVER_ERROR);
-           if (statusCode == HttpStatus.SC_OK) {
-               return Optional.ofNullable(resultJson.getJSONArray("data"))
-                       .map(jsonArray -> IntStream.range(0, jsonArray.size())
-                               .mapToObj(jsonArray::getStr)
-                               .collect(Collectors.toSet()))
-                       .orElseGet(Collections::emptySet);
-           } else {
-               return Collections.emptySet();
-           }
-
+            String result = HttpClientPoolUtil.getInstance()
+                    .httpGet(URI.create(URLUtil.normalize(url)), new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded"));
+            JSONObject resultJson = JSONUtil.parseObj(result);
+            int statusCode = resultJson.getInt("status", HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            if (statusCode == HttpStatus.SC_OK) {
+                return Optional.ofNullable(resultJson.getJSONArray("data"))
+                        .map(jsonArray -> IntStream.range(0, jsonArray.size())
+                                .mapToObj(jsonArray::getStr)
+                                .collect(Collectors.toSet()))
+                        .orElseGet(Collections::emptySet);
+            } else {
+                log.error("Get sensitive fields error! Error message: {}", result);
+                return sensitiveFieldState.getData().data();
+            }
         } catch (Exception e) {
             log.error("Get sensitive fields error! Error message: {}", e.getMessage());
             return sensitiveFieldState.getData().data(); // return the previous value
