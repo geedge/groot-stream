@@ -264,11 +264,11 @@ public class EncryptFunctionTest {
         assertNotNull(crypto);
         crypto.setDataEncryptionKey(new DataEncryptionKey("aaaaaaaaaaaaaaaa".getBytes(), 1));
         encryptData = crypto.encrypt(DATA);
+        assertEquals("R2FsYXh5MjAxOSMq6Q4PFGRvBmtSQ36Ug9XDHyMXB7Oye/OPITNW", encryptData);
         decryptData = crypto.decrypt(encryptData);
         assertEquals(DATA, decryptData);
 
         assertThrows(IllegalArgumentException.class, () -> CryptoProvider.createEncryptionAlgorithm("sm4"));
-
     }
 
     @Test
