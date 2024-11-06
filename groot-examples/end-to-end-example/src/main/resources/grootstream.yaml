@@ -15,9 +15,9 @@ grootstream:
       type: local
     vault:
       type: vault
-      url: https://192.168.40.223:8200
+      url: https://192.168.44.12:8200
       username: galaxy
-      password: 123
+      password: Galaxy2019#
       default_key_path: tsg_olap/transit
       plugin_key_path: tsg_olap/plugin/gmsm
 

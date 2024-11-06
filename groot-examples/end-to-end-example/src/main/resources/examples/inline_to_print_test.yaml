@@ -142,7 +142,14 @@ processing_pipelines:
         lookup_fields: [ phone_number ]
         output_fields: [ phone_number]
         parameters:
-          identifier: aes-128-gcm96
+          identifier: aes-128-gcm
+      - function: HMAC
+        lookup_fields: [ phone_number ]
+        output_fields: [ phone_number_hmac]
+        parameters:
+          secret_key: Galaxy2019#
+          algorithm: sha256
+          output_format: base64
 
 
 sinks:
@@ -155,11 +162,12 @@ application:
   env:
     name: example-inline-to-print
     parallelism: 3
-    kms.type: local
+    kms.type: vault
+    shade.identifier: aes
     pipeline:
       object-reuse: true
     properties:
-      projection.encrypt.schema.registry.uri: 192.168.44.12:9999/v1/schema/session_record?option=encrypt_fields
+      projection.encrypt.schema.registry.uri: 192.168.44.12:9999/v1/database/table/session_record/schema?option=encrypt_fields
   topology:
     - name: inline_source
       #parallelism: 1

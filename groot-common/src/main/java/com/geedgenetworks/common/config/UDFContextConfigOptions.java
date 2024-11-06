@@ -49,6 +49,11 @@ public interface UDFContextConfigOptions {
             .noDefaultValue()
             .withDescription("The identifier for the parameters of function.");
 
+    Option<String> PARAMETERS_SECRET_KEY = Options.key("secret_key")
+            .stringType()
+            .noDefaultValue()
+            .withDescription("The secret key for the function.");
+
     Option<String> FUNCTION = Options.key("function")
             .stringType()
             .noDefaultValue()

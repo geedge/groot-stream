@@ -3,6 +3,9 @@ package com.geedgenetworks.core.udf;
 import cn.hutool.crypto.digest.HMac;
 import cn.hutool.crypto.digest.HmacAlgorithm;
 import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.config.CheckResult;
+import com.geedgenetworks.common.config.CheckUDFContextUtil;
+import com.geedgenetworks.common.config.UDFContextConfigOptions;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.udf.ScalarFunction;
@@ -21,7 +24,7 @@ public class Hmac implements ScalarFunction {
 
     @Override
     public void open(RuntimeContext runtimeContext, UDFContext udfContext) {
-        checkUdfContext(udfContext);
+        checkConfig(udfContext);
         String secretKey = udfContext.getParameters().get("secret_key").toString();
         String algorithm = "sha256";
         if (udfContext.getParameters().containsKey("algorithm")) {
@@ -39,21 +42,22 @@ public class Hmac implements ScalarFunction {
     @Override
     public Event evaluate(Event event) {
         String encodeResult = "";
-        String message = (String) event.getExtractedFields().get(lookupFieldName);
-        if (StringUtil.isNotBlank(message)) {
+        Object value = event.getExtractedFields().get(lookupFieldName);
+        if (StringUtil.isNotEmpty(value)) {
             switch (outputFormat) {
                 case "hex":
-                    encodeResult = hMac.digestHex(message);
+                    encodeResult = hMac.digestHex(value.toString());
                     break;
                 case "base64":
-                    encodeResult = hMac.digestBase64(message, false);
+                    encodeResult = hMac.digestBase64(value.toString(), false);
                     break;
                 default:
-                    encodeResult = hMac.digestBase64(message, false);
+                    encodeResult = hMac.digestBase64(value.toString(), false);
                     break;
             }
+            event.getExtractedFields().put(outputFieldName, encodeResult);
         }
-        event.getExtractedFields().put(outputFieldName, encodeResult);
+
         return event;
     }
 
@@ -67,20 +71,24 @@ public class Hmac implements ScalarFunction {
 
     }
 
-    private void checkUdfContext(UDFContext udfContext) {
-        if (udfContext.getParameters() == null || udfContext.getOutputFields() == null) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "Missing required parameters");
+    @Override
+    public void checkConfig(UDFContext udfContext) {
+
+        CheckResult result = CheckUDFContextUtil.checkAllExists(udfContext,
+                UDFContextConfigOptions.LOOKUP_FIELDS.key(),
+                UDFContextConfigOptions.OUTPUT_FIELDS.key(),
+                UDFContextConfigOptions.PARAMETERS.key());
+
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.CONFIG_VALIDATION_FAILED, result.getMsg());
         }
-        if (udfContext.getLookupFields().size() != 1) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function lookup fields only support 1 value");
+        result = CheckUDFContextUtil.checkParametersContainsKeys(udfContext, UDFContextConfigOptions.PARAMETERS_SECRET_KEY.key());
+        if (!result.isSuccess()) {
+            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, result.getMsg());
         }
-        if (udfContext.getOutputFields().size() != 1) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "The function output fields only support 1 value");
-        }
-        if (!udfContext.getParameters().containsKey("secret_key")) {
-            throw new GrootStreamRuntimeException(CommonErrorCode.ILLEGAL_ARGUMENT, "parameters must contains secret_key");
-        }
+
     }
+
 
     private String getHmacAlgorithm(String algorithm) {
         if (StringUtil.containsIgnoreCase(algorithm, "sha256")) {
