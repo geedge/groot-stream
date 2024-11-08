@@ -900,7 +900,7 @@
         <snapshotRepository>
             <id>platform-snapshots</id>
             <url>http://192.168.40.153:8081/repository/platform-snapshot/</url>
-        </snapshotRepository
+        </snapshotRepository>
     </distributionManagement>
 
 </project>
