@@ -67,7 +67,12 @@
             <version>${revision}</version>
             <scope>${scope}</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>format-msgpack</artifactId>
+            <version>${revision}</version>
+            <scope>${scope}</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
