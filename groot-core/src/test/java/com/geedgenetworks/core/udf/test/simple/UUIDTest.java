@@ -136,4 +136,21 @@ public class UUIDTest {
         Event result1 = uuidv5.evaluate(event);
         assertEquals("9b154520-3c29-541c-bb81-f649354dae67", result1.getExtractedFields().get("uuid").toString());
     }
+    @Test
+    public void testUuidV5ForCell() {
+        udfContext = new UDFContext();
+        UUIDv5 uuidv5 = new UUIDv5();
+        parameters =  new HashMap<>();
+        udfContext.setParameters(parameters);
+        udfContext.setLookupFields(List.of("cell"));
+        udfContext.setOutputFields(Collections.singletonList("uuid"));
+        parameters.put("namespace","NAMESPACE_CELL");
+        uuidv5.open(null, udfContext);
+        Event event = new Event();
+        Map<String, Object> extractedFields = new HashMap<>();
+        extractedFields.put("cell", "test1");
+        event.setExtractedFields(extractedFields);
+        Event result1 = uuidv5.evaluate(event);
+        assertEquals("4693c13f-e97f-5846-bdb0-f80ce2d2869d", result1.getExtractedFields().get("uuid").toString());
+    }
 }
