@@ -16,7 +16,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2024/8/19 15:21
  */
-public class BaseStationLookup extends AbstractKnowledgeScalarFunction {
+public class BaseStationLookup extends AbstractKnowledgeUDF {
 
     private String cellIdFieldName;
 

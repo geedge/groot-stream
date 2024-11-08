@@ -3,7 +3,7 @@ package com.geedgenetworks.core.udf.cn;
 import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.ScalarFunction;
+import com.geedgenetworks.common.udf.UDF;
 import com.geedgenetworks.common.udf.UDFContext;
 import com.uber.h3core.H3Core;
 import org.apache.flink.api.common.functions.RuntimeContext;
@@ -17,7 +17,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2024/8/19 14:50
  */
-public class H3CellLookup implements ScalarFunction {
+public class H3CellLookup implements UDF {
 
     private String longitudeFieldName;
 
