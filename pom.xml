@@ -881,9 +881,9 @@
 
     <repositories>
         <repository>
-            <id>nexus</id>
+            <id>nexus3</id>
             <name>Team Nexus Repository</name>
-            <url>http://192.168.40.153:8099/content/groups/public</url>
+            <url>http://192.168.40.153:8081/repository/public/</url>
         </repository>
         <repository>
             <id>cloudera</id>
@@ -892,15 +892,15 @@
     </repositories>
 
     <distributionManagement>
-        <repository>
-            <id>platform-releases</id>
-            <url>http://192.168.40.153:8099/content/repositories/platform-release</url>
+         <repository>
             <uniqueVersion>true</uniqueVersion>
+            <id>platform-releases</id>
+            <url>http://192.168.40.153:8081/repository/platform-release/</url>
         </repository>
         <snapshotRepository>
             <id>platform-snapshots</id>
-            <url>http://192.168.40.153:8099/content/repositories/platform-snapshot</url>
-        </snapshotRepository>
+            <url>http://192.168.40.153:8081/repository/platform-snapshot/</url>
+        </snapshotRepository
     </distributionManagement>
 
 </project>
