@@ -41,7 +41,7 @@ filters:
 preprocessing_pipelines:
   transform_processor:
     type: projection
-    remove_fields: [client_ip]
+    remove_fields: [http_request_line]
 
 processing_pipelines:
   session_record_processor:
