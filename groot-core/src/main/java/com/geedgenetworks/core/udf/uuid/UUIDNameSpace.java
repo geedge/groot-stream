@@ -13,8 +13,8 @@ public enum UUIDNameSpace {
     NAMESPACE_IP(UUID.fromString("6ba7b890-9dad-11d1-80b4-00c04fd430c8")),
     NAMESPACE_DOMAIN(UUID.fromString("6ba7b891-9dad-11d1-80b4-00c04fd430c8")),
     NAMESPACE_APP(UUID.fromString("6ba7b892-9dad-11d1-80b4-00c04fd430c8")),
-    NAMESPACE_SUBSCRIBER(UUID.fromString("6ba7b893-9dad-11d1-80b4-00c04fd430c8"));
-
+    NAMESPACE_SUBSCRIBER(UUID.fromString("6ba7b893-9dad-11d1-80b4-00c04fd430c8")),
+    NAMESPACE_CELL(UUID.fromString("6ba7b894-9dad-11d1-80b4-00c04fd430c8"));
     private final UUID uuid;
 
     // Static map to hold the mapping from name to UUID
