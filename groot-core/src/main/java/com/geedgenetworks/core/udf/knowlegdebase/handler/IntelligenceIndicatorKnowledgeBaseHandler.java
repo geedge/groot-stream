@@ -1,8 +1,8 @@
 package com.geedgenetworks.core.udf.knowlegdebase.handler;
 
+import com.geedgenetworks.core.utils.cn.common.IPAddress;
 import com.geedgenetworks.core.utils.cn.common.Trie;
 import com.geedgenetworks.core.utils.cn.csv.HighCsvReader;
-import inet.ipaddr.IPAddress;
 import inet.ipaddr.IPAddressString;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.shaded.guava18.com.google.common.collect.Range;
@@ -78,29 +78,29 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
                         IPAddress startIpAddress;
                         IPAddress endIpAddress;
                         if ("Single".equals(addrFormat)) {
-                            IPAddress ipAddress = new IPAddressString(ip1).getAddress();
-                            if (ipAddress == null) {
+                            IPAddress ipAddress = new IPAddress(ip1);
+                            if (ipAddress.getIpAddress() == null) {
                                 continue;
                             }
                             startIpAddress = ipAddress;
                             endIpAddress = ipAddress;
                         } else if ("Range".equals(addrFormat)) {
-                            IPAddress ipAddress1 = new IPAddressString(ip1).getAddress();
-                            IPAddress ipAddress2 = new IPAddressString(ip2).getAddress();
-                            if (ipAddress1 == null || ipAddress2 == null) {
+                            IPAddress ipAddress1 = new IPAddress(ip1);
+                            IPAddress ipAddress2 = new IPAddress(ip2);
+                            if (ipAddress1.getIpAddress() == null || ipAddress2.getIpAddress() == null) {
                                 continue;
                             }
                             startIpAddress = ipAddress1;
                             endIpAddress = ipAddress2;
                         } else if ("CIDR".equals(addrFormat)) {
-                            IPAddress cidrIpAddress = new IPAddressString(ip1 + "/" + ip2).getAddress();
+                            inet.ipaddr.IPAddress cidrIpAddress = new IPAddressString(ip1 + "/" + ip2).getAddress();
                             if (cidrIpAddress == null) {
                                 continue;
                             }
-                            IPAddress ipAddressLower = cidrIpAddress.getLower();
-                            IPAddress ipAddressUpper = cidrIpAddress.getUpper();
-                            startIpAddress = ipAddressLower;
-                            endIpAddress = ipAddressUpper;
+                            inet.ipaddr.IPAddress ipAddressLower = cidrIpAddress.getLower();
+                            inet.ipaddr.IPAddress ipAddressUpper = cidrIpAddress.getUpper();
+                            startIpAddress = new IPAddress(ipAddressLower);
+                            endIpAddress = new IPAddress(ipAddressUpper);
                         } else {
                             logger.warn("unknown addrFormat: " + addrFormat);
                             continue;
@@ -146,9 +146,13 @@ public class IntelligenceIndicatorKnowledgeBaseHandler extends AbstractSingleKno
 
     public List<String> lookupByIp(String ip) {
         List<String> tags = new ArrayList<>();
-        IPAddress address = new IPAddressString(ip).getAddress();
-        if (address != null) {
-            Optional.ofNullable(ipTagMap.get(address)).ifPresent(tags::addAll);
+        try {
+            IPAddress address = new IPAddress(ip);
+            if (address.getIpAddress() != null) {
+                Optional.ofNullable(ipTagMap.get(address)).ifPresent(tags::addAll);
+            }
+        } catch (Exception e) {
+            logger.error("intelligence indicator lookup by ip {} error", ip);
         }
         return tags;
     }
