@@ -2,7 +2,8 @@ package com.geedgenetworks.formats.json;
 
 import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONReader;
-import com.geedgenetworks.core.types.*;
+import com.geedgenetworks.spi.table.type.*;
+import com.geedgenetworks.spi.table.type.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

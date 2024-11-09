@@ -2,6 +2,7 @@ package com.geedgenetworks.core.utils;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
+
 public class SchedulerUtils {
     private static Scheduler scheduler;
 

@@ -1,9 +1,9 @@
 package com.geedgenetworks.core.split;
 
 import com.alibaba.fastjson.JSONObject;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.pojo.FilterConfig;
-import com.geedgenetworks.core.pojo.SplitConfig;
+import com.geedgenetworks.spi.split.Split;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.split.SplitConfig;
 import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.DataStream;
 

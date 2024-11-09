@@ -1,11 +1,11 @@
 package com.geedgenetworks.core.connector.schema.utils;
 
-import com.geedgenetworks.core.connector.schema.DynamicSchema;
-import com.geedgenetworks.core.connector.schema.HttpDynamicSchema;
-import com.geedgenetworks.core.connector.schema.SchemaChangeAware;
-import com.geedgenetworks.core.connector.schema.SchemaParser;
-import com.geedgenetworks.core.types.StructType;
-import com.geedgenetworks.core.types.Types;
+import com.geedgenetworks.spi.table.schema.DynamicSchema;
+import com.geedgenetworks.spi.table.schema.HttpDynamicSchema;
+import com.geedgenetworks.spi.table.schema.SchemaChangeAware;
+import com.geedgenetworks.spi.table.schema.SchemaParser;
+import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.spi.table.type.Types;
 import org.apache.flink.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

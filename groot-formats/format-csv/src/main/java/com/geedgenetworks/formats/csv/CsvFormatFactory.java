@@ -1,12 +1,12 @@
 package com.geedgenetworks.formats.csv;
 
-import com.geedgenetworks.core.connector.format.DecodingFormat;
-import com.geedgenetworks.core.connector.format.EncodingFormat;
-import com.geedgenetworks.core.factories.DecodingFormatFactory;
-import com.geedgenetworks.core.factories.EncodingFormatFactory;
-import com.geedgenetworks.core.factories.FactoryUtil;
-import com.geedgenetworks.core.factories.TableFactory;
-import com.geedgenetworks.core.types.*;
+import com.geedgenetworks.spi.table.connector.DecodingFormat;
+import com.geedgenetworks.spi.table.connector.EncodingFormat;
+import com.geedgenetworks.spi.table.factory.DecodingFormatFactory;
+import com.geedgenetworks.spi.table.factory.EncodingFormatFactory;
+import com.geedgenetworks.spi.table.factory.FactoryUtil;
+import com.geedgenetworks.spi.table.factory.TableFactory;
+import com.geedgenetworks.spi.table.type.*;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;

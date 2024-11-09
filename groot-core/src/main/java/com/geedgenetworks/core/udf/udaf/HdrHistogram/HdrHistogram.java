@@ -1,8 +1,8 @@
 package com.geedgenetworks.core.udf.udaf.HdrHistogram;
 
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.sketch.util.StringUtils;
+import com.geedgenetworks.spi.common.udf.UDFContext;
 import org.HdrHistogram.Histogramer;
 
 import java.util.Map;

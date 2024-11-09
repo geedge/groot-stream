@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.udf.cn;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;

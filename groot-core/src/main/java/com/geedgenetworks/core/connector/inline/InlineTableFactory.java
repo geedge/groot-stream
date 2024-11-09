@@ -1,13 +1,12 @@
 package com.geedgenetworks.core.connector.inline;
 
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONArray;
-import com.geedgenetworks.core.connector.format.DecodingFormat;
-import com.geedgenetworks.core.connector.source.SourceProvider;
-import com.geedgenetworks.core.factories.DecodingFormatFactory;
-import com.geedgenetworks.core.factories.FactoryUtil;
-import com.geedgenetworks.core.factories.SourceTableFactory;
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.spi.table.connector.SourceProvider;
+import com.geedgenetworks.spi.table.connector.DecodingFormat;
+import com.geedgenetworks.spi.table.connector.SourceTableFactory;
+import com.geedgenetworks.spi.table.factory.DecodingFormatFactory;
+import com.geedgenetworks.spi.table.factory.FactoryUtil;
+import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;

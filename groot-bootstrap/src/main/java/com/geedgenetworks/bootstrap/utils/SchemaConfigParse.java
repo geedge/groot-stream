@@ -3,10 +3,10 @@ package com.geedgenetworks.bootstrap.utils;
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
-import com.geedgenetworks.core.connector.schema.Schema;
-import com.geedgenetworks.core.connector.schema.SchemaParser;
-import com.geedgenetworks.core.types.StructType;
-import com.geedgenetworks.core.types.Types;
+import com.geedgenetworks.spi.table.schema.Schema;
+import com.geedgenetworks.spi.table.schema.SchemaParser;
+import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.spi.table.type.Types;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

@@ -1,27 +1,26 @@
 package com.geedgenetworks.core.processor.projection;
 
 import com.alibaba.fastjson.JSONObject;
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.config.CheckConfigUtil;
 import com.geedgenetworks.common.config.CheckResult;
-import com.geedgenetworks.common.config.ProjectionConfigOptions;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
-import com.geedgenetworks.core.pojo.ProjectionConfig;
 
+import com.geedgenetworks.spi.configuration.ProjectionConfigOptions;
+import com.geedgenetworks.spi.processor.Processor;
+import com.geedgenetworks.spi.processor.ProjectionConfig;
+import com.geedgenetworks.spi.table.event.Event;
 import com.typesafe.config.Config;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.util.OutputTag;
 
 import java.util.Map;
 
-public class ProjectionProcessorImpl implements ProjectionProcessor {
+public class ProjectionProcessorImpl implements Processor<ProjectionConfig> {
 
 
     @Override
-    public DataStream<Event> processorFunction(DataStream<Event> grootEventDataStream, ProjectionConfig projectionConfig, ExecutionConfig config) throws Exception {
+    public DataStream<Event> processorFunction(DataStream<Event> grootEventDataStream, ProjectionConfig projectionConfig, ExecutionConfig config) {
         if (projectionConfig.getParallelism() != 0) {
             return grootEventDataStream
                     .process(new ProjectionProcessFunction(projectionConfig))

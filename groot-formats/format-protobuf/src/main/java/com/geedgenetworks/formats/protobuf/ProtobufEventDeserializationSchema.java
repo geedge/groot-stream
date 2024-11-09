@@ -1,14 +1,13 @@
 package com.geedgenetworks.formats.protobuf;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.connector.format.MapDeserialization;
-import com.geedgenetworks.core.types.StructType;
 import com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor;
+import com.geedgenetworks.spi.table.connector.MapDeserialization;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Map;

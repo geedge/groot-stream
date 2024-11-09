@@ -1,8 +1,8 @@
 package com.geedgenetworks.formats.csv;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.connector.format.MapDeserialization;
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.spi.table.connector.MapDeserialization;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.dataformat.csv.CsvSchema;

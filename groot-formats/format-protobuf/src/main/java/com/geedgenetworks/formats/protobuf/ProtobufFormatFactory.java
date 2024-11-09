@@ -1,13 +1,13 @@
 package com.geedgenetworks.formats.protobuf;
 
-import com.geedgenetworks.core.connector.format.DecodingFormat;
-import com.geedgenetworks.core.connector.format.EncodingFormat;
-import com.geedgenetworks.core.factories.DecodingFormatFactory;
-import com.geedgenetworks.core.factories.EncodingFormatFactory;
-import com.geedgenetworks.core.factories.TableFactory;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.types.StructType;
 import com.geedgenetworks.shaded.com.google.protobuf.Descriptors;
+import com.geedgenetworks.spi.table.connector.DecodingFormat;
+import com.geedgenetworks.spi.table.connector.EncodingFormat;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.table.factory.DecodingFormatFactory;
+import com.geedgenetworks.spi.table.factory.EncodingFormatFactory;
+import com.geedgenetworks.spi.table.factory.TableFactory;
+import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;

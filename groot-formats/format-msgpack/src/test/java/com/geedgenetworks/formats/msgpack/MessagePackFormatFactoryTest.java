@@ -1,13 +1,12 @@
 package com.geedgenetworks.formats.msgpack;
 
-import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.connector.sink.SinkProvider;
-import com.geedgenetworks.core.connector.source.SourceProvider;
-import com.geedgenetworks.core.factories.FactoryUtil;
-import com.geedgenetworks.core.factories.SinkTableFactory;
-import com.geedgenetworks.core.factories.SourceTableFactory;
-import com.geedgenetworks.core.factories.TableFactory;
+import com.geedgenetworks.spi.table.connector.SinkProvider;
+import com.geedgenetworks.spi.table.connector.SinkTableFactory;
+import com.geedgenetworks.spi.table.connector.SourceProvider;
+import com.geedgenetworks.spi.table.connector.SourceTableFactory;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.table.factory.FactoryUtil;
+import com.geedgenetworks.spi.table.factory.TableFactory;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;

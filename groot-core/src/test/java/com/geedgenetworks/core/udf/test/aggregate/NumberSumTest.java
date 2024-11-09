@@ -16,11 +16,10 @@
 package com.geedgenetworks.core.udf.test.aggregate;
 
 
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.udf.udaf.LongCount;
+import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.core.udf.udaf.NumberSum;
+import com.geedgenetworks.spi.common.udf.UDFContext;
+import com.geedgenetworks.spi.table.event.Event;
 import com.ibm.icu.text.NumberFormat;
 import org.junit.jupiter.api.Test;
 

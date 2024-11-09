@@ -8,7 +8,7 @@ import com.geedgenetworks.bootstrap.execution.JobExecution;
 import com.geedgenetworks.bootstrap.main.simple.collect.CollectSink;
 import com.geedgenetworks.bootstrap.utils.CommandLineUtils;
 import com.geedgenetworks.bootstrap.utils.ConfigFileUtils;
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.config.ConfigProvider;
 import com.geedgenetworks.common.config.GrootStreamConfig;
 import com.typesafe.config.Config;

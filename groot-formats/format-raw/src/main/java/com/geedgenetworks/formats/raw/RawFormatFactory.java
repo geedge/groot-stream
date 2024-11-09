@@ -1,14 +1,14 @@
 package com.geedgenetworks.formats.raw;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.connector.format.DecodingFormat;
-import com.geedgenetworks.core.connector.format.EncodingFormat;
-import com.geedgenetworks.core.factories.DecodingFormatFactory;
-import com.geedgenetworks.core.factories.EncodingFormatFactory;
-import com.geedgenetworks.core.factories.TableFactory;
-import com.geedgenetworks.core.types.StructType;
-import com.geedgenetworks.core.types.StructType.StructField;
-import com.geedgenetworks.core.types.Types;
+import com.geedgenetworks.spi.table.connector.DecodingFormat;
+import com.geedgenetworks.spi.table.connector.EncodingFormat;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.table.factory.DecodingFormatFactory;
+import com.geedgenetworks.spi.table.factory.EncodingFormatFactory;
+import com.geedgenetworks.spi.table.factory.TableFactory;
+import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.spi.table.type.StructType.StructField;
+import com.geedgenetworks.spi.table.type.Types;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;

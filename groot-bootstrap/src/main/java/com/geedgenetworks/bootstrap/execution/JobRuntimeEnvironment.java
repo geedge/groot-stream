@@ -3,7 +3,7 @@ package com.geedgenetworks.bootstrap.execution;
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.bootstrap.enums.TargetType;
 import com.geedgenetworks.bootstrap.utils.EnvironmentUtil;
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.config.CheckResult;
 import com.geedgenetworks.common.config.GrootStreamConfig;
 import com.geedgenetworks.common.utils.ReflectionUtils;

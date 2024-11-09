@@ -1,6 +1,7 @@
 package com.geedgenetworks.formats.msgpack;
 
-import com.geedgenetworks.core.types.*;
+import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.spi.table.type.*;
 import org.msgpack.core.MessageFormat;
 import org.msgpack.core.MessagePack;
 import org.msgpack.core.MessageUnpacker;

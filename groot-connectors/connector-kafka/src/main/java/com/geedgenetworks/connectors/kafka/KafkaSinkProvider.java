@@ -1,10 +1,10 @@
 package com.geedgenetworks.connectors.kafka;
 
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.connectors.kafka.rate.RateLimitingStrategy;
-import com.geedgenetworks.core.connector.format.EncodingFormat;
-import com.geedgenetworks.core.connector.sink.SinkProvider;
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.spi.table.connector.EncodingFormat;
+import com.geedgenetworks.spi.table.connector.SinkProvider;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;

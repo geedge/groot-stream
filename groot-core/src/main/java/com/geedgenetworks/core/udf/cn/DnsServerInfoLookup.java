@@ -1,8 +1,8 @@
 package com.geedgenetworks.core.udf.cn;
 
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.DnsServerInfoKnowledgeBaseHandler;
+import com.geedgenetworks.spi.table.event.Event;
 
 import java.util.List;
 

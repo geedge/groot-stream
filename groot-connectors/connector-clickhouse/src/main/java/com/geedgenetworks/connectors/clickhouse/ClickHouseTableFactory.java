@@ -1,12 +1,12 @@
 package com.geedgenetworks.connectors.clickhouse;
 
 import com.geedgenetworks.connectors.clickhouse.sink.EventBatchIntervalClickHouseSink;
-import com.geedgenetworks.core.connector.schema.Schema;
-import com.geedgenetworks.core.connector.sink.SinkProvider;
-import com.geedgenetworks.core.factories.FactoryUtil;
-import com.geedgenetworks.core.factories.FactoryUtil.TableFactoryHelper;
-import com.geedgenetworks.core.factories.SinkTableFactory;
-import com.geedgenetworks.common.Event;
+import com.geedgenetworks.spi.table.connector.SinkProvider;
+import com.geedgenetworks.spi.table.connector.SinkTableFactory;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.table.factory.FactoryUtil;
+import com.geedgenetworks.spi.table.factory.FactoryUtil.TableFactoryHelper;
+import com.geedgenetworks.spi.table.schema.Schema;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.configuration.ReadableConfig;

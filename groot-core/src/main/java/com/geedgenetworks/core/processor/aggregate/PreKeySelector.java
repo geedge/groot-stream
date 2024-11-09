@@ -1,8 +1,8 @@
 package com.geedgenetworks.core.processor.aggregate;
 
 import cn.hutool.crypto.SecureUtil;
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.KeybyEntity;
+import com.geedgenetworks.common.config.Accumulator;
+import com.geedgenetworks.common.config.KeybyEntity;
 
 import java.util.HashMap;
 import java.util.List;

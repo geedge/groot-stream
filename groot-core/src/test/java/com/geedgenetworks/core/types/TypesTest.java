@@ -1,6 +1,7 @@
 package com.geedgenetworks.core.types;
 
 import com.alibaba.fastjson2.JSON;
+import com.geedgenetworks.spi.table.type.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -20,7 +21,7 @@ public class TypesTest {
 
     public void parseDataType(){
         String ddl = "struct< id: int, obj: struct <id:int, arr: array < int >, name:string>, name : string>";
-        StructType dataType = (StructType)Types.parseDataType(ddl);
+        StructType dataType = (StructType) Types.parseDataType(ddl);
         System.out.println(dataType);
         System.out.println(dataType.treeString());
 

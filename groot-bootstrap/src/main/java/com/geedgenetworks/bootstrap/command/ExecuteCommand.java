@@ -7,7 +7,7 @@ import com.geedgenetworks.bootstrap.execution.ExecutionConfigKeyName;
 import com.geedgenetworks.bootstrap.execution.JobExecution;
 import com.geedgenetworks.bootstrap.utils.ConfigBuilder;
 import com.geedgenetworks.bootstrap.utils.ConfigFileUtils;
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.config.ConfigProvider;
 import com.geedgenetworks.common.config.GrootStreamConfig;
 import com.typesafe.config.Config;

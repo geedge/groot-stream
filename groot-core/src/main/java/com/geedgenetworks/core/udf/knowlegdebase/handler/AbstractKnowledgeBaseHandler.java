@@ -6,9 +6,9 @@ import com.alibaba.fastjson2.JSONArray;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
+import com.geedgenetworks.common.utils.HttpClientPoolUtil;
 import com.geedgenetworks.core.utils.HdfsUtils;
 import com.geedgenetworks.core.pojo.KnowLedgeBaseFileMeta;
-import com.geedgenetworks.core.utils.HttpClientPoolUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;

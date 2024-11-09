@@ -23,7 +23,7 @@
     <dependencies>
         <dependency>
             <groupId>com.geedgenetworks</groupId>
-            <artifactId>groot-common</artifactId>
+            <artifactId>groot-spi</artifactId>
             <version>${revision}</version>
             <scope>provided</scope>
         </dependency>

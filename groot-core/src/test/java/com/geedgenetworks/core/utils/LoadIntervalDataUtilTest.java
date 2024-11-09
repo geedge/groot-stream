@@ -1,6 +1,9 @@
 package com.geedgenetworks.core.utils;
 
 
+import com.geedgenetworks.spi.configuration.util.LoadIntervalDataOptions;
+import com.geedgenetworks.spi.configuration.util.LoadIntervalDataUtil;
+
 import java.sql.Timestamp;
 
 public class LoadIntervalDataUtilTest {

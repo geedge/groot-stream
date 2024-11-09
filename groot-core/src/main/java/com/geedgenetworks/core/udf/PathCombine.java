@@ -2,13 +2,13 @@ package com.geedgenetworks.core.udf;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.JSONArray;
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.ScalarFunction;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.spi.common.udf.ScalarFunction;
+import com.geedgenetworks.spi.common.udf.UDFContext;
+import com.geedgenetworks.spi.table.event.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;

@@ -1,12 +1,13 @@
 package com.geedgenetworks.bootstrap.execution;
 
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
-import com.geedgenetworks.core.pojo.ProcessorConfig;
-import com.geedgenetworks.core.processor.Processor;
+import com.geedgenetworks.spi.configuration.ProjectionConfigOptions;
+import com.geedgenetworks.spi.processor.Processor;
+import com.geedgenetworks.spi.processor.ProcessorConfig;
+import com.geedgenetworks.spi.table.event.Event;
 import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.DataStream;
 

@@ -1,12 +1,12 @@
 package com.geedgenetworks.core.udf.udaf;
 
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.AggregateFunction;
-import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.pojo.OnlineStatistics;
+import com.geedgenetworks.spi.common.udf.AggregateFunction;
+import com.geedgenetworks.spi.common.udf.UDFContext;
+import com.geedgenetworks.spi.table.event.Event;
 
 import java.text.DecimalFormat;
 

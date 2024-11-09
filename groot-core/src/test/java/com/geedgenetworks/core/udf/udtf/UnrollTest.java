@@ -1,13 +1,12 @@
 package com.geedgenetworks.core.udf.udtf;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.spi.common.udf.UDFContext;
+import com.geedgenetworks.spi.table.event.Event;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 

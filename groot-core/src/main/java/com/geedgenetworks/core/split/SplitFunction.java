@@ -1,9 +1,9 @@
 package com.geedgenetworks.core.split;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.RuleContext;
 import com.geedgenetworks.core.metrics.InternalMetrics;
-import com.geedgenetworks.core.pojo.SplitConfig;
+import com.geedgenetworks.spi.common.udf.RuleContext;
+import com.geedgenetworks.spi.split.SplitConfig;
+import com.geedgenetworks.spi.table.event.Event;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;

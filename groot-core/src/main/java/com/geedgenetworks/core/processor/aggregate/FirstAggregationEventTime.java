@@ -1,10 +1,10 @@
 package com.geedgenetworks.core.processor.aggregate;
 
 
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.KeybyEntity;
-import com.geedgenetworks.core.pojo.AggregateConfig;
+import com.geedgenetworks.common.config.Accumulator;
+import com.geedgenetworks.common.config.KeybyEntity;
+import com.geedgenetworks.spi.processor.AggregateConfig;
+import com.geedgenetworks.spi.table.event.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;

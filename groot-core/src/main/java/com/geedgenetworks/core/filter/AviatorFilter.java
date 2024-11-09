@@ -1,8 +1,9 @@
 package com.geedgenetworks.core.filter;
 
 import com.alibaba.fastjson.JSONObject;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.pojo.FilterConfig;
+import com.geedgenetworks.spi.filter.Filter;
+import com.geedgenetworks.spi.filter.FilterConfig;
+import com.geedgenetworks.spi.table.event.Event;
 import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.DataStream;
 

@@ -1,6 +1,7 @@
 package com.geedgenetworks.core.connector.schema;
 
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.spi.table.schema.SchemaParser;
+import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;

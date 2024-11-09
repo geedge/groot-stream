@@ -1,24 +1,21 @@
 package com.geedgenetworks.bootstrap.execution;
 
-import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.bootstrap.enums.ProcessorType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
-import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.config.CheckConfigUtil;
 import com.geedgenetworks.common.config.CheckResult;
-import com.geedgenetworks.common.config.FilterConfigOptions;
-import com.geedgenetworks.common.config.ProjectionConfigOptions;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
-import com.geedgenetworks.core.filter.Filter;
-import com.geedgenetworks.core.pojo.FilterConfig;
 
+import com.geedgenetworks.spi.configuration.FilterConfigOptions;
+import com.geedgenetworks.spi.filter.Filter;
+import com.geedgenetworks.spi.filter.FilterConfig;
+import com.geedgenetworks.spi.table.event.Event;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.net.URL;
 import java.util.List;

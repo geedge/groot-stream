@@ -3,16 +3,12 @@ package com.geedgenetworks.core.udf.udtf;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.TableFunction;
-import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.common.utils.JsonPathUtil;
-import com.googlecode.aviator.AviatorEvaluator;
-import com.googlecode.aviator.AviatorEvaluatorInstance;
-import com.googlecode.aviator.Expression;
-import com.googlecode.aviator.Options;
+import com.geedgenetworks.spi.common.udf.TableFunction;
+import com.geedgenetworks.spi.common.udf.UDFContext;
+import com.geedgenetworks.spi.table.event.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
@@ -99,7 +95,7 @@ public class JsonUnroll implements TableFunction {
         return Collections.singletonList(event);
     }
 
-    private List<Event> parseList(Object object,Event event) {
+    private List<Event> parseList(Object object, Event event) {
         List list = (List) object;
         List<Event> eventList = new ArrayList<>();
         for (Object obj : list) {

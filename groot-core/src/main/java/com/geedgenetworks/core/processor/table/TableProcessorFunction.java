@@ -1,16 +1,16 @@
 package com.geedgenetworks.core.processor.table;
 
 import com.alibaba.fastjson.JSON;
-import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.Event;
+import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.TableFunction;
-import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.core.metrics.InternalMetrics;
-import com.geedgenetworks.core.pojo.TableConfig;
-import com.geedgenetworks.core.processor.projection.UdfEntity;
+import com.geedgenetworks.spi.common.udf.TableFunction;
+import com.geedgenetworks.spi.common.udf.UDFContext;
+import com.geedgenetworks.spi.common.udf.UdfEntity;
+import com.geedgenetworks.spi.processor.TableConfig;
+import com.geedgenetworks.spi.table.event.Event;
 import com.google.common.collect.Lists;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
 

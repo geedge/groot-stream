@@ -1,8 +1,8 @@
 package com.geedgenetworks.formats.raw;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.types.Types;
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.spi.table.type.Types;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.util.Preconditions;

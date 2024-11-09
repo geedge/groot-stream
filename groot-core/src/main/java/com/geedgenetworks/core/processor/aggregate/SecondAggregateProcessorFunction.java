@@ -1,14 +1,14 @@
 package com.geedgenetworks.core.processor.aggregate;
 
 import com.alibaba.fastjson.JSON;
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Accumulator;
+import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.AggregateFunction;
-import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.pojo.AggregateConfig;
-import com.geedgenetworks.core.processor.projection.UdfEntity;
+import com.geedgenetworks.spi.common.udf.UDFContext;
+import com.geedgenetworks.spi.common.udf.UdfEntity;
+import com.geedgenetworks.spi.common.udf.AggregateFunction;
+import com.geedgenetworks.spi.processor.AggregateConfig;
 import com.google.common.collect.Lists;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
@@ -23,7 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.geedgenetworks.core.utils.UDFUtils.filterExecute;
 import static com.geedgenetworks.core.utils.UDFUtils.getClassReflect;
 
 @Slf4j

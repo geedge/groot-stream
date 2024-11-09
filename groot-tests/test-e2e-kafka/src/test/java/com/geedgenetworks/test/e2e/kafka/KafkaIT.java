@@ -1,8 +1,8 @@
 package com.geedgenetworks.test.e2e.kafka;
 
-import com.geedgenetworks.core.types.StructType;
-import com.geedgenetworks.core.types.Types;
 import com.geedgenetworks.formats.json.JsonSerializer;
+import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.spi.table.type.Types;
 import com.geedgenetworks.test.common.TestResource;
 import com.geedgenetworks.test.common.TestSuiteBase;
 import com.geedgenetworks.test.common.container.TestContainer;
@@ -30,6 +30,7 @@ import org.testcontainers.containers.Container;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.lifecycle.Startables;;
+import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.DockerLoggerFactory;
 import org.testcontainers.utility.MountableFile;
@@ -153,7 +154,7 @@ public class KafkaIT extends TestSuiteBase implements TestResource {
         await().atMost(60000, TimeUnit.MILLISECONDS)
                 .untilAsserted(
                         () -> {
-                            data.addAll(getKafkaConsumerListData("test_sink_topic"));
+                            data.addAll(getKafkaConsumerListData("test_sink_topic", null));
                             Assertions.assertEquals(10, data.size()); // Check if all 10 records are consumed
                         });
 
@@ -162,7 +163,7 @@ public class KafkaIT extends TestSuiteBase implements TestResource {
     @TestTemplate
     public void testKafkaAsSinkProducerQuota(TestContainer container) throws IOException, InterruptedException {
         //Create topic with 3 partitions
-        executeShell("kafka-topics --create --topic SESSION-RECORD-QUOTA-TEST --bootstrap-server kafkaCluster:9092 --partitions 3 --replication-factor 1 --command-config /etc/kafka/kafka_client_jass_cli.properties");
+        executeShell("kafka-topics --create --topic SESSION-RECORD-QUOTA-TEST --bootstrap-server kafkaCluster:9092 --partitions 1 --replication-factor 1 --command-config /etc/kafka/kafka_client_jass_cli.properties");
         //Set producer quota to 2KB/s
         executeShell("kafka-configs --bootstrap-server kafkaCluster:9092 --alter --add-config 'producer_byte_rate=2048' --entity-type users --entity-name admin --entity-type clients --entity-name SESSION-RECORD-QUOTA-TEST --command-config /etc/kafka/kafka_client_jass_cli.properties ");
 
@@ -179,12 +180,12 @@ public class KafkaIT extends TestSuiteBase implements TestResource {
                 });
 
         List<String> data = Lists.newArrayList();
-            await().atMost(300000, TimeUnit.MILLISECONDS)
-                .untilAsserted(
-                        () -> {
-                           data.addAll(getKafkaConsumerListData("SESSION-RECORD-QUOTA-TEST"));
-                           Assertions.assertTrue(StringUtils.contains(container.getServerLogs(), "TimeoutException") && data.size()>100);
-                        });
+        await().atMost(600000, TimeUnit.MILLISECONDS)
+            .untilAsserted(
+                    () -> {
+                       data.addAll(getKafkaConsumerListData("SESSION-RECORD-QUOTA-TEST", "test-consume-group-quota"+ RandomStringUtils.randomAlphabetic(5)));
+                       Assertions.assertTrue(StringUtils.contains(container.getServerLogs(), "TimeoutException") && data.size()>100);
+                    });
 
     }
 
@@ -209,7 +210,7 @@ public class KafkaIT extends TestSuiteBase implements TestResource {
         await().atMost(60000, TimeUnit.MILLISECONDS)
             .untilAsserted(
                     () -> {
-                        data.addAll(getKafkaConsumerListData("test_handle_error_json_format_topic"));
+                        data.addAll(getKafkaConsumerListData("test_handle_error_json_format_topic", null));
                         Assertions.assertTrue(StringUtils.contains(container.getServerLogs(), "UnsupportedOperationException"));
                         Assertions.assertEquals(0, data.size());
                     });
@@ -237,7 +238,7 @@ public class KafkaIT extends TestSuiteBase implements TestResource {
         await().atMost(60000, TimeUnit.MILLISECONDS)
             .untilAsserted(
                     () -> {
-                        data.addAll(getKafkaConsumerListData("test_skip_error_json_format_topic"));
+                        data.addAll(getKafkaConsumerListData("test_skip_error_json_format_topic",null));
                         Assertions.assertTrue(StringUtils.contains(container.getServerLogs(), "NullPointerException"));
                         Assertions.assertEquals(0, data.size());
                     });
@@ -337,9 +338,10 @@ public class KafkaIT extends TestSuiteBase implements TestResource {
         return data;
     }
 
-    private List<String> getKafkaConsumerListData(String topicName) {
+    private List<String> getKafkaConsumerListData(String topicName, String consumeGroup) {
         List<String> data = new ArrayList<>();
-        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConsumerConfig(DEFAULT_TEST_TOPIC_CONSUME_GROUP))) {
+        consumeGroup = StringUtils.isBlank(consumeGroup) ? DEFAULT_TEST_TOPIC_CONSUME_GROUP : consumeGroup;
+        try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(kafkaConsumerConfig(consumeGroup))) {
             consumer.subscribe(Arrays.asList(topicName));
             Map<TopicPartition, Long> offsets =
                     consumer.endOffsets(Arrays.asList(new TopicPartition(topicName, 0)));

@@ -1,12 +1,12 @@
 package com.geedgenetworks.core.udf.udaf.hlld;
 
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.AggregateFunction;
-import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.sketch.hlld.Hll;
 import com.geedgenetworks.sketch.hlld.HllUnion;
 import com.geedgenetworks.sketch.hlld.HllUtils;
+import com.geedgenetworks.spi.common.udf.AggregateFunction;
+import com.geedgenetworks.spi.common.udf.UDFContext;
+import com.geedgenetworks.spi.table.event.Event;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Map;

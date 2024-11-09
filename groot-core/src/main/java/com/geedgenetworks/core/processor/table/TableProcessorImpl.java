@@ -1,26 +1,25 @@
 package com.geedgenetworks.core.processor.table;
 
 import com.alibaba.fastjson.JSONObject;
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.config.CheckConfigUtil;
 import com.geedgenetworks.common.config.CheckResult;
-import com.geedgenetworks.common.config.TableConfigOptions;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
-import com.geedgenetworks.core.pojo.TableConfig;
+import com.geedgenetworks.spi.configuration.TableConfigOptions;
+import com.geedgenetworks.spi.processor.Processor;
+import com.geedgenetworks.spi.processor.TableConfig;
+import com.geedgenetworks.spi.table.event.Event;
 import com.typesafe.config.Config;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
-import org.apache.flink.util.OutputTag;
 
 import java.util.Map;
 
 
-public class TableProcessorImpl implements TableProcessor {
+public class TableProcessorImpl implements Processor<TableConfig> {
 
     @Override
-    public DataStream<Event> processorFunction(DataStream<Event> grootEventDataStream, TableConfig tableConfig, ExecutionConfig config) throws Exception {
+    public DataStream<Event> processorFunction(DataStream<Event> grootEventDataStream, TableConfig tableConfig, ExecutionConfig config) {
         if (tableConfig.getParallelism() != 0) {
             return grootEventDataStream
                     .flatMap(new TableProcessorFunction(tableConfig))

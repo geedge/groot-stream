@@ -1,9 +1,9 @@
 package com.geedgenetworks.core.udf.cn;
 
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
-import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.spi.common.udf.UDFContext;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;

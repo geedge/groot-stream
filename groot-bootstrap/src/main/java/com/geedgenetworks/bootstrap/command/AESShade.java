@@ -2,7 +2,6 @@ package com.geedgenetworks.bootstrap.command;
 
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
-import com.geedgenetworks.common.crypto.CryptoShade;
 
 import java.nio.charset.StandardCharsets;
 

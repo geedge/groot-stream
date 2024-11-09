@@ -1,14 +1,14 @@
 package com.geedgenetworks.formats.csv;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.connector.format.MapDeserialization;
-import com.geedgenetworks.core.connector.schema.Schema;
-import com.geedgenetworks.core.factories.DecodingFormatFactory;
-import com.geedgenetworks.core.factories.EncodingFormatFactory;
-import com.geedgenetworks.core.factories.FactoryUtil;
-import com.geedgenetworks.core.factories.TableFactory;
-import com.geedgenetworks.core.types.StructType;
-import com.geedgenetworks.core.types.Types;
+import com.geedgenetworks.spi.table.connector.MapDeserialization;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.table.factory.DecodingFormatFactory;
+import com.geedgenetworks.spi.table.factory.EncodingFormatFactory;
+import com.geedgenetworks.spi.table.factory.FactoryUtil;
+import com.geedgenetworks.spi.table.factory.TableFactory;
+import com.geedgenetworks.spi.table.schema.Schema;
+import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.spi.table.type.Types;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;

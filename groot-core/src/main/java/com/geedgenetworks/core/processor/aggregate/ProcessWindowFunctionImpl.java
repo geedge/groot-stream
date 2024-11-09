@@ -1,18 +1,18 @@
 package com.geedgenetworks.core.processor.aggregate;
 
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.KeybyEntity;
+import com.geedgenetworks.common.config.Accumulator;
+import com.geedgenetworks.common.config.KeybyEntity;
 import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.core.metrics.InternalMetrics;
-import com.geedgenetworks.core.pojo.AggregateConfig;
+import com.geedgenetworks.spi.processor.AggregateConfig;
+import com.geedgenetworks.spi.table.event.Event;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
-import static com.geedgenetworks.common.Event.WINDOW_END_TIMESTAMP;
-import static com.geedgenetworks.common.Event.WINDOW_START_TIMESTAMP;
+import static com.geedgenetworks.spi.table.event.Event.WINDOW_END_TIMESTAMP;
+import static com.geedgenetworks.spi.table.event.Event.WINDOW_START_TIMESTAMP;
 
 public class ProcessWindowFunctionImpl extends org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction<
         Accumulator,                  // 输入类型

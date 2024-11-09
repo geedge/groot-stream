@@ -1,13 +1,9 @@
 package com.geedgenetworks.bootstrap.execution;
 
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.utils.ReflectionUtils;
-import com.geedgenetworks.core.filter.Filter;
-import com.geedgenetworks.core.processor.Processor;
-import com.geedgenetworks.core.split.Split;
+import com.geedgenetworks.spi.table.event.Event;
 import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.net.URL;
 import java.net.URLClassLoader;

@@ -18,9 +18,8 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.geedgenetworks</groupId>
-            <artifactId>groot-common</artifactId>
-            <version>${revision}</version>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
         </dependency>
 
         <dependency>
@@ -99,6 +98,13 @@
             <scope>${scope}</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>format-raw</artifactId>
+            <version>${revision}</version>
+            <scope>${scope}</scope>
+        </dependency>
+
         <!--  Idea debug dependencies -->
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -121,12 +127,7 @@
             <scope>${scope}</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.geedgenetworks</groupId>
-            <artifactId>format-raw</artifactId>
-            <version>${revision}</version>
-            <scope>${scope}</scope>
-        </dependency>
+
 
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -164,10 +165,7 @@
             <scope>${scope}</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.typesafe</groupId>
-            <artifactId>config</artifactId>
-        </dependency>
+
 
 
         <dependency>
@@ -177,10 +175,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-        </dependency>
+
 
 
     </dependencies>

@@ -4,13 +4,11 @@ import com.geedgenetworks.connectors.kafka.rate.BlockDropRateLimitingStrategy;
 import com.geedgenetworks.connectors.kafka.rate.NoRateLimitingStrategy;
 import com.geedgenetworks.connectors.kafka.rate.RateLimitingStrategy;
 import com.geedgenetworks.connectors.kafka.rate.RateLimitingStrategyType;
-import com.geedgenetworks.core.connector.format.DecodingFormat;
-import com.geedgenetworks.core.connector.format.EncodingFormat;
-import com.geedgenetworks.core.connector.sink.SinkProvider;
-import com.geedgenetworks.core.connector.source.SourceProvider;
-import com.geedgenetworks.core.factories.*;
-import com.geedgenetworks.core.factories.FactoryUtil.TableFactoryHelper;
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.spi.table.connector.*;
+import com.geedgenetworks.spi.table.factory.DecodingFormatFactory;
+import com.geedgenetworks.spi.table.factory.EncodingFormatFactory;
+import com.geedgenetworks.spi.table.factory.FactoryUtil;
+import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.util.Preconditions;
@@ -29,7 +27,7 @@ public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
 
     @Override
     public SourceProvider getSourceProvider(Context context) {
-        final TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
+        final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         // 获取valueDecodingFormat
         DecodingFormat valueDecodingFormat = helper.discoverDecodingFormat(DecodingFormatFactory.class, FactoryUtil.FORMAT);
 
@@ -46,7 +44,7 @@ public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
 
     @Override
     public SinkProvider getSinkProvider(Context context) {
-        final TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
+        final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         // 获取valueEncodingFormat
         EncodingFormat valueEncodingFormat = helper.discoverEncodingFormat(EncodingFormatFactory.class, FactoryUtil.FORMAT);
 

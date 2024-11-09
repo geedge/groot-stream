@@ -1,14 +1,15 @@
 package com.geedgenetworks.core.processor.aggregate;
 
 import com.alibaba.fastjson.JSONObject;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.config.AggregateConfigOptions;
 import com.geedgenetworks.common.config.CheckConfigUtil;
 import com.geedgenetworks.common.config.CheckResult;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.core.pojo.AggregateConfig;
+import com.geedgenetworks.spi.configuration.AggregateConfigOptions;
+import com.geedgenetworks.spi.processor.AggregateConfig;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.processor.Processor;
 import com.typesafe.config.Config;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -21,12 +22,12 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 
 import java.util.Map;
 
-import static com.geedgenetworks.common.Constants.*;
+import static com.geedgenetworks.common.config.Constants.*;
 
-public class AggregateProcessorImpl implements AggregateProcessor {
+public class AggregateProcessorImpl implements Processor<AggregateConfig> {
 
     @Override
-    public DataStream<Event> processorFunction(DataStream<Event> grootEventSingleOutputStreamOperator, AggregateConfig aggregateConfig, ExecutionConfig config) throws Exception {
+    public DataStream<Event> processorFunction(DataStream<Event> grootEventSingleOutputStreamOperator, AggregateConfig aggregateConfig, ExecutionConfig config) {
 
         SingleOutputStreamOperator<Event> singleOutputStreamOperator;
         if (aggregateConfig.getMini_batch()) {
@@ -99,6 +100,7 @@ public class AggregateProcessorImpl implements AggregateProcessor {
         return singleOutputStreamOperator.name(aggregateConfig.getName());
 
     }
+
 
     @Override
     public String type() {

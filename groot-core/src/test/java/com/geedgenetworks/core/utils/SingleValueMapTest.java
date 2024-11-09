@@ -1,5 +1,7 @@
 package com.geedgenetworks.core.utils;
 
+import com.geedgenetworks.spi.configuration.util.LoadIntervalDataOptions;
+import com.geedgenetworks.spi.configuration.util.LoadIntervalDataUtil;
 import org.junit.jupiter.api.Assertions;
 
 import java.sql.Timestamp;

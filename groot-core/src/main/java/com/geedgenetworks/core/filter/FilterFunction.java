@@ -1,9 +1,9 @@
 package com.geedgenetworks.core.filter;
 
 import com.geedgenetworks.common.utils.ColumnUtil;
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.metrics.InternalMetrics;
-import com.geedgenetworks.core.pojo.FilterConfig;
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.filter.FilterConfig;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
@@ -12,24 +12,23 @@ import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.metrics.Counter;
 
 import java.util.Map;
 @Slf4j
 public class FilterFunction extends RichFilterFunction<Event> {
-    private final com.geedgenetworks.core.pojo.FilterConfig FilterConfig;
+    private final FilterConfig filterConfig;
     private static Expression compiledExp;
     private static String expression;
     private transient InternalMetrics internalMetrics;
 
-    public FilterFunction(FilterConfig FilterConfig) {
-        this.FilterConfig = FilterConfig;
+    public FilterFunction(FilterConfig filterConfig) {
+        this.filterConfig = filterConfig;
     }
 
     @Override
     public void open(Configuration parameters) throws Exception {
         this.internalMetrics = new InternalMetrics(getRuntimeContext());
-        expression = FilterConfig.getProperties().getOrDefault("expression", "").toString();
+        expression = filterConfig.getProperties().getOrDefault("expression", "").toString();
         AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
         instance.setCachedExpressionByDefault(true);
         instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
@@ -43,11 +42,11 @@ public class FilterFunction extends RichFilterFunction<Event> {
         boolean isFilter ;
         try {
 
-            if (FilterConfig.getOutput_fields() != null
-                    && !FilterConfig.getOutput_fields().isEmpty()) {
+            if (filterConfig.getOutput_fields() != null
+                    && !filterConfig.getOutput_fields().isEmpty()) {
                 value.setExtractedFields(
                         ColumnUtil.columnSelector(
-                                value.getExtractedFields(), FilterConfig.getOutput_fields()));
+                                value.getExtractedFields(), filterConfig.getOutput_fields()));
             }
             isFilter = aviatorExcute(value.getExtractedFields());
 

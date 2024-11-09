@@ -3,7 +3,7 @@ package com.geedgenetworks.bootstrap.utils;
 import cn.hutool.setting.yaml.YamlUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Constants;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigRenderOptions;

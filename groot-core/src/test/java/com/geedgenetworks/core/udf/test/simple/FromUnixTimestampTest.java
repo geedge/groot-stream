@@ -1,8 +1,8 @@
 package com.geedgenetworks.core.udf.test.simple;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.udf.FromUnixTimestamp;
+import com.geedgenetworks.spi.common.udf.UDFContext;
+import com.geedgenetworks.spi.table.event.Event;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

@@ -3,11 +3,13 @@ package com.geedgenetworks.connectors.ipfix.collector;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.geedgenetworks.connectors.ipfix.collector.utils.IPFixUtil;
-import com.geedgenetworks.core.connector.source.SourceProvider;
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.metrics.InternalMetrics;
-import com.geedgenetworks.core.types.*;
-import com.geedgenetworks.core.types.DataType;
+import com.geedgenetworks.spi.table.connector.SourceProvider;
+import com.geedgenetworks.spi.table.type.*;
+
+import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.spi.table.type.DataType;
+import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.configuration.ReadableConfig;
