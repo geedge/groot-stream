@@ -4,7 +4,7 @@ import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 
 public interface Executor<T, ENV extends RuntimeEnvironment> {
 
-    T execute(T dataStream, Node edge) throws JobExecuteException;
+    T execute(T dataStream, OperatorNode edge) throws JobExecuteException;
 
     void setRuntimeEnvironment(ENV runtimeEnvironment);
 

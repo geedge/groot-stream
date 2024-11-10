@@ -1,4 +1,4 @@
-package com.geedgenetworks.spi.table.connector;
+package com.geedgenetworks.spi.source;
 
 import com.geedgenetworks.spi.table.factory.TableFactory;
 

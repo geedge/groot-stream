@@ -18,10 +18,11 @@
     </modules>
 
     <properties>
-        <scope>compile</scope>
+        <scope>provided</scope>
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>com.typesafe</groupId>
             <artifactId>config</artifactId>
@@ -30,34 +31,35 @@
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>groot-bootstrap</artifactId>
-            <version>${project.version}</version>
+            <version>${revision}</version>
+            <scope>${scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>connector-kafka</artifactId>
-            <version>${project.version}</version>
+            <version>${revision}</version>
             <scope>${scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>connector-mock</artifactId>
-            <version>${project.version}</version>
+            <version>${revision}</version>
             <scope>${scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>connector-clickhouse</artifactId>
-            <version>${project.version}</version>
+            <version>${revision}</version>
             <scope>${scope}</scope>
         </dependency>
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>connector-ipfix-collector</artifactId>
-            <version>${project.version}</version>
+            <version>${revision}</version>
             <scope>${scope}</scope>
         </dependency>
 
@@ -144,7 +146,6 @@
             <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
-
 
 
     </dependencies>

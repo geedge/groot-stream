@@ -1,6 +1,6 @@
 package com.geedgenetworks.connectors.file;
 
-import com.geedgenetworks.spi.table.connector.SourceProvider;
+import com.geedgenetworks.spi.source.SourceProvider;
 import com.geedgenetworks.spi.table.event.Event;
 import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.commons.io.IOUtils;

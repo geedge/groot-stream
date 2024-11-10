@@ -38,7 +38,7 @@ filters:
 
 processing_pipelines: # [object] Define Processors
   projection_processor: # [object] Define projection processor name
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessor
     remove_fields: [http_request_line, http_response_line, http_response_content_type]
     functions: # [array of object] Define UDFs
       - function: DROP # [string] Define DROP function for filter event

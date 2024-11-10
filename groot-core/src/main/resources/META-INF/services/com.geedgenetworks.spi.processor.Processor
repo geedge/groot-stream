@@ -1,3 +1,3 @@
-com.geedgenetworks.core.processor.aggregate.AggregateProcessorImpl
-com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
-com.geedgenetworks.core.processor.table.TableProcessorImpl
+com.geedgenetworks.core.processor.aggregate.AggregateProcessor
+com.geedgenetworks.core.processor.projection.ProjectionProcessor
+com.geedgenetworks.core.processor.table.TableProcessor

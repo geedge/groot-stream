@@ -1,9 +1,9 @@
 package com.geedgenetworks.formats.msgpack;
 
-import com.geedgenetworks.spi.table.connector.SinkProvider;
-import com.geedgenetworks.spi.table.connector.SinkTableFactory;
-import com.geedgenetworks.spi.table.connector.SourceProvider;
-import com.geedgenetworks.spi.table.connector.SourceTableFactory;
+import com.geedgenetworks.spi.sink.SinkProvider;
+import com.geedgenetworks.spi.sink.SinkTableFactory;
+import com.geedgenetworks.spi.source.SourceProvider;
+import com.geedgenetworks.spi.source.SourceTableFactory;
 import com.geedgenetworks.spi.table.event.Event;
 import com.geedgenetworks.spi.table.factory.FactoryUtil;
 import com.geedgenetworks.spi.table.factory.TableFactory;
@@ -69,6 +69,7 @@ public class MessagePackFormatFactoryTest {
         SourceTableFactory tableFactory = FactoryUtil.discoverTableFactory(SourceTableFactory.class, "inline");
         Map<String, String> options = new HashMap<>();
         options.put("data", Base64.getEncoder().encodeToString(bytes));
+        options.put("repeat.count", "3");
         options.put("type", "base64");
         options.put("format", "msgpack");
 

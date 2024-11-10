@@ -1,9 +1,9 @@
 package com.geedgenetworks.core.connector.inline;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.spi.table.connector.SourceProvider;
+import com.geedgenetworks.spi.source.SourceProvider;
 import com.geedgenetworks.spi.table.connector.DecodingFormat;
-import com.geedgenetworks.spi.table.connector.SourceTableFactory;
+import com.geedgenetworks.spi.source.SourceTableFactory;
 import com.geedgenetworks.spi.table.factory.DecodingFormatFactory;
 import com.geedgenetworks.spi.table.factory.FactoryUtil;
 import com.geedgenetworks.spi.table.type.StructType;

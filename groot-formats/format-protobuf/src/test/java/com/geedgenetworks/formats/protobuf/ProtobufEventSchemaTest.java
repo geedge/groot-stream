@@ -538,7 +538,7 @@ public class ProtobufEventSchemaTest {
         MessageConverter messageConverter = new MessageConverter(descriptor, SchemaConverters.toStructType(descriptor), false);
         ProtobufSerializer serializer = new ProtobufSerializer(descriptor);
 
-        FileInputStream inputStream = new FileInputStream("D:\\doc\\groot\\SESSION-RECORD-24-0104.json");
+        FileInputStream inputStream = new FileInputStream( test.getClass().getResource("/format_protobuf_test_data.json").getPath());
         LineIterator lines = IOUtils.lineIterator(inputStream, "utf-8");
         int count = 0;
         long jsonBytesTotalSize = 0;

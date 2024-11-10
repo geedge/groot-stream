@@ -2,7 +2,7 @@ package com.geedgenetworks.connectors.kafka;
 
 import com.geedgenetworks.connectors.kafka.rate.RateLimitingStrategy;
 import com.geedgenetworks.spi.table.connector.EncodingFormat;
-import com.geedgenetworks.spi.table.connector.SinkProvider;
+import com.geedgenetworks.spi.sink.SinkProvider;
 import com.geedgenetworks.spi.table.event.Event;
 import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.flink.api.common.serialization.SerializationSchema;

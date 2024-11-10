@@ -10,23 +10,23 @@ import com.geedgenetworks.spi.processor.Processor;
 import com.geedgenetworks.spi.processor.TableConfig;
 import com.geedgenetworks.spi.table.event.Event;
 import com.typesafe.config.Config;
-import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.util.Map;
 
 
-public class TableProcessorImpl implements Processor<TableConfig> {
+public class TableProcessor implements Processor<TableConfig> {
 
     @Override
-    public DataStream<Event> processorFunction(DataStream<Event> grootEventDataStream, TableConfig tableConfig, ExecutionConfig config) {
+    public DataStream<Event> process(StreamExecutionEnvironment env, DataStream<Event> input, TableConfig tableConfig) {
         if (tableConfig.getParallelism() != 0) {
-            return grootEventDataStream
+            return input
                     .flatMap(new TableProcessorFunction(tableConfig))
                     .setParallelism(tableConfig.getParallelism())
                     .name(tableConfig.getName());
         } else {
-            return grootEventDataStream
+            return input
                     .flatMap(new TableProcessorFunction(tableConfig))
                     .name(tableConfig.getName());
         }

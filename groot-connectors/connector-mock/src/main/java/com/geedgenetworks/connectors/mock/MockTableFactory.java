@@ -2,8 +2,8 @@ package com.geedgenetworks.connectors.mock;
 
 import com.geedgenetworks.connectors.mock.faker.FakerUtils;
 import com.geedgenetworks.connectors.mock.faker.ObjectFaker;
-import com.geedgenetworks.spi.table.connector.SourceProvider;
-import com.geedgenetworks.spi.table.connector.SourceTableFactory;
+import com.geedgenetworks.spi.source.SourceProvider;
+import com.geedgenetworks.spi.source.SourceTableFactory;
 import com.geedgenetworks.spi.table.event.Event;
 import com.geedgenetworks.spi.table.factory.FactoryUtil;
 import com.geedgenetworks.spi.table.type.StructType;

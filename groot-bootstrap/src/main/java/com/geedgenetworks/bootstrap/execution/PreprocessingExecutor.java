@@ -1,6 +1,6 @@
 package com.geedgenetworks.bootstrap.execution;
 
-import com.geedgenetworks.bootstrap.enums.ProcessorType;
+import com.geedgenetworks.bootstrap.enums.StageType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.spi.processor.ProcessorConfig;
@@ -19,14 +19,14 @@ import java.util.Map;
  */
 @Slf4j
 public class PreprocessingExecutor extends AbstractProcessorExecutor {
-    private static final String PROCESSOR_TYPE = ProcessorType.PREPROCESSING.getType();
+    private static final String PROCESSOR_TYPE = StageType.PREPROCESSING.getType();
 
-    public PreprocessingExecutor(List<URL> jarPaths, Config config) {
-        super(jarPaths, config);
+    public PreprocessingExecutor(Config config) {
+        super(config);
     }
 
     @Override
-    protected Map<String, ProcessorConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
+    protected Map<String, ProcessorConfig> initialize(Config operatorConfig) {
         Map<String, ProcessorConfig> preprocessingConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.PREPROCESSING_PIPELINES)) {
             Config preprocessors = operatorConfig.getConfig(Constants.PREPROCESSING_PIPELINES);
@@ -38,9 +38,9 @@ public class PreprocessingExecutor extends AbstractProcessorExecutor {
     }
 
     @Override
-    public DataStream<Event> execute(DataStream<Event> dataStream, Node node) throws JobExecuteException {
+    public DataStream<Event> execute(DataStream<Event> input, OperatorNode operatorNode) throws JobExecuteException {
 
-        return super.execute(dataStream, node);
+        return super.execute(input, operatorNode);
 
     }
 }

@@ -1,4 +1,4 @@
-package com.geedgenetworks.spi.table.connector;
+package com.geedgenetworks.spi.sink;
 
 import com.geedgenetworks.spi.table.event.Event;
 import org.apache.flink.streaming.api.datastream.DataStream;

@@ -3,18 +3,17 @@ package com.geedgenetworks.core.processor.aggregate;
 import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.common.config.KeybyEntity;
 import com.geedgenetworks.common.utils.ColumnUtil;
-import com.geedgenetworks.core.metrics.InternalMetrics;
+import com.geedgenetworks.spi.metrics.InternalMetrics;
 import com.geedgenetworks.spi.processor.AggregateConfig;
 import com.geedgenetworks.spi.table.event.Event;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
 import static com.geedgenetworks.spi.table.event.Event.WINDOW_END_TIMESTAMP;
 import static com.geedgenetworks.spi.table.event.Event.WINDOW_START_TIMESTAMP;
 
-public class ProcessWindowFunctionImpl extends org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction<
+public class ProcessWindowFunction extends org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction<
         Accumulator,                  // 输入类型
         Event,  // 输出类型
         KeybyEntity,                         // 键类型
@@ -22,7 +21,7 @@ public class ProcessWindowFunctionImpl extends org.apache.flink.streaming.api.fu
     private final AggregateConfig aggregateConfig;
     private transient InternalMetrics internalMetrics;
 
-    public ProcessWindowFunctionImpl(AggregateConfig aggregateConfig) {
+    public ProcessWindowFunction(AggregateConfig aggregateConfig) {
         this.aggregateConfig = aggregateConfig;
     }
 
@@ -34,7 +33,7 @@ public class ProcessWindowFunctionImpl extends org.apache.flink.streaming.api.fu
     }
 
     @Override
-    public void process(KeybyEntity keybyEntity, ProcessWindowFunction<Accumulator, Event, KeybyEntity, TimeWindow>.Context context, Iterable<Accumulator> elements, Collector<Event> out) throws Exception {
+    public void process(KeybyEntity keybyEntity, org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction<Accumulator, Event, KeybyEntity, TimeWindow>.Context context, Iterable<Accumulator> elements, Collector<Event> out) throws Exception {
         Accumulator accumulator = elements.iterator().next();
         Event event = new Event();
         event.setExtractedFields(accumulator.getMetricsFields());

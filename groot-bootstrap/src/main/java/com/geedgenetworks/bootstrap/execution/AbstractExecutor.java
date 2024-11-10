@@ -16,9 +16,9 @@ public abstract class AbstractExecutor<K, V>
     protected final Config operatorConfig;
     protected final Map<K,V> operatorMap;
 
-    protected AbstractExecutor(List<URL> jarPaths, Config operatorConfig) {
+    protected AbstractExecutor(Config operatorConfig) {
         this.operatorConfig = operatorConfig;
-        this.operatorMap = initialize(jarPaths, operatorConfig);
+        this.operatorMap = initialize(operatorConfig);
     }
 
     @Override
@@ -27,7 +27,7 @@ public abstract class AbstractExecutor<K, V>
 
     }
 
-    protected abstract Map<K, V> initialize(List<URL> jarPaths, Config operatorConfig);
+    protected abstract Map<K, V> initialize(Config operatorConfig);
 
     protected  static final BiConsumer<ClassLoader, URL> ADD_URL_TO_CLASSLOADER =
             (classLoader, url) -> {

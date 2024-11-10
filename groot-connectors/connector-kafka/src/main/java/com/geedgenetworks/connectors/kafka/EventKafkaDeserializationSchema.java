@@ -1,6 +1,6 @@
 package com.geedgenetworks.connectors.kafka;
 
-import com.geedgenetworks.core.metrics.InternalMetrics;
+import com.geedgenetworks.spi.metrics.InternalMetrics;
 import com.geedgenetworks.spi.table.event.Event;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.api.common.serialization.DeserializationSchema;

@@ -1,7 +1,7 @@
 package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.geedgenetworks.bootstrap.enums.ProcessorType;
+import com.geedgenetworks.bootstrap.enums.StageType;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.utils.SchemaConfigParse;
@@ -12,8 +12,8 @@ import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.spi.configuration.SourceConfigOptions;
 import com.geedgenetworks.spi.source.SourceConfig;
-import com.geedgenetworks.spi.table.connector.SourceProvider;
-import com.geedgenetworks.spi.table.connector.SourceTableFactory;
+import com.geedgenetworks.spi.source.SourceProvider;
+import com.geedgenetworks.spi.source.SourceTableFactory;
 import com.geedgenetworks.spi.table.event.Event;
 import com.geedgenetworks.spi.table.factory.FactoryUtil;
 import com.geedgenetworks.spi.table.factory.TableFactory;
@@ -28,9 +28,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
-import java.net.URL;
 import java.time.Duration;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,13 +36,13 @@ import java.util.Map;
  */
 @Slf4j
 public class SourceExecutor extends AbstractExecutor<String, SourceConfig> {
-    private static final String PROCESSOR_TYPE = ProcessorType.SOURCE.getType();
+    private static final String PROCESSOR_TYPE = StageType.SOURCE.getType();
 
-    public SourceExecutor(List<URL> jarPaths, Config config) {
-        super(jarPaths, config);
+    public SourceExecutor(Config config) {
+        super(config);
     }
     @Override
-    protected Map<String, SourceConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
+    protected Map<String, SourceConfig> initialize(Config operatorConfig) {
         Map<String, SourceConfig> sourceConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.SOURCES)) {
             Config sources = operatorConfig.getConfig(Constants.SOURCES);
@@ -68,8 +66,8 @@ public class SourceExecutor extends AbstractExecutor<String, SourceConfig> {
     }
 
     @Override
-    public DataStream<Event> execute(DataStream<Event> outputStreamOperator, Node node) throws JobExecuteException {
-        SourceConfig sourceConfig = operatorMap.get(node.getName());
+    public DataStream<Event> execute(DataStream<Event> input, OperatorNode operatorNode) throws JobExecuteException {
+        SourceConfig sourceConfig = operatorMap.get(operatorNode.getName());
         SingleOutputStreamOperator sourceSingleOutputStreamOperator;
         try {
             SourceTableFactory tableFactory = FactoryUtil.discoverTableFactory(SourceTableFactory.class, sourceConfig.getType());
@@ -90,17 +88,17 @@ public class SourceExecutor extends AbstractExecutor<String, SourceConfig> {
             }
 
             sourceSingleOutputStreamOperator = sourceProvider.produceDataStream(jobRuntimeEnvironment.getStreamExecutionEnvironment()).name(sourceConfig.getName());
-            if (node.getParallelism() > 0) {
-                sourceSingleOutputStreamOperator.setParallelism(node.getParallelism());
+            if (operatorNode.getParallelism() > 0) {
+                sourceSingleOutputStreamOperator.setParallelism(operatorNode.getParallelism());
             }
-            sourceSingleOutputStreamOperator = setWatermarkIfNecessary(sourceSingleOutputStreamOperator, sourceConfig, node);
+            sourceSingleOutputStreamOperator = setWatermarkIfNecessary(sourceSingleOutputStreamOperator, sourceConfig, operatorNode);
             return sourceSingleOutputStreamOperator;
         } catch (Exception e) {
             throw new JobExecuteException("Create source instance failed!", e);
         }
     }
 
-    private SingleOutputStreamOperator<Event> setWatermarkIfNecessary(SingleOutputStreamOperator<Event> dataStream, SourceConfig sourceConfig, Node node){
+    private SingleOutputStreamOperator<Event> setWatermarkIfNecessary(SingleOutputStreamOperator<Event> dataStream, SourceConfig sourceConfig, OperatorNode operatorNode){
         final String watermarkTimestamp = sourceConfig.getWatermark_timestamp();
         if(StringUtils.isNotBlank(watermarkTimestamp)){
             String timestampUnit = sourceConfig.getWatermark_timestamp_unit();
@@ -139,8 +137,8 @@ public class SourceExecutor extends AbstractExecutor<String, SourceConfig> {
                     WatermarkStrategy.<Event>forBoundedOutOfOrderness(Duration.ofMillis(watermarkLag))
                             .withTimestampAssigner(timestampAssigner)
             );
-            if (node.getParallelism() > 0) {
-                dataStream.setParallelism(node.getParallelism());
+            if (operatorNode.getParallelism() > 0) {
+                dataStream.setParallelism(operatorNode.getParallelism());
             }
         }
         return dataStream;

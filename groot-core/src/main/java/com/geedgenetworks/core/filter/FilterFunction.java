@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.filter;
 
 import com.geedgenetworks.common.utils.ColumnUtil;
-import com.geedgenetworks.core.metrics.InternalMetrics;
+import com.geedgenetworks.spi.metrics.InternalMetrics;
 import com.geedgenetworks.spi.table.event.Event;
 import com.geedgenetworks.spi.filter.FilterConfig;
 import com.googlecode.aviator.AviatorEvaluator;

@@ -11,23 +11,23 @@ import com.geedgenetworks.spi.processor.Processor;
 import com.geedgenetworks.spi.processor.ProjectionConfig;
 import com.geedgenetworks.spi.table.event.Event;
 import com.typesafe.config.Config;
-import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.util.Map;
 
-public class ProjectionProcessorImpl implements Processor<ProjectionConfig> {
+public class ProjectionProcessor implements Processor<ProjectionConfig> {
 
 
     @Override
-    public DataStream<Event> processorFunction(DataStream<Event> grootEventDataStream, ProjectionConfig projectionConfig, ExecutionConfig config) {
+    public DataStream<Event> process(StreamExecutionEnvironment env, DataStream<Event> input, ProjectionConfig projectionConfig) {
         if (projectionConfig.getParallelism() != 0) {
-            return grootEventDataStream
+            return input
                     .process(new ProjectionProcessFunction(projectionConfig))
                     .setParallelism(projectionConfig.getParallelism())
                     .name(projectionConfig.getName());
         } else {
-            return grootEventDataStream
+            return input
                     .process(new ProjectionProcessFunction(projectionConfig))
                     .name(projectionConfig.getName());
         }

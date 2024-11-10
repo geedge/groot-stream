@@ -19,26 +19,24 @@ import java.util.ServiceLoader;
 public abstract class AbstractProcessorExecutor extends AbstractExecutor<String, ProcessorConfig> {
 
 
-    protected AbstractProcessorExecutor(List<URL> jarPaths, Config operatorConfig) {
-        super(jarPaths, operatorConfig);
+    protected AbstractProcessorExecutor(Config operatorConfig) {
+        super(operatorConfig);
     }
 
     @Override
-    public DataStream<Event> execute(DataStream<Event> dataStream, Node node) throws JobExecuteException {
+    public DataStream<Event> execute(DataStream<Event> input, OperatorNode operatorNode) throws JobExecuteException {
 
-        ProcessorConfig processorConfig = operatorMap.get(node.getName());
+        ProcessorConfig processorConfig = operatorMap.get(operatorNode.getName());
         boolean found = false; // 标志变量
         ServiceLoader<Processor> processors = ServiceLoader.load(Processor.class);
         for (Processor processor : processors) {
             if(processor.type().equals(processorConfig.getType())){
                 found = true;
-                if (node.getParallelism() > 0) {
-                    processorConfig.setParallelism(node.getParallelism());
+                if (operatorNode.getParallelism() > 0) {
+                    processorConfig.setParallelism(operatorNode.getParallelism());
                 }
                 try {
-
-                    dataStream = processor.processorFunction(
-                            dataStream, processorConfig, jobRuntimeEnvironment.getStreamExecutionEnvironment().getConfig());
+                    input = processor.process(jobRuntimeEnvironment.getStreamExecutionEnvironment(), input, processorConfig);
                 } catch (Exception e) {
                     throw new JobExecuteException("Create orderby pipeline instance failed!", e);
                 }
@@ -48,7 +46,7 @@ public abstract class AbstractProcessorExecutor extends AbstractExecutor<String,
         if (!found) {
             throw new JobExecuteException("No matching processor found for type: " + processorConfig.getType());
         }
-        return dataStream;
+        return input;
     }
 
     protected ProcessorConfig checkConfig(String key, Map<String, Object> value, Config processorsConfig) {

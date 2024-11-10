@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.metrics;
+package com.geedgenetworks.spi.metrics;
 
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.metrics.Counter;

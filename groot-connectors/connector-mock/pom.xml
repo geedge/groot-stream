@@ -18,6 +18,7 @@
             <artifactId>datafaker</artifactId>
             <version>1.9.0</version>
         </dependency>
+
     </dependencies>
 
 </project>

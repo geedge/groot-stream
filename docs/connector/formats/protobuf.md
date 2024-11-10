@@ -13,7 +13,7 @@
 
 ## Format Options
 
-> Ensures that the file path is accessible to all nodes in your Flink cluster.
+> Ensures that the file path is accessible to all operatorNodes in your Flink cluster.
 
 |             Name              |  Type   | Required | Default |                                                                                                    Description                                                                                                    |
 |-------------------------------|---------|----------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

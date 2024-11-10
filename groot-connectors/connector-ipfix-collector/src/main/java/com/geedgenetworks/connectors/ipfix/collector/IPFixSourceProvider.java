@@ -3,10 +3,9 @@ package com.geedgenetworks.connectors.ipfix.collector;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import com.geedgenetworks.connectors.ipfix.collector.utils.IPFixUtil;
-import com.geedgenetworks.core.metrics.InternalMetrics;
-import com.geedgenetworks.spi.table.connector.SourceProvider;
+import com.geedgenetworks.spi.metrics.InternalMetrics;
+import com.geedgenetworks.spi.source.SourceProvider;
 import com.geedgenetworks.spi.table.type.*;
-
 import com.geedgenetworks.spi.table.event.Event;
 import com.geedgenetworks.spi.table.type.DataType;
 import com.geedgenetworks.spi.table.type.StructType;

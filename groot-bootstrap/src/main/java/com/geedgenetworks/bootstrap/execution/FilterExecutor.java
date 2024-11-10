@@ -1,6 +1,6 @@
 package com.geedgenetworks.bootstrap.execution;
 
-import com.geedgenetworks.bootstrap.enums.ProcessorType;
+import com.geedgenetworks.bootstrap.enums.StageType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.config.CheckConfigUtil;
@@ -27,14 +27,14 @@ import java.util.ServiceLoader;
  */
 @Slf4j
 public class FilterExecutor extends AbstractExecutor<String, FilterConfig> {
-    private static final String PROCESSOR_TYPE = ProcessorType.FILTER.getType();
+    private static final String PROCESSOR_TYPE = StageType.FILTER.getType();
 
-    public FilterExecutor(List<URL> jarPaths, Config config) {
-        super(jarPaths, config);
+    public FilterExecutor(Config config) {
+        super(config);
     }
 
     @Override
-    protected Map<String, FilterConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
+    protected Map<String, FilterConfig> initialize(Config operatorConfig) {
         Map<String, FilterConfig> filterConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.FILTERS)) {
             Config filterConfig = operatorConfig.getConfig(Constants.FILTERS);
@@ -54,20 +54,20 @@ public class FilterExecutor extends AbstractExecutor<String, FilterConfig> {
     }
 
     @Override
-    public DataStream<Event> execute(DataStream<Event> dataStream, Node node) throws JobExecuteException {
-        FilterConfig filterConfig = operatorMap.get(node.getName());
+    public DataStream<Event> execute(DataStream<Event> input, OperatorNode operatorNode) throws JobExecuteException {
+        FilterConfig filterConfig = operatorMap.get(operatorNode.getName());
         boolean found = false; // 标志变量
         ServiceLoader<Filter> filters = ServiceLoader.load(Filter.class);
         for (Filter filter : filters) {
             if(filter.type().equals(filterConfig.getType())){
                 found = true;
-                if (node.getParallelism() > 0) {
-                    filterConfig.setParallelism(node.getParallelism());
+                if (operatorNode.getParallelism() > 0) {
+                    filterConfig.setParallelism(operatorNode.getParallelism());
                 }
                 try {
-                    dataStream =
+                    input =
                             filter.filterFunction(
-                                    dataStream, filterConfig);
+                                    input, filterConfig);
                 } catch (Exception e) {
                     throw new JobExecuteException("Create filter instance failed!", e);
                 }
@@ -77,7 +77,7 @@ public class FilterExecutor extends AbstractExecutor<String, FilterConfig> {
         if (!found) {
             throw new JobExecuteException("No matching filter found for type: " + filterConfig.getType());
         }
-        return dataStream;
+        return input;
     }
 
     protected FilterConfig checkConfig(String key, Map<String, Object> value, Config config) {

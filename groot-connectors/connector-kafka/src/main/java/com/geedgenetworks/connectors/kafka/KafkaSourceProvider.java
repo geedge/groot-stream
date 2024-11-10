@@ -1,7 +1,7 @@
 package com.geedgenetworks.connectors.kafka;
 
 import com.geedgenetworks.spi.table.connector.DecodingFormat;
-import com.geedgenetworks.spi.table.connector.SourceProvider;
+import com.geedgenetworks.spi.source.SourceProvider;
 import com.geedgenetworks.spi.table.event.Event;
 import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.flink.api.common.serialization.DeserializationSchema;

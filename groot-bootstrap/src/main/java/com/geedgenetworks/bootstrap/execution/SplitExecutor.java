@@ -29,12 +29,12 @@ import java.util.ServiceLoader;
 public class SplitExecutor extends AbstractExecutor<String, SplitConfig> {
 
 
-    public SplitExecutor(List<URL> jarPaths, Config config) {
-        super(jarPaths, config);
+    public SplitExecutor(Config config) {
+        super(config);
     }
 
     @Override
-    protected Map<String, SplitConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
+    protected Map<String, SplitConfig> initialize(Config operatorConfig) {
         Map<String, SplitConfig> splitConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.SPLITS)) {
             Config splitsConfig = operatorConfig.getConfig(Constants.SPLITS);
@@ -56,20 +56,20 @@ public class SplitExecutor extends AbstractExecutor<String, SplitConfig> {
     }
 
     @Override
-    public DataStream<Event> execute(DataStream<Event> dataStream, Node node) throws JobExecuteException {
-        SplitConfig splitConfig = operatorMap.get(node.getName());
+    public DataStream<Event> execute(DataStream<Event> input, OperatorNode operatorNode) throws JobExecuteException {
+        SplitConfig splitConfig = operatorMap.get(operatorNode.getName());
         boolean found = false; // 标志变量
         ServiceLoader<Split> splits = ServiceLoader.load(Split.class);
         for (Split split : splits) {
             found = true; // 标志变量
             if(split.type().equals(splitConfig.getType())){
-                if (node.getParallelism() > 0) {
-                    splitConfig.setParallelism(node.getParallelism());
+                if (operatorNode.getParallelism() > 0) {
+                    splitConfig.setParallelism(operatorNode.getParallelism());
                 }
                 try {
-                    dataStream =
+                    input =
                             split.splitFunction(
-                                    dataStream, splitConfig);
+                                    input, splitConfig);
                 } catch (Exception e) {
                     throw new JobExecuteException("Create split instance failed!", e);
                 }
@@ -79,7 +79,7 @@ public class SplitExecutor extends AbstractExecutor<String, SplitConfig> {
         if (!found) {
             throw new JobExecuteException("No matching split found for type: " + splitConfig.getType());
         }
-        return dataStream;
+        return input;
     }
 
     protected SplitConfig checkConfig(String key, Map<String, Object> value, Config config) {

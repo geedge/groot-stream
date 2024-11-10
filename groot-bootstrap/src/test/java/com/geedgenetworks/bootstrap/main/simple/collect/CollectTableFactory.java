@@ -1,7 +1,7 @@
 package com.geedgenetworks.bootstrap.main.simple.collect;
 
-import com.geedgenetworks.spi.table.connector.SinkProvider;
-import com.geedgenetworks.spi.table.connector.SinkTableFactory;
+import com.geedgenetworks.spi.sink.SinkProvider;
+import com.geedgenetworks.spi.sink.SinkTableFactory;
 import com.geedgenetworks.spi.table.event.Event;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.streaming.api.datastream.DataStream;

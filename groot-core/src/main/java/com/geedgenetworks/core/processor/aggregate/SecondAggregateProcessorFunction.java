@@ -17,6 +17,7 @@ import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -31,8 +32,8 @@ public class SecondAggregateProcessorFunction implements org.apache.flink.api.co
     private final List<String> udfClassNameLists;
     private final LinkedList<UdfEntity> functions;
 
-    public SecondAggregateProcessorFunction(AggregateConfig aggregateConfig, ExecutionConfig config) {
-        udfClassNameLists = JSON.parseObject(config.getGlobalJobParameters().toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
+    public SecondAggregateProcessorFunction(StreamExecutionEnvironment env, AggregateConfig aggregateConfig) {
+        udfClassNameLists = JSON.parseObject(env.getConfig().getGlobalJobParameters().toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
         udfContexts = aggregateConfig.getFunctions();
         if (udfContexts == null || udfContexts.isEmpty()) {
             throw new RuntimeException();

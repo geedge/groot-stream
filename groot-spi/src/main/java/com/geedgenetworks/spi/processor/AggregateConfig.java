@@ -11,7 +11,6 @@ import java.util.List;
 @Data
 public class AggregateConfig extends ProcessorConfig {
 
-
     private List<String> group_by_fields;
     private String window_timestamp_field;
     private String window_type;

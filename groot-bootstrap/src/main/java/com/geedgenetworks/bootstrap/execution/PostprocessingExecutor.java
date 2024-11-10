@@ -1,6 +1,6 @@
 package com.geedgenetworks.bootstrap.execution;
 
-import com.geedgenetworks.bootstrap.enums.ProcessorType;
+import com.geedgenetworks.bootstrap.enums.StageType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.spi.processor.ProcessorConfig;
@@ -17,14 +17,14 @@ import java.util.Map;
  * Initialize config and execute postprocessor
  */
 public class PostprocessingExecutor extends AbstractProcessorExecutor {
-    private static final String PROCESSOR_TYPE = ProcessorType.POSTPROCESSING.getType();
+    private static final String PROCESSOR_TYPE = StageType.POSTPROCESSING.getType();
 
-    public PostprocessingExecutor(List<URL> jarPaths, Config config) {
-        super(jarPaths, config);
+    public PostprocessingExecutor(Config config) {
+        super(config);
     }
 
     @Override
-    protected Map<String, ProcessorConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
+    protected Map<String, ProcessorConfig> initialize(Config operatorConfig) {
         Map<String, ProcessorConfig> postprocessingConfigMap = Maps.newHashMap();
         if (operatorConfig.hasPath(Constants.POSTPROCESSING_PIPELINES)) {
             Config postprocessors = operatorConfig.getConfig(Constants.POSTPROCESSING_PIPELINES);
@@ -37,7 +37,7 @@ public class PostprocessingExecutor extends AbstractProcessorExecutor {
 
 
     @Override
-    public DataStream<Event> execute(DataStream<Event> dataStream, Node node) throws JobExecuteException {
-        return super.execute(dataStream, node);
+    public DataStream<Event> execute(DataStream<Event> input, OperatorNode operatorNode) throws JobExecuteException {
+        return super.execute(input, operatorNode);
     }
 }

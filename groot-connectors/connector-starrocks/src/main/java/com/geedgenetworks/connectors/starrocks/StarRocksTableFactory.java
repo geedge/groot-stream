@@ -1,8 +1,8 @@
 package com.geedgenetworks.connectors.starrocks;
 
 
-import com.geedgenetworks.spi.table.connector.SinkProvider;
-import com.geedgenetworks.spi.table.connector.SinkTableFactory;
+import com.geedgenetworks.spi.sink.SinkProvider;
+import com.geedgenetworks.spi.sink.SinkTableFactory;
 import com.geedgenetworks.spi.table.event.Event;
 import com.geedgenetworks.spi.table.factory.FactoryUtil;
 import com.starrocks.connector.flink.table.sink.EventStarRocksDynamicSinkFunctionV2;

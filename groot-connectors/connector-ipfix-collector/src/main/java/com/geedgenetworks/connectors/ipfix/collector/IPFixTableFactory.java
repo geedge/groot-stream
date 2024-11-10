@@ -1,7 +1,7 @@
 package com.geedgenetworks.connectors.ipfix.collector;
 
-import com.geedgenetworks.spi.table.connector.SourceProvider;
-import com.geedgenetworks.spi.table.connector.SourceTableFactory;
+import com.geedgenetworks.spi.source.SourceProvider;
+import com.geedgenetworks.spi.source.SourceTableFactory;
 import com.geedgenetworks.spi.table.factory.FactoryUtil;
 import com.geedgenetworks.spi.table.type.StructType;
 import org.apache.flink.configuration.ConfigOption;

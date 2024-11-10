@@ -1,7 +1,7 @@
 package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson.JSONObject;
-import com.geedgenetworks.bootstrap.enums.ProcessorType;
+import com.geedgenetworks.bootstrap.enums.StageType;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.utils.SchemaConfigParse;
 import com.geedgenetworks.common.config.Constants;
@@ -11,8 +11,8 @@ import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.spi.sink.SinkConfig;
 import com.geedgenetworks.spi.sink.SinkConfigOptions;
-import com.geedgenetworks.spi.table.connector.SinkProvider;
-import com.geedgenetworks.spi.table.connector.SinkTableFactory;
+import com.geedgenetworks.spi.sink.SinkProvider;
+import com.geedgenetworks.spi.sink.SinkTableFactory;
 import com.geedgenetworks.spi.table.event.Event;
 import com.geedgenetworks.spi.table.factory.FactoryUtil;
 import com.geedgenetworks.spi.table.factory.TableFactory;
@@ -24,8 +24,6 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 
-import java.net.URL;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,13 +31,13 @@ import java.util.Map;
  */
 @Slf4j
 public class SinkExecutor extends AbstractExecutor<String, SinkConfig> {
-    private static final String PROCESSOR_TYPE = ProcessorType.SINK.getType();
+    private static final String PROCESSOR_TYPE = StageType.SINK.getType();
 
-    public SinkExecutor(List<URL> jarPaths, Config config) {
-        super(jarPaths, config);
+    public SinkExecutor(Config config) {
+        super(config);
     }
     @Override
-    protected Map<String, SinkConfig> initialize(List<URL> jarPaths, Config operatorConfig) {
+    protected Map<String, SinkConfig> initialize(Config operatorConfig) {
         Map<String, SinkConfig> sinkConfigMap = Maps.newHashMap();
 
         if (operatorConfig.hasPath(Constants.SINKS)) {
@@ -64,8 +62,8 @@ public class SinkExecutor extends AbstractExecutor<String, SinkConfig> {
     }
 
     @Override
-    public DataStream<Event> execute(DataStream<Event> dataStream, Node node) throws JobExecuteException {
-        SinkConfig sinkConfig = operatorMap.get(node.getName());
+    public DataStream<Event> execute(DataStream<Event> input, OperatorNode operatorNode) throws JobExecuteException {
+        SinkConfig sinkConfig = operatorMap.get(operatorNode.getName());
         try {
             SinkTableFactory sinkTableFactory = FactoryUtil.discoverTableFactory(SinkTableFactory.class, sinkConfig.getType());
             Map<String, String> options = sinkConfig.getProperties();
@@ -84,9 +82,9 @@ public class SinkExecutor extends AbstractExecutor<String, SinkConfig> {
                 System.out.println(String.format("sink(%s) schema:\n%s", sinkConfig.getName(), schema.getDataType().treeString()));
             }
 
-            DataStreamSink<?> dataStreamSink = sinkProvider.consumeDataStream(dataStream);
-            if (node.getParallelism() > 0) {
-                dataStreamSink.setParallelism(node.getParallelism());
+            DataStreamSink<?> dataStreamSink = sinkProvider.consumeDataStream(input);
+            if (operatorNode.getParallelism() > 0) {
+                dataStreamSink.setParallelism(operatorNode.getParallelism());
             }
             dataStreamSink.name(sinkConfig.getName());
         } catch (Exception e) {

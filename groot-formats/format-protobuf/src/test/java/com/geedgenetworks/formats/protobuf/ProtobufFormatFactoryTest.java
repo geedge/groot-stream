@@ -1,10 +1,10 @@
 package com.geedgenetworks.formats.protobuf;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.spi.table.connector.SinkProvider;
-import com.geedgenetworks.spi.table.connector.SinkTableFactory;
-import com.geedgenetworks.spi.table.connector.SourceProvider;
-import com.geedgenetworks.spi.table.connector.SourceTableFactory;
+import com.geedgenetworks.spi.sink.SinkProvider;
+import com.geedgenetworks.spi.sink.SinkTableFactory;
+import com.geedgenetworks.spi.source.SourceProvider;
+import com.geedgenetworks.spi.source.SourceTableFactory;
 import com.geedgenetworks.spi.table.event.Event;
 import com.geedgenetworks.spi.table.factory.FactoryUtil;
 import com.geedgenetworks.spi.table.factory.TableFactory;
@@ -27,6 +27,7 @@ class ProtobufFormatFactoryTest {
 
         SourceTableFactory tableFactory = FactoryUtil.discoverTableFactory(SourceTableFactory.class, "inline");
         Map<String, String> options = new HashMap<>();
+        options.put("repeat.count", "3");
         options.put("data", Base64.getEncoder().encodeToString(inputDatas.msg.toByteArray()));
         options.put("type", "base64");
         options.put("format", "protobuf");

@@ -30,6 +30,18 @@
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
+            <artifactId>groot-spi</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>groot-common</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
             <artifactId>connector-kafka</artifactId>
             <version>${revision}</version>
             <scope>${scope}</scope>
@@ -127,8 +139,6 @@
             <scope>${scope}</scope>
         </dependency>
 
-
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-runtime-web_${scala.version}</artifactId>
@@ -165,18 +175,12 @@
             <scope>${scope}</scope>
         </dependency>
 
-
-
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-test-utils_${scala.version}</artifactId>
             <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
-
-
-
 
     </dependencies>
 

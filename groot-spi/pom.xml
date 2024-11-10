@@ -17,6 +17,7 @@
             <groupId>com.geedgenetworks</groupId>
             <artifactId>groot-common</artifactId>
             <version>${revision}</version>
+            <scope>provided</scope>
         </dependency>
 
 
