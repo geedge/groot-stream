@@ -70,7 +70,7 @@ schema:
 
 To retrieve the schema from a local file using its absolute path.
 
-> Ensures that the file path is accessible to all operatorNodes in your Flink cluster.
+> Ensures that the file path is accessible to all jobTopologyNodes in your Flink cluster.
 
  ```yaml
 schema:

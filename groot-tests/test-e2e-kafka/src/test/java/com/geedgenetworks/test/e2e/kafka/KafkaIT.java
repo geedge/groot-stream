@@ -1,8 +1,8 @@
 package com.geedgenetworks.test.e2e.kafka;
 
 import com.geedgenetworks.formats.json.JsonSerializer;
-import com.geedgenetworks.spi.table.type.StructType;
-import com.geedgenetworks.spi.table.type.Types;
+import com.geedgenetworks.api.connector.type.StructType;
+import com.geedgenetworks.api.connector.type.Types;
 import com.geedgenetworks.test.common.TestResource;
 import com.geedgenetworks.test.common.TestSuiteBase;
 import com.geedgenetworks.test.common.container.TestContainer;

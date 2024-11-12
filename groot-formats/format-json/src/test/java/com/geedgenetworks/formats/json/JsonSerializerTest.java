@@ -1,8 +1,8 @@
 package com.geedgenetworks.formats.json;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.spi.table.type.StructType;
-import com.geedgenetworks.spi.table.type.Types;
+import com.geedgenetworks.api.connector.type.StructType;
+import com.geedgenetworks.api.connector.type.Types;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;

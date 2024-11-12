@@ -4,9 +4,9 @@ import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.sketch.hlld.Hll;
 import com.geedgenetworks.sketch.hlld.HllUnion;
 import com.geedgenetworks.sketch.hlld.HllUtils;
-import com.geedgenetworks.spi.common.udf.AggregateFunction;
-import com.geedgenetworks.spi.common.udf.UDFContext;
-import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.api.common.udf.AggregateFunction;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.connector.event.Event;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Map;

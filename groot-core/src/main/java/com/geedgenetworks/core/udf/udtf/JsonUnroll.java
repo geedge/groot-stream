@@ -6,9 +6,9 @@ import com.alibaba.fastjson2.JSONObject;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.utils.JsonPathUtil;
-import com.geedgenetworks.spi.common.udf.TableFunction;
-import com.geedgenetworks.spi.common.udf.UDFContext;
-import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.api.common.udf.TableFunction;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.connector.event.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 

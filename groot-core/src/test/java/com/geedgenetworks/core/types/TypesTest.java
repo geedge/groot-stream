@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.types;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.spi.table.type.*;
+import com.geedgenetworks.api.connector.type.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;

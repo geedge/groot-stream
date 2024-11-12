@@ -1,7 +1,7 @@
 package com.geedgenetworks.formats.msgpack;
 
-import com.geedgenetworks.spi.table.event.Event;
-import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 
 public class MessagePackEventSerializationSchema implements SerializationSchema<Event> {

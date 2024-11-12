@@ -1,0 +1,7 @@
+com.geedgenetworks.core.connector.inline.InlineTableFactory
+com.geedgenetworks.core.connector.print.PrintTableFactory
+com.geedgenetworks.core.processor.filter.AviatorFilterProcessorFactory
+com.geedgenetworks.core.processor.split.SplitProcessorFactory
+com.geedgenetworks.core.processor.projection.ProjectionProcessorFactory
+com.geedgenetworks.core.processor.table.TableProcessorFactory
+com.geedgenetworks.core.processor.aggregate.AggregateProcessorFactory

@@ -1,12 +1,12 @@
 package com.geedgenetworks.connectors.clickhouse;
 
 import com.geedgenetworks.connectors.clickhouse.sink.EventBatchIntervalClickHouseSink;
-import com.geedgenetworks.spi.sink.SinkProvider;
-import com.geedgenetworks.spi.sink.SinkTableFactory;
-import com.geedgenetworks.spi.table.event.Event;
-import com.geedgenetworks.spi.table.factory.FactoryUtil;
-import com.geedgenetworks.spi.table.factory.FactoryUtil.TableFactoryHelper;
-import com.geedgenetworks.spi.table.schema.Schema;
+import com.geedgenetworks.api.connector.sink.SinkProvider;
+import com.geedgenetworks.api.connector.sink.SinkTableFactory;
+import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.FactoryUtil;
+import com.geedgenetworks.api.factory.FactoryUtil.TableFactoryHelper;
+import com.geedgenetworks.api.connector.schema.Schema;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.MemorySize;
 import org.apache.flink.configuration.ReadableConfig;
@@ -25,7 +25,7 @@ import static com.geedgenetworks.connectors.clickhouse.ClickHouseConnectorOption
 public class ClickHouseTableFactory implements SinkTableFactory {
     public static final String IDENTIFIER = "clickhouse";
     @Override
-    public String factoryIdentifier() {
+    public String type() {
         return IDENTIFIER;
     }
 

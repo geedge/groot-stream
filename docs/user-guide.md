@@ -32,7 +32,7 @@ sources:
 
 filters:
   filter:
-    type: com.geedgenetworks.core.filter.AviatorFilter
+    type: com.geedgenetworks.core.filter.AviatorFilterProcessor
     properties:
       expression: event.decoded_as == 'BASE'
 

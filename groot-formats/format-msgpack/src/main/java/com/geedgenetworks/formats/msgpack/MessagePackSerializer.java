@@ -1,7 +1,7 @@
 package com.geedgenetworks.formats.msgpack;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.spi.table.type.*;
+import com.geedgenetworks.api.connector.type.*;
 import org.apache.commons.io.IOUtils;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;

@@ -1,12 +1,12 @@
 package com.geedgenetworks.formats.msgpack;
 
-import com.geedgenetworks.spi.sink.SinkProvider;
-import com.geedgenetworks.spi.sink.SinkTableFactory;
-import com.geedgenetworks.spi.source.SourceProvider;
-import com.geedgenetworks.spi.source.SourceTableFactory;
-import com.geedgenetworks.spi.table.event.Event;
-import com.geedgenetworks.spi.table.factory.FactoryUtil;
-import com.geedgenetworks.spi.table.factory.TableFactory;
+import com.geedgenetworks.api.connector.sink.SinkProvider;
+import com.geedgenetworks.api.connector.sink.SinkTableFactory;
+import com.geedgenetworks.api.connector.source.SourceProvider;
+import com.geedgenetworks.api.connector.source.SourceTableFactory;
+import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.FactoryUtil;
+import com.geedgenetworks.api.factory.ConnectorFactory;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -66,7 +66,7 @@ public class MessagePackFormatFactoryTest {
     public static void main(String[] args) throws Exception{
         byte[] bytes = getTestBytes();
 
-        SourceTableFactory tableFactory = FactoryUtil.discoverTableFactory(SourceTableFactory.class, "inline");
+        SourceTableFactory tableFactory = FactoryUtil.discoverConnectorFactory(SourceTableFactory.class, "inline");
         Map<String, String> options = new HashMap<>();
         options.put("data", Base64.getEncoder().encodeToString(bytes));
         options.put("repeat.count", "3");
@@ -74,15 +74,15 @@ public class MessagePackFormatFactoryTest {
         options.put("format", "msgpack");
 
         Configuration configuration = Configuration.fromMap(options);
-        TableFactory.Context context = new TableFactory.Context( null, options, configuration);
+        ConnectorFactory.Context context = new ConnectorFactory.Context( null, options, configuration);
         SourceProvider sourceProvider = tableFactory.getSourceProvider(context);
 
 
-        SinkTableFactory sinkTableFactory = FactoryUtil.discoverTableFactory(SinkTableFactory.class, "print");
+        SinkTableFactory sinkTableFactory = FactoryUtil.discoverConnectorFactory(SinkTableFactory.class, "print");
         options = new HashMap<>();
         options.put("format", "msgpack");
         configuration = Configuration.fromMap(options);
-        context = new TableFactory.Context( null, options, configuration);
+        context = new ConnectorFactory.Context( null, options, configuration);
         SinkProvider sinkProvider = sinkTableFactory.getSinkProvider(context);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

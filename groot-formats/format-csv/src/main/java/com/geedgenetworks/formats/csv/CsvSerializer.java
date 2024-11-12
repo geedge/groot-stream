@@ -1,7 +1,7 @@
 package com.geedgenetworks.formats.csv;
 
-import com.geedgenetworks.spi.table.type.*;
-import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.api.connector.type.*;
+import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectWriter;
 import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.*;

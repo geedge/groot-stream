@@ -1,6 +1,6 @@
 package com.starrocks.connector.flink.table.sink;
 
-import com.geedgenetworks.spi.metrics.InternalMetrics;
+import com.geedgenetworks.api.metrics.InternalMetrics;
 import com.starrocks.connector.flink.manager.StarRocksStreamLoadListener;
 import com.starrocks.data.load.stream.StreamLoadResponse;
 import org.apache.flink.api.common.functions.RuntimeContext;

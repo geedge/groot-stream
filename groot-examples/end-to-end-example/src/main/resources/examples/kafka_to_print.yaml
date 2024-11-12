@@ -4,7 +4,7 @@ sources:
     schema:
     properties: # [object] Kafka source properties
       topic: DATAPATH-TELEMETRY-RECORD
-      kafka.bootstrap.servers: "192.168.40.147:9094"
+      kafka.bootstrap.servers: "192.168.44.12:9094"
       kafka.session.timeout.ms: 60000
       kafka.max.poll.records: 3000
       kafka.max.partition.fetch.bytes: 31457280

@@ -3,8 +3,8 @@ package com.geedgenetworks.core.udf.test.aggregate;
 
 import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.core.udf.udaf.Mean;
-import com.geedgenetworks.spi.common.udf.UDFContext;
-import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.connector.event.Event;
 import com.ibm.icu.text.NumberFormat;
 import org.junit.jupiter.api.Test;
 

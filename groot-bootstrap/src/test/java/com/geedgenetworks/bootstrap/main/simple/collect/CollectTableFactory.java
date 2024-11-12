@@ -1,8 +1,8 @@
 package com.geedgenetworks.bootstrap.main.simple.collect;
 
-import com.geedgenetworks.spi.sink.SinkProvider;
-import com.geedgenetworks.spi.sink.SinkTableFactory;
-import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.api.connector.sink.SinkProvider;
+import com.geedgenetworks.api.connector.sink.SinkTableFactory;
+import com.geedgenetworks.api.connector.event.Event;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
@@ -16,7 +16,7 @@ import java.util.Set;
 public class CollectTableFactory implements SinkTableFactory {
     public static final String IDENTIFIER = "collect";
     @Override
-    public String factoryIdentifier() {
+    public String type() {
         return IDENTIFIER;
     }
 

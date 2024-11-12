@@ -1,12 +1,12 @@
 package com.geedgenetworks.core.connector.inline;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.spi.source.SourceProvider;
-import com.geedgenetworks.spi.table.connector.DecodingFormat;
-import com.geedgenetworks.spi.source.SourceTableFactory;
-import com.geedgenetworks.spi.table.factory.DecodingFormatFactory;
-import com.geedgenetworks.spi.table.factory.FactoryUtil;
-import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.api.connector.source.SourceProvider;
+import com.geedgenetworks.api.connector.serialization.DecodingFormat;
+import com.geedgenetworks.api.connector.source.SourceTableFactory;
+import com.geedgenetworks.api.factory.DecodingFormatFactory;
+import com.geedgenetworks.api.factory.FactoryUtil;
+import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
@@ -24,7 +24,7 @@ import static org.apache.flink.configuration.ConfigOptions.key;
 public class InlineTableFactory implements SourceTableFactory {
     public static final String IDENTIFIER = "inline";
     @Override
-    public String factoryIdentifier() {
+    public String type() {
         return IDENTIFIER;
     }
 

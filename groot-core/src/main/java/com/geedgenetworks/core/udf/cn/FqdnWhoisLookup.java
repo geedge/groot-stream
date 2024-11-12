@@ -2,7 +2,7 @@ package com.geedgenetworks.core.udf.cn;
 
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.FqdnWhoisKnowledgeBaseHandler;
-import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.api.connector.event.Event;
 
 /**
  * @author gujinkai

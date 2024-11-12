@@ -2,7 +2,7 @@ package org.apache.flink.streaming.connectors.kafka;
 
 import com.geedgenetworks.connectors.kafka.rate.RateLimitingStatus;
 import com.geedgenetworks.connectors.kafka.rate.RateLimitingStrategy;
-import com.geedgenetworks.spi.metrics.InternalMetrics;
+import com.geedgenetworks.api.metrics.InternalMetrics;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.PublicEvolving;

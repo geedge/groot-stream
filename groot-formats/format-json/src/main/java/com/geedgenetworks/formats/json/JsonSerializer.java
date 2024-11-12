@@ -1,7 +1,7 @@
 package com.geedgenetworks.formats.json;
 
 import com.alibaba.fastjson2.JSONWriter;
-import com.geedgenetworks.spi.table.type.*;
+import com.geedgenetworks.api.connector.type.*;
 
 import java.io.Serializable;
 import java.util.Arrays;

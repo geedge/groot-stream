@@ -8,11 +8,11 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.AsnKnowledgeBaseHandler;
 
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
-import com.geedgenetworks.spi.common.udf.ScalarFunction;
-import com.geedgenetworks.spi.common.udf.UDFContext;
-import com.geedgenetworks.spi.configuration.CheckUDFContextUtil;
-import com.geedgenetworks.spi.configuration.UDFContextConfigOptions;
-import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.api.common.udf.ScalarFunction;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.configuration.CheckUDFContextUtil;
+import com.geedgenetworks.api.configuration.UDFContextConfigOptions;
+import com.geedgenetworks.api.connector.event.Event;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.apache.flink.configuration.Configuration;

@@ -1,8 +1,8 @@
 package com.geedgenetworks.core.udf.cn;
 
-import com.geedgenetworks.spi.common.udf.ScalarFunction;
-import com.geedgenetworks.spi.common.udf.UDFContext;
-import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.api.common.udf.ScalarFunction;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.connector.event.Event;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.util.ArrayList;

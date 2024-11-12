@@ -20,7 +20,7 @@
         <module>groot-examples</module>
         <module>groot-formats</module>
         <module>groot-tests</module>
-        <module>groot-spi</module>
+        <module>groot-api</module>
     </modules>
 
     <properties>

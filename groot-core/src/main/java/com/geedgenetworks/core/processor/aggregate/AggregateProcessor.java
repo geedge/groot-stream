@@ -6,11 +6,10 @@ import com.geedgenetworks.common.config.CheckResult;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.spi.configuration.AggregateConfigOptions;
-import com.geedgenetworks.spi.processor.AggregateConfig;
-import com.geedgenetworks.spi.table.event.Event;
-import com.geedgenetworks.spi.processor.Processor;
+import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.processor.Processor;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigUtil;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -103,13 +102,9 @@ public class AggregateProcessor implements Processor<AggregateConfig> {
 
 
     @Override
-    public String type() {
-        return "aggregate";
-    }
+    public AggregateConfig parseConfig(String name, Config config) {
 
-    @Override
-    public AggregateConfig checkConfig(String name, Map<String, Object> configProperties, Config typeSafeConfig) {
-        CheckResult result = CheckConfigUtil.checkAllExists(typeSafeConfig.getConfig(name),
+        CheckResult result = CheckConfigUtil.checkAllExists(config,
                 AggregateConfigOptions.GROUP_BY_FIELDS.key(),
                 AggregateConfigOptions.WINDOW_TYPE.key(),
                 AggregateConfigOptions.FUNCTIONS.key(),
@@ -123,7 +118,7 @@ public class AggregateProcessor implements Processor<AggregateConfig> {
                             AggregateConfigOptions.FUNCTIONS.key())));
         }
 
-        AggregateConfig aggregateConfig = new JSONObject(configProperties).toJavaObject(AggregateConfig.class);
+        AggregateConfig aggregateConfig = new JSONObject(config.root().unwrapped()).toJavaObject(AggregateConfig.class);
         aggregateConfig.setName(name);
         return aggregateConfig;
     }

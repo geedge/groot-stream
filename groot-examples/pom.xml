@@ -18,7 +18,7 @@
     </modules>
 
     <properties>
-        <scope>provided</scope>
+        <scope>compile</scope>
     </properties>
 
     <dependencies>

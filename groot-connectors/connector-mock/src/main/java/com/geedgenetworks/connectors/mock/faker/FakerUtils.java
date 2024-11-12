@@ -9,8 +9,8 @@ import com.geedgenetworks.connectors.mock.faker.TimestampFaker.*;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
-import com.geedgenetworks.spi.table.type.DataType;
-import com.geedgenetworks.spi.table.type.Types;
+import com.geedgenetworks.api.connector.type.DataType;
+import com.geedgenetworks.api.connector.type.Types;
 import org.apache.flink.util.Preconditions;
 
 import java.math.BigDecimal;

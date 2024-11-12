@@ -19,9 +19,9 @@ package com.geedgenetworks.core.udf.udaf;
 import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.spi.common.udf.AggregateFunction;
-import com.geedgenetworks.spi.common.udf.UDFContext;
-import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.api.common.udf.AggregateFunction;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.connector.event.Event;
 
 /**
  * Collects elements within a group and returns the list of aggregated objects

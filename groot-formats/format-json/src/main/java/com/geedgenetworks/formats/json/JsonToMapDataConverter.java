@@ -2,13 +2,12 @@ package com.geedgenetworks.formats.json;
 
 import com.alibaba.fastjson2.JSONException;
 import com.alibaba.fastjson2.JSONReader;
-import com.geedgenetworks.spi.table.type.*;
-import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.api.connector.type.*;
+import com.geedgenetworks.api.connector.type.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 

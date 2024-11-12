@@ -5,41 +5,31 @@ import com.geedgenetworks.common.config.CheckConfigUtil;
 import com.geedgenetworks.common.config.CheckResult;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
-
-import com.geedgenetworks.spi.configuration.ProjectionConfigOptions;
-import com.geedgenetworks.spi.processor.Processor;
-import com.geedgenetworks.spi.processor.ProjectionConfig;
-import com.geedgenetworks.spi.table.event.Event;
+import com.geedgenetworks.api.processor.Processor;
+import com.geedgenetworks.api.connector.event.Event;
 import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-
-import java.util.Map;
 
 public class ProjectionProcessor implements Processor<ProjectionConfig> {
 
-
     @Override
-    public DataStream<Event> process(StreamExecutionEnvironment env, DataStream<Event> input, ProjectionConfig projectionConfig) {
+    public DataStream<Event> process(StreamExecutionEnvironment env,
+                                     DataStream<Event> input, ProjectionConfig projectionConfig) {
+        SingleOutputStreamOperator<Event> resultStream  =
+                input.process(new ProjectionProcessFunction(projectionConfig)).name(projectionConfig.getName());
+
         if (projectionConfig.getParallelism() != 0) {
-            return input
-                    .process(new ProjectionProcessFunction(projectionConfig))
-                    .setParallelism(projectionConfig.getParallelism())
-                    .name(projectionConfig.getName());
-        } else {
-            return input
-                    .process(new ProjectionProcessFunction(projectionConfig))
-                    .name(projectionConfig.getName());
+            resultStream.setParallelism(projectionConfig.getParallelism());
         }
-    }
-    @Override
-    public String type() {
-        return "projection";
+        return resultStream;
     }
 
     @Override
-    public ProjectionConfig checkConfig(String name, Map<String, Object> configProperties, Config typeSafeConfig) {
-        CheckResult result = CheckConfigUtil.checkAtLeastOneExists(typeSafeConfig.getConfig(name),
+    public ProjectionConfig parseConfig(String name, Config config) {
+
+        CheckResult result = CheckConfigUtil.checkAtLeastOneExists(config,
                 ProjectionConfigOptions.OUTPUT_FIELDS.key(),
                 ProjectionConfigOptions.REMOVE_FIELDS.key(),
                 ProjectionConfigOptions.FUNCTIONS.key());
@@ -52,7 +42,7 @@ public class ProjectionProcessor implements Processor<ProjectionConfig> {
                             ProjectionConfigOptions.FUNCTIONS.key())));
         }
 
-        ProjectionConfig projectionConfig = new JSONObject(configProperties).toJavaObject(ProjectionConfig.class);
+        ProjectionConfig projectionConfig = new JSONObject(config.root().unwrapped()).toJavaObject(ProjectionConfig.class);
         projectionConfig.setName(name);
 
         return projectionConfig;

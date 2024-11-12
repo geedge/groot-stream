@@ -1,35 +1,25 @@
 package com.geedgenetworks.bootstrap.execution;
 
 import com.geedgenetworks.common.utils.ReflectionUtils;
-import com.geedgenetworks.spi.table.event.Event;
-import com.typesafe.config.Config;
+import com.geedgenetworks.api.connector.event.Event;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
 import java.util.function.BiConsumer;
 
-public abstract class AbstractExecutor<K, V>
-        implements Executor<DataStream<Event>, JobRuntimeEnvironment> {
-    protected  JobRuntimeEnvironment jobRuntimeEnvironment;
-    protected final Config operatorConfig;
-    protected final Map<K,V> operatorMap;
+public abstract class AbstractExecutor<E, C> implements Executor<DataStream<Event>> {
+    public E environment;
+    protected final C jobConfig;
 
-    protected AbstractExecutor(Config operatorConfig) {
-        this.operatorConfig = operatorConfig;
-        this.operatorMap = initialize(operatorConfig);
+    protected AbstractExecutor(E environment, C jobConfig) {
+        this.environment = environment;
+        this.jobConfig = jobConfig;
+        initialize(jobConfig);
     }
+    protected abstract void initialize(C jobConfig);
 
-    @Override
-    public void setRuntimeEnvironment(JobRuntimeEnvironment jobRuntimeEnvironment) {
-        this.jobRuntimeEnvironment = jobRuntimeEnvironment;
-
-    }
-
-    protected abstract Map<K, V> initialize(Config operatorConfig);
-
-    protected  static final BiConsumer<ClassLoader, URL> ADD_URL_TO_CLASSLOADER =
+    protected static final BiConsumer<ClassLoader, URL> ADD_URL_TO_CLASSLOADER =
             (classLoader, url) -> {
                 if (classLoader.getClass().getName().endsWith("SafetyNetWrapperClassLoader")) {
                     URLClassLoader c =

@@ -1,18 +1,19 @@
 package com.geedgenetworks.connectors.kafka;
 
+import com.geedgenetworks.api.connector.serialization.DecodingFormat;
+import com.geedgenetworks.api.connector.serialization.EncodingFormat;
 import com.geedgenetworks.connectors.kafka.rate.BlockDropRateLimitingStrategy;
 import com.geedgenetworks.connectors.kafka.rate.NoRateLimitingStrategy;
 import com.geedgenetworks.connectors.kafka.rate.RateLimitingStrategy;
 import com.geedgenetworks.connectors.kafka.rate.RateLimitingStrategyType;
-import com.geedgenetworks.spi.sink.SinkProvider;
-import com.geedgenetworks.spi.sink.SinkTableFactory;
-import com.geedgenetworks.spi.source.SourceProvider;
-import com.geedgenetworks.spi.source.SourceTableFactory;
-import com.geedgenetworks.spi.table.connector.*;
-import com.geedgenetworks.spi.table.factory.DecodingFormatFactory;
-import com.geedgenetworks.spi.table.factory.EncodingFormatFactory;
-import com.geedgenetworks.spi.table.factory.FactoryUtil;
-import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.api.connector.sink.SinkProvider;
+import com.geedgenetworks.api.connector.sink.SinkTableFactory;
+import com.geedgenetworks.api.connector.source.SourceProvider;
+import com.geedgenetworks.api.connector.source.SourceTableFactory;
+import com.geedgenetworks.api.factory.DecodingFormatFactory;
+import com.geedgenetworks.api.factory.EncodingFormatFactory;
+import com.geedgenetworks.api.factory.FactoryUtil;
+import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.util.Preconditions;
@@ -25,7 +26,7 @@ import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptionsUtil.*;
 public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
     public static final String IDENTIFIER = "kafka";
     @Override
-    public String factoryIdentifier() {
+    public String type() {
         return IDENTIFIER;
     }
 

@@ -6,7 +6,7 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.udf.AsnLookup;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.AsnKnowledgeBaseHandler;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
-import com.geedgenetworks.spi.common.udf.UDFContext;
+import com.geedgenetworks.api.common.udf.UDFContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

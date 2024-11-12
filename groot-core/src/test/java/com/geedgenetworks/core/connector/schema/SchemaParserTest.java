@@ -1,13 +1,11 @@
 package com.geedgenetworks.core.connector.schema;
 
-import com.geedgenetworks.spi.table.schema.SchemaParser;
-import com.geedgenetworks.spi.table.type.StructType;
+import com.geedgenetworks.api.connector.schema.SchemaParser;
+import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class SchemaParserTest {
 

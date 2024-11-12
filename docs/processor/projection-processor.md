@@ -32,7 +32,7 @@ sources:
 
 filters:
   filter_operator:
-    type: com.geedgenetworks.core.filter.AviatorFilter
+    type: com.geedgenetworks.core.filter.AviatorFilterProcessor
     properties:
       expression: event.server_ip != '12.12.12.12'
 

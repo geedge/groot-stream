@@ -10,7 +10,7 @@ Using the flink side Outputs send data from a stream to multiple downstream cons
 
 | name              | type   | required | default value                                                                              |
 |-------------------|--------|----------|--------------------------------------------------------------------------------------------|
-| type              | String | Yes      | The type of the processor, now only support ` com.geedgenetworks.core.split.SplitOperator` |
+| type              | String | Yes      | The type of the processor, now only support ` com.geedgenetworks.core.split.SplitProcessor` |
 | rules             | Array  | Yes      | Array of Object. Defining rules for labeling Side Output Tag                               |
 | [rule.]tag        | String | Yes      | The tag name of the side output                                                            |
 | [rule.]expression | String | Yes      | The expression to evaluate the event.                                                      |
