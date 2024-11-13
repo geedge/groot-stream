@@ -1,1 +1,1 @@
-com.geedgenetworks.connectors.kafka.KafkaTableFactory
+com.geedgenetworks.connectors.kafka.KafkaConnectorFactory

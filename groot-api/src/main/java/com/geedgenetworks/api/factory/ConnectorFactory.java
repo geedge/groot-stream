@@ -2,11 +2,16 @@ package com.geedgenetworks.api.factory;
 
 import com.geedgenetworks.api.connector.schema.Schema;
 import com.geedgenetworks.api.connector.type.StructType;
+import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.Configuration;
 
 import java.util.Map;
+import java.util.Set;
 
 public interface ConnectorFactory extends Factory {
+
+    Set<ConfigOption<?>> requiredOptions();
+    Set<ConfigOption<?>> optionalOptions();
 
     public static class Context {
         private final Schema schema;

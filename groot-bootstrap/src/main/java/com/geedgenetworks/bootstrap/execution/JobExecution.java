@@ -6,7 +6,7 @@ import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.main.GrootStreamRunner;
 import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.config.GrootStreamConfig;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;

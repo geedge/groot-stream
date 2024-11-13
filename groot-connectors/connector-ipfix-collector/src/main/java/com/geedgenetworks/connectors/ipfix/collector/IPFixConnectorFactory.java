@@ -1,7 +1,7 @@
 package com.geedgenetworks.connectors.ipfix.collector;
 
 import com.geedgenetworks.api.connector.source.SourceProvider;
-import com.geedgenetworks.api.connector.source.SourceTableFactory;
+import com.geedgenetworks.api.factory.SourceFactory;
 import com.geedgenetworks.api.factory.FactoryUtil;
 import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.configuration.ConfigOption;
@@ -13,7 +13,7 @@ import java.util.Set;
 
 import static com.geedgenetworks.connectors.ipfix.collector.IPFixConnectorOptionsUtil.PROPERTIES_PREFIX;
 
-public class IPFixTableFactory implements SourceTableFactory {
+public class IPFixConnectorFactory implements SourceFactory {
     private static final String IDENTIFIER = "ipfix";
 
     @Override

@@ -1,5 +1,5 @@
-com.geedgenetworks.core.connector.inline.InlineTableFactory
-com.geedgenetworks.core.connector.print.PrintTableFactory
+com.geedgenetworks.core.connector.inline.InlineConnectorFactory
+com.geedgenetworks.core.connector.print.PrintConnectorFactory
 com.geedgenetworks.core.processor.filter.AviatorFilterProcessorFactory
 com.geedgenetworks.core.processor.split.SplitProcessorFactory
 com.geedgenetworks.core.processor.projection.ProjectionProcessorFactory

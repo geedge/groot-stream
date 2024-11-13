@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.processor.split;
 
 import com.geedgenetworks.api.metrics.InternalMetrics;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;

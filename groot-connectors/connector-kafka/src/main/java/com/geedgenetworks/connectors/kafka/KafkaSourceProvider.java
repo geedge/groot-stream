@@ -2,7 +2,7 @@ package com.geedgenetworks.connectors.kafka;
 
 import com.geedgenetworks.api.connector.serialization.DecodingFormat;
 import com.geedgenetworks.api.connector.source.SourceProvider;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;

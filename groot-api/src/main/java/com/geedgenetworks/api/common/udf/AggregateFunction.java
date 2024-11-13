@@ -1,7 +1,7 @@
 package com.geedgenetworks.api.common.udf;
 
 import com.geedgenetworks.common.config.Accumulator;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 
 import java.io.Serializable;
 

@@ -2,7 +2,7 @@ package com.geedgenetworks.connectors.file;
 
 import com.geedgenetworks.api.connector.serialization.DecodingFormat;
 import com.geedgenetworks.api.connector.source.SourceProvider;
-import com.geedgenetworks.api.connector.source.SourceTableFactory;
+import com.geedgenetworks.api.factory.SourceFactory;
 import com.geedgenetworks.api.factory.DecodingFormatFactory;
 import com.geedgenetworks.api.factory.FactoryUtil;
 import com.geedgenetworks.api.connector.type.StructType;
@@ -14,7 +14,7 @@ import java.util.Set;
 
 import static com.geedgenetworks.connectors.file.FileConnectorOptions.*;
 
-public class FileTableFactory implements SourceTableFactory {
+public class FileConnectorFactory implements SourceFactory {
     public static final String IDENTIFIER = "file";
 
     @Override

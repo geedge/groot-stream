@@ -7,11 +7,11 @@ import java.util.Base64;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InlineTableFactoryTest {
+class InlineConnectorFactoryTest {
 
     @Test
     public void testDataDecode(){
-        InlineTableFactory factory = new InlineTableFactory();
+        InlineConnectorFactory factory = new InlineConnectorFactory();
         String str = "utf8字符串";
         String data = "utf8字符串";
         assertArrayEquals(factory.getDataBytes(data, "string"), str.getBytes(StandardCharsets.UTF_8));

@@ -3,7 +3,7 @@ package com.geedgenetworks.formats.msgpack;
 
 import com.geedgenetworks.api.connector.serialization.DecodingFormat;
 import com.geedgenetworks.api.connector.serialization.EncodingFormat;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.factory.DecodingFormatFactory;
 import com.geedgenetworks.api.factory.EncodingFormatFactory;
 import com.geedgenetworks.api.factory.ConnectorFactory;

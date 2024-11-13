@@ -1,5 +1,6 @@
-package com.geedgenetworks.api.configuration;
+package com.geedgenetworks.api.utils;
 
+import com.geedgenetworks.api.common.udf.UDFContextConfigOptions;
 import com.geedgenetworks.common.config.CheckResult;
 import com.geedgenetworks.api.common.udf.UDFContext;
 

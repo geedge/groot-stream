@@ -5,7 +5,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.core.udf.JsonExtract;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

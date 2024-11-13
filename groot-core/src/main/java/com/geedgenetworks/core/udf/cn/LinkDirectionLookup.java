@@ -2,7 +2,7 @@ package com.geedgenetworks.core.udf.cn;
 
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.LinkDirectionKnowledgeBaseHandler;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 
 /**
  * @author gujinkai

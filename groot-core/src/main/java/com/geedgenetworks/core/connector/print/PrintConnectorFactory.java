@@ -1,8 +1,8 @@
 package com.geedgenetworks.core.connector.print;
 
 import com.geedgenetworks.api.connector.serialization.EncodingFormat;
-import com.geedgenetworks.api.connector.sink.SinkTableFactory;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.SinkFactory;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
@@ -21,7 +21,7 @@ import static com.geedgenetworks.core.connector.print.PrintMode.STDOUT;
 /**
  * 用于测试的sink：把元素输出到标准输出或输出日志，输出类型：1(stdout),2(logInfo),3(logWarn)
  */
-public class PrintTableFactory implements SinkTableFactory {
+public class PrintConnectorFactory implements SinkFactory {
     public static final String IDENTIFIER = "print";
     @Override
     public String type() {

@@ -2,13 +2,11 @@ package com.geedgenetworks.core.processor.split;
 
 import com.alibaba.fastjson.JSONObject;
 import com.geedgenetworks.api.processor.Processor;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-
-import java.util.Map;
 
 public class SplitProcessor implements Processor<SplitConfig> {
 

@@ -3,7 +3,7 @@ package com.geedgenetworks.connectors.clickhouse.sink;
 import com.alibaba.fastjson2.JSON;
 
 import com.geedgenetworks.api.metrics.InternalMetrics;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.connector.schema.Schema;
 import com.geedgenetworks.api.connector.schema.SchemaChangeAware;
 import com.geedgenetworks.api.connector.type.StructType;

@@ -1,7 +1,7 @@
 package com.geedgenetworks.bootstrap.execution;
 
 import com.geedgenetworks.common.utils.ReflectionUtils;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import org.apache.flink.streaming.api.datastream.DataStream;
 
 import java.net.URL;

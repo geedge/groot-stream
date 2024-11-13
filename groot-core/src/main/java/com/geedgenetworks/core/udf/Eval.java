@@ -6,7 +6,7 @@ import com.geedgenetworks.core.expressions.Calc;
 import com.geedgenetworks.core.expressions.EvalExecutor;
 import com.geedgenetworks.api.common.udf.ScalarFunction;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.util.List;

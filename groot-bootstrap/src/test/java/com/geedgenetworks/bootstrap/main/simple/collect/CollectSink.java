@@ -1,6 +1,6 @@
 package com.geedgenetworks.bootstrap.main.simple.collect;
 
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 
 import java.util.*;

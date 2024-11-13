@@ -6,7 +6,7 @@ import com.geedgenetworks.connectors.ipfix.collector.utils.IPFixUtil;
 import com.geedgenetworks.api.metrics.InternalMetrics;
 import com.geedgenetworks.api.connector.source.SourceProvider;
 import com.geedgenetworks.api.connector.type.*;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.connector.type.DataType;
 import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;

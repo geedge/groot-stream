@@ -1,6 +1,6 @@
 package com.geedgenetworks.api.common.udf;
 
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.io.Serializable;

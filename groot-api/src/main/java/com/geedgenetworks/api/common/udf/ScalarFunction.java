@@ -2,9 +2,8 @@ package com.geedgenetworks.api.common.udf;
 
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.api.configuration.CheckUDFContextUtil;
-import com.geedgenetworks.api.configuration.UDFContextConfigOptions;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.utils.CheckUDFContextUtil;
+import com.geedgenetworks.api.event.Event;
 import org.apache.flink.api.common.functions.RuntimeContext;
 
 import java.io.Serializable;

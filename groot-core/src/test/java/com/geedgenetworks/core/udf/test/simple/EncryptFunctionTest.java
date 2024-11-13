@@ -14,7 +14,7 @@ import com.geedgenetworks.core.udf.encrypt.Crypto;
 import com.geedgenetworks.core.utils.CryptoProvider;
 import com.geedgenetworks.core.utils.KMSUtils;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import io.github.jopenlibs.vault.VaultException;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.RuntimeContext;

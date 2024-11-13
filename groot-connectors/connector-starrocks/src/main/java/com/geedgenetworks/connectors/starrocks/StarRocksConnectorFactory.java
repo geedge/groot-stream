@@ -2,8 +2,8 @@ package com.geedgenetworks.connectors.starrocks;
 
 
 import com.geedgenetworks.api.connector.sink.SinkProvider;
-import com.geedgenetworks.api.connector.sink.SinkTableFactory;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.SinkFactory;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.factory.FactoryUtil;
 import com.starrocks.connector.flink.table.sink.EventStarRocksDynamicSinkFunctionV2;
 import com.starrocks.connector.flink.table.sink.SinkFunctionFactory;
@@ -18,7 +18,7 @@ import org.apache.flink.util.Preconditions;
 import java.util.HashSet;
 import java.util.Set;
 
-public class StarRocksTableFactory implements SinkTableFactory {
+public class StarRocksConnectorFactory implements SinkFactory {
     public static final String IDENTIFIER = "starrocks";
     @Override
     public String type() {

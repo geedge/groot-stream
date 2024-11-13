@@ -7,9 +7,9 @@ import com.geedgenetworks.connectors.kafka.rate.NoRateLimitingStrategy;
 import com.geedgenetworks.connectors.kafka.rate.RateLimitingStrategy;
 import com.geedgenetworks.connectors.kafka.rate.RateLimitingStrategyType;
 import com.geedgenetworks.api.connector.sink.SinkProvider;
-import com.geedgenetworks.api.connector.sink.SinkTableFactory;
+import com.geedgenetworks.api.factory.SinkFactory;
 import com.geedgenetworks.api.connector.source.SourceProvider;
-import com.geedgenetworks.api.connector.source.SourceTableFactory;
+import com.geedgenetworks.api.factory.SourceFactory;
 import com.geedgenetworks.api.factory.DecodingFormatFactory;
 import com.geedgenetworks.api.factory.EncodingFormatFactory;
 import com.geedgenetworks.api.factory.FactoryUtil;
@@ -23,7 +23,7 @@ import java.util.*;
 import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptions.*;
 import static com.geedgenetworks.connectors.kafka.KafkaConnectorOptionsUtil.*;
 
-public class KafkaTableFactory implements SourceTableFactory, SinkTableFactory {
+public class KafkaConnectorFactory implements SourceFactory, SinkFactory {
     public static final String IDENTIFIER = "kafka";
     @Override
     public String type() {

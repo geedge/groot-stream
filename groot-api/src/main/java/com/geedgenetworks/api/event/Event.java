@@ -1,4 +1,4 @@
-package com.geedgenetworks.api.connector.event;
+package com.geedgenetworks.api.event;
 
 import lombok.Data;
 

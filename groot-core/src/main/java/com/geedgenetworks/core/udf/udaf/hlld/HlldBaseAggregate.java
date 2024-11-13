@@ -6,7 +6,7 @@ import com.geedgenetworks.sketch.hlld.HllUnion;
 import com.geedgenetworks.sketch.hlld.HllUtils;
 import com.geedgenetworks.api.common.udf.AggregateFunction;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Map;

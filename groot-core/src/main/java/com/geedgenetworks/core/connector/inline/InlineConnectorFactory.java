@@ -3,7 +3,7 @@ package com.geedgenetworks.core.connector.inline;
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.api.connector.source.SourceProvider;
 import com.geedgenetworks.api.connector.serialization.DecodingFormat;
-import com.geedgenetworks.api.connector.source.SourceTableFactory;
+import com.geedgenetworks.api.factory.SourceFactory;
 import com.geedgenetworks.api.factory.DecodingFormatFactory;
 import com.geedgenetworks.api.factory.FactoryUtil;
 import com.geedgenetworks.api.connector.type.StructType;
@@ -21,7 +21,7 @@ import static org.apache.flink.configuration.ConfigOptions.key;
 /**
  * 用于测试的source，用于简单测试format、function等
  */
-public class InlineTableFactory implements SourceTableFactory {
+public class InlineConnectorFactory implements SourceFactory {
     public static final String IDENTIFIER = "inline";
     @Override
     public String type() {

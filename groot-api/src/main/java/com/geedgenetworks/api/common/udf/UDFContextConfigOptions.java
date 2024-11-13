@@ -1,4 +1,4 @@
-package com.geedgenetworks.api.configuration;
+package com.geedgenetworks.api.common.udf;
 
 import com.alibaba.fastjson2.TypeReference;
 import com.geedgenetworks.common.config.Option;

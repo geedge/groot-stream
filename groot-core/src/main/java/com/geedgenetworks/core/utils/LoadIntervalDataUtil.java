@@ -1,4 +1,4 @@
-package com.geedgenetworks.api.configuration.util;
+package com.geedgenetworks.core.utils;
 
 import org.apache.flink.shaded.guava18.com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.flink.util.function.SupplierWithException;

@@ -2,10 +2,10 @@ package com.geedgenetworks.formats.protobuf;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.api.connector.sink.SinkProvider;
-import com.geedgenetworks.api.connector.sink.SinkTableFactory;
+import com.geedgenetworks.api.factory.SinkFactory;
 import com.geedgenetworks.api.connector.source.SourceProvider;
-import com.geedgenetworks.api.connector.source.SourceTableFactory;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.SourceFactory;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.factory.FactoryUtil;
 import com.geedgenetworks.api.factory.ConnectorFactory;
 import org.apache.flink.configuration.Configuration;
@@ -25,7 +25,7 @@ class ProtobufFormatFactoryTest {
         String path = ProtobufFormatFactoryTest.class.getResource("/proto3_types.desc").getPath();
         String messageName = "Proto3Types";
 
-        SourceTableFactory tableFactory = FactoryUtil.discoverConnectorFactory(SourceTableFactory.class, "inline");
+        SourceFactory tableFactory = FactoryUtil.discoverConnectorFactory(SourceFactory.class, "inline");
         Map<String, String> options = new HashMap<>();
         options.put("repeat.count", "3");
         options.put("data", Base64.getEncoder().encodeToString(inputDatas.msg.toByteArray()));
@@ -38,7 +38,7 @@ class ProtobufFormatFactoryTest {
         ConnectorFactory.Context context = new ConnectorFactory.Context( null, options, configuration);
         SourceProvider sourceProvider = tableFactory.getSourceProvider(context);
 
-        SinkTableFactory sinkTableFactory = FactoryUtil.discoverConnectorFactory(SinkTableFactory.class, "print");
+        SinkFactory sinkTableFactory = FactoryUtil.discoverConnectorFactory(SinkFactory.class, "print");
         options = new HashMap<>();
         options.put("format", "json");
         configuration = Configuration.fromMap(options);

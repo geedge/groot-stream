@@ -5,7 +5,7 @@ import com.geedgenetworks.core.udf.uuid.UUID;
 import com.geedgenetworks.core.udf.uuid.UUIDv5;
 import com.geedgenetworks.core.udf.uuid.UUIDv7;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

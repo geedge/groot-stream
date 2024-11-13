@@ -31,7 +31,7 @@ public class CsvFormatFactory implements DecodingFormatFactory, EncodingFormatFa
 
     @Override
     public DecodingFormat createDecodingFormat(ConnectorFactory.Context context, ReadableConfig formatOptions) {
-        FactoryUtil.validateFactoryOptions(this, formatOptions);
+        FactoryUtil.validateFormatFactoryOptions(this, formatOptions);
         validateFormatOptions(formatOptions);
         final boolean ignoreParseErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
         return dataType -> {
@@ -43,7 +43,7 @@ public class CsvFormatFactory implements DecodingFormatFactory, EncodingFormatFa
 
     @Override
     public EncodingFormat createEncodingFormat(ConnectorFactory.Context context, ReadableConfig formatOptions) {
-        FactoryUtil.validateFactoryOptions(this, formatOptions);
+        FactoryUtil.validateFormatFactoryOptions(this, formatOptions);
         validateFormatOptions(formatOptions);
         return dataType -> {
             Preconditions.checkNotNull(dataType, "csv format require schema");

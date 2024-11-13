@@ -3,8 +3,8 @@ package com.geedgenetworks.connectors.mock;
 import com.geedgenetworks.connectors.mock.faker.FakerUtils;
 import com.geedgenetworks.connectors.mock.faker.ObjectFaker;
 import com.geedgenetworks.api.connector.source.SourceProvider;
-import com.geedgenetworks.api.connector.source.SourceTableFactory;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.SourceFactory;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.factory.FactoryUtil;
 import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.commons.io.FileUtils;
@@ -20,7 +20,7 @@ import java.util.Set;
 
 import static com.geedgenetworks.connectors.mock.MockConnectorOptions.*;
 
-public class MockTableFactory implements SourceTableFactory {
+public class MockConnectorFactory implements SourceFactory {
     public static final String IDENTIFIER = "mock";
 
     @Override

@@ -1,7 +1,7 @@
 package com.geedgenetworks.connectors.file;
 
 import com.geedgenetworks.api.connector.source.SourceProvider;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;

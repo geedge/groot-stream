@@ -1,7 +1,7 @@
 package com.geedgenetworks.formats.csv;
 
 import com.geedgenetworks.api.connector.serialization.MapDeserialization;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.factory.DecodingFormatFactory;
 import com.geedgenetworks.api.factory.EncodingFormatFactory;
 import com.geedgenetworks.api.factory.FactoryUtil;

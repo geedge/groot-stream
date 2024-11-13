@@ -1,7 +1,7 @@
 package com.geedgenetworks.core.connector.print;
 
 import com.geedgenetworks.api.connector.serialization.EncodingFormat;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.Configuration;

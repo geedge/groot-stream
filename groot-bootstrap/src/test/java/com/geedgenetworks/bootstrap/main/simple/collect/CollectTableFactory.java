@@ -1,8 +1,8 @@
 package com.geedgenetworks.bootstrap.main.simple.collect;
 
 import com.geedgenetworks.api.connector.sink.SinkProvider;
-import com.geedgenetworks.api.connector.sink.SinkTableFactory;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.SinkFactory;
+import com.geedgenetworks.api.event.Event;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * 用于测试的sink：把元素输出到标准输出或输出日志，输出类型：1(stdout),2(logInfo),3(logWarn)
  */
-public class CollectTableFactory implements SinkTableFactory {
+public class CollectTableFactory implements SinkFactory {
     public static final String IDENTIFIER = "collect";
     @Override
     public String type() {

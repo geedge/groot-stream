@@ -13,8 +13,8 @@ import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.api.connector.source.SourceConfigOptions;
 import com.geedgenetworks.api.connector.source.SourceConfig;
 import com.geedgenetworks.api.connector.source.SourceProvider;
-import com.geedgenetworks.api.connector.source.SourceTableFactory;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.SourceFactory;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.factory.FactoryUtil;
 import com.geedgenetworks.api.factory.ConnectorFactory;
 import com.geedgenetworks.api.connector.schema.Schema;
@@ -68,7 +68,7 @@ public class SourceExecutor extends AbstractExecutor<JobRuntimeEnvironment, Conf
         SourceConfig sourceConfig = operators.get(jobTopologyNode.getName());
         SingleOutputStreamOperator sourceSingleOutputStreamOperator;
         try {
-            SourceTableFactory tableFactory = FactoryUtil.discoverConnectorFactory(SourceTableFactory.class, sourceConfig.getType());
+            SourceFactory tableFactory = FactoryUtil.discoverConnectorFactory(SourceFactory.class, sourceConfig.getType());
             Map<String, String> options = sourceConfig.getProperties();
             Configuration configuration = Configuration.fromMap(options);
             Schema schema = null;

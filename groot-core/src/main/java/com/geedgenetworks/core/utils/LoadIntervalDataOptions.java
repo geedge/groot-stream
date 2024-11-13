@@ -1,4 +1,4 @@
-package com.geedgenetworks.api.configuration.util;
+package com.geedgenetworks.core.utils;
 
 import java.io.Serializable;
 

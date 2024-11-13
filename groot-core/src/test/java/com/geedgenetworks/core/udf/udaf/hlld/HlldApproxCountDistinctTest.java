@@ -6,7 +6,7 @@ import com.geedgenetworks.sketch.hlld.Hll;
 import com.geedgenetworks.sketch.util.StringUtils;
 import com.geedgenetworks.api.common.udf.AggregateFunction;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;

@@ -27,7 +27,11 @@ public final class FactoryUtil {
      * Validates the required and optional {@link ConfigOption}s of a factory.
      *
      */
-    public static void validateFactoryOptions(Factory factory, ReadableConfig options) {
+    public static void validateConnectorFactoryOptions(ConnectorFactory factory, ReadableConfig options) {
+        validateFactoryOptions(factory.requiredOptions(), factory.optionalOptions(), options);
+    }
+
+    public static void validateFormatFactoryOptions(FormatFactory factory, ReadableConfig options) {
         validateFactoryOptions(factory.requiredOptions(), factory.optionalOptions(), options);
     }
 
@@ -228,7 +232,7 @@ public final class FactoryUtil {
 
         /** Validates the options of the factory. It checks for unconsumed option keys. */
         public void validate() {
-            validateFactoryOptions(factory, allOptions);
+            validateConnectorFactoryOptions(factory, allOptions);
             validateUnconsumedKeys(
                     factory.type(),
                     allOptions.keySet(),
@@ -320,7 +324,7 @@ public final class FactoryUtil {
                             });
         }
 
-        private <F extends Factory> Optional<F> discoverOptionalFormatFactory(
+        private <F extends FormatFactory> Optional<F> discoverOptionalFormatFactory(
                 Class<F> formatFactoryClass, ConfigOption<String> formatOption) {
             final String identifier = allOptions.get(formatOption);
             //checkFormatIdentifierMatchesWithEnrichingOptions(formatOption, identifier);

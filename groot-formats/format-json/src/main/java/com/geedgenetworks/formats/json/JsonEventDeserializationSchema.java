@@ -2,7 +2,7 @@ package com.geedgenetworks.formats.json;
 
 import com.alibaba.fastjson2.JSON;
 import com.geedgenetworks.api.connector.serialization.MapDeserialization;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.typeinfo.TypeInformation;

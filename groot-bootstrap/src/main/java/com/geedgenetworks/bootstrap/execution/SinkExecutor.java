@@ -12,8 +12,8 @@ import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.api.connector.sink.SinkConfig;
 import com.geedgenetworks.api.connector.sink.SinkConfigOptions;
 import com.geedgenetworks.api.connector.sink.SinkProvider;
-import com.geedgenetworks.api.connector.sink.SinkTableFactory;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.SinkFactory;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.factory.FactoryUtil;
 import com.geedgenetworks.api.factory.ConnectorFactory;
 import com.geedgenetworks.api.connector.schema.Schema;
@@ -63,7 +63,7 @@ public class SinkExecutor extends AbstractExecutor<JobRuntimeEnvironment, Config
     public DataStream<Event> execute(DataStream<Event> input, JobTopologyNode jobTopologyNode) throws JobExecuteException {
         SinkConfig sinkConfig = operators.get(jobTopologyNode.getName());
         try {
-            SinkTableFactory sinkTableFactory = FactoryUtil.discoverConnectorFactory(SinkTableFactory.class, sinkConfig.getType());
+            SinkFactory sinkTableFactory = FactoryUtil.discoverConnectorFactory(SinkFactory.class, sinkConfig.getType());
             Map<String, String> options = sinkConfig.getProperties();
             Configuration configuration = Configuration.fromMap(options);
             Schema schema = null;

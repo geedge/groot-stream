@@ -4,7 +4,7 @@ package com.geedgenetworks.core.udf.test.aggregate;
 import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.core.udf.udaf.FirstValue;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;

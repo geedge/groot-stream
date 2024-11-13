@@ -11,7 +11,7 @@ import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.ConfigValidationException;
 import com.geedgenetworks.api.processor.Processor;
 import com.geedgenetworks.api.processor.ProcessorConfig;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.google.common.collect.Maps;
 import com.typesafe.config.Config;
 import org.apache.flink.streaming.api.datastream.DataStream;

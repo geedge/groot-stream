@@ -4,7 +4,7 @@ import com.geedgenetworks.core.udf.udtf.JsonUnroll;
 import com.geedgenetworks.api.common.udf.UDFContext;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 
 import java.util.HashMap;
 import java.util.List;

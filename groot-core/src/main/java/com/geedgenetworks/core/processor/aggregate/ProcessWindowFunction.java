@@ -4,13 +4,13 @@ import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.common.config.KeybyEntity;
 import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.api.metrics.InternalMetrics;
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
-import static com.geedgenetworks.api.connector.event.Event.WINDOW_END_TIMESTAMP;
-import static com.geedgenetworks.api.connector.event.Event.WINDOW_START_TIMESTAMP;
+import static com.geedgenetworks.api.event.Event.WINDOW_END_TIMESTAMP;
+import static com.geedgenetworks.api.event.Event.WINDOW_START_TIMESTAMP;
 
 public class ProcessWindowFunction extends org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction<
         Accumulator,                  // 输入类型

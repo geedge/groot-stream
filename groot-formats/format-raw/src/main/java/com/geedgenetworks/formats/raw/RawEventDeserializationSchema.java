@@ -1,6 +1,6 @@
 package com.geedgenetworks.formats.raw;
 
-import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.connector.type.StructType;
 import com.geedgenetworks.api.connector.type.Types;
 import org.apache.flink.api.common.serialization.DeserializationSchema;

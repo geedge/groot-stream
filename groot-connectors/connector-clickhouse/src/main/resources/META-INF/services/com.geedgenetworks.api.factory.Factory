@@ -1,1 +1,1 @@
-com.geedgenetworks.connectors.clickhouse.ClickHouseTableFactory
+com.geedgenetworks.connectors.clickhouse.ClickHouseConnectorFactory
