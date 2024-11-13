@@ -1,18 +1,17 @@
 package com.geedgenetworks.core.connector.print;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.connector.format.EncodingFormat;
-import com.geedgenetworks.core.connector.sink.SinkProvider;
-import com.geedgenetworks.core.factories.EncodingFormatFactory;
-import com.geedgenetworks.core.factories.FactoryUtil;
-import com.geedgenetworks.core.factories.SinkTableFactory;
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.api.connector.serialization.EncodingFormat;
+import com.geedgenetworks.api.connector.sink.SinkTableFactory;
+import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
-
+import com.geedgenetworks.api.connector.sink.SinkProvider;
+import com.geedgenetworks.api.factory.FactoryUtil;
+import com.geedgenetworks.api.factory.EncodingFormatFactory;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -25,7 +24,7 @@ import static com.geedgenetworks.core.connector.print.PrintMode.STDOUT;
 public class PrintTableFactory implements SinkTableFactory {
     public static final String IDENTIFIER = "print";
     @Override
-    public String factoryIdentifier() {
+    public String type() {
         return IDENTIFIER;
     }
 

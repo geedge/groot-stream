@@ -1,10 +1,10 @@
 package com.geedgenetworks.core.udf.udaf.HdrHistogram;
 
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.AggregateFunction;
-import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.sketch.util.StringUtils;
+import com.geedgenetworks.api.common.udf.AggregateFunction;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.connector.event.Event;
 import org.HdrHistogram.ArrayHistogram;
 import org.junit.jupiter.api.Test;
 

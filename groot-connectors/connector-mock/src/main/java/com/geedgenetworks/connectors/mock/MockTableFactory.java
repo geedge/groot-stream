@@ -1,12 +1,12 @@
 package com.geedgenetworks.connectors.mock;
 
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.connectors.mock.faker.FakerUtils;
 import com.geedgenetworks.connectors.mock.faker.ObjectFaker;
-import com.geedgenetworks.core.connector.source.SourceProvider;
-import com.geedgenetworks.core.factories.FactoryUtil;
-import com.geedgenetworks.core.factories.SourceTableFactory;
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.api.connector.source.SourceProvider;
+import com.geedgenetworks.api.connector.source.SourceTableFactory;
+import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.FactoryUtil;
+import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.commons.io.FileUtils;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
@@ -24,7 +24,7 @@ public class MockTableFactory implements SourceTableFactory {
     public static final String IDENTIFIER = "mock";
 
     @Override
-    public String factoryIdentifier() {
+    public String type() {
         return IDENTIFIER;
     }
 

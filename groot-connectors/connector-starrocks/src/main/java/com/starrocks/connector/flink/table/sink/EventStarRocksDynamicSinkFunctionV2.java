@@ -1,8 +1,8 @@
 package com.starrocks.connector.flink.table.sink;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.metrics.InternalMetrics;
+import com.geedgenetworks.api.metrics.InternalMetrics;
+import com.geedgenetworks.api.connector.event.Event;
 import com.starrocks.connector.flink.manager.StarRocksSinkBufferEntity;
 import com.starrocks.connector.flink.manager.StarRocksStreamLoadListener;
 import com.starrocks.connector.flink.tools.EnvUtils;

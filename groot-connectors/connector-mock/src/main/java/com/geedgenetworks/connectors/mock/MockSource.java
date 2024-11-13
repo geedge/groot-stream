@@ -1,7 +1,7 @@
 package com.geedgenetworks.connectors.mock;
 
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.connectors.mock.faker.ObjectFaker;
+import com.geedgenetworks.api.connector.event.Event;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 

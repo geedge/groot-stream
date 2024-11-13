@@ -1,19 +1,17 @@
 package com.geedgenetworks.core.processor.aggregate;
 
-
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSON;
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.Constants;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.KeybyEntity;
+import com.geedgenetworks.common.config.Accumulator;
+import com.geedgenetworks.common.config.Constants;
+import com.geedgenetworks.common.config.KeybyEntity;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.AggregateFunction;
-import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.metrics.InternalMetrics;
-import com.geedgenetworks.core.pojo.AggregateConfig;
-import com.geedgenetworks.core.processor.projection.UdfEntity;
+import com.geedgenetworks.api.common.udf.AggregateFunction;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.common.udf.UdfEntity;
+import com.geedgenetworks.api.metrics.InternalMetrics;
+import com.geedgenetworks.api.connector.event.Event;
 import com.google.common.collect.Lists;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;

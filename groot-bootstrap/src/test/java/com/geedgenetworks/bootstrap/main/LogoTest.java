@@ -1,6 +1,6 @@
 package com.geedgenetworks.bootstrap.main;
 
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Constants;
 import org.junit.Assert;
 import org.junit.Test;
 

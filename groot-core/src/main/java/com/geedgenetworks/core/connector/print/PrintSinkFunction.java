@@ -1,8 +1,8 @@
 package com.geedgenetworks.core.connector.print;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.connector.format.EncodingFormat;
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.api.connector.serialization.EncodingFormat;
+import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.metrics.Counter;

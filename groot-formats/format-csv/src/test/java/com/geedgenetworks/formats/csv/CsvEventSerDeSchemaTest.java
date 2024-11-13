@@ -1,14 +1,14 @@
 package com.geedgenetworks.formats.csv;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.connector.format.MapDeserialization;
-import com.geedgenetworks.core.connector.schema.Schema;
-import com.geedgenetworks.core.factories.DecodingFormatFactory;
-import com.geedgenetworks.core.factories.EncodingFormatFactory;
-import com.geedgenetworks.core.factories.FactoryUtil;
-import com.geedgenetworks.core.factories.TableFactory;
-import com.geedgenetworks.core.types.StructType;
-import com.geedgenetworks.core.types.Types;
+import com.geedgenetworks.api.connector.serialization.MapDeserialization;
+import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.DecodingFormatFactory;
+import com.geedgenetworks.api.factory.EncodingFormatFactory;
+import com.geedgenetworks.api.factory.FactoryUtil;
+import com.geedgenetworks.api.factory.ConnectorFactory;
+import com.geedgenetworks.api.connector.schema.Schema;
+import com.geedgenetworks.api.connector.type.StructType;
+import com.geedgenetworks.api.connector.type.Types;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
@@ -24,7 +24,7 @@ public class CsvEventSerDeSchemaTest {
     public void testSimpleSerializeDeserialize() throws Exception {
         StructType dataType = Types.parseStructType("int:int,bigint:bigint,double:double,string:string");
         Map<String, String> options = new HashMap<>();
-        TableFactory.Context context = new TableFactory.Context(Schema.newSchema(dataType), options, Configuration.fromMap(options));
+        ConnectorFactory.Context context = new ConnectorFactory.Context(Schema.newSchema(dataType), options, Configuration.fromMap(options));
 
         // 获取deserialization和serialization
         DeserializationSchema<Event> deserialization = FactoryUtil.discoverDecodingFormatFactory(DecodingFormatFactory.class, "csv")
@@ -61,7 +61,7 @@ public class CsvEventSerDeSchemaTest {
     public void testSerializeDeserialize() throws Exception {
         StructType dataType = Types.parseStructType("int:int,bigint:bigint,double:double,string:string,int_array:array<int>,struct:struct<int:int,string:string>");
         Map<String, String> options = new HashMap<>();
-        TableFactory.Context context = new TableFactory.Context(Schema.newSchema(dataType), options, Configuration.fromMap(options));
+        ConnectorFactory.Context context = new ConnectorFactory.Context(Schema.newSchema(dataType), options, Configuration.fromMap(options));
 
         DeserializationSchema<Event> deserialization = FactoryUtil.discoverDecodingFormatFactory(DecodingFormatFactory.class, "csv")
                 .createDecodingFormat(context, context.getConfiguration()).createRuntimeDecoder(dataType);
@@ -142,7 +142,7 @@ public class CsvEventSerDeSchemaTest {
         Map<String, String> options = new HashMap<>();
         options.put(CsvFormatOptions.NULL_LITERAL.key(), "null");
         options.put(CsvFormatOptions.IGNORE_PARSE_ERRORS.key(), "true");
-        TableFactory.Context context = new TableFactory.Context(Schema.newSchema(dataType), options, Configuration.fromMap(options));
+        ConnectorFactory.Context context = new ConnectorFactory.Context(Schema.newSchema(dataType), options, Configuration.fromMap(options));
 
         DeserializationSchema<Event> deserialization = FactoryUtil.discoverDecodingFormatFactory(DecodingFormatFactory.class, "csv")
                 .createDecodingFormat(context, context.getConfiguration()).createRuntimeDecoder(dataType);

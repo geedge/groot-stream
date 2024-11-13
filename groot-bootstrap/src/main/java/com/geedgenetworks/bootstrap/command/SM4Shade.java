@@ -3,7 +3,6 @@ package com.geedgenetworks.bootstrap.command;
 import cn.hutool.crypto.KeyUtil;
 import cn.hutool.crypto.SmUtil;
 import cn.hutool.crypto.symmetric.SM4;
-import com.geedgenetworks.common.crypto.CryptoShade;
 
 import java.nio.charset.StandardCharsets;
 

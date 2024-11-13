@@ -3,7 +3,7 @@ sources: # [object] Define connector source
     type: mock
     properties:
       mock.desc.file.path: /tmp/grootstream/config/template/mock_schema/session_record_mock_desc.json
-      rows.per.second: 100000
+      rows.per.second: 10000
 
 processing_pipelines:
   etl_processor:

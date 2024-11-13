@@ -32,13 +32,13 @@ sources:
 
 filters:
   filter:
-    type: com.geedgenetworks.core.filter.AviatorFilter
+    type: com.geedgenetworks.core.filter.AviatorFilterProcessor
     properties:
       expression: event.decoded_as == 'BASE'
 
 preprocessing_pipelines:
   preprocessor:
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessor
     functions:
       - function: EVAL
         output_fields: [additional_field_subdomain]
@@ -47,7 +47,7 @@ preprocessing_pipelines:
 
 processing_pipelines:
   processor: 
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessor
     remove_fields: [log_id]
     output_fields: []
     functions: 
@@ -58,7 +58,7 @@ processing_pipelines:
         
 postprocessing_pipelines:
   postprocessor:  
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessor
     remove_fields: [dup_traffic_flag]
 
 sinks:

@@ -1,6 +1,5 @@
 package com.geedgenetworks.bootstrap.command;
 
-import com.geedgenetworks.common.crypto.CryptoShade;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 

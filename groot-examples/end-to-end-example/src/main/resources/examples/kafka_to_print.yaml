@@ -2,20 +2,18 @@ sources:
   kafka_source:
     type : kafka
     schema:
-      fields: # [array of object] Schema field projection, support read data only from specified fields.
-        - name: client_ip
-          type: string
-        - name: server_ip
-          type: string
     properties: # [object] Kafka source properties
-      topic:  SESSION-RECORD
-      kafka.bootstrap.servers: 192.168.44.11:9092
+      topic: DATAPATH-TELEMETRY-RECORD
+      kafka.bootstrap.servers: "192.168.44.12:9094"
       kafka.session.timeout.ms: 60000
       kafka.max.poll.records: 3000
       kafka.max.partition.fetch.bytes: 31457280
-      kafka.group.id: GROOT-STREAM-EXAMPLE-KAFKA-TO-PRINT
-      kafka.auto.offset.reset: latest
-      format: json
+      kafka.security.protocol: SASL_PLAINTEXT
+      kafka.sasl.mechanism: PLAIN
+      kafka.sasl.jaas.config: 454f65ea6eef1256e3067104f82730e737b68959560966b811e7ff364116b03124917eb2b0f3596f14733aa29ebad9352644ce1a5c85991c6f01ba8a5e8f177a80bea937958aaa485c2acc2b475603495a23eb59f055e037c0b186acb22886bd0275ca91f1633441d9943e7962942252
+      kafka.group.id: etl_datapath_telemetry_record_kafka_to_print_test_2024
+      kafka.auto.offset.reset: earliest
+      format: msgpack
 
 sinks: # [object] Define connector sink
   print_sink:
@@ -28,10 +26,10 @@ application: # [object] Define job configuration
   env:
     name: example-kafka-to-print
     parallelism: 1
+    shade.identifier: aes
     pipeline:
       object-reuse: true
-    flink:
-      restart-strategy: none
+
   topology:
     - name: kafka_source
       downstream: [print_sink]

@@ -1,7 +1,6 @@
 package com.geedgenetworks.bootstrap.command;
 
 import cn.hutool.core.util.RandomUtil;
-import com.geedgenetworks.common.crypto.CryptoShade;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;

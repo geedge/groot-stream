@@ -1,11 +1,10 @@
 package com.geedgenetworks.core.udf.test.aggregate;
 
 
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.udf.udaf.CollectList;
+import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.core.udf.udaf.CollectSet;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.connector.event.Event;
 import org.junit.jupiter.api.Test;
 
 import java.text.ParseException;

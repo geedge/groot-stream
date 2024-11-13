@@ -1,5 +1,5 @@
 package com.geedgenetworks.bootstrap.execution;
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.config.CheckResult;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigUtil;

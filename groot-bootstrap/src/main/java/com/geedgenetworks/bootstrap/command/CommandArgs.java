@@ -2,7 +2,7 @@ package com.geedgenetworks.bootstrap.command;
 
 import com.beust.jcommander.Parameter;
 import com.geedgenetworks.bootstrap.enums.DeployMode;
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Constants;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -1,9 +1,8 @@
 package com.geedgenetworks.core.udf.test.simple;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.udf.Flatten;
-import com.geedgenetworks.core.udf.StringJoiner;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.connector.event.Event;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

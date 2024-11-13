@@ -1,39 +1,25 @@
 package com.geedgenetworks.bootstrap.execution;
 
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.common.utils.ReflectionUtils;
-import com.geedgenetworks.core.filter.Filter;
-import com.geedgenetworks.core.processor.Processor;
-import com.geedgenetworks.core.split.Split;
-import com.typesafe.config.Config;
+import com.geedgenetworks.api.connector.event.Event;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
 import java.util.function.BiConsumer;
 
-public abstract class AbstractExecutor<K, V>
-        implements Executor<DataStream<Event>, JobRuntimeEnvironment> {
-    protected  JobRuntimeEnvironment jobRuntimeEnvironment;
-    protected final Config operatorConfig;
-    protected final Map<K,V> operatorMap;
+public abstract class AbstractExecutor<E, C> implements Executor<DataStream<Event>> {
+    public E environment;
+    protected final C jobConfig;
 
-    protected AbstractExecutor(List<URL> jarPaths, Config operatorConfig) {
-        this.operatorConfig = operatorConfig;
-        this.operatorMap = initialize(jarPaths, operatorConfig);
+    protected AbstractExecutor(E environment, C jobConfig) {
+        this.environment = environment;
+        this.jobConfig = jobConfig;
+        initialize(jobConfig);
     }
+    protected abstract void initialize(C jobConfig);
 
-    @Override
-    public void setRuntimeEnvironment(JobRuntimeEnvironment jobRuntimeEnvironment) {
-        this.jobRuntimeEnvironment = jobRuntimeEnvironment;
-
-    }
-
-    protected abstract Map<K, V> initialize(List<URL> jarPaths, Config operatorConfig);
-
-    protected  static final BiConsumer<ClassLoader, URL> ADD_URL_TO_CLASSLOADER =
+    protected static final BiConsumer<ClassLoader, URL> ADD_URL_TO_CLASSLOADER =
             (classLoader, url) -> {
                 if (classLoader.getClass().getName().endsWith("SafetyNetWrapperClassLoader")) {
                     URLClassLoader c =
