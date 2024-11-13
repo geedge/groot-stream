@@ -1,6 +1,5 @@
 package com.geedgenetworks.common.config;
 
-import com.geedgenetworks.common.Constants;
 import com.hazelcast.internal.config.AbstractConfigLocator;
 import lombok.extern.slf4j.Slf4j;
 

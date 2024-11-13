@@ -1,11 +1,11 @@
 package com.geedgenetworks.connectors.file;
 
-import com.geedgenetworks.core.connector.format.DecodingFormat;
-import com.geedgenetworks.core.connector.source.SourceProvider;
-import com.geedgenetworks.core.factories.DecodingFormatFactory;
-import com.geedgenetworks.core.factories.FactoryUtil;
-import com.geedgenetworks.core.factories.SourceTableFactory;
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.api.connector.serialization.DecodingFormat;
+import com.geedgenetworks.api.connector.source.SourceProvider;
+import com.geedgenetworks.api.connector.source.SourceTableFactory;
+import com.geedgenetworks.api.factory.DecodingFormatFactory;
+import com.geedgenetworks.api.factory.FactoryUtil;
+import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ReadableConfig;
 
@@ -18,7 +18,7 @@ public class FileTableFactory implements SourceTableFactory {
     public static final String IDENTIFIER = "file";
 
     @Override
-    public String factoryIdentifier() {
+    public String type() {
         return IDENTIFIER;
     }
 

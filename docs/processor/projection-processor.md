@@ -32,13 +32,13 @@ sources:
 
 filters:
   filter_operator:
-    type: com.geedgenetworks.core.filter.AviatorFilter
+    type: com.geedgenetworks.core.filter.AviatorFilterProcessor
     properties:
       expression: event.server_ip != '12.12.12.12'
 
 processing_pipelines: # [object] Define Processors
   projection_processor: # [object] Define projection processor name
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: com.geedgenetworks.core.processor.projection.ProjectionProcessor
     remove_fields: [http_request_line, http_response_line, http_response_content_type]
     functions: # [array of object] Define UDFs
       - function: DROP # [string] Define DROP function for filter event

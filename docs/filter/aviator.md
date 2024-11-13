@@ -11,7 +11,7 @@
 
 |    Name     |  Type  | Required | Default |                                                                                                   Description                                                                                                    |
 |-------------|--------|----------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| type        | String | Yes      | (none)  | The type of the filter operator. Now only support `com.geedgenetworks.core.filter.AviatorFilter`.                                                                                                                |
+| type        | String | Yes      | (none)  | The type of the filter operator. Now only support `com.geedgenetworks.core.filter.AviatorFilterProcessor`.                                                                                                                |
 | properties  | Map    | Yes      | (none)  | Filter operator properties.                                                                                                                                                                                      |
 | -expression | String | Yes      | (none)  | Based on the filter expression, the event will be passed to downstream if the expression is true, otherwise it will be dropped. Build a filter expression need add prefix `event.`, if you want get event field. |
 

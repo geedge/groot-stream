@@ -1,13 +1,12 @@
 package com.geedgenetworks.core.udf.test;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.geedgenetworks.common.config.CommonConfig;
 import com.geedgenetworks.common.config.KnowledgeBaseConfig;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.udf.GeoIpLookup;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.GeoIpKnowledgeBaseHandler;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
+import com.geedgenetworks.api.common.udf.UDFContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

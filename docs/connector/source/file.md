@@ -24,7 +24,7 @@ File source custom properties.
 
 This example read data of file test source and print to console.
 
-> Ensures that the file path is accessible to all nodes in your Flink cluster.
+> Ensures that the file path is accessible to all jobTopologyNodes in your Flink cluster.
 
 ```yaml
 sources:

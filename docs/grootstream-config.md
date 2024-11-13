@@ -24,7 +24,7 @@ grootstream:
 
 The knowledge base is a collection of libraries that can be used in the groot-stream job's UDFs. File system type can be specified `local`, `http` or `hdfs`.
 If the value is `http`, must be ` QGW Knowledge Base Repository` URL. The library will be dynamically updated according to the `scheduler.knowledge_base.update.interval.minutes` configuration.
-If the value is `local`, the library will be loaded from the local file system. Need to manually upgrade all nodes in the Flink cluster when the library is updated.
+If the value is `local`, the library will be loaded from the local file system. Need to manually upgrade all jobTopologyNodes in the Flink cluster when the library is updated.
 If the value is `hdfs`, the library will be loaded from the HDFS file system. More details about hdfs operation can be found in the [HDFS](./faq.md#hadoop-hdfs-commands-for-beginners).
 
 | Name    | Type   | Required | Default | Description                                                                |
@@ -36,7 +36,7 @@ If the value is `hdfs`, the library will be loaded from the HDFS file system. Mo
 
 ### Define the knowledge base file from a local file
 
-> Ensures that the file path is accessible to all nodes in your Flink cluster.
+> Ensures that the file path is accessible to all jobTopologyNodes in your Flink cluster.
 
 ```yaml
 grootstream: 
@@ -65,7 +65,7 @@ grootstream:
 
 ### Define the knowledge base file from a HDFS file system
 
-> Ensure that the HDFS file system is accessible to all nodes in your Flink cluster.
+> Ensure that the HDFS file system is accessible to all jobTopologyNodes in your Flink cluster.
 
 ```yaml
 grootstream: 

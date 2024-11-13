@@ -1,9 +1,9 @@
 package com.geedgenetworks.core.udf.cn;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.UDFContext;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.FqdnCategoryKnowledgeBaseHandler;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.connector.event.Event;
 import org.apache.flink.api.common.functions.RuntimeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

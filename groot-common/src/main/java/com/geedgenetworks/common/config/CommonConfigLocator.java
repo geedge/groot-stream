@@ -1,6 +1,5 @@
 package com.geedgenetworks.common.config;
 
-import com.geedgenetworks.common.Constants;
 import com.hazelcast.internal.config.AbstractConfigLocator;
 
 import static com.hazelcast.internal.config.DeclarativeConfigUtil.YAML_ACCEPTED_SUFFIXES;

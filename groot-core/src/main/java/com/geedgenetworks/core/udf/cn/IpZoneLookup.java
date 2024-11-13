@@ -1,8 +1,8 @@
 package com.geedgenetworks.core.udf.cn;
 
-import com.geedgenetworks.common.Event;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseUpdateJob;
 import com.geedgenetworks.core.udf.knowlegdebase.handler.InternalIpKnowledgeBaseHandler;
+import com.geedgenetworks.api.connector.event.Event;
 
 /**
  * @author gujinkai

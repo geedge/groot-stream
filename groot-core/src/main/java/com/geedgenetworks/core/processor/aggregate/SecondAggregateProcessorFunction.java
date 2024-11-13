@@ -1,14 +1,13 @@
 package com.geedgenetworks.core.processor.aggregate;
 
 import com.alibaba.fastjson.JSON;
-import com.geedgenetworks.common.Accumulator;
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Accumulator;
+import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.AggregateFunction;
-import com.geedgenetworks.common.udf.UDFContext;
-import com.geedgenetworks.core.pojo.AggregateConfig;
-import com.geedgenetworks.core.processor.projection.UdfEntity;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.common.udf.UdfEntity;
+import com.geedgenetworks.api.common.udf.AggregateFunction;
 import com.google.common.collect.Lists;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
@@ -16,14 +15,13 @@ import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.geedgenetworks.core.utils.UDFUtils.filterExecute;
 import static com.geedgenetworks.core.utils.UDFUtils.getClassReflect;
 
 @Slf4j
@@ -32,8 +30,8 @@ public class SecondAggregateProcessorFunction implements org.apache.flink.api.co
     private final List<String> udfClassNameLists;
     private final LinkedList<UdfEntity> functions;
 
-    public SecondAggregateProcessorFunction(AggregateConfig aggregateConfig, ExecutionConfig config) {
-        udfClassNameLists = JSON.parseObject(config.getGlobalJobParameters().toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
+    public SecondAggregateProcessorFunction(StreamExecutionEnvironment env, AggregateConfig aggregateConfig) {
+        udfClassNameLists = JSON.parseObject(env.getConfig().getGlobalJobParameters().toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
         udfContexts = aggregateConfig.getFunctions();
         if (udfContexts == null || udfContexts.isEmpty()) {
             throw new RuntimeException();

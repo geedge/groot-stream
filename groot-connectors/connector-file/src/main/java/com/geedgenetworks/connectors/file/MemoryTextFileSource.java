@@ -1,6 +1,6 @@
 package com.geedgenetworks.connectors.file;
 
-import com.geedgenetworks.common.Event;
+import com.geedgenetworks.api.connector.event.Event;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 import org.slf4j.Logger;

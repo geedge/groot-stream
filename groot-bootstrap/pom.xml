@@ -18,14 +18,25 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.geedgenetworks</groupId>
-            <artifactId>groot-common</artifactId>
-            <version>${revision}</version>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
         </dependency>
 
         <dependency>
             <groupId>com.geedgenetworks</groupId>
             <artifactId>groot-core</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>groot-api</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>groot-common</artifactId>
             <version>${revision}</version>
         </dependency>
 
@@ -99,6 +110,13 @@
             <scope>${scope}</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.geedgenetworks</groupId>
+            <artifactId>format-raw</artifactId>
+            <version>${revision}</version>
+            <scope>${scope}</scope>
+        </dependency>
+
         <!--  Idea debug dependencies -->
         <dependency>
             <groupId>org.apache.flink</groupId>
@@ -118,13 +136,6 @@
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-json</artifactId>
             <version>${flink.version}</version>
-            <scope>${scope}</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.geedgenetworks</groupId>
-            <artifactId>format-raw</artifactId>
-            <version>${revision}</version>
             <scope>${scope}</scope>
         </dependency>
 
@@ -165,23 +176,11 @@
         </dependency>
 
         <dependency>
-            <groupId>com.typesafe</groupId>
-            <artifactId>config</artifactId>
-        </dependency>
-
-
-        <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-test-utils_${scala.version}</artifactId>
             <version>${flink.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-        </dependency>
-
 
     </dependencies>
 

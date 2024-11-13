@@ -1,6 +1,6 @@
 package com.geedgenetworks.core.udf.udaf.hlld;
 
-import com.geedgenetworks.common.Accumulator;
+import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.sketch.hlld.Hll;
 
 public class HlldApproxCountDistinct extends HlldBaseAggregate {

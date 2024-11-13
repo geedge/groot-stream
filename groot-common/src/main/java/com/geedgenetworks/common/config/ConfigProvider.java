@@ -1,6 +1,5 @@
 package com.geedgenetworks.common.config;
 
-import com.geedgenetworks.common.Constants;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.YamlClientConfigBuilder;
 import com.hazelcast.client.config.impl.YamlClientConfigLocator;

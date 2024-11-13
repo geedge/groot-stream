@@ -2,9 +2,9 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.common.udf.ScalarFunction;
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.common.udf.UDFContext;
+import com.geedgenetworks.api.common.udf.ScalarFunction;
+import com.geedgenetworks.api.common.udf.UDFContext;
+import com.geedgenetworks.api.connector.event.Event;
 import com.geedgenetworks.utils.StringUtil;
 
 import lombok.extern.slf4j.Slf4j;

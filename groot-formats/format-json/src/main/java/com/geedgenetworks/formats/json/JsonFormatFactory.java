@@ -1,12 +1,12 @@
 package com.geedgenetworks.formats.json;
 
-import com.geedgenetworks.common.Event;
-import com.geedgenetworks.core.connector.format.DecodingFormat;
-import com.geedgenetworks.core.connector.format.EncodingFormat;
-import com.geedgenetworks.core.factories.DecodingFormatFactory;
-import com.geedgenetworks.core.factories.EncodingFormatFactory;
-import com.geedgenetworks.core.factories.TableFactory;
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.api.connector.serialization.DecodingFormat;
+import com.geedgenetworks.api.connector.serialization.EncodingFormat;
+import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.factory.DecodingFormatFactory;
+import com.geedgenetworks.api.factory.EncodingFormatFactory;
+import com.geedgenetworks.api.factory.ConnectorFactory;
+import com.geedgenetworks.api.connector.type.StructType;
 import org.apache.flink.api.common.serialization.DeserializationSchema;
 import org.apache.flink.api.common.serialization.SerializationSchema;
 import org.apache.flink.configuration.ConfigOption;
@@ -22,12 +22,12 @@ public class JsonFormatFactory implements DecodingFormatFactory, EncodingFormatF
     public static final String IDENTIFIER = "json";
 
     @Override
-    public String factoryIdentifier() {
+    public String type() {
         return IDENTIFIER;
     }
 
     @Override
-    public DecodingFormat createDecodingFormat(TableFactory.Context context, ReadableConfig formatOptions) {
+    public DecodingFormat createDecodingFormat(ConnectorFactory.Context context, ReadableConfig formatOptions) {
         final boolean ignoreParseErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
         return new DecodingFormat(){
             @Override
@@ -39,7 +39,7 @@ public class JsonFormatFactory implements DecodingFormatFactory, EncodingFormatF
     }
 
     @Override
-    public EncodingFormat createEncodingFormat(TableFactory.Context context, ReadableConfig formatOptions) {
+    public EncodingFormat createEncodingFormat(ConnectorFactory.Context context, ReadableConfig formatOptions) {
         return new EncodingFormat() {
             @Override
             public SerializationSchema<Event> createRuntimeEncoder(StructType dataType) {

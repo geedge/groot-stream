@@ -1,12 +1,12 @@
 package com.geedgenetworks.formats.protobuf;
 
 import com.geedgenetworks.shaded.com.google.protobuf.Descriptors;
-import com.geedgenetworks.core.types.*;
-import com.geedgenetworks.core.types.StructType.StructField;
 import com.geedgenetworks.shaded.com.google.protobuf.CodedInputStream;
 import com.geedgenetworks.shaded.com.google.protobuf.Descriptors.Descriptor;
 import com.geedgenetworks.shaded.com.google.protobuf.Descriptors.FieldDescriptor;
 import com.geedgenetworks.shaded.com.google.protobuf.WireFormat;
+import com.geedgenetworks.api.connector.type.*;
+import com.geedgenetworks.api.connector.type.StructType.StructField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.util.Preconditions;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class SchemaConverters {
         return new StructType(fields);
     }
 
-    private static StructField structFieldFor(FieldDescriptor fd) {
+    private static StructType.StructField structFieldFor(FieldDescriptor fd) {
         WireFormat.FieldType type = fd.getLiteType();
         DataType dataType;
         switch (type) {

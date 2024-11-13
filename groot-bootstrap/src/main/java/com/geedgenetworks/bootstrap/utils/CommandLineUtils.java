@@ -4,7 +4,7 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import com.geedgenetworks.bootstrap.command.CommandArgs;
 import com.geedgenetworks.bootstrap.command.UsageFormatter;
-import com.geedgenetworks.common.Constants;
+import com.geedgenetworks.common.config.Constants;
 
 public final class CommandLineUtils {
     private CommandLineUtils() {

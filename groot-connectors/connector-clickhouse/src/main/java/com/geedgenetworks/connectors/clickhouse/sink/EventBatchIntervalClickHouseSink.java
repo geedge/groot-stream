@@ -1,12 +1,12 @@
 package com.geedgenetworks.connectors.clickhouse.sink;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.common.Event;
 
-import com.geedgenetworks.core.connector.schema.Schema;
-import com.geedgenetworks.core.connector.schema.SchemaChangeAware;
-import com.geedgenetworks.core.metrics.InternalMetrics;
-import com.geedgenetworks.core.types.StructType;
+import com.geedgenetworks.api.metrics.InternalMetrics;
+import com.geedgenetworks.api.connector.event.Event;
+import com.geedgenetworks.api.connector.schema.Schema;
+import com.geedgenetworks.api.connector.schema.SchemaChangeAware;
+import com.geedgenetworks.api.connector.type.StructType;
 import com.github.housepower.data.Block;
 import org.apache.flink.configuration.Configuration;
 

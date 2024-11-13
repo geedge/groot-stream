@@ -1,8 +1,8 @@
 package com.geedgenetworks.formats.msgpack;
 
 import com.alibaba.fastjson2.JSON;
-import com.geedgenetworks.core.types.StructType;
-import com.geedgenetworks.core.types.Types;
+import com.geedgenetworks.api.connector.type.StructType;
+import com.geedgenetworks.api.connector.type.Types;
 import org.junit.jupiter.api.Test;
 import org.msgpack.core.MessageBufferPacker;
 import org.msgpack.core.MessagePack;
