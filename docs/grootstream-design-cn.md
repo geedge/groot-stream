@@ -2193,7 +2193,13 @@ Parameters：
 | class_name           | 主类名     | String        | Y  |         |
 | jar_name             | jar包名   | String        | Y  |         |
 
-# 实现原则
+# 设计原则
+
+## 模块之间依赖关系
+![Groot Stream Modules](images/groot-stream-module.png)
+
+## 动态加载工厂模式
+![Groot Stream Factories](images/groot-stream-factory.png)
 
 - 包命名: com.geedgenetworks. [模块名].XXX
 - 统一依赖管理：第三方类库的依赖声明在项目的顶层 POM 文件（也称为 Project POM）中，各个子模块继承这些依赖，确保整个项目共享相同的依赖。
