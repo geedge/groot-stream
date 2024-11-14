@@ -1,7 +1,7 @@
 package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson.JSONObject;
-import com.geedgenetworks.bootstrap.enums.OperatorType;
+import com.geedgenetworks.bootstrap.enums.JobStage;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.utils.SchemaConfigParse;
 import com.geedgenetworks.common.config.Constants;
@@ -31,7 +31,7 @@ import java.util.Map;
  */
 @Slf4j
 public class SinkExecutor extends AbstractExecutor<JobRuntimeEnvironment, Config> {
-    private static final String PROCESSOR_TYPE = OperatorType.SINK.getType();
+    private static final String PROCESSOR_TYPE = JobStage.SINK.getType();
     private Map<String, SinkConfig> operators;
     public SinkExecutor(JobRuntimeEnvironment environment, Config jobConfig) {
         super(environment, jobConfig);

@@ -1,7 +1,7 @@
 package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.geedgenetworks.bootstrap.enums.OperatorType;
+import com.geedgenetworks.bootstrap.enums.JobStage;
 import com.geedgenetworks.bootstrap.exception.ConfigCheckException;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.utils.SchemaConfigParse;
@@ -36,7 +36,7 @@ import java.util.Map;
  */
 @Slf4j
 public class SourceExecutor extends AbstractExecutor<JobRuntimeEnvironment, Config> {
-    private static final String PROCESSOR_TYPE = OperatorType.SOURCE.getType();
+    private static final String PROCESSOR_TYPE = JobStage.SOURCE.getType();
     private Map<String, SourceConfig> operators;
     public SourceExecutor(JobRuntimeEnvironment environment, Config jobConfig) {
         super(environment, jobConfig);

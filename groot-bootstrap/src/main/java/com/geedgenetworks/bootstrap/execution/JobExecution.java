@@ -1,7 +1,7 @@
 package com.geedgenetworks.bootstrap.execution;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.geedgenetworks.bootstrap.enums.OperatorType;
+import com.geedgenetworks.bootstrap.enums.JobStage;
 import com.geedgenetworks.bootstrap.exception.JobExecuteException;
 import com.geedgenetworks.bootstrap.main.GrootStreamRunner;
 import com.geedgenetworks.common.config.Constants;
@@ -147,6 +147,7 @@ public class JobExecution {
         Map<String, Object> processingPipelines = Maps.newHashMap();
         Map<String, Object> postprocessingPipelines = Maps.newHashMap();
 
+
         if (config.hasPath(Constants.SOURCES)) {
             sources = config.getConfig(Constants.SOURCES).root().unwrapped();
         }
@@ -180,21 +181,21 @@ public class JobExecution {
 
         for (JobTopologyNode jobTopologyNode : jobTopologyNodes) {
             if (sources.containsKey(jobTopologyNode.getName())) {
-                jobTopologyNode.setType(OperatorType.SOURCE);
+                jobTopologyNode.setType(JobStage.SOURCE);
             } else if (sinks.containsKey(jobTopologyNode.getName())) {
-                jobTopologyNode.setType(OperatorType.SINK);
+                jobTopologyNode.setType(JobStage.SINK);
             } else if (filters.containsKey(jobTopologyNode.getName())) {
-                jobTopologyNode.setType(OperatorType.FILTER);
+                jobTopologyNode.setType(JobStage.FILTER);
             } else if (splits.containsKey(jobTopologyNode.getName())) {
-                jobTopologyNode.setType(OperatorType.SPLIT);
+                jobTopologyNode.setType(JobStage.SPLIT);
             } else if (preprocessingPipelines.containsKey(jobTopologyNode.getName())) {
-                jobTopologyNode.setType(OperatorType.PREPROCESSING);
+                jobTopologyNode.setType(JobStage.PREPROCESSING);
             } else if (processingPipelines.containsKey(jobTopologyNode.getName())) {
-                jobTopologyNode.setType(OperatorType.PROCESSING);
+                jobTopologyNode.setType(JobStage.PROCESSING);
             } else if (postprocessingPipelines.containsKey(jobTopologyNode.getName())) {
-                jobTopologyNode.setType(OperatorType.POSTPROCESSING);
+                jobTopologyNode.setType(JobStage.POSTPROCESSING);
             } else {
-                throw new JobExecuteException("unsupported process type " + jobTopologyNode.getName());
+                throw new JobExecuteException("Unsupported operator type " + jobTopologyNode.getName());
             }
         }
 
@@ -208,7 +209,7 @@ public class JobExecution {
             jobRuntimeEnvironment.registerPlugin(jarPaths);
         }
         List<JobTopologyNode> sourceJobTopologyNodes = jobTopologyNodes
-                .stream().filter(v -> v.getType().name().equals(OperatorType.SOURCE.name())).collect(Collectors.toList());
+                .stream().filter(v -> v.getType().name().equals(JobStage.SOURCE.name())).collect(Collectors.toList());
 
         DataStream<Event> dataStream = null;
 
@@ -238,14 +239,14 @@ public class JobExecution {
         JobTopologyNode jobTopologyNode = getNode(downstreamNodeName).orElseGet(() -> {
             throw new JobExecuteException("Can't find downstream node " + downstreamNodeName);
         });
-        if (jobTopologyNode.getType().name().equals(OperatorType.FILTER.name())) {
+        if (jobTopologyNode.getType().name().equals(JobStage.FILTER.name())) {
             if (nodeNameWithSplitTags.containsKey(jobTopologyNode.getName())) {
                 dataStream = processorExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream)
                                 .getSideOutput(new OutputTag<Event>(nodeNameWithSplitTags.get(jobTopologyNode.getName())) {}), jobTopologyNode);
             } else {
                 dataStream = processorExecutor.execute(dataStream, jobTopologyNode);
             }
-        } else if (jobTopologyNode.getType().name().equals(OperatorType.SPLIT.name())) {
+        } else if (jobTopologyNode.getType().name().equals(JobStage.SPLIT.name())) {
             if (jobTopologyNode.getTags().size() == jobTopologyNode.getDownstream().size()) {
                 for (int i = 0; i < jobTopologyNode.getDownstream().size(); i++) {
                     nodeNameWithSplitTags.put(jobTopologyNode.getDownstream().get(i), jobTopologyNode.getTags().get(i));
@@ -255,28 +256,28 @@ public class JobExecution {
                 throw new JobExecuteException("split node downstream size not equal tags size");
             }
             dataStream = processorExecutor.execute(dataStream, jobTopologyNode);
-        } else if (jobTopologyNode.getType().name().equals(OperatorType.PREPROCESSING.name())) {
+        } else if (jobTopologyNode.getType().name().equals(JobStage.PREPROCESSING.name())) {
             if (nodeNameWithSplitTags.containsKey(jobTopologyNode.getName())) {
                 dataStream = processorExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(nodeNameWithSplitTags.get(jobTopologyNode.getName())){
                 }), jobTopologyNode);
             } else {
                 dataStream = processorExecutor.execute(dataStream, jobTopologyNode);
             }
-        } else if (jobTopologyNode.getType().name().equals(OperatorType.PROCESSING.name())) {
+        } else if (jobTopologyNode.getType().name().equals(JobStage.PROCESSING.name())) {
             if (nodeNameWithSplitTags.containsKey(jobTopologyNode.getName())) {
                 dataStream = processorExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(nodeNameWithSplitTags.get(jobTopologyNode.getName())) {
                 }), jobTopologyNode);
             } else {
                 dataStream = processorExecutor.execute(dataStream, jobTopologyNode);
             }
-        } else if (jobTopologyNode.getType().name().equals(OperatorType.POSTPROCESSING.name())) {
+        } else if (jobTopologyNode.getType().name().equals(JobStage.POSTPROCESSING.name())) {
             if (nodeNameWithSplitTags.containsKey(jobTopologyNode.getName())) {
                 dataStream = processorExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(nodeNameWithSplitTags.get(jobTopologyNode.getName())) {
                 }), jobTopologyNode);
             } else {
                 dataStream = processorExecutor.execute(dataStream, jobTopologyNode);
             }
-        } else if (jobTopologyNode.getType().name().equals(OperatorType.SINK.name())) {
+        } else if (jobTopologyNode.getType().name().equals(JobStage.SINK.name())) {
             if (nodeNameWithSplitTags.containsKey(jobTopologyNode.getName())) {
                 dataStream = sinkExecutor.execute(((SingleOutputStreamOperator<Event>) dataStream).getSideOutput(new OutputTag<Event>(nodeNameWithSplitTags.get(jobTopologyNode.getName())) {
                 }), jobTopologyNode);

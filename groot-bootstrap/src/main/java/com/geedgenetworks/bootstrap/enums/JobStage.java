@@ -1,6 +1,6 @@
 package com.geedgenetworks.bootstrap.enums;
 
-public enum OperatorType {
+public enum JobStage {
     SOURCE("source"),
     FILTER("filter"),
     SPLIT("split"),
@@ -13,10 +13,10 @@ public enum OperatorType {
     public String getType() {
         return type;
     }
-    OperatorType(String type) {this.type = type;}
+    JobStage(String type) {this.type = type;}
 
-    public static OperatorType fromType(String type) {
-        for (OperatorType stage : values()) {
+    public static JobStage fromType(String type) {
+        for (JobStage stage : values()) {
             if (stage.type.equalsIgnoreCase(type)) {
                 return stage;
             }
