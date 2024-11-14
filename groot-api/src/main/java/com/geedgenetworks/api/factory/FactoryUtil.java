@@ -100,7 +100,7 @@ public final class FactoryUtil {
 
         final List<Factory> matchingFactories =
                 foundFactories.stream()
-                        .filter(f -> f.type().equals(type))
+                        .filter(f -> f.supportsType(type))
                         .collect(Collectors.toList());
 
         if (matchingFactories.isEmpty()) {

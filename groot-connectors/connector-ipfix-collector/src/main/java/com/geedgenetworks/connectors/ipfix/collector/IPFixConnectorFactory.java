@@ -32,6 +32,11 @@ public class IPFixConnectorFactory implements SourceFactory {
     }
 
     @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
+    }
+
+    @Override
     public Set<ConfigOption<?>> requiredOptions() {
         final Set<ConfigOption<?>> options = new HashSet<>();
         options.add(IPFixConnectorOptions.PORT_RANGE);

@@ -51,7 +51,7 @@ public class FilterFunction extends RichFilterFunction<Event> {
 
         } catch (ExpressionRuntimeException e){
             isFilter = false;
-            log.error("Invalid filter ! expression=" +expression);
+            log.error("Invalid filter expression: {}, {}", expression, e);
             internalMetrics.incrementErrorEvents();
         }
         catch (RuntimeException ignored) {

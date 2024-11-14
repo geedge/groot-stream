@@ -31,6 +31,11 @@ public class KafkaConnectorFactory implements SourceFactory, SinkFactory {
     }
 
     @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
+    }
+
+    @Override
     public SourceProvider getSourceProvider(Context context) {
         final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         // 获取valueDecodingFormat

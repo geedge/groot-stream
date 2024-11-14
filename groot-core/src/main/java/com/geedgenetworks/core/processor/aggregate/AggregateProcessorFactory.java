@@ -5,13 +5,20 @@ import com.geedgenetworks.api.factory.ProcessorFactory;
 
 public class AggregateProcessorFactory implements ProcessorFactory {
 
-    @Override
-    public String type() {
-        return "aggregate";
-    }
+    private static final String IDENTIFIER = "aggregate";
 
     @Override
     public Processor<?> createProcessor() {
         return new AggregateProcessor();
+    }
+
+    @Override
+    public String type() {
+        return IDENTIFIER;
+    }
+
+    @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
     }
 }

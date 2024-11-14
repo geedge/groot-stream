@@ -8,7 +8,7 @@ sources:
 
 filters:
   filter_operator:
-    type: aviator
+    type: filter
     properties:
       expression: event.server_ip != '12.12.12.12'
 

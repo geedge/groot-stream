@@ -5,15 +5,14 @@ public final class Constants {
     public static final String DEFAULT_JOB_NAME = "groot-stream-job";
     public static final String SOURCES = "sources";
     public static final String FILTERS = "filters";
+    public static final String SPLITS = "splits";
     public static final String PREPROCESSING_PIPELINES = "preprocessing_pipelines";
     public static final String PROCESSING_PIPELINES = "processing_pipelines";
     public static final String POSTPROCESSING_PIPELINES = "postprocessing_pipelines";
     public static final String SINKS = "sinks";
     public static final int SYSTEM_EXIT_CODE = 2618;
     public static final String APPLICATION = "application";
-
     public static final String PROPERTIES = "properties";
-    public static final String SPLITS = "splits";
     public static final String APPLICATION_ENV = "env";
     public static final String APPLICATION_TOPOLOGY = "topology";
     public static final String JOB_NAME = "name";

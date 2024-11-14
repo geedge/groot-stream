@@ -23,6 +23,11 @@ public class FileConnectorFactory implements SourceFactory {
     }
 
     @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
+    }
+
+    @Override
     public SourceProvider getSourceProvider(Context context) {
         final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         DecodingFormat decodingFormat = helper.discoverDecodingFormat(DecodingFormatFactory.class, FactoryUtil.FORMAT);

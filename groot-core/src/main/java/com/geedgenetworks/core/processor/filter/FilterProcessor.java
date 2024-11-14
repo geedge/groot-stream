@@ -8,7 +8,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-public class AviatorFilterProcessor implements Processor<FilterConfig> {
+public class FilterProcessor implements Processor<FilterConfig> {
 
     @Override
     public DataStream<Event> process(StreamExecutionEnvironment env,

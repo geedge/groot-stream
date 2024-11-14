@@ -27,6 +27,11 @@ public class RawFormatFactory implements DecodingFormatFactory, EncodingFormatFa
     }
 
     @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
+    }
+
+    @Override
     public DecodingFormat createDecodingFormat(ConnectorFactory.Context context, ReadableConfig formatOptions) {
         return new DecodingFormat(){
             @Override

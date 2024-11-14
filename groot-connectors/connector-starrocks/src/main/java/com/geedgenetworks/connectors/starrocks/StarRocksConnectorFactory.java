@@ -26,6 +26,11 @@ public class StarRocksConnectorFactory implements SinkFactory {
     }
 
     @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
+    }
+
+    @Override
     public SinkProvider getSinkProvider(Context context) {
         final FactoryUtil.TableFactoryHelper helper = FactoryUtil.createTableFactoryHelper(this, context);
         helper.validateExcept(CONNECTION_INFO_PREFIX);

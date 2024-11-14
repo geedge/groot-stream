@@ -21,6 +21,11 @@ public class CollectTableFactory implements SinkFactory {
     }
 
     @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
+    }
+
+    @Override
     public SinkProvider getSinkProvider(Context context) {
 
         return new SinkProvider(){

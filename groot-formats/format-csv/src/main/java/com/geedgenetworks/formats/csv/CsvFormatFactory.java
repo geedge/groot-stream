@@ -30,6 +30,11 @@ public class CsvFormatFactory implements DecodingFormatFactory, EncodingFormatFa
     }
 
     @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
+    }
+
+    @Override
     public DecodingFormat createDecodingFormat(ConnectorFactory.Context context, ReadableConfig formatOptions) {
         FactoryUtil.validateFormatFactoryOptions(this, formatOptions);
         validateFormatOptions(formatOptions);

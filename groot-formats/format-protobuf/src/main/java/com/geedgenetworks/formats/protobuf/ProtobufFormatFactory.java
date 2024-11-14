@@ -27,6 +27,11 @@ public class ProtobufFormatFactory implements DecodingFormatFactory, EncodingFor
     }
 
     @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
+    }
+
+    @Override
     public DecodingFormat createDecodingFormat(ConnectorFactory.Context context, ReadableConfig formatOptions) {
         final String messageName = formatOptions.get(MESSAGE_NAME);
         final String descFilePath = formatOptions.get(DESC_FILE_PATH);

@@ -27,6 +27,11 @@ public class JsonFormatFactory implements DecodingFormatFactory, EncodingFormatF
     }
 
     @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
+    }
+
+    @Override
     public DecodingFormat createDecodingFormat(ConnectorFactory.Context context, ReadableConfig formatOptions) {
         final boolean ignoreParseErrors = formatOptions.get(IGNORE_PARSE_ERRORS);
         return new DecodingFormat(){

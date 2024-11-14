@@ -4,6 +4,8 @@ import com.geedgenetworks.api.processor.Processor;
 import com.geedgenetworks.api.factory.ProcessorFactory;
 
 public class SplitProcessorFactory implements ProcessorFactory {
+    private static final String IDENTIFIER = "split";
+
 
     @Override
     public Processor<?> createProcessor() {
@@ -12,7 +14,13 @@ public class SplitProcessorFactory implements ProcessorFactory {
 
     @Override
     public String type() {
-        return "split";
+        return IDENTIFIER;
     }
+
+    @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
+    }
+
 
 }

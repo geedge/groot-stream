@@ -25,6 +25,11 @@ public class MessagePackFormatFactory implements DecodingFormatFactory, Encoding
     }
 
     @Override
+    public boolean supportsType(String type) {
+        return IDENTIFIER.equalsIgnoreCase(type);
+    }
+
+    @Override
     public DecodingFormat createDecodingFormat(ConnectorFactory.Context context, ReadableConfig formatOptions) {
 
         return new DecodingFormat() {
