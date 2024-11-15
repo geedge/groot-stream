@@ -57,7 +57,7 @@ public class SplitFunction extends ProcessFunction<Event, Event> {
                     ctx.output(route.getOutputTag(), event);
                 }
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             internalMetrics.incrementErrorEvents();
             log.error("error in split function", e);
         }

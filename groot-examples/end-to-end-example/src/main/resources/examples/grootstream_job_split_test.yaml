@@ -10,21 +10,28 @@ sources:
       json.ignore.parse.errors: false
 sinks:
   collect_sink:
-    type: collect
+    type: print
     properties:
       format: json
 splits:
-  test_split:
+  test_split_a:
     type: split
     rules:
-      - name: table_processor
+      - tag: http_a_tag
         expression: event.decoded_as == 'HTTP'
-      - name: pre_etl_processor
+      - tag: dns_a_tag
+        expression: event.decoded_as == 'DNS'
+  test_split_b:
+    type: split
+    rules:
+      - tag: base_b_tag
+        expression: event.decoded_as == 'BASE'
+      - tag: dns_b_tag
         expression: event.decoded_as == 'DNS'
 
 postprocessing_pipelines:
   pre_etl_processor: # [object] Processing Pipeline
-    type: com.geedgenetworks.core.processor.projection.ProjectionProcessorImpl
+    type: projection
     remove_fields: [fields,tags]
     output_fields:
     functions: # [array of object] Function List
@@ -45,7 +52,7 @@ postprocessing_pipelines:
           #  parent_fields: [tags]
           #  rename_fields:
           #     tags: tags
-          rename_expression: key =string.replace_all(key,'tags.','');key =string.replace_all(key,'fields.','');return key;
+          rename_expression: key=string.replace_all(key,'tags.','');key=string.replace_all(key,'fields.','');return key;
 
 
       - function: UNIX_TIMESTAMP_CONVERTER
@@ -81,16 +88,22 @@ application: # [object] Application Configuration
   topology: # [array of object] Node List. It will be used build data flow for job dag graph.
     - name: inline_source # [string] Node Name, must be unique. It will be used as the name of the corresponding Flink operator. eg. kafka_source the processor type as SOURCE.
       parallelism: 1 # [number] Operator-Level Parallelism.
-      downstream: [test_split,collect_sink]
-    - name: test_split
+      downstream: [test_split_a, test_split_b]
+    - name: test_split_a
       parallelism: 1
+      tags: [http_a_tag,dns_a_tag]
       downstream: [ table_processor,pre_etl_processor ]
+    - name: test_split_b
+      parallelism: 1
+      tags: [ base_b_tag]
+      downstream: [ collect_sink ]
     - name: pre_etl_processor
       parallelism: 1
       downstream: [ collect_sink ]
     - name: table_processor
       parallelism: 1
       downstream: [ collect_sink ]
+
     - name: collect_sink
       parallelism: 1
 

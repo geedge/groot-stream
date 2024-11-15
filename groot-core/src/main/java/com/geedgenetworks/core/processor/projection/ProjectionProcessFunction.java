@@ -10,7 +10,7 @@ import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseScheduler;
 import com.geedgenetworks.api.common.udf.ScalarFunction;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.common.udf.UdfEntity;
+import com.geedgenetworks.api.common.udf.UDFEntity;
 import com.geedgenetworks.api.metrics.InternalMetrics;
 import com.geedgenetworks.api.event.Event;
 import com.google.common.collect.Lists;
@@ -33,7 +33,7 @@ import java.util.Map;
 @Slf4j
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     private final ProjectionConfig projectionConfig;
-    private LinkedList<UdfEntity> functions;
+    private LinkedList<UDFEntity> functions;
     private transient InternalMetrics internalMetrics;
 
 
@@ -57,7 +57,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
             KnowledgeBaseScheduler.startSchedulerForKnowledgeBase(Integer.parseInt(commonConfig.getPropertiesConfig().getOrDefault(Constants.SYSPROP_GROOTSTREAM_KB_SCHEDULER_INTERVAL_NAME, "5")));
             for (UDFContext udfContext : udfContexts) {
                 Expression filterExpression = null;
-                UdfEntity udfEntity = new UdfEntity();
+                UDFEntity udfEntity = new UDFEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
                     Class<?> cls = Class.forName(udfClassReflect.get(udfContext.getFunction()));
@@ -93,7 +93,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
         internalMetrics.incrementInEvents();
         int errorCount = 0;
-        for (UdfEntity udfEntity : functions) {
+        for (UDFEntity udfEntity : functions) {
 
             try {
                 if (event.isDropped()) {
@@ -140,7 +140,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     @Override
     public void close() throws Exception {
 
-        for (UdfEntity udfEntity : functions) {
+        for (UDFEntity udfEntity : functions) {
             udfEntity.getScalarFunction().close();
         }
         KnowledgeBaseScheduler.decrement();

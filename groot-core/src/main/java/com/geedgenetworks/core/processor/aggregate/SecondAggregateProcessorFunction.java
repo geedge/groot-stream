@@ -6,7 +6,7 @@ import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.common.udf.UdfEntity;
+import com.geedgenetworks.api.common.udf.UDFEntity;
 import com.geedgenetworks.api.common.udf.AggregateFunction;
 import com.google.common.collect.Lists;
 import com.googlecode.aviator.AviatorEvaluator;
@@ -28,7 +28,7 @@ import static com.geedgenetworks.core.utils.UDFUtils.getClassReflect;
 public class SecondAggregateProcessorFunction implements org.apache.flink.api.common.functions.AggregateFunction<Accumulator, Accumulator, Accumulator> {
     private final List<UDFContext> udfContexts;
     private final List<String> udfClassNameLists;
-    private final LinkedList<UdfEntity> functions;
+    private final LinkedList<UDFEntity> functions;
 
     public SecondAggregateProcessorFunction(StreamExecutionEnvironment env, AggregateConfig aggregateConfig) {
         udfClassNameLists = JSON.parseObject(env.getConfig().getGlobalJobParameters().toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
@@ -41,7 +41,7 @@ public class SecondAggregateProcessorFunction implements org.apache.flink.api.co
         try {
             for (UDFContext udfContext : udfContexts) {
                 Expression filterExpression = null;
-                UdfEntity udfEntity = new UdfEntity();
+                UDFEntity udfEntity = new UDFEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
                     Class<?> cls = Class.forName(udfClassReflect.get(udfContext.getFunction()));
@@ -66,7 +66,7 @@ public class SecondAggregateProcessorFunction implements org.apache.flink.api.co
                 }
 
             }
-            for (UdfEntity udfEntity : functions) {
+            for (UDFEntity udfEntity : functions) {
                 udfEntity.getAggregateFunction().open(udfEntity.getUdfContext());
             }
         } catch (Exception e) {
@@ -80,7 +80,7 @@ public class SecondAggregateProcessorFunction implements org.apache.flink.api.co
         Map<String, Object> map = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(map);
-        for (UdfEntity udfEntity : functions) {
+        for (UDFEntity udfEntity : functions) {
             udfEntity.getAggregateFunction().initAccumulator(accumulator);
         }
         return accumulator;
@@ -93,7 +93,7 @@ public class SecondAggregateProcessorFunction implements org.apache.flink.api.co
 
     @Override
     public Accumulator getResult(Accumulator accumulator) {
-        for (UdfEntity udafEntity : functions) {
+        for (UDFEntity udafEntity : functions) {
             try {
                 udafEntity.getAggregateFunction().getResult(accumulator);
             } catch (Exception e) {
@@ -106,7 +106,7 @@ public class SecondAggregateProcessorFunction implements org.apache.flink.api.co
     @Override
     public Accumulator merge(Accumulator acc1, Accumulator acc2) {
         acc1.setInEvents(acc1.getInEvents() + 1);
-        for (UdfEntity udafEntity : functions) {
+        for (UDFEntity udafEntity : functions) {
             try {
                 udafEntity.getAggregateFunction().merge(acc1, acc2);
             } catch (ExpressionRuntimeException ignore) {

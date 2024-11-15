@@ -72,7 +72,7 @@ public class GrootStreamConfigBuilder extends AbstractYamlConfigBuilder {
             grootStreamRoot = yamlRootNode;
         }
 
-        YamlDomChecker.check(grootStreamRoot);
+        YamlDomChecker.check(grootStreamRoot, null);
 
         Node w3cRootNode = asW3cNode(grootStreamRoot);
         replaceVariables(w3cRootNode);

@@ -7,7 +7,7 @@ import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.api.common.udf.TableFunction;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.common.udf.UdfEntity;
+import com.geedgenetworks.api.common.udf.UDFEntity;
 import com.geedgenetworks.api.metrics.InternalMetrics;
 import com.geedgenetworks.api.event.Event;
 import com.google.common.collect.Lists;
@@ -27,7 +27,7 @@ import static com.geedgenetworks.core.utils.UDFUtils.filterExecute;
 import static com.geedgenetworks.core.utils.UDFUtils.getClassReflect;
 @Slf4j
 public  class TableProcessorFunction extends RichFlatMapFunction<Event, Event> {
-    private LinkedList<UdfEntity> functions;
+    private LinkedList<UDFEntity> functions;
     private final TableConfig tableConfig;
     private transient InternalMetrics internalMetrics;
 
@@ -49,7 +49,7 @@ public  class TableProcessorFunction extends RichFlatMapFunction<Event, Event> {
             Map<String, String> udfClassReflect = getClassReflect(udfClassNameLists);
             for (UDFContext udfContext : udfContexts) {
                 Expression filterExpression = null;
-                UdfEntity udfEntity = new UdfEntity();
+                UDFEntity udfEntity = new UDFEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
                     Class<?> cls = Class.forName(udfClassReflect.get(udfContext.getFunction()));
@@ -86,7 +86,7 @@ public  class TableProcessorFunction extends RichFlatMapFunction<Event, Event> {
         int errorCount = 0;
         List<Event> events = new ArrayList<>();
         events.add(event);
-        for (UdfEntity udfEntity : functions) {
+        for (UDFEntity udfEntity : functions) {
             List<Event> newEvents = new ArrayList<>();
             for(int i=0;i<events.size();i++) {
                 try {

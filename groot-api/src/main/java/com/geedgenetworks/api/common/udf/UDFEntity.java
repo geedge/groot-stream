@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class UdfEntity implements Serializable {
+public class UDFEntity implements Serializable {
     private ScalarFunction scalarFunction;
     private AggregateFunction aggregateFunction;
     private TableFunction tableFunction;

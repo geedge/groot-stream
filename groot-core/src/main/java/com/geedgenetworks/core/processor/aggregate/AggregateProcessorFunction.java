@@ -7,7 +7,7 @@ import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.api.common.udf.AggregateFunction;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.common.udf.UdfEntity;
+import com.geedgenetworks.api.common.udf.UDFEntity;
 import com.geedgenetworks.api.event.Event;
 import com.google.common.collect.Lists;
 import com.googlecode.aviator.AviatorEvaluator;
@@ -30,7 +30,7 @@ import static com.geedgenetworks.core.utils.UDFUtils.getClassReflect;
 public class AggregateProcessorFunction implements org.apache.flink.api.common.functions.AggregateFunction<Event, Accumulator, Accumulator> {
     private final List<UDFContext> udfContexts;
     private final List<String> udfClassNameLists;
-    private final LinkedList<UdfEntity> functions;
+    private final LinkedList<UDFEntity> functions;
 
     public AggregateProcessorFunction(StreamExecutionEnvironment env, AggregateConfig aggregateConfig) {
         udfClassNameLists = JSON.parseObject(env.getConfig().getGlobalJobParameters().toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
@@ -43,7 +43,7 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
         try {
             for (UDFContext udfContext : udfContexts) {
                 Expression filterExpression = null;
-                UdfEntity udfEntity = new UdfEntity();
+                UDFEntity udfEntity = new UDFEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
                     Class<?> cls = Class.forName(udfClassReflect.get(udfContext.getFunction()));
@@ -68,7 +68,7 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
                 }
 
             }
-            for (UdfEntity udfEntity : functions) {
+            for (UDFEntity udfEntity : functions) {
                 udfEntity.getAggregateFunction().open(udfEntity.getUdfContext());
             }
         } catch (Exception e) {
@@ -81,7 +81,7 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
         Map<String, Object> map = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(map);
-        for (UdfEntity udfEntity : functions) {
+        for (UDFEntity udfEntity : functions) {
             udfEntity.getAggregateFunction().initAccumulator(accumulator);
         }
         return accumulator;
@@ -90,7 +90,7 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
     public Accumulator add(Event event, Accumulator accumulator) {
 
         accumulator.setInEvents(accumulator.getInEvents()+1);
-        for (UdfEntity udafEntity : functions) {
+        for (UDFEntity udafEntity : functions) {
             try {
                 boolean result = udafEntity.getFilterExpression() != null ? filterExecute(udafEntity.getFilterExpression(), udafEntity.getFilterExpression().newEnv("event", event.getExtractedFields())) : true;
                 if (result) {
@@ -109,7 +109,7 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
 
     @Override
     public Accumulator getResult(Accumulator accumulator) {
-        for (UdfEntity udafEntity : functions) {
+        for (UDFEntity udafEntity : functions) {
             try {
                 udafEntity.getAggregateFunction().getResult(accumulator);
             } catch (Exception e) {
