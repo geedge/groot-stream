@@ -1,5 +1,6 @@
 package com.geedgenetworks.core.processor.split;
 
+import com.geedgenetworks.api.expressions.AviatorExecutor;
 import com.geedgenetworks.api.metrics.InternalMetrics;
 import com.geedgenetworks.api.event.Event;
 import com.googlecode.aviator.AviatorEvaluator;
@@ -34,13 +35,7 @@ public class SplitFunction extends ProcessFunction<Event, Event> {
         this.internalMetrics = new InternalMetrics(getRuntimeContext());
         this.rules = splitConfig.getRules();
         for(RuleContext rule : rules){
-            String expression = rule.getExpression();
-            AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
-            instance.setCachedExpressionByDefault(true);
-            instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
-            instance.setFunctionMissing(null);
-            Expression compiledExp = instance.compile(expression, true);
-            rule.setCompiledExpression(compiledExp);
+            rule.setAviatorExecutor(new AviatorExecutor(rule.getExpression()));
             OutputTag<Event> outputTag = new OutputTag<>(rule.getTag()){};
             rule.setOutputTag(outputTag);
         }
@@ -52,7 +47,7 @@ public class SplitFunction extends ProcessFunction<Event, Event> {
         try {
             internalMetrics.incrementInEvents();
             for (RuleContext route : rules){
-                boolean result = route.getExpression() != null ? (filterExecute(route.getCompiledExpression(), route.getCompiledExpression().newEnv("event", event.getExtractedFields()))) : true;
+                boolean result = route.getAviatorExecutor() != null ? route.getAviatorExecutor().filter(event.getExtractedFields()): true;
                 if (result) {
                     ctx.output(route.getOutputTag(), event);
                 }
@@ -63,15 +58,4 @@ public class SplitFunction extends ProcessFunction<Event, Event> {
         }
     }
 
-    public static Boolean filterExecute(Expression expression, Map<String, Object> map) {
-
-        boolean result;
-        Object object = expression.execute(map);
-        if (object != null) {
-            result = (Boolean) object;
-        } else {
-            throw new ExpressionRuntimeException();
-        }
-        return result;
-    }
 }

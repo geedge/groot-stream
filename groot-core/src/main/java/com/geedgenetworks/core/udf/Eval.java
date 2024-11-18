@@ -2,8 +2,8 @@ package com.geedgenetworks.core.udf;
 
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.core.expressions.Calc;
-import com.geedgenetworks.core.expressions.EvalExecutor;
+import com.geedgenetworks.api.expressions.Calc;
+import com.geedgenetworks.api.expressions.AviatorExecutor;
 import com.geedgenetworks.api.common.udf.ScalarFunction;
 import com.geedgenetworks.api.common.udf.UDFContext;
 import com.geedgenetworks.api.event.Event;
@@ -30,7 +30,7 @@ public class Eval implements ScalarFunction {
         String expr = (String) udfContext.getParameters().get("value_expression");
         List<String> outputField = udfContext.getOutputFields();
         output = outputField.get(0);
-        calc = new EvalExecutor(expr);
+        calc = new AviatorExecutor(expr);
     }
 
     @Override

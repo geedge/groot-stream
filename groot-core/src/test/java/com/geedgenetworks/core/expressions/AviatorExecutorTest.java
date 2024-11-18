@@ -1,5 +1,7 @@
 package com.geedgenetworks.core.expressions;
 
+import com.geedgenetworks.api.expressions.AviatorExecutor;
+import com.geedgenetworks.api.expressions.SyntaxErrorException;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -11,7 +13,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class EvalExecutorTest {
+class AviatorExecutorTest {
 
     private static Map<String, Object> origin;
 
@@ -40,15 +42,15 @@ class EvalExecutorTest {
     @Test
     public void testValueExpression() throws Exception {
         // constant
-        assertEquals(new EvalExecutor("'name'").eval(origin), "name");
-        assertEquals(new EvalExecutor("5").eval(origin), 5L);
-        assertEquals(new EvalExecutor("true").eval(origin), true);
-        assertEquals(new EvalExecutor("false").eval(origin), false);
+        assertEquals(new AviatorExecutor("'name'").eval(origin), "name");
+        assertEquals(new AviatorExecutor("5").eval(origin), 5L);
+        assertEquals(new AviatorExecutor("true").eval(origin), true);
+        assertEquals(new AviatorExecutor("false").eval(origin), false);
 
         // variable
-        assertEquals(new EvalExecutor("common_client_ip").eval(origin),
+        assertEquals(new AviatorExecutor("common_client_ip").eval(origin),
                 origin.get("common_client_ip"));
-        assertEquals(new EvalExecutor("common_client_port").eval(origin),
+        assertEquals(new AviatorExecutor("common_client_port").eval(origin),
                 origin.get("common_client_port"));
     }
 
@@ -61,15 +63,15 @@ class EvalExecutorTest {
         int commonC2sByteNum = (int) origin.get("common_c2s_byte_num");
         int commonS2cByteNum = (int) origin.get("common_s2c_byte_num");
         assertEquals(
-                new EvalExecutor("common_client_port > common_server_port " +
+                new AviatorExecutor("common_client_port > common_server_port " +
                         "? common_c2s_pkt_num : common_s2c_pkt_num").eval(origin),
                 commonClientPort > commonServerPort ? commonC2sPktNum : commonS2cPktNum);
         assertEquals(
-                new EvalExecutor("common_client_port > common_server_port " +
+                new AviatorExecutor("common_client_port > common_server_port " +
                         "? 'C2S:' + common_c2s_pkt_num : 'S2C:' + common_s2c_pkt_num").eval(origin),
                 commonClientPort > commonServerPort ? "C2S:" + commonC2sPktNum : "S2C:" + commonS2cPktNum);
         assertEquals(
-                new EvalExecutor("common_c2s_pkt_num > common_s2c_pkt_num " +
+                new AviatorExecutor("common_c2s_pkt_num > common_s2c_pkt_num " +
                         "&& common_c2s_byte_num > common_s2c_byte_num ? common_client_port : common_server_port").eval(origin),
                 commonC2sPktNum > commonS2cPktNum
                         && commonC2sByteNum > commonS2cByteNum ? commonClientPort : commonServerPort
@@ -81,59 +83,59 @@ class EvalExecutorTest {
     public void testArithmeticExpression() throws Exception {
         final Map<String, Object> map = Collections.emptyMap();
         assertEquals(
-                1L, new EvalExecutor("5 & 3").eval(map));
+                1L, new AviatorExecutor("5 & 3").eval(map));
         assertEquals(
-                7L, new EvalExecutor("5 | 3").eval(map));
+                7L, new AviatorExecutor("5 | 3").eval(map));
         assertEquals(
-                20L, new EvalExecutor("5 << 2").eval(map));
+                20L, new AviatorExecutor("5 << 2").eval(map));
         assertEquals(
-                1L, new EvalExecutor("5 >> 2").eval(map));
+                1L, new AviatorExecutor("5 >> 2").eval(map));
         assertEquals(
-                8L, new EvalExecutor("5 + 3").eval(map));
+                8L, new AviatorExecutor("5 + 3").eval(map));
         assertEquals(
-                2L, new EvalExecutor("5 - 3").eval(map));
+                2L, new AviatorExecutor("5 - 3").eval(map));
         assertEquals(
-                15L, new EvalExecutor("5 * 3").eval(map));
+                15L, new AviatorExecutor("5 * 3").eval(map));
         assertEquals(
-                2L, new EvalExecutor("5 / 2").eval(map));
+                2L, new AviatorExecutor("5 / 2").eval(map));
         assertEquals(
-                2L, new EvalExecutor("5 % 3").eval(map));
+                2L, new AviatorExecutor("5 % 3").eval(map));
 
 
         final Map<String, Object> map1 = new HashMap<>();
         map1.put("flags", 8);
 
         assertEquals("B",
-                new EvalExecutor(" ( flags & 8 ) == 9 ? 'A' : 'B'").eval(map1));
+                new AviatorExecutor(" ( flags & 8 ) == 9 ? 'A' : 'B'").eval(map1));
         assertEquals("A",
-                new EvalExecutor(" ( 5 | flags ) == 13 ? 'A' : 'B'").eval(map1));
+                new AviatorExecutor(" ( 5 | flags ) == 13 ? 'A' : 'B'").eval(map1));
     }
 
     @Test
     public void testFieldArithmeticExpression() throws Exception {
         assertEquals(1L,
-                new EvalExecutor("common_c2s_pkt_num - common_s2c_pkt_num").eval(origin));
+                new AviatorExecutor("common_c2s_pkt_num - common_s2c_pkt_num").eval(origin));
 
-        assertEquals(17L, new EvalExecutor("common_c2s_pkt_num + 10 + 1").eval(origin));
+        assertEquals(17L, new AviatorExecutor("common_c2s_pkt_num + 10 + 1").eval(origin));
 
     }
 
     @Test
     public void testNullField() {
-        var evalExecutor = new EvalExecutor("( a > nil ? a : 0 ) + ( b > nil ? b : 10 )");
+        var evalExecutor = new AviatorExecutor("( a > nil ? a : 0 ) + ( b > nil ? b : 10 )");
         assertEquals(10L, evalExecutor.eval(origin));
     }
 
     @Test
     public void testError() {
         assertThrows(SyntaxErrorException.class,
-                () -> new EvalExecutor("1L"));
+                () -> new AviatorExecutor("1L"));
         assertThrows(SyntaxErrorException.class,
-                () -> new EvalExecutor("2 = 3"));
+                () -> new AviatorExecutor("2 = 3"));
 
         final Map<String, Object> map = new HashMap<>(origin);
         map.put("has_address", true);
-        var convert = new EvalExecutor("common_c2s_pkt_num + has_address");
+        var convert = new AviatorExecutor("common_c2s_pkt_num + has_address");
         assertThrows(ExpressionRuntimeException.class, () -> convert.eval(map));
     }
 

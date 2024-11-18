@@ -1,4 +1,5 @@
 package com.geedgenetworks.api.common.udf;
+import com.geedgenetworks.api.expressions.AviatorExecutor;
 import com.googlecode.aviator.Expression;
 import lombok.Data;
 
@@ -9,7 +10,7 @@ public class UdfEntity implements Serializable {
     private ScalarFunction scalarFunction;
     private AggregateFunction aggregateFunction;
     private TableFunction tableFunction;
-    private Expression filterExpression;
+    private AviatorExecutor aviatorExecutor;
     private String name;
     private String className;
     private UDFContext udfContext;

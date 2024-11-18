@@ -1,13 +1,16 @@
 package com.geedgenetworks.core.processor.filter;
 
+import com.geedgenetworks.api.expressions.AviatorExecutor;
 import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.api.metrics.InternalMetrics;
 import com.geedgenetworks.api.event.Event;
+import com.geedgenetworks.api.expressions.SyntaxErrorException;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
+import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RichFilterFunction;
 import org.apache.flink.configuration.Configuration;
@@ -16,8 +19,7 @@ import java.util.Map;
 @Slf4j
 public class FilterFunction extends RichFilterFunction<Event> {
     private final FilterConfig filterConfig;
-    private static Expression compiledExp;
-    private static String expression;
+    private AviatorExecutor aviatorExecutor;
     private transient InternalMetrics internalMetrics;
 
     public FilterFunction(FilterConfig filterConfig) {
@@ -27,12 +29,8 @@ public class FilterFunction extends RichFilterFunction<Event> {
     @Override
     public void open(Configuration parameters) throws Exception {
         this.internalMetrics = new InternalMetrics(getRuntimeContext());
-        expression = filterConfig.getProperties().getOrDefault("expression", "").toString();
-        AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
-        instance.setCachedExpressionByDefault(true);
-        instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
-        instance.setFunctionMissing(null);
-        compiledExp = instance.compile(expression, true);
+        String expression = filterConfig.getProperties().getOrDefault("expression", "").toString();
+        this.aviatorExecutor = new AviatorExecutor(expression);
     }
 
     @Override
@@ -47,11 +45,11 @@ public class FilterFunction extends RichFilterFunction<Event> {
                         ColumnUtil.columnSelector(
                                 value.getExtractedFields(), filterConfig.getOutput_fields()));
             }
-            isFilter = aviatorExcute(value.getExtractedFields());
+            isFilter = aviatorExecutor.filter(value.getExtractedFields());
 
         } catch (ExpressionRuntimeException e){
             isFilter = false;
-            log.error("Invalid filter expression: {}, {}", expression, e);
+            log.error("Invalid filter expression ! "+e);
             internalMetrics.incrementErrorEvents();
         }
         catch (RuntimeException ignored) {
@@ -66,19 +64,5 @@ public class FilterFunction extends RichFilterFunction<Event> {
         }
         return isFilter;
     }
-    public static boolean aviatorExcute(Map<String, Object> map) {
 
-        boolean bool = true;
-        if (!"".equals(expression)) {
-            Object object = compiledExp.execute(compiledExp.newEnv("event", map));
-            if(object != null){
-                bool = (boolean) object;
-            }
-            else {
-                throw new ExpressionRuntimeException();
-            }
-        }
-        return bool;
-
-    }
 }

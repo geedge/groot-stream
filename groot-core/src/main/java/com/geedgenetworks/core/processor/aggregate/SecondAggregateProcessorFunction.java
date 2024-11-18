@@ -1,6 +1,7 @@
 package com.geedgenetworks.core.processor.aggregate;
 
 import com.alibaba.fastjson.JSON;
+import com.geedgenetworks.api.expressions.AviatorExecutor;
 import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.exception.CommonErrorCode;
@@ -47,15 +48,7 @@ public class SecondAggregateProcessorFunction implements org.apache.flink.api.co
                     Class<?> cls = Class.forName(udfClassReflect.get(udfContext.getFunction()));
                     AggregateFunction aggregateFunction = (AggregateFunction) cls.getConstructor().newInstance();
                     // 函数如果包含filter,对表达式进行编译
-                    if (udfContext.getFilter() != null) {
-                        AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
-                        instance.setCachedExpressionByDefault(true);
-                        instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
-                        instance.setFunctionMissing(null);
-                        filterExpression = instance.compile(udfContext.getFilter(), true);
-                    }
                     udfEntity.setAggregateFunction(aggregateFunction);
-                    udfEntity.setFilterExpression(filterExpression);
                     udfEntity.setName(udfContext.getFunction());
                     udfEntity.setClassName(udfClassReflect.get(udfContext.getFunction()));
                     udfEntity.setUdfContext(udfContext);

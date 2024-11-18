@@ -15,7 +15,7 @@ filters:
     type: aviator
     output_fields:
     properties:
-      expression: event.decoded_as == 'SSL' || event.decoded_as == 'BASE'
+      expression: decoded_as == 'SSL' || decoded_as == 'BASE'
 
 
 preprocessing_pipelines:
