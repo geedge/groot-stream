@@ -57,7 +57,7 @@ public  class TableProcessorFunction extends RichFlatMapFunction<Event, Event> {
                     tableFunction.open(getRuntimeContext(), udfContext);
                     // 函数如果包含filter,对表达式进行编译
                     if (udfContext.getFilter() != null) {
-                        new AviatorExecutor(udfContext.getFilter());
+                        udfEntity.setAviatorExecutor(new AviatorExecutor(udfContext.getFilter()));
                     }
                     udfEntity.setTableFunction(tableFunction);
                     udfEntity.setName(udfContext.getFunction());
