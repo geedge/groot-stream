@@ -9,7 +9,7 @@ import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.api.common.udf.AggregateFunction;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.common.udf.UdfEntity;
+import com.geedgenetworks.api.common.udf.UDFEntity;
 import com.geedgenetworks.api.metrics.InternalMetrics;
 import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.expressions.AviatorExecutor;
@@ -41,7 +41,7 @@ public class AbstractFirstAggregation extends ProcessFunction<Event, Accumulator
 
     protected final Map<Long, Map<String, Accumulator>> windows = new HashMap<>();
     protected List<String> groupByFields;
-    private LinkedList<UdfEntity> functions;
+    private LinkedList<UDFEntity> functions;
 
     protected InternalMetrics internalMetrics;
     private final AggregateConfig aggregateConfig;
@@ -93,7 +93,7 @@ public class AbstractFirstAggregation extends ProcessFunction<Event, Accumulator
                 }
 
             }
-            for (UdfEntity udfEntity : functions) {
+            for (UDFEntity udfEntity : functions) {
                 udfEntity.getAggregateFunction().open(udfEntity.getUdfContext());
             }
 
@@ -137,7 +137,7 @@ public class AbstractFirstAggregation extends ProcessFunction<Event, Accumulator
 
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(keysMap);
-        for (UdfEntity udfEntity : functions) {
+        for (UDFEntity udfEntity : functions) {
             udfEntity.getAggregateFunction().initAccumulator(accumulator);
         }
         return accumulator;
@@ -164,7 +164,7 @@ public class AbstractFirstAggregation extends ProcessFunction<Event, Accumulator
 
     public Accumulator add(Event event, Accumulator accumulator) {
         accumulator.setInEvents(accumulator.getInEvents() + 1);
-        for (UdfEntity udafEntity : functions) {
+        for (UDFEntity udafEntity : functions) {
             try {
                 boolean result = udafEntity.getAviatorExecutor() != null ? udafEntity.getAviatorExecutor().filter(event.getExtractedFields()) : true;
                 if (result) {

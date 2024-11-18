@@ -38,12 +38,12 @@ filters:
     properties:
       expression: event.decoded_as == 'HTTP'
 
-preprocessing_pipelines:
+processing_pipelines:
+
   transform_processor:
     type: projection
-    remove_fields: [client_ip]
+    remove_fields: [ client_ip ]
 
-processing_pipelines:
   session_record_processor:
     type: projection
     remove_fields: [device_tag]

@@ -4,8 +4,10 @@ public enum JobStage {
     SOURCE("source"),
     FILTER("filter"),
     SPLIT("split"),
+    @Deprecated
     PREPROCESSING("preprocessing"),
     PROCESSING("processing"),
+    @Deprecated
     POSTPROCESSING("postprocessing"),
     SINK("sink");
 

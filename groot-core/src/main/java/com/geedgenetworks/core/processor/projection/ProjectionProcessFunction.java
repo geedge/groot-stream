@@ -11,7 +11,7 @@ import com.geedgenetworks.common.utils.ColumnUtil;
 import com.geedgenetworks.core.udf.knowlegdebase.KnowledgeBaseScheduler;
 import com.geedgenetworks.api.common.udf.ScalarFunction;
 import com.geedgenetworks.api.common.udf.UDFContext;
-import com.geedgenetworks.api.common.udf.UdfEntity;
+import com.geedgenetworks.api.common.udf.UDFEntity;
 import com.geedgenetworks.api.metrics.InternalMetrics;
 import com.geedgenetworks.api.event.Event;
 import com.google.common.collect.Lists;
@@ -34,7 +34,7 @@ import java.util.Map;
 @Slf4j
 public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     private final ProjectionConfig projectionConfig;
-    private LinkedList<UdfEntity> functions;
+    private LinkedList<UDFEntity> functions;
     private transient InternalMetrics internalMetrics;
 
 
@@ -88,7 +88,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
 
         internalMetrics.incrementInEvents();
         int errorCount = 0;
-        for (UdfEntity udfEntity : functions) {
+        for (UDFEntity udfEntity : functions) {
 
             try {
                 if (event.isDropped()) {
@@ -135,7 +135,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
     @Override
     public void close() throws Exception {
 
-        for (UdfEntity udfEntity : functions) {
+        for (UDFEntity udfEntity : functions) {
             udfEntity.getScalarFunction().close();
         }
         KnowledgeBaseScheduler.decrement();
