@@ -65,7 +65,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     scalarFunction.open(getRuntimeContext(), udfContext);
                     // 函数如果包含filter,对表达式进行编译
                     if (udfContext.getFilter() != null) {
-                        new AviatorExecutor(udfContext.getFilter());
+                        udfEntity.setAviatorExecutor(new AviatorExecutor(udfContext.getFilter()));
                     }
                     udfEntity.setScalarFunction(scalarFunction);
                     udfEntity.setName(udfContext.getFunction());

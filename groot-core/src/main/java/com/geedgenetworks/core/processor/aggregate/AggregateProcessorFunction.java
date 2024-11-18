@@ -51,7 +51,6 @@ public class AggregateProcessorFunction implements org.apache.flink.api.common.f
                     // 函数如果包含filter,对表达式进行编译
                     if (udfContext.getFilter() != null) {
                         udfEntity.setAviatorExecutor(new AviatorExecutor(udfContext.getFilter()));
-
                     }
                     udfEntity.setAggregateFunction(aggregateFunction);
                     udfEntity.setName(udfContext.getFunction());
