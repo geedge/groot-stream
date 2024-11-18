@@ -221,7 +221,7 @@ public class JobExecution {
         for (JobTopologyNode sourceNode : sourceNodes) {
             dataStream = sourceExecutor.execute(dataStream, sourceNode);
             for (String nodeName : sourceNode.getDownstream()) {
-                buildJobGraph(dataStream, nodeName);
+                buildJobGraph(dataStream, sourceNode, nodeName);
             }
         }
 
@@ -240,7 +240,7 @@ public class JobExecution {
 
     }
 
-    private void buildJobGraph(DataStream<Event> dataStream, String nodeName) {
+    private void buildJobGraph(DataStream<Event> dataStream, JobTopologyNode inputNode, String nodeName) {
         JobTopologyNode currentNode = getNode(nodeName).orElseThrow(() ->
                                     new JobExecuteException("Node not found: " + nodeName));
         switch (currentNode.getStage()) {
@@ -249,25 +249,22 @@ public class JobExecution {
             case PREPROCESSING:
             case PROCESSING:
             case POSTPROCESSING:
-                dataStream = executeProcessorNode(dataStream, currentNode);
+                dataStream = executeProcessorNode(dataStream, inputNode,currentNode);
                 break;
             case SINK:
-                dataStream = executeSinkNode(dataStream, currentNode);
+                dataStream = executeSinkNode(dataStream, inputNode, currentNode);
                 break;
             default:
                 throw new JobExecuteException("Unsupported Job stage: " + currentNode.getStage());
         }
         // Recursively build job graph for downstream nodes
         for (String downstreamNodeName : currentNode.getDownstream()) {
-            buildJobGraph(dataStream, downstreamNodeName);
+            buildJobGraph(dataStream, currentNode, downstreamNodeName);
         }
 
     }
 
-    private DataStream<Event> executeProcessorNode(DataStream<Event> dataStream, JobTopologyNode currentNode) {
-
-        JobTopologyNode inputNode = getInputNode(dataStream);
-
+    private DataStream<Event> executeProcessorNode(DataStream<Event> dataStream, JobTopologyNode inputNode, JobTopologyNode currentNode) {
         if (isSplitAndHasTag(inputNode, currentNode)) {
             return executeWithSideOutput(dataStream, inputNode, currentNode, processorExecutor);
         } else {
@@ -275,20 +272,12 @@ public class JobExecution {
         }
     }
 
-    private DataStream<Event> executeSinkNode(DataStream<Event> dataStream, JobTopologyNode currentNode) {
-        JobTopologyNode inputNode = getInputNode(dataStream);
-
+    private DataStream<Event> executeSinkNode(DataStream<Event> dataStream, JobTopologyNode inputNode, JobTopologyNode currentNode) {
         if (isSplitAndHasTag(inputNode, currentNode)) {
             return executeWithSideOutput(dataStream, inputNode, currentNode, sinkExecutor);
         } else {
             return sinkExecutor.execute(dataStream, currentNode);
         }
-    }
-
-    // Helper method to get the input node based on the current data stream
-    private JobTopologyNode getInputNode(DataStream<Event> dataStream) {
-        String inputName = dataStream.getTransformation().getName();
-        return getNode(inputName).orElseThrow(() -> new JobExecuteException("Node not found: " + inputName));
     }
 
     // Helper method to check if input node is SPLIT and has a tag for downstream
