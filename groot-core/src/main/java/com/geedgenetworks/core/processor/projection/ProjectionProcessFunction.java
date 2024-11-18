@@ -2,6 +2,7 @@ package com.geedgenetworks.core.processor.projection;
 
 import com.alibaba.fastjson.JSON;
 
+import com.geedgenetworks.api.expressions.AviatorExecutor;
 import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.config.*;
 import com.geedgenetworks.common.exception.CommonErrorCode;
@@ -56,7 +57,6 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
             CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
             KnowledgeBaseScheduler.startSchedulerForKnowledgeBase(Integer.parseInt(commonConfig.getPropertiesConfig().getOrDefault(Constants.SYSPROP_GROOTSTREAM_KB_SCHEDULER_INTERVAL_NAME, "5")));
             for (UDFContext udfContext : udfContexts) {
-                Expression filterExpression = null;
                 UDFEntity udfEntity = new UDFEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
@@ -65,14 +65,9 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                     scalarFunction.open(getRuntimeContext(), udfContext);
                     // 函数如果包含filter,对表达式进行编译
                     if (udfContext.getFilter() != null) {
-                        AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
-                        instance.setCachedExpressionByDefault(true);
-                        instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
-                        instance.setFunctionMissing(null);
-                        filterExpression = instance.compile(udfContext.getFilter(), true);
+                        new AviatorExecutor(udfContext.getFilter());
                     }
                     udfEntity.setScalarFunction(scalarFunction);
-                    udfEntity.setFilterExpression(filterExpression);
                     udfEntity.setName(udfContext.getFunction());
                     udfEntity.setClassName(udfClassReflect.get(udfContext.getFunction()));
                     functions.add(udfEntity);
@@ -99,7 +94,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
                 if (event.isDropped()) {
                     break;
                 } else {
-                    boolean result = udfEntity.getFilterExpression() != null ? filterExecute(udfEntity.getFilterExpression(), udfEntity.getFilterExpression().newEnv("event", event.getExtractedFields())) : true;
+                    boolean result = udfEntity.getAviatorExecutor() != null ? udfEntity.getAviatorExecutor().filter(event.getExtractedFields()) : true;
                     if (result) {
                         udfEntity.getScalarFunction().evaluate(event);
                     }

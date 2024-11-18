@@ -18,9 +18,9 @@ splits:
     type: split
     rules:
       - tag: http_tag
-        expression: event.decoded_as == 'HTTP'
+        expression: decoded_as == 'HTTP'
       - tag: dns_tag
-        expression: event.decoded_as == 'DNS'
+        expression: decoded_as == 'DNS'
 
 postprocessing_pipelines:
   pre_etl_processor: # [object] Processing Pipeline

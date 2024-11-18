@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.expressions;
+package com.geedgenetworks.api.expressions;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -19,4 +19,6 @@ public interface Calc extends Serializable {
      * @return The result of the calculation operation.
      */
     Object eval(final Map<String, Object> data);
+    Boolean filter(final Map<String, Object> data);
+
 }

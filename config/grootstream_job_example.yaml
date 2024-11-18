@@ -10,22 +10,22 @@ filters:
   filter_operator:
     type: aviator
     properties:
-      expression: event.server_ip != '12.12.12.12'
+      expression: server_ip != '12.12.12.12'
 splits:
   decoded_as_split:
     type: split
     rules:
       - tag: http_tag
-        expression: event.decoded_as == 'HTTP'
+        expression: decoded_as == 'HTTP'
       - tag: dns_tag
-        expression: event.decoded_as == 'DNS'
+        expression: decoded_as == 'DNS'
 processing_pipelines:
   projection_processor:
     type: projection
     remove_fields: [http_request_line, http_response_line, http_response_content_type]
     functions:
       - function: DROP
-        filter:  event.server_ip == '4.4.4.4'
+        filter:  server_ip == '4.4.4.4'
   aggregate_processor:
     type: aggregate
     output_fields:

@@ -1,6 +1,7 @@
 package com.geedgenetworks.core.processor.table;
 
 import com.alibaba.fastjson.JSON;
+import com.geedgenetworks.api.expressions.AviatorExecutor;
 import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
@@ -48,7 +49,6 @@ public  class TableProcessorFunction extends RichFlatMapFunction<Event, Event> {
             List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
             Map<String, String> udfClassReflect = getClassReflect(udfClassNameLists);
             for (UDFContext udfContext : udfContexts) {
-                Expression filterExpression = null;
                 UDFEntity udfEntity = new UDFEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
@@ -57,14 +57,9 @@ public  class TableProcessorFunction extends RichFlatMapFunction<Event, Event> {
                     tableFunction.open(getRuntimeContext(), udfContext);
                     // 函数如果包含filter,对表达式进行编译
                     if (udfContext.getFilter() != null) {
-                        AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
-                        instance.setCachedExpressionByDefault(true);
-                        instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
-                        instance.setFunctionMissing(null);
-                        filterExpression = instance.compile(udfContext.getFilter(), true);
+                        new AviatorExecutor(udfContext.getFilter());
                     }
                     udfEntity.setTableFunction(tableFunction);
-                    udfEntity.setFilterExpression(filterExpression);
                     udfEntity.setName(udfContext.getFunction());
                     udfEntity.setClassName(udfClassReflect.get(udfContext.getFunction()));
                     functions.add(udfEntity);
@@ -90,7 +85,7 @@ public  class TableProcessorFunction extends RichFlatMapFunction<Event, Event> {
             List<Event> newEvents = new ArrayList<>();
             for(int i=0;i<events.size();i++) {
                 try {
-                        boolean result = udfEntity.getFilterExpression() != null ? filterExecute(udfEntity.getFilterExpression(), udfEntity.getFilterExpression().newEnv("event", events.get(i).getExtractedFields())) : true;
+                    boolean result = udfEntity.getAviatorExecutor() != null ? udfEntity.getAviatorExecutor().filter(event.getExtractedFields()) : true;
                         if (!events.get(i).isDropped() && result) {
                             newEvents.addAll(udfEntity.getTableFunction().evaluate(events.get(i)));
                         }

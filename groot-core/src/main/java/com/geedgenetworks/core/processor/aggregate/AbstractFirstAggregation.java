@@ -12,6 +12,7 @@ import com.geedgenetworks.api.common.udf.UDFContext;
 import com.geedgenetworks.api.common.udf.UDFEntity;
 import com.geedgenetworks.api.metrics.InternalMetrics;
 import com.geedgenetworks.api.event.Event;
+import com.geedgenetworks.api.expressions.AviatorExecutor;
 import com.google.common.collect.Lists;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
@@ -72,7 +73,6 @@ public class AbstractFirstAggregation extends ProcessFunction<Event, Accumulator
             Map<String, String> udfClassReflect = getClassReflect(udfClassNameLists);
 
             for (UDFContext udfContext : udfContexts) {
-                Expression filterExpression = null;
                 UDFEntity udfEntity = new UDFEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
@@ -80,14 +80,9 @@ public class AbstractFirstAggregation extends ProcessFunction<Event, Accumulator
                     AggregateFunction aggregateFunction = (AggregateFunction) cls.getConstructor().newInstance();
                     // 函数如果包含filter,对表达式进行编译
                     if (udfContext.getFilter() != null) {
-                        AviatorEvaluatorInstance instance = AviatorEvaluator.getInstance();
-                        instance.setCachedExpressionByDefault(true);
-                        instance.setOption(Options.OPTIMIZE_LEVEL, AviatorEvaluator.EVAL);
-                        instance.setFunctionMissing(null);
-                        filterExpression = instance.compile(udfContext.getFilter(), true);
+                        udfEntity.setAviatorExecutor(new AviatorExecutor(udfContext.getFilter()));
                     }
                     udfEntity.setAggregateFunction(aggregateFunction);
-                    udfEntity.setFilterExpression(filterExpression);
                     udfEntity.setName(udfContext.getFunction());
                     udfEntity.setClassName(udfClassReflect.get(udfContext.getFunction()));
                     udfEntity.setUdfContext(udfContext);
@@ -171,7 +166,7 @@ public class AbstractFirstAggregation extends ProcessFunction<Event, Accumulator
         accumulator.setInEvents(accumulator.getInEvents() + 1);
         for (UDFEntity udafEntity : functions) {
             try {
-                boolean result = udafEntity.getFilterExpression() != null ? filterExecute(udafEntity.getFilterExpression(), udafEntity.getFilterExpression().newEnv("event", event.getExtractedFields())) : true;
+                boolean result = udafEntity.getAviatorExecutor() != null ? udafEntity.getAviatorExecutor().filter(event.getExtractedFields()) : true;
                 if (result) {
                     udafEntity.getAggregateFunction().add(event, accumulator);
                 }

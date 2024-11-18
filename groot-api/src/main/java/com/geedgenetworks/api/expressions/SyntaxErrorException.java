@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.expressions;
+package com.geedgenetworks.api.expressions;
 
 /**
  * Exception class representing a syntax error that may occur during program execution.
