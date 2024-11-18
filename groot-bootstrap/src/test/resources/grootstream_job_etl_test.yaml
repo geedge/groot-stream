@@ -32,7 +32,7 @@ preprocessing_pipelines:
       - function: DROP
         lookup_fields: [ '' ]
         output_fields: [ '' ]
-        filter:  event.common_schema_type == 'BASE'
+        filter:  decoded_as == 'BASE'
 
 processing_pipelines:
   session_record_processor: # [object] Processing Pipeline
@@ -45,7 +45,7 @@ processing_pipelines:
       - function: DROP
         lookup_fields: [ '' ]
         output_fields: [ '' ]
-        filter: event.decoded_as == 'SSL'
+        filter: decoded_as == 'SSL'
       - function: BASE64_DECODE_TO_STRING
         output_fields: [mail_attachment_name]
         parameters:

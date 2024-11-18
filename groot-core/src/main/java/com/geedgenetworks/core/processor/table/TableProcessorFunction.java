@@ -49,7 +49,6 @@ public  class TableProcessorFunction extends RichFlatMapFunction<Event, Event> {
             List<String> udfClassNameLists = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_UDF_PLUGIN_CONFIG), List.class);
             Map<String, String> udfClassReflect = getClassReflect(udfClassNameLists);
             for (UDFContext udfContext : udfContexts) {
-                Expression filterExpression = null;
                 UDFEntity udfEntity = new UDFEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {

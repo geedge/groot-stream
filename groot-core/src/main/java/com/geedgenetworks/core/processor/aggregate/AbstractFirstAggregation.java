@@ -73,7 +73,7 @@ public class AbstractFirstAggregation extends ProcessFunction<Event, Accumulator
             Map<String, String> udfClassReflect = getClassReflect(udfClassNameLists);
 
             for (UDFContext udfContext : udfContexts) {
-                UdfEntity udfEntity = new UdfEntity();
+                UDFEntity udfEntity = new UDFEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
                     Class<?> cls = Class.forName(udfClassReflect.get(udfContext.getFunction()));

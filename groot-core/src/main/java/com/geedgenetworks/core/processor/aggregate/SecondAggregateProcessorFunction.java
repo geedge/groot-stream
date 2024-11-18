@@ -41,7 +41,6 @@ public class SecondAggregateProcessorFunction implements org.apache.flink.api.co
         Map<String, String> udfClassReflect = getClassReflect(udfClassNameLists);
         try {
             for (UDFContext udfContext : udfContexts) {
-                Expression filterExpression = null;
                 UDFEntity udfEntity = new UDFEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {

@@ -57,7 +57,7 @@ public class ProjectionProcessFunction extends ProcessFunction<Event, Event> {
             CommonConfig commonConfig = JSON.parseObject(configuration.toMap().get(Constants.SYSPROP_GROOTSTREAM_CONFIG), CommonConfig.class);
             KnowledgeBaseScheduler.startSchedulerForKnowledgeBase(Integer.parseInt(commonConfig.getPropertiesConfig().getOrDefault(Constants.SYSPROP_GROOTSTREAM_KB_SCHEDULER_INTERVAL_NAME, "5")));
             for (UDFContext udfContext : udfContexts) {
-                UdfEntity udfEntity = new UdfEntity();
+                UDFEntity udfEntity = new UDFEntity();
                 // 平台注册的函数包含任务中配置的函数则对函数进行实例化
                 if (udfClassReflect.containsKey(udfContext.getFunction())) {
                     Class<?> cls = Class.forName(udfClassReflect.get(udfContext.getFunction()));
