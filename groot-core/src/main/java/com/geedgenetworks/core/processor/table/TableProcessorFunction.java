@@ -12,10 +12,6 @@ import com.geedgenetworks.api.common.udf.UDFEntity;
 import com.geedgenetworks.api.metrics.InternalMetrics;
 import com.geedgenetworks.api.event.Event;
 import com.google.common.collect.Lists;
-import com.googlecode.aviator.AviatorEvaluator;
-import com.googlecode.aviator.AviatorEvaluatorInstance;
-import com.googlecode.aviator.Expression;
-import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
@@ -24,8 +20,7 @@ import org.apache.flink.util.Collector;
 
 import java.util.*;
 
-import static com.geedgenetworks.core.utils.UDFUtils.filterExecute;
-import static com.geedgenetworks.core.utils.UDFUtils.getClassReflect;
+import static com.geedgenetworks.api.utils.UDFLoaderUtils.getClassReflect;
 @Slf4j
 public  class TableProcessorFunction extends RichFlatMapFunction<Event, Event> {
     private LinkedList<UDFEntity> functions;

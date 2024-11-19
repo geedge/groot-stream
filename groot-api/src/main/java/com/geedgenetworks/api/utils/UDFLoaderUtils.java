@@ -1,4 +1,4 @@
-package com.geedgenetworks.core.utils;
+package com.geedgenetworks.api.utils;
 
 import com.googlecode.aviator.Expression;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UDFUtils {
+public class UDFLoaderUtils {
     public static Map<String, String> getClassReflect(List<String> plugins) {
 
         Map<String, String> classReflect = new HashMap<>();
@@ -28,15 +28,5 @@ public class UDFUtils {
         }
         return classReflect;
     }
-    public static Boolean filterExecute(Expression expression, Map<String, Object> map) {
 
-        boolean result;
-        Object object = expression.execute(map);
-        if (object != null) {
-            result = (Boolean) object;
-        } else {
-            throw new ExpressionRuntimeException();
-        }
-        return result;
-    }
 }

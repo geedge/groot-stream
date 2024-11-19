@@ -14,10 +14,6 @@ import com.geedgenetworks.api.metrics.InternalMetrics;
 import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.api.expressions.AviatorExecutor;
 import com.google.common.collect.Lists;
-import com.googlecode.aviator.AviatorEvaluator;
-import com.googlecode.aviator.AviatorEvaluatorInstance;
-import com.googlecode.aviator.Expression;
-import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.configuration.Configuration;
@@ -30,8 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static com.geedgenetworks.core.utils.UDFUtils.filterExecute;
-import static com.geedgenetworks.core.utils.UDFUtils.getClassReflect;
+import static com.geedgenetworks.api.utils.UDFLoaderUtils.getClassReflect;
 
 @Slf4j
 public class AbstractFirstAggregation extends ProcessFunction<Event, Accumulator> {

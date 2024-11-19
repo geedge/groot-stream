@@ -11,10 +11,6 @@ import com.geedgenetworks.api.common.udf.UDFContext;
 import com.geedgenetworks.api.common.udf.UDFEntity;
 import com.geedgenetworks.api.event.Event;
 import com.google.common.collect.Lists;
-import com.googlecode.aviator.AviatorEvaluator;
-import com.googlecode.aviator.AviatorEvaluatorInstance;
-import com.googlecode.aviator.Expression;
-import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -24,8 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.geedgenetworks.core.utils.UDFUtils.filterExecute;
-import static com.geedgenetworks.core.utils.UDFUtils.getClassReflect;
+import static com.geedgenetworks.api.utils.UDFLoaderUtils.getClassReflect;
 
 @Slf4j
 public class AggregateProcessorFunction implements org.apache.flink.api.common.functions.AggregateFunction<Event, Accumulator, Accumulator> {

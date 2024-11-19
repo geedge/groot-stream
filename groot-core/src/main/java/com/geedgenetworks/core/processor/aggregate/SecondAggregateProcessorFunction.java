@@ -1,7 +1,6 @@
 package com.geedgenetworks.core.processor.aggregate;
 
 import com.alibaba.fastjson.JSON;
-import com.geedgenetworks.api.expressions.AviatorExecutor;
 import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.common.config.Constants;
 import com.geedgenetworks.common.exception.CommonErrorCode;
@@ -10,10 +9,6 @@ import com.geedgenetworks.api.common.udf.UDFContext;
 import com.geedgenetworks.api.common.udf.UDFEntity;
 import com.geedgenetworks.api.common.udf.AggregateFunction;
 import com.google.common.collect.Lists;
-import com.googlecode.aviator.AviatorEvaluator;
-import com.googlecode.aviator.AviatorEvaluatorInstance;
-import com.googlecode.aviator.Expression;
-import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -23,7 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.geedgenetworks.core.utils.UDFUtils.getClassReflect;
+import static com.geedgenetworks.api.utils.UDFLoaderUtils.getClassReflect;
 
 @Slf4j
 public class SecondAggregateProcessorFunction implements org.apache.flink.api.common.functions.AggregateFunction<Accumulator, Accumulator, Accumulator> {
