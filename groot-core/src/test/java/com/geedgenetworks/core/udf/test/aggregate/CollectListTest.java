@@ -7,89 +7,118 @@ import com.geedgenetworks.api.common.udf.UDFContext;
 import com.geedgenetworks.api.event.Event;
 import org.junit.jupiter.api.Test;
 
-import java.text.ParseException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectListTest {
 
     @Test
-    public void test() throws ParseException {
+    public void testObjectType() {
+        // 测试默认 "object" 类型
+        List<String> arr = List.of("192.168.1.1", "192.168.1.2", "192.168.1.1");
+        UDFContext udfContext = createUDFContext("object");
+        CollectList collectList = new CollectList();
+        collectList.open(udfContext);
 
-        List<String> arr = List.of("192.168.1.1", "192.168.1.2", "192.168.1.3", "192.168.1.4");
-        List<String> arr2 = List.of("192.168.1.5", "192.168.1.6", "192.168.1.3", "192.168.1.4");
-        testMerge(arr,arr2);
-        testGetResult(arr);
+        Accumulator accumulator = initializeAccumulator(collectList, udfContext);
+        for (String ip : arr) {
+            accumulator = addEvent(collectList, udfContext, accumulator, "field", ip);
+        }
 
+        Accumulator result = collectList.getResult(accumulator);
+        List<String> aggregated = (List<String>) result.getMetricsFields().get("field_list");
+        assertEquals(aggregated.size(), 3);
+        assertEquals("192.168.1.1", aggregated.get(0));
     }
 
-    private void testMerge(List<String> arr,List<String> arr2) {
+    @Test
+    public void testArrayType() {
+        // 测试 "array" 类型
+        List<List<String>> arrays = List.of(
+                List.of("192.168.1.1", "192.168.1.2"),
+                List.of("192.168.1.3", "192.168.1.4")
+        );
+        UDFContext udfContext = createUDFContext("array");
+        CollectList collectList = new CollectList();
+        collectList.open(udfContext);
 
+        Accumulator accumulator = initializeAccumulator(collectList, udfContext);
+        for (List<String> array : arrays) {
+            accumulator = addEvent(collectList, udfContext, accumulator, "field", array);
+        }
+
+        Accumulator result = collectList.getResult(accumulator);
+        List<List<String>> aggregated = (List<List<String>>) result.getMetricsFields().get("field_list");
+        assertEquals(aggregated.size(), 4);
+        assertEquals("192.168.1.1", aggregated.get(0));
+    }
+
+    @Test
+    public void testMerge() {
+        // 测试合并逻辑
+        List<String> arr1 = List.of("192.168.1.1", "192.168.1.2");
+        List<String> arr2 = List.of("192.168.1.3", "192.168.1.4");
+
+        UDFContext udfContext = createUDFContext("object");
+        CollectList collectList = new CollectList();
+        collectList.open(udfContext);
+
+        Accumulator result1 = createAccumulatorFromList(collectList, udfContext, arr1);
+        Accumulator result2 = createAccumulatorFromList(collectList, udfContext, arr2);
+
+        Accumulator merged = collectList.merge(result1, result2);
+        List<String> aggregated = (List<String>) merged.getMetricsFields().get("field_list");
+
+        assertEquals(aggregated.size(), 4);
+        assertEquals("192.168.1.4", aggregated.get(3));
+    }
+
+    @Test
+    public void testEmptyInput() {
+        // 测试空输入
+        UDFContext udfContext = createUDFContext("object");
+        CollectList collectList = new CollectList();
+        collectList.open(udfContext);
+
+        Accumulator accumulator = initializeAccumulator(collectList, udfContext);
+        Accumulator result = collectList.getResult(accumulator);
+
+        List<String> aggregated = (List<String>) result.getMetricsFields().get("field_list");
+        assertTrue(aggregated.isEmpty());
+    }
+
+
+    private UDFContext createUDFContext(String collectType) {
         UDFContext udfContext = new UDFContext();
         udfContext.setLookupFields(List.of("field"));
         udfContext.setOutputFields(Collections.singletonList("field_list"));
-        CollectList collectList = new CollectList();
-        Map<String, Object> metricsFields = new HashMap<>();
-        Accumulator accumulator = new Accumulator();
-        accumulator.setMetricsFields(metricsFields);
-        collectList.open(udfContext);
-        Accumulator result1 = getMiddleResult(udfContext,arr);
-        Accumulator result2 = getMiddleResult(udfContext,arr2);
-        Accumulator result = collectList.getResult(collectList.merge(result1,result2));
-        List<String> vals = (List<String>) result.getMetricsFields().get("field_list");
-        assertEquals(vals.size(),8);
-        assertEquals("192.168.1.6",vals.get(5).toString());
-
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("collect_type", collectType);
+        udfContext.setParameters(parameters);
+        return udfContext;
     }
-    private Accumulator getMiddleResult(UDFContext udfContext,List<String> arr) {
 
-
-        CollectList collectList = new CollectList();
+    private Accumulator initializeAccumulator(CollectList collectList, UDFContext udfContext) {
         Map<String, Object> metricsFields = new HashMap<>();
         Accumulator accumulator = new Accumulator();
         accumulator.setMetricsFields(metricsFields);
-        collectList.open(udfContext);
-        Accumulator agg = collectList.initAccumulator(accumulator);
+        return collectList.initAccumulator(accumulator);
+    }
 
-        for (String o : arr) {
-            Event event = new Event();
-            Map<String, Object> extractedFields = new HashMap<>();
-            extractedFields.put("field", o);
-            event.setExtractedFields(extractedFields);
-            agg = collectList.add(event, agg);
-
+    private Accumulator createAccumulatorFromList(CollectList collectList, UDFContext udfContext, List<String> values) {
+        Accumulator accumulator = initializeAccumulator(collectList, udfContext);
+        for (String value : values) {
+            accumulator = addEvent(collectList, udfContext, accumulator, "field", value);
         }
-        return agg;
-    }
-    private void testGetResult(List<String> arr) throws ParseException {
-
-        UDFContext udfContext = new UDFContext();
-        udfContext.setLookupFields(List.of("field"));
-        udfContext.setOutputFields(Collections.singletonList("field_list"));
-        CollectList collectList = new CollectList();
-        Map<String, Object> metricsFields = new HashMap<>();
-        Accumulator accumulator = new Accumulator();
-        accumulator.setMetricsFields(metricsFields);
-        collectList.open(udfContext);
-        Accumulator agg = collectList.initAccumulator(accumulator);
-
-        for (String o : arr) {
-            Event event = new Event();
-            Map<String, Object> extractedFields = new HashMap<>();
-            extractedFields.put("field", o);
-            event.setExtractedFields(extractedFields);
-            agg = collectList.add(event, agg);
-
-        }
-        Accumulator result = collectList.getResult(agg);
-        List<String> vals = (List<String>) result.getMetricsFields().get("field_list");
-        assertEquals(vals.size(),4);
+        return accumulator;
     }
 
-
-
+    private Accumulator addEvent(CollectList collectList, UDFContext udfContext, Accumulator accumulator, String field, Object value) {
+        Event event = new Event();
+        Map<String, Object> extractedFields = new HashMap<>();
+        extractedFields.put(field, value);
+        event.setExtractedFields(extractedFields);
+        return collectList.add(event, accumulator);
+    }
 }

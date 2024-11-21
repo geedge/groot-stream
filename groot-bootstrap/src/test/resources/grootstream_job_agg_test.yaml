@@ -3,7 +3,7 @@ sources:
     type : inline
     fields:   # [array of object] Field List, if not set, all fields(Map<String, Object>) will be output.
     properties: # record 3,4 will be aggreated
-      data:  '[{"pkts":1,"sessions":1,"log_id": 1, "recv_time":"1724925692000", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"pkts":1,"sessions":1,"decoded_as":null,"log_id": 1, "recv_time":"1724925692000", "client_ip":"192.168.0.1","server_ip":"2600:1015:b002::"},{"pkts":2,"sessions":1,"decoded_as":"HTTP","log_id": 2, "recv_time":"1724925692000", "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"sessions":1,"decoded_as":"DNS","log_id": 2, "recv_time":"1724925692000", "client_ip":"192.168.0.2","pkts":3,"server_ip":"2600:1015:b002::"},{"sessions":1,"decoded_as":"DNS","log_id": 1, "recv_time":"1724936692000", "client_ip":"192.168.0.2","pkts":4,"server_ip":"2600:1015:b002::"},{"sessions":1,"decoded_as":"HTTP","log_id": 1, "recv_time":"1724937692000", "client_ip":"192.168.0.2","pkts":5,"server_ip":"2600:1015:b002::"}]'
+      data:  '[{"pkts":1,"sessions":1,"log_id": 1, "recv_time":"1724925692000","client_ips":["192.168.0.2","192.168.0.1"],"client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"pkts":1,"sessions":1,"decoded_as":null,"log_id": 1, "recv_time":"1724925692000","client_ips":["192.168.0.2","192.168.0.1"], "client_ip":"192.168.0.1","server_ip":"2600:1015:b002::"},{"pkts":2,"sessions":1,"decoded_as":"HTTP","log_id": 2, "recv_time":"1724925692000","client_ips":["192.168.0.2","192.168.0.3"], "client_ip":"192.168.0.2","server_ip":"2600:1015:b002::"},{"sessions":1,"decoded_as":"DNS","log_id": 2, "recv_time":"1724925692000","client_ips":["192.168.0.2","192.168.0.1"], "client_ip":"192.168.0.2","pkts":3,"server_ip":"2600:1015:b002::"},{"sessions":1,"decoded_as":"DNS","log_id": 1,"client_ips":["192.168.0.2","192.168.0.3"], "recv_time":"1724936692000", "client_ip":"192.168.0.2","pkts":4,"server_ip":"2600:1015:b002::"},{"sessions":1,"decoded_as":"HTTP","log_id": 1, "recv_time":"1724937692000", "client_ip":"192.168.0.2","pkts":5,"server_ip":"2600:1015:b002::"}]'
       interval.per.row: 1s # 可选
       repeat.count: 1 # 可选
       format: json
@@ -51,7 +51,11 @@ postprocessing_pipelines:
       - function: LAST_VALUE
         lookup_fields: [ log_id ]
         output_fields: [ log_id_last ]
-
+      - function: COLLECT_SET
+        lookup_fields: [ client_ips ]
+        output_fields: [ client_ips_set ]
+        parameters:
+          collect_type: array
 application: # [object] Application Configuration
   env: # [object] Environment Variables
     name: groot-stream-job # [string] Job Name
