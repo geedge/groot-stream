@@ -36,7 +36,7 @@ public class JobDosTest {
                             .build());
 
     @Test
-    public void testSplit() {
+    public void testDos() {
 
         CollectSink.values.clear();
         String[] args ={"--target", "test", "-c", ".\\grootstream_job_dos_test.yaml"};

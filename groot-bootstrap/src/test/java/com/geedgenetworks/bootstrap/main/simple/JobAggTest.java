@@ -38,7 +38,7 @@ public class JobAggTest {
                             .build());
 
     @Test
-    public void testSplitForAgg() {
+    public void testAgg() {
 
         CollectSink.values.clear();
         String[] args ={"--target", "test", "-c", ".\\grootstream_job_agg_test.yaml"};
@@ -71,7 +71,9 @@ public class JobAggTest {
         Assert.assertEquals("3", CollectSink.values.get(1).getExtractedFields().get("pktsmin").toString());
         List<String> list = (List<String>) CollectSink.values.get(1).getExtractedFields().get("client_ip_list");
         Set<String> set = (Set<String>) CollectSink.values.get(1).getExtractedFields().get("server_ip_set");
+        Set<String> set2 = (Set<String>) CollectSink.values.get(1).getExtractedFields().get("client_ips_set");
         Assert.assertEquals(1, set.size());
+        Assert.assertEquals(3, set2.size());
         Assert.assertEquals(2, list.size());
         Assert.assertEquals("2", CollectSink.values.get(1).getExtractedFields().get("count").toString());
 
