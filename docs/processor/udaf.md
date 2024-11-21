@@ -42,13 +42,16 @@ COLLECT_LIST is used to collect the value of the field in the group of events.
 - filter: optional
 - lookup_fields: required. Now only support one field.
 - output_fields: optional. If not set, the output field name is `lookup_field_name`.
-
+  - parameters: optional.
+    - collect_type: `<String>` optional. input field type can be `array` or `object`. Default is `object`. If set to array, the function processes each element of the array individually.If set to object, the function treats the entire input object as a single element.
 Example: 
 
 ```yaml
 - function: COLLECT_LIST
   lookup_fields: [client_ip]
   output_fields: [client_ip_list]
+  - parameters: 
+    - collect_type: object
 ```
 
 ### Collect Set
@@ -60,13 +63,16 @@ COLLECT_SET is used to collect the unique value of the field in the group of eve
 - filter: optional
 - lookup_fields: required. Now only support one field.
 - output_fields: optional. If not set, the output field name is `lookup_field_name`.
-
+  - parameters: optional.
+    - collect_type: `<String>` optional. input field type can be `array` or `object`. Default is `object`. If set to array, the function expands the elements of the array and removes duplicates.If set to object, the function treats the entire input object as a single element and removes duplicates.
 Example
 
 ```yaml
 - function: COLLECT_SET
   lookup_fields: [client_ip]
   output_fields: [client_ip_set]
+  - parameters: 
+    - collect_type: array
 ```
 
 ### First Value
