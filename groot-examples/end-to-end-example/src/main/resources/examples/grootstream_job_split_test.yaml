@@ -18,18 +18,18 @@ splits:
     type: split
     rules:
       - tag: http_a_tag
-        expression: event.decoded_as == 'HTTP'
+        expression: decoded_as == 'HTTP'
       - tag: dns_a_tag
-        expression: event.decoded_as == 'DNS'
+        expression: decoded_as == 'DNS'
   test_split_b:
     type: split
     rules:
       - tag: base_b_tag
-        expression: event.decoded_as == 'BASE'
+        expression: decoded_as == 'BASE'
       - tag: dns_b_tag
-        expression: event.decoded_as == 'DNS'
+        expression: decoded_as == 'DNS'
 
-postprocessing_pipelines:
+processing_pipelines:
   pre_etl_processor: # [object] Processing Pipeline
     type: projection
     remove_fields: [fields,tags]
@@ -103,7 +103,6 @@ application: # [object] Application Configuration
     - name: table_processor
       parallelism: 1
       downstream: [ collect_sink ]
-
     - name: collect_sink
       parallelism: 1
 

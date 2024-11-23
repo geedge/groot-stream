@@ -10,7 +10,7 @@ filters:
   filter_operator:
     type: filter
     properties:
-      expression: event.server_ip != '12.12.12.12'
+      expression: server_ip != '12.12.12.12'
 
 processing_pipelines:
   projection_processor:
@@ -18,7 +18,7 @@ processing_pipelines:
     remove_fields: [http_request_line, http_response_line, http_response_content_type]
     functions:
       - function: DROP
-        filter:  event.server_ip == '4.4.4.4'
+        filter:  server_ip == '4.4.4.4'
 
 sinks:
   print_sink:

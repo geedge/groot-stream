@@ -13,10 +13,10 @@
     <packaging>pom</packaging>
     <name>Groot : Tests : </name>
     <modules>
-        <module>test-common</module>
-        <module>test-e2e-base</module>
-       <module>test-e2e-kafka</module>
-        <module>test-e2e-clickhouse</module>
+        <module>test-e2e-common</module>
+        <module>test-e2e-core</module>
+       <module>test-e2e-connector-kafka</module>
+        <module>test-e2e-connector-clickhouse</module>
     </modules>
 
     <properties>
