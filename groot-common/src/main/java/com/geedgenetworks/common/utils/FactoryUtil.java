@@ -4,10 +4,7 @@ import com.geedgenetworks.common.exception.IMapStorageException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ServiceConfigurationError;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -17,7 +14,6 @@ public class FactoryUtil {
         try {
             final List<T> result = new LinkedList<>();
             ServiceLoader.load(factoryClass, classLoader).iterator().forEachRemaining(result::add);
-
             List<T> foundFactories =
                     result.stream()
                             .filter(f -> factoryClass.isAssignableFrom(f.getClass()))

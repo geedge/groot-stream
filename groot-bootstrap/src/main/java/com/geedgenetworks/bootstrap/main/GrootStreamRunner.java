@@ -15,14 +15,14 @@ public class GrootStreamRunner {
     public static final String APP_JAR_NAME = EngineType.FLINK13.getJarName();
     public static final String SHELL_NAME = EngineType.FLINK13.getShellName();
     private final ExecuteCommandArgs bootstrapCommandArgs;
-    private final String appJar;
+    private final String bootstrapJar;
 
     GrootStreamRunner(String[] args) {
         this.bootstrapCommandArgs =
                 CommandLineUtils.parse(args, new ExecuteCommandArgs(), SHELL_NAME, true);
         StartBuilder.setDeployMode(bootstrapCommandArgs.getDeployMode());
         StartBuilder.setStarter(true);
-        this.appJar = StartBuilder.appBootstrapDir().resolve(APP_JAR_NAME).toString();
+        this.bootstrapJar = StartBuilder.bootstrapDir().resolve(APP_JAR_NAME).toString();
     }
 
     public static void main(String[] args) {
@@ -47,7 +47,7 @@ public class GrootStreamRunner {
         command.add("-c");
         command.add(APP_NAME);
         //set main jar name
-        command.add(appJar);
+        command.add(bootstrapJar);
         //set config file path
         command.add("--config");
         command.add(bootstrapCommandArgs.getConfigFile());

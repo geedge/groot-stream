@@ -1,11 +1,9 @@
 package com.geedgenetworks.bootstrap.exception;
 
-@Deprecated
-public class ConfigCheckException extends RuntimeException {
+public class ConfigCheckException extends CommandException {
     public ConfigCheckException(String message) {
         super(message);
     }
-
     public ConfigCheckException(String message, Throwable cause) {
         super(message, cause);
     }

@@ -40,7 +40,7 @@ public class JobExecution {
 
     public JobExecution(Config jobConfig, GrootStreamConfig grootStreamConfig) {
         try {
-            jarPaths = new ArrayList<>(Collections.singletonList(new File(StartBuilder.appBootstrapDir()
+            jarPaths = new ArrayList<>(Collections.singletonList(new File(StartBuilder.bootstrapDir()
                     .resolve(GrootStreamRunner.APP_JAR_NAME).toString())
                     .toURI().toURL()));
         } catch (MalformedURLException e) {
@@ -48,8 +48,9 @@ public class JobExecution {
         }
 
         registerPlugin(jobConfig.getConfig(Constants.APPLICATION));
+
         this.jobRuntimeEnvironment =
-                JobRuntimeEnvironment.getInstance(this.registerPlugin(jobConfig, jarPaths), grootStreamConfig);
+                JobRuntimeEnvironment.getInstance(this.configureExecutionJars(jobConfig, jarPaths), grootStreamConfig);
 
         this.sourceExecutor = new SourceExecutor(jobRuntimeEnvironment, jobConfig);
         this.sinkExecutor = new SinkExecutor(jobRuntimeEnvironment, jobConfig);
@@ -85,7 +86,7 @@ public class JobExecution {
     }
 
 
-    private Config registerPlugin(Config config, List<URL> jars) {
+    private Config configureExecutionJars(Config config, List<URL> jars) {
         config = this.injectJarsToConfig(
                 config, ConfigUtil.joinPath(Constants.APPLICATION, Constants.APPLICATION_ENV, ExecutionConfigKeyName.PIPELINE_JARS), jars);
         return this.injectJarsToConfig(
@@ -235,7 +236,7 @@ public class JobExecution {
             log.info("Job finished, execution duration: {} ms", jobEndTime - jobStartTime);
 
         } catch (Exception e) {
-            throw new JobExecuteException("Execute job error", e);
+            throw new JobExecuteException("Job execution failed.", e);
         }
 
     }

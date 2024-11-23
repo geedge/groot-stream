@@ -1,6 +1,7 @@
 package com.geedgenetworks.bootstrap.execution;
 
 import com.geedgenetworks.bootstrap.enums.DeployMode;
+import com.geedgenetworks.bootstrap.exception.CommandExecuteException;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.StringUtils;
 
@@ -84,11 +85,11 @@ public class StartBuilder {
         } else if (DeployMode.RUN_APPLICATION == MODE) {
             return Paths.get("");
         } else {
-            throw new IllegalStateException("deploy mode not support : " + MODE);
+            throw new CommandExecuteException("Unsupported deploy mode: " + MODE);
         }
     }
 
-    public static Path appBootstrapDir() {
+    public static Path bootstrapDir() {
         return appRootDir().resolve("bootstrap");
     }
 
@@ -98,6 +99,7 @@ public class StartBuilder {
     public static Path pluginRootDir() {
         return Paths.get(getGrootStreamHome(), "plugins");
     }
+
     /** Plugin Connector Dir */
     public static Path connectorDir() {
         return Paths.get(getGrootStreamHome(), "connectors");
@@ -110,70 +112,57 @@ public class StartBuilder {
     }
 
     /**
-     * return lib jars, which located in 'lib/*' or 'lib/{dir}/*'.
-     * @return
+     * Return lib jars, which located in 'lib/*' or 'lib/{dir}/*'.
+     * @return lib jars
      */
     public static List<Path> getLibJars() {
-        Path libRootDir = libDir();
-        if (Files.exists(libRootDir, new LinkOption[0]) && Files.isDirectory(libRootDir, new LinkOption[0])) {
-            try {
-                Stream<Path> stream = Files.walk(libRootDir, APP_LIB_DIR_DEPTH, new FileVisitOption[]{FileVisitOption.FOLLOW_LINKS});
-                Throwable var2 = null;
-
-                List var3;
-                try {
-                    var3 = (List)stream.filter((it) -> {
-                        return !it.toFile().isDirectory();
-                    }).filter((it) -> {
-                        return it.getFileName().toString().endsWith(".jar");
-                    }).collect(Collectors.toList());
-                } catch (Throwable var13) {
-                    var2 = var13;
-                    throw var13;
-                } finally {
-                    if (stream != null) {
-                        if (var2 != null) {
-                            try {
-                                stream.close();
-                            } catch (Throwable var12) {
-                                var2.addSuppressed(var12);
-                            }
-                        } else {
-                            stream.close();
-                        }
-                    }
-
-                }
-
-                return var3;
-            } catch (IOException var15) {
-                throw new RuntimeException(var15);
-            }
-        } else {
+        Path libRootDir =  libDir();
+        if (!Files.exists(libRootDir) || !Files.isDirectory(libRootDir)) {
             return Collections.emptyList();
+        }
+        try (Stream<Path> stream = Files.walk(libRootDir, APP_LIB_DIR_DEPTH, FOLLOW_LINKS)) {
+            return stream.filter(it -> !it.toFile().isDirectory())
+                    .filter(it -> it.getFileName().toString().endsWith(".jar"))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
 
     /**
      * return the jar package configured in env jars
-     * @param paths
-     * @return
+     * @param paths jar paths
+     * @return third party jars
      */
     public static Set<Path> getThirdPartyJars(String paths) {
-        return (Set) Arrays.stream(paths.split(";")).filter((s) -> {
-            return !"".equals(s);
-        }).filter((it) -> {
-            return it.endsWith(".jar");
-        }).map((path) -> {
-            return Paths.get(URI.create(path));
-        }).collect(Collectors.toSet());
+
+        return Arrays.stream(paths.split(";"))
+                .filter(s -> !"".equals(s))
+                .filter(it -> it.endsWith(".jar"))
+                .map(path -> Paths.get(URI.create(path)))
+                .collect(Collectors.toSet());
     }
 
-
-    public static Path pluginTarball() {
-        return appRootDir().resolve("plugins.tar.gz");
+    /**
+     * return connector jars, which located in 'connectors/*'.
+     * @return connector jars
+     */
+    public static List<Path> getConnectorJars() {
+        Path connectorRootDir = StartBuilder.connectorDir();
+        if (!Files.exists(connectorRootDir) || !Files.isDirectory(connectorRootDir)) {
+            return Collections.emptyList();
+        }
+        try (Stream<Path> stream = Files.walk(connectorRootDir, 2, FOLLOW_LINKS)) {
+            return stream.filter(
+                            it -> !it.toFile().isDirectory())
+                    .filter(it -> it.getFileName().toString().endsWith(".jar"))
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
     /** return plugin's dependent jars, which located in 'plugins/${pluginName}/lib/*'. */
     public static List<Path> getPluginsJarDependencies() {
@@ -194,19 +183,6 @@ public class StartBuilder {
         }
     }
 
-    public static List<Path> getConnectorJars() {
-        Path connectorRootDir = StartBuilder.connectorDir();
-        if (!Files.exists(connectorRootDir) || !Files.isDirectory(connectorRootDir)) {
-            return Collections.emptyList();
-        }
-        try (Stream<Path> stream = Files.walk(connectorRootDir, 2, FOLLOW_LINKS)) {
-            return stream.filter(
-                            it -> !it.toFile().isDirectory())
-                    .filter(it -> it.getFileName().toString().endsWith(".jar"))
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 
 }

@@ -10,10 +10,6 @@ import com.alibaba.fastjson2.JSONReader;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @author qidaijie @Package com.zdjizhi.tools.json @Description:
- * @date 2023/5/1917:51
- */
 public class JsonPathUtil {
     private static final Log logger = LogFactory.get();
 
