@@ -1816,6 +1816,26 @@ Parameters:
 
 ### 聚合函数
 
+#### ARRAY_CONCAT_AGG
+
+将多个数组中的各个元素连接成一个单一数组。输入类型必须为数组，字段值为NULL 将被忽略。
+
+Parameters：
+
+- mode(string): 聚合模式；可选值：`all`- 不去重（即包括重复元素）；`distinct`：去重（即只保留唯一元素）。默认值：all
+- max_size(int) : 限制返回数组的最大大小。当数组长度超过该值时，裁剪掉多余的元素. 默认值：100,000 
+
+```yaml
+- function: ARRAY_CONCAT_AGG
+  lookup_fields: [ tags ]
+  output_fields: [ tags ]
+  parameters:
+    mode: distinct
+    max_size: 1000
+```
+
+ #### 
+
  #### Collect List
 
 在时间窗口内将指定对象合并为List,不进行去重
