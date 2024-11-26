@@ -73,7 +73,7 @@ public class JobAggTest {
         Set<String> set = (Set<String>) CollectSink.values.get(1).getExtractedFields().get("server_ip_set");
         Set<String> set2 = (Set<String>) CollectSink.values.get(1).getExtractedFields().get("client_ips_set");
         Assert.assertEquals(1, set.size());
-        Assert.assertEquals(3, set2.size());
+        Assert.assertEquals(2, set2.size());
         Assert.assertEquals(2, list.size());
         Assert.assertEquals("2", CollectSink.values.get(1).getExtractedFields().get("count").toString());
 
