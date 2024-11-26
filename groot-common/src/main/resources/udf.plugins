@@ -37,4 +37,4 @@ com.geedgenetworks.core.udf.udtf.Unroll
 com.geedgenetworks.core.udf.udtf.PathUnroll
 com.geedgenetworks.core.udf.udaf.Max
 com.geedgenetworks.core.udf.udaf.Min
-com.geedgenetworks.core.udf.udaf.array.ArrayContactAgg
+com.geedgenetworks.core.udf.udaf.array.ArrayConcatAgg
