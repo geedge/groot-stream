@@ -54,7 +54,7 @@ public class EncryptFunctionTest {
     }
 
     @Test
-    public void testEncryptByVault() throws Exception {
+    public void testEncryptByVault() {
         String secretKey = RandomUtil.randomString(32);
         MockedStatic<KMSUtils> kmsUtilsMockedStatic = Mockito.mockStatic(KMSUtils.class);
         Mockito.when(KMSUtils.getVaultKey(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(new DataEncryptionKey(secretKey.getBytes(), 1));
@@ -81,7 +81,7 @@ public class EncryptFunctionTest {
     }
 
     @Test
-    public void testEncryptByLocal() throws Exception {
+    public void testEncryptByLocal() {
         RuntimeContext runtimeContext = mockLocalRuntimeContext();
         Map<String, Object> map = new HashMap<>();
         map.put("identifier", CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
@@ -139,7 +139,7 @@ public class EncryptFunctionTest {
     }
 
     @Test
-    public void testEncryptNoSensitiveFields() throws Exception {
+    public void testEncryptNoSensitiveFields() {
         String secretKey = RandomUtil.randomString(32);
         MockedStatic<KMSUtils> kmsUtilsMockedStatic = Mockito.mockStatic(KMSUtils.class);
         Mockito.when(KMSUtils.getVaultKey(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(new DataEncryptionKey(secretKey.getBytes(), 1));
@@ -166,7 +166,7 @@ public class EncryptFunctionTest {
     }
 
     @Test
-    public void testEncryptFirstGetKeyError() throws Exception {
+    public void testEncryptFirstGetKeyError() {
         RuntimeContext runtimeContext = mockVaultRuntimeContext();
         Map<String, Object> map = new HashMap<>();
         map.put("identifier", CryptoProvider.Algorithm.AES_256_GCM96.getIdentifier());
@@ -194,7 +194,7 @@ public class EncryptFunctionTest {
     }
 
     @Test
-    public void testEncryptByVaultBySSL() throws Exception {
+    public void testEncryptByVaultBySSL() {
         ClientSSLConfig sslConfig = new ClientSSLConfig();
         sslConfig.setSkipVerification(true);
         assertDoesNotThrow(() -> KMSUtils.configureSSL(sslConfig));
@@ -238,7 +238,7 @@ public class EncryptFunctionTest {
     }
 
     @Test
-    public void testEncryptionAlgorithm() throws Exception {
+    public void testEncryptionAlgorithm() {
         Crypto crypto = CryptoProvider.createEncryptionAlgorithm(CryptoProvider.Algorithm.AES_128_GCM96.getIdentifier());
         assertNotNull(crypto);
         crypto.setDataEncryptionKey(new DataEncryptionKey("aaaaaaaaaaaaaaaa".getBytes(), 1));
