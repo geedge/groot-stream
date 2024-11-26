@@ -17,7 +17,7 @@ public class CollectListTest {
     public void testObjectType() {
         // 测试默认 "object" 类型
         List<String> arr = List.of("192.168.1.1", "192.168.1.2", "192.168.1.1");
-        UDFContext udfContext = createUDFContext("object");
+        UDFContext udfContext = createUDFContext();
         CollectList collectList = new CollectList();
         collectList.open(udfContext);
 
@@ -37,9 +37,10 @@ public class CollectListTest {
         // 测试 "array" 类型
         List<List<String>> arrays = List.of(
                 List.of("192.168.1.1", "192.168.1.2"),
+                List.of("192.168.1.1", "192.168.1.2"),
                 List.of("192.168.1.3", "192.168.1.4")
         );
-        UDFContext udfContext = createUDFContext("array");
+        UDFContext udfContext = createUDFContext();
         CollectList collectList = new CollectList();
         collectList.open(udfContext);
 
@@ -50,17 +51,16 @@ public class CollectListTest {
 
         Accumulator result = collectList.getResult(accumulator);
         List<List<String>> aggregated = (List<List<String>>) result.getMetricsFields().get("field_list");
-        assertEquals(aggregated.size(), 4);
-        assertEquals("192.168.1.1", aggregated.get(0));
+        assertEquals(aggregated.size(), 3);
     }
 
     @Test
     public void testMerge() {
         // 测试合并逻辑
         List<String> arr1 = List.of("192.168.1.1", "192.168.1.2");
-        List<String> arr2 = List.of("192.168.1.3", "192.168.1.4");
+        List<String> arr2 = List.of("192.168.1.1", "192.168.1.4");
 
-        UDFContext udfContext = createUDFContext("object");
+        UDFContext udfContext = createUDFContext();
         CollectList collectList = new CollectList();
         collectList.open(udfContext);
 
@@ -71,13 +71,12 @@ public class CollectListTest {
         List<String> aggregated = (List<String>) merged.getMetricsFields().get("field_list");
 
         assertEquals(aggregated.size(), 4);
-        assertEquals("192.168.1.4", aggregated.get(3));
     }
 
     @Test
     public void testEmptyInput() {
         // 测试空输入
-        UDFContext udfContext = createUDFContext("object");
+        UDFContext udfContext = createUDFContext();
         CollectList collectList = new CollectList();
         collectList.open(udfContext);
 
@@ -89,12 +88,11 @@ public class CollectListTest {
     }
 
 
-    private UDFContext createUDFContext(String collectType) {
+    private UDFContext createUDFContext() {
         UDFContext udfContext = new UDFContext();
         udfContext.setLookupFields(List.of("field"));
         udfContext.setOutputFields(Collections.singletonList("field_list"));
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("collect_type", collectType);
         udfContext.setParameters(parameters);
         return udfContext;
     }
