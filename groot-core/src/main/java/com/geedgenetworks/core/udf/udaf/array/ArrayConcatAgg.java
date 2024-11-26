@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * Aggregates elements within a group and returns a collection based on mode (list or set).
  */
-public class ArrayContactAgg implements AggregateFunction {
+public class ArrayConcatAgg implements AggregateFunction {
 
     private String lookupField;
     private String outputField;

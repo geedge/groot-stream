@@ -3,7 +3,7 @@ import com.geedgenetworks.api.common.udf.UDFContext;
 import com.geedgenetworks.api.event.Event;
 import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
-import com.geedgenetworks.core.udf.udaf.array.ArrayContactAgg;
+import com.geedgenetworks.core.udf.udaf.array.ArrayConcatAgg;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,15 +12,15 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ArrayContactAggTest {
+class ArrayConcatAggTest {
 
-    private ArrayContactAgg aggFunction;
+    private ArrayConcatAgg aggFunction;
     private UDFContext udfContext;
     private Accumulator accumulator;
 
     @BeforeEach
     void setUp() {
-        aggFunction = new ArrayContactAgg();
+        aggFunction = new ArrayConcatAgg();
         udfContext = new UDFContext();
         udfContext.setLookupFields(Collections.singletonList("field1"));
         udfContext.setParameters(new HashMap<>());
