@@ -1,15 +1,15 @@
 package com.geedgenetworks.core.udf.udaf;
 
 
-import com.geedgenetworks.common.config.Accumulator;
-import com.geedgenetworks.common.exception.CommonErrorCode;
-import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 import com.geedgenetworks.api.common.udf.AggregateFunction;
 import com.geedgenetworks.api.common.udf.UDFContext;
 import com.geedgenetworks.api.event.Event;
+import com.geedgenetworks.common.config.Accumulator;
+import com.geedgenetworks.common.exception.CommonErrorCode;
+import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 
-
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Collects elements within a group and returns the list of aggregated objects
@@ -18,7 +18,6 @@ public class CollectSet implements AggregateFunction {
 
     private String lookupField;
     private String outputField;
-    private String collectType;
 
     @Override
     public void open(UDFContext udfContext) {
@@ -30,9 +29,6 @@ public class CollectSet implements AggregateFunction {
         this.outputField = udfContext.getOutputFields() == null || udfContext.getOutputFields().isEmpty()
                 ? lookupField
                 : udfContext.getOutputFields().get(0);
-        this.collectType = udfContext.getParameters() == null
-                ? "object"
-                : udfContext.getParameters().getOrDefault("collect_type", "object").toString();
     }
 
     @Override
@@ -47,17 +43,7 @@ public class CollectSet implements AggregateFunction {
         if (valueObj == null) {
             return acc;
         }
-
-        if (collectType.equals("array")) {
-            if (valueObj instanceof List<?>) {
-                List<?> valueList = (List<?>) valueObj;
-                Set<Object> aggregateSet = getOrInitSet(acc);
-                aggregateSet.addAll(valueList);
-            }
-        } else {
-            getOrInitSet(acc).add(valueObj);
-        }
-
+        getOrInitSet(acc).add(valueObj);
         return acc;
     }
 

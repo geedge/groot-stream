@@ -7,7 +7,8 @@ import com.geedgenetworks.common.config.Accumulator;
 import com.geedgenetworks.common.exception.CommonErrorCode;
 import com.geedgenetworks.common.exception.GrootStreamRuntimeException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Collects elements within a group and returns the list of aggregated objects
@@ -16,7 +17,6 @@ public class CollectList implements AggregateFunction {
 
     private String lookupField;
     private String outputField;
-    private String collectType;
 
     @Override
     public void open(UDFContext udfContext) {
@@ -28,9 +28,7 @@ public class CollectList implements AggregateFunction {
         this.outputField = udfContext.getOutputFields() == null || udfContext.getOutputFields().isEmpty()
                 ? lookupField
                 : udfContext.getOutputFields().get(0);
-        this.collectType = udfContext.getParameters() == null
-                ? "object"
-                : udfContext.getParameters().getOrDefault("collect_type", "object").toString();
+
     }
 
     @Override
@@ -45,16 +43,7 @@ public class CollectList implements AggregateFunction {
         if (valueObj == null) {
             return acc;
         }
-        if (collectType.equals("array")) {
-            if (valueObj instanceof List<?>) {
-                List<?> valueList = (List<?>) valueObj;
-                List<Object> aggregateList = getOrInitList(acc);
-                aggregateList.addAll(valueList);
-            }
-        } else {
-            getOrInitList(acc).add(valueObj);
-        }
-
+        getOrInitList(acc).add(valueObj);
         return acc;
     }
 
@@ -90,7 +79,6 @@ public class CollectList implements AggregateFunction {
             acc.getMetricsFields().put(outputField, secondValueObj);
         }
     }
-
 
 
 }

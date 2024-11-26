@@ -1,6 +1,7 @@
 package com.geedgenetworks.core.udf.test.aggregate;
 
 import com.geedgenetworks.common.config.Accumulator;
+import com.geedgenetworks.core.udf.udaf.CollectList;
 import com.geedgenetworks.core.udf.udaf.CollectSet;
 import com.geedgenetworks.api.common.udf.UDFContext;
 import com.geedgenetworks.api.event.Event;
@@ -15,8 +16,8 @@ public class CollectSetTest {
     @Test
     public void testObjectType() {
         // 测试 "object" 类型，验证去重
-        List<String> arr = List.of("192.168.1.1", "192.168.1.2", "192.168.1.1");
-        UDFContext udfContext = createUDFContext("object");
+        List<String> arr = List.of("192.168.1.1", "192.168.1.2", "192.168.1.3");
+        UDFContext udfContext = createUDFContext();
         CollectSet collectSet = new CollectSet();
         collectSet.open(udfContext);
 
@@ -27,15 +28,37 @@ public class CollectSetTest {
 
         Accumulator result = collectSet.getResult(accumulator);
         Set<String> aggregated = (Set<String>) result.getMetricsFields().get("field_list");
-        assertEquals(aggregated.size(), 2);
+        assertEquals(aggregated.size(), 3);
         assertTrue(aggregated.contains("192.168.1.1"));
         assertTrue(aggregated.contains("192.168.1.2"));
-    }
+        assertTrue(aggregated.contains("192.168.1.3"));
 
+    }
+    @Test
+    public void testArrayType() {
+        // 测试 "array" 类型
+        List<List<String>> arrays = List.of(
+                List.of("192.168.1.1", "192.168.1.2"),
+                List.of("192.168.1.1", "192.168.1.2"),
+                List.of("192.168.1.3", "192.168.1.4")
+        );
+        UDFContext udfContext = createUDFContext();
+        CollectSet collectSet = new CollectSet();
+        collectSet.open(udfContext);
+
+        Accumulator accumulator = initializeAccumulator(collectSet, udfContext);
+        for (List<String> array : arrays) {
+            accumulator = addEvent(collectSet, udfContext, accumulator, "field", array);
+        }
+
+        Accumulator result = collectSet.getResult(accumulator);
+        Set<List<String>> aggregated = (Set<List<String>>) result.getMetricsFields().get("field_list");
+        assertEquals(aggregated.size(), 2);
+    }
     @Test
     public void testEmptyInput() {
         // 测试空输入
-        UDFContext udfContext = createUDFContext("object");
+        UDFContext udfContext = createUDFContext();
         CollectSet collectSet = new CollectSet();
         collectSet.open(udfContext);
 
@@ -53,7 +76,7 @@ public class CollectSetTest {
         List<String> arr1 = List.of("192.168.1.1", "192.168.1.2");
         List<String> arr2 = List.of("192.168.1.3", "192.168.1.1");
 
-        UDFContext udfContext = createUDFContext("object");
+        UDFContext udfContext = createUDFContext();
         CollectSet collectSet = new CollectSet();
         collectSet.open(udfContext);
 
@@ -70,7 +93,7 @@ public class CollectSetTest {
     @Test
     public void testNullValues() {
         // 测试字段为 null 的场景
-        UDFContext udfContext = createUDFContext("object");
+        UDFContext udfContext = createUDFContext();
         CollectSet collectSet = new CollectSet();
         collectSet.open(udfContext);
 
@@ -89,7 +112,7 @@ public class CollectSetTest {
     public void testDuplicateValues() {
         // 测试重复值是否被正确去重
         List<String> arr = List.of("192.168.1.1", "192.168.1.1", "192.168.1.1");
-        UDFContext udfContext = createUDFContext("object");
+        UDFContext udfContext = createUDFContext();
         CollectSet collectSet = new CollectSet();
         collectSet.open(udfContext);
 
@@ -102,12 +125,11 @@ public class CollectSetTest {
         assertTrue(aggregated.contains("192.168.1.1"));
     }
 
-    private UDFContext createUDFContext(String collectType) {
+    private UDFContext createUDFContext() {
         UDFContext udfContext = new UDFContext();
         udfContext.setLookupFields(List.of("field"));
         udfContext.setOutputFields(Collections.singletonList("field_list"));
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("collect_type", collectType);
         udfContext.setParameters(parameters);
         return udfContext;
     }
